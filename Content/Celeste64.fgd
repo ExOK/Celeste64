@@ -1,0 +1,153 @@
+@SolidClass = worldspawn : "World entity"
+[
+	skybox(string) : "SkyBox"
+	snowAmount(float) : "Amount of Snow"
+	snowDirection(vector) : "Snow move direction"
+	music(string) : "Music"
+	ambience(string) : "Ambience"
+]
+
+@SolidClass = Decoration : "Used for decoration, not for gameplay"
+[
+
+]
+
+@SolidClass = FloatingDecoration : "Used for decoration, not for gameplay"
+[
+
+]
+
+@PointClass size(-16 -16 0, 16 16 16) model({ "path": model }) = StaticProp : "Static Prop" 
+[
+    model(String) : "Model file path" : : "Set this to a 3D model file."
+	radius(integer) : "Radius" : 6 : "Pushout Radius"
+	height(integer) : "Height" : 12 : "Pushout Height"
+]
+
+@PointClass size(-16 -16 0, 16 16 32) = PlayerSpawn : "Player start position" 
+[
+    name(string) : "Name" : "Start"
+]
+
+@PointClass model({ "path": "Models/strawberry.glb", "scale": 12 }) = Strawberry : "Strawb Get!" 
+[
+    locked(integer) : "Locked" : 0
+    targetname(string) : "Target Name"
+    bubbleto(string) : "Bubble To" : : "If assigned, Strawberry will bubble the player"
+]
+
+@PointClass model({ "path": "Models/granny.glb", "scale": 12 }) = Granny : "She cool" 
+[
+]
+
+@PointClass model({ "path": "Models/theo.glb", "scale": 12 }) = Theo : "He's rad" 
+[
+]
+
+@PointClass model({ "path": "Models/badeline.glb", "scale": 12 }) = Badeline : "She's bad" 
+[
+]
+
+@PointClass model({ "path": "Models/sign.glb", "scale": 12 }) = SignPost : "Says some stuff" 
+[
+    dialog(string) : "Dialog Entry"
+	angle(integer) : "Sign Rotation"
+]
+
+@PointClass size(-8 -8 -8, 8 8 8) = Node : "Moving entity path node"
+[
+    targetname(string) : "Target Name"
+]
+
+@PointClass size(-16 -16 -16, 16 16 16) = Refill : "Refill's Maddy's dashes"
+[
+    double(integer) : "Double" : 0
+]
+
+@PointClass size(-16 -16 -16, 16 16 16) = Feather : "Lets Maddy fly for a short time"
+[
+
+]
+
+@PointClass size(-16 -16 -16, 16 16 16) = Cassette : "Warps to a B-Side challenge room"
+[
+    map(string) : "Map"
+]
+
+@PointClass size(-16 -16 -16, 16 16 16) = Coin : "Collect em all to open a gate block"
+[
+
+]
+
+@PointClass size(-16 -16 -16, 16 16 16) = Chimney : "Pretty self-explanatory"
+[
+
+]
+
+@PointClass model({ "path": "Models/spring_board.glb", "scale": 36 }) = Spring : "Bounces you..." 
+[
+]
+
+@SolidClass = TrafficBlock : "Moves to the node when the player is riding it"
+[
+    target(string) : "Target Node"
+]
+
+@SolidClass = FallingBlock : "Falls when player rides it"
+[
+   
+]
+
+@SolidClass = FloatyBlock : "Moves when player lands on it"
+[
+   
+]
+
+@SolidClass = GateBlock : "Opens when the player gets all the switches"
+[
+   target(string) : "Target Node"
+]
+
+@SolidClass = MovingBlock : "Moves back and forth constantly"
+[
+   target(string) : "Target Node"
+   slow(integer) : "Go Slower"
+]
+
+@SolidClass = DoubleDashPuzzleBlock : "Stand on with 2 dashes to solve puzzle"
+[
+]
+
+@SolidClass = DeathBlock : "Invisible; Kills the Player when hit"
+[
+]
+
+@SolidClass = SpikeBlock : "Visible; Kills the Player when hit"
+[
+]
+
+@SolidClass = BreakBlock : "Dash to Break it"
+[
+	bounces(integer) : "Bounces" : : "If this block Bounces the player when broken"
+	transparent(integer) : "Transparent" : : "Has transparent elements"
+]
+
+@SolidClass = CassetteBlock : "Toggles to the Music"
+[
+	startOn(integer) : "Start On" : : "If this block should start toggled on"
+]
+
+@SolidClass = EndingArea : "Where the game ends"
+[
+	
+]
+
+@SolidClass = FixedCamera : "Lock Camera Position to a Target"
+[
+   target(string) : "Target Node"
+]
+
+@PointClass = IntroCar : "Intro Car ............. :)"
+[
+
+]

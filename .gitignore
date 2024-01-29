@@ -1,0 +1,10 @@
+.vs
+.idea
+bin
+obj
+*.user
+Content/Map_Test/autosave
+Content/Maps/autosave
+Content/FMOD/celeste64/.cache
+Content/FMOD/celeste64/.user
+Content/FMOD/celeste64/.unsaved
