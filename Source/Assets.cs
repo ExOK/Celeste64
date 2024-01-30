@@ -19,12 +19,14 @@ public static class Assets
 		{
 			if (contentPath == null)
 			{
-				contentPath = AssetFolder;
+				var baseFolder = AppContext.BaseDirectory;
+				var searchUpPath = "";
 				int up = 0;
-				while (!Directory.Exists(contentPath) && up++ < 5)
-					contentPath = Path.Join("..", contentPath);
-				if (!Directory.Exists(contentPath))
-					throw new Exception($"Unable to find {AssetFolder} Directory");
+				while (!Directory.Exists(Path.Join(baseFolder, searchUpPath, AssetFolder)) && up++ < 5)
+					searchUpPath = Path.Join(searchUpPath, "..");
+				if (!Directory.Exists(Path.Join(baseFolder, searchUpPath, AssetFolder)))
+					throw new Exception($"Unable to find {AssetFolder} Directory from '{baseFolder}'");
+				contentPath = Path.Join(baseFolder, searchUpPath, AssetFolder);
 			}
 
 			return contentPath;
