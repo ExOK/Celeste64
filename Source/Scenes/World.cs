@@ -15,6 +15,7 @@ public class World : Scene
 	public EntryInfo Entry = new();
 	public readonly GridPartition<Solid> SolidGrid = new(200, 100);
 	public float GeneralTimer = 0;
+	public float DeathPlane = -100;
 
 	public readonly List<Actor> Actors = [];
 	private readonly List<Actor> adding = [];

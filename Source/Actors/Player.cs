@@ -300,7 +300,7 @@ public class Player : Actor, IHaveModels, IHaveSprites, IRidePlatforms, ICastPoi
 		// death plane
 		if (!InBubble)
 		{
-			if (Position.Z < -100 ||
+			if (Position.Z < World.DeathPlane ||
 				World.Overlaps<DeathBlock>(SolidWaistTestPos) ||
 				World.Overlaps<SpikeBlock>(SolidWaistTestPos, spikeBlockCheck))
 			{
