@@ -18,8 +18,8 @@ public class Menu
 
 	public class Spacer : Item
 	{
-		public override bool Selectable => false;
-	}
+        public override bool Selectable => false;
+    }
 	
 	public class Slider: Item
 	{
@@ -39,44 +39,45 @@ public class Menu
 			this.set = set;
 		}
 
-		public override string Label => labels[get() - min];
-		public override void Slide(int dir) => set(Calc.Clamp(get() + dir, min, max));
-	}
+        public override string Label => labels[get() - min];
+        public override void Slide(int dir) => set(Calc.Clamp(get() + dir, min, max));
+    }
 
-	public class OptionList : Item
-	{
+    public class OptionList : Item
+    {
 		private readonly string label;
-		private readonly List<string> labels = [];
-		private readonly int min;
-		private readonly int max;
-		private readonly Func<string> get;
-		private readonly Action<string> set;
+        private readonly List<string> labels = [];
+        private readonly int min;
+        private readonly int max;
+        private readonly Func<string> get;
+        private readonly Action<string> set;
 
-		public OptionList(string label, List<string> labels, int min, int max, Func<string> get, Action<string> set)
-		{
+        public OptionList(string label, List<string> labels, int min, int max, Func<string> get, Action<string> set)
+        {
 			this.label = label;
-			this.labels = labels;
-			this.min = min;
-			this.max = max;
-			this.get = get;
-			this.set = set;
-		}
+            this.labels = labels;
+            this.min = min;
+            this.max = max;
+            this.get = get;
+            this.set = set;
+        }
 
-		public override string Label => $"{label} : {labels[getId() - min]}";
-		public override void Slide(int dir) => set(labels[(max + getId() + dir) % max]);
+        public override string Label => $"{label} : {labels[getId() - min]}";
+        public override void Slide(int dir) => set(labels[(getId() + dir) % max]);
 
 		private int getId()
 		{
-			return labels.IndexOf(get());
+			int id = labels.IndexOf(get());
+			return id > -1 ? id : 0;
 		}
-	}
+    }
 
-	public class Option(string label, Action? action = null) : Item
+    public class Option(string label, Action? action = null) : Item
 	{
 		private readonly string label = label;
 		private readonly Action? action = action;
-		public override string Label => label;
-		public override bool Pressed()
+        public override string Label => label;
+        public override bool Pressed()
 		{
 			if (action != null)
 			{
@@ -86,15 +87,15 @@ public class Menu
 			}
 			return false;
 		}
-	}
+    }
 
 	public class Toggle(string label, Action action, Func<bool> get)  : Item
 	{
 		private readonly string labelOff = $"{label} : OFF";
 		private readonly string labelOn  = $"{label} :  ON";
 		private readonly Action action = action;
-		public override string Label => get() ? labelOn : labelOff;
-		public override bool Pressed()
+        public override string Label => get() ? labelOn : labelOff;
+        public override bool Pressed()
 		{
 			action();
 			if (get())
