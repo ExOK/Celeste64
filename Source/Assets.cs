@@ -1,5 +1,6 @@
 ﻿using System.Collections.Concurrent;
 using System.Diagnostics;
+using System.Globalization;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -35,6 +36,7 @@ public static class Assets
 
 	public record struct DialogLine(string Face, string Text, string Voice);
 
+	public static readonly CultureInfo Culture = new CultureInfo("en-US");
 	public static readonly Dictionary<string, Map> Maps = new(StringComparer.OrdinalIgnoreCase);
 	public static readonly Dictionary<string, Shader> Shaders = new(StringComparer.OrdinalIgnoreCase);
 	public static readonly Dictionary<string, Texture> Textures = new(StringComparer.OrdinalIgnoreCase);

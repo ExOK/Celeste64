@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Globalization;
 using System.Text;
 
 namespace Celeste64;
@@ -13,6 +14,9 @@ class Program
 		{
 			HandleError((Exception)e.ExceptionObject);
 		};
+
+		Thread.CurrentThread.CurrentCulture = Assets.Culture;
+		Thread.CurrentThread.CurrentUICulture = Assets.Culture;
 
 		try
 		{
