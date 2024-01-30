@@ -85,7 +85,7 @@ public class Strawberry : Actor, IHaveModels, IHaveSprites, IPickup, ICastPointS
 						ready = false;
 				}
 
-				if (ready || Input.Keyboard.Down(Keys.Q))
+				if (ready)
 				{
 					World.Add(new Cutscene(UnlockRoutine, true));
 				}
