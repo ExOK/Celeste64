@@ -1431,6 +1431,7 @@ public class Player : Actor, IHaveModels, IHaveSprites, IRidePlatforms, ICastPoi
 		Model.Rate = 1.8f;
 		velocity = Vec3.Zero;
 		climbCornerEase = 0;
+		climbInputSign = 1;
 		Audio.Play(Sfx.sfx_grab, Position);
 	}
 
