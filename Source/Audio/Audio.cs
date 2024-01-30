@@ -137,7 +137,6 @@ public static class Audio
 
 	public static void LoadBank(string path)
 	{
-		Log.Info($"Loaded Bank: {path}");
 		Check(system.loadBankFile(path, LOAD_BANK_FLAGS.NORMAL, out var bank));
 
 		banks.Add(bank);
