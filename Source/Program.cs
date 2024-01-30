@@ -15,8 +15,10 @@ class Program
 			HandleError((Exception)e.ExceptionObject);
 		};
 
-		Thread.CurrentThread.CurrentCulture = Assets.Culture;
-		Thread.CurrentThread.CurrentUICulture = Assets.Culture;
+		Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
+		Thread.CurrentThread.CurrentUICulture = CultureInfo.InvariantCulture;
+		CultureInfo.DefaultThreadCurrentCulture = CultureInfo.InvariantCulture;
+		CultureInfo.DefaultThreadCurrentUICulture = CultureInfo.InvariantCulture;
 
 		try
 		{
