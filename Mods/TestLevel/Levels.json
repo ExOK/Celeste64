@@ -1,0 +1,10 @@
+[
+	{
+		"ID": "TEST_LEVEL",
+		"Name": "Test Level",
+		"Label": "Used to test mod loader\nMod By: Jazzrabbit",
+		"Strawberries": 2,
+		"Preview": "Postcards/TestLevel",
+		"Map": "test-level"
+	}
+]

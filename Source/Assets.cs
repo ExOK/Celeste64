@@ -1,9 +1,12 @@
-﻿using System.Collections.Concurrent;
+﻿using Celeste64.Source;
+using Foster.Framework;
+using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Globalization;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Xml.Linq;
 
 namespace Celeste64;
 
@@ -79,23 +82,44 @@ public static class Assets
 					maps.Add(map);
 				}));
 			}
+
+            // ModloaderCustom
+            foreach (var mapfile in ModLoader.LoadMaps())
+			{
+                tasks.Add(Task.Run(() =>
+                {
+                    var map = new Map(mapfile.Key, mapfile.Value);
+                    maps.Add(map);
+                }));
+            }
 		}
 
 		// load texture pngs
 		var texturesPath = Path.Join(ContentPath, "Textures");
-		foreach (var file in Directory.EnumerateFiles(texturesPath, "*.png", SearchOption.AllDirectories))
-		{
-			var name = GetResourceName(texturesPath, file);
-			tasks.Add(Task.Run(() =>
-			{
-				var img = new Image(file);
-				img.Premultiply();
-				images.Add((name, img));
-			}));
-		}
+        foreach (var file in Directory.EnumerateFiles(texturesPath, "*.png", SearchOption.AllDirectories))
+        {
+            var name = GetResourceName(texturesPath, file);
+            tasks.Add(Task.Run(() =>
+            {
+                var img = new Image(file);
+                img.Premultiply();
+                images.Add((name, img));
+            }));
+        }
 
-		// load faces
-		var facesPath = Path.Join(ContentPath, "Faces");
+        // ModloaderCustom
+        foreach (var textureFile in ModLoader.LoadTextures())
+        {
+            tasks.Add(Task.Run(() =>
+            {
+                var img = new Image(textureFile.Value);
+                img.Premultiply();
+                images.Add((textureFile.Key, img));
+            }));
+        }
+
+        // load faces
+        var facesPath = Path.Join(ContentPath, "Faces");
 		foreach (var file in Directory.EnumerateFiles(facesPath, "*.png", SearchOption.AllDirectories))
 		{
 			var name = $"faces/{GetResourceName(facesPath, file)}";
@@ -107,8 +131,19 @@ public static class Assets
 			}));
 		}
 
-		// load glb models
-		var modelPath = Path.Join(ContentPath, "Models");
+        // ModloaderCustom
+        foreach (var faceFile in ModLoader.LoadFaces())
+        {
+            tasks.Add(Task.Run(() =>
+            {
+                var img = new Image(faceFile.Value);
+                img.Premultiply();
+                images.Add((faceFile.Key, img));
+            }));
+        }
+
+        // load glb models
+        var modelPath = Path.Join(ContentPath, "Models");
 		foreach (var file in Directory.EnumerateFiles(modelPath, "*.glb", SearchOption.AllDirectories))
 		{
 			var name = GetResourceName(modelPath, file);
@@ -121,23 +156,46 @@ public static class Assets
 			}));
 		}
 
-		// load audio
-		Audio.Load(Path.Join(ContentPath, "Audio"));
+        // ModloaderCustom
+        foreach (var modelFile in ModLoader.LoadModels())
+        {
+            tasks.Add(Task.Run(() =>
+            {
+                var input = SharpGLTF.Schema2.ModelRoot.Load(modelFile.Value);
+                var model = new SkinnedTemplate(input);
+                models.Add((modelFile.Key, model));
+            }));
+        }
+
+        // load audio
+        Audio.Load(Path.Join(ContentPath, "Audio"));
+
+        // ModloaderCustom
+        ModLoader.LoadAudio();
 
 		// load level json
 		{
 			var data = File.ReadAllText(Path.Join(ContentPath, "Levels.json"));
 			Levels = JsonSerializer.Deserialize(data, LevelInfoListContext.Default.ListLevelInfo) ?? [];
+
+            // ModloaderCustom
+            Levels.AddRange(ModLoader.LoadLevels());
 		}
 
 		// load dialog json
 		{
 			var data = File.ReadAllText(Path.Join(ContentPath, "Dialog.json"));
 			Dialog = JsonSerializer.Deserialize(data, DialogLineDictContext.Default.DictionaryStringListDialogLine) ?? [];
-		}
 
-		// load glsl shaders
-		var shadersPath = Path.Join(ContentPath, "Shaders");
+            // ModloaderCustom
+            foreach (var dialogData in ModLoader.LoadDialog())
+            {
+                Dialog[dialogData.Key] = dialogData.Value;
+            }
+        }
+
+        // load glsl shaders
+        var shadersPath = Path.Join(ContentPath, "Shaders");
 		foreach (var file in Directory.EnumerateFiles(shadersPath, "*.glsl"))
 		{
 			if (LoadShader(file) is Shader shader)
@@ -146,15 +204,26 @@ public static class Assets
 				Shaders[shader.Name] = shader;
 			}
 		}
+		// ModloaderCustom
+        foreach(var shaderFile in ModLoader.LoadShaders())
+        {
+            Shaders[shaderFile.Key] = shaderFile.Value;
+        }
 
-		// load font files
-		var fontsPath = Path.Join(ContentPath, "Fonts");
+        // load font files
+        var fontsPath = Path.Join(ContentPath, "Fonts");
 		foreach (var file in Directory.EnumerateFiles(fontsPath, "*.*", SearchOption.AllDirectories))
 			if (file.EndsWith(".ttf") || file.EndsWith(".otf"))
 				Fonts.Add(GetResourceName(fontsPath, file), new SpriteFont(file, FontSize));
 
-		// pack sprites into single texture
-		{
+        // ModloaderCustom
+        foreach (var fontFile in ModLoader.LoadFonts())
+        {
+            Fonts.Add(fontFile.Key, fontFile.Value);
+        }
+
+        // pack sprites into single texture
+        {
 			var packer = new Packer
 			{
 				Trim = false,
@@ -165,8 +234,13 @@ public static class Assets
 			var spritesPath = Path.Join(ContentPath, "Sprites");
 			foreach (var file in Directory.EnumerateFiles(spritesPath, "*.png", SearchOption.AllDirectories))
 				packer.Add(GetResourceName(spritesPath, file), new Image(file));
+            // ModloaderCustom
+            foreach (var spriteFile in ModLoader.LoadSprites())
+            {
+                packer.Add(spriteFile.Key, new Image(spriteFile.Value));
+            }
 
-			var result = packer.Pack();
+            var result = packer.Pack();
 			var pages = new List<Texture>();
 			foreach (var it in result.Pages)
 			{
@@ -196,7 +270,8 @@ public static class Assets
 		Log.Info($"Loaded Assets in {timer.ElapsedMilliseconds}ms");
 	}
 
-	private static string GetResourceName(string contentFolder, string path)
+    //ModLoaderCustom: Change to internal
+    internal static string GetResourceName(string contentFolder, string path)
 	{
 		var fullname = Path.Join(Path.GetDirectoryName(path), Path.GetFileNameWithoutExtension(path));
 		var relative = Path.GetRelativePath(contentFolder, fullname);
@@ -204,7 +279,8 @@ public static class Assets
 		return normalized;
 	}
 
-	private static Shader? LoadShader(string file)
+	//ModLoaderCustom: Change to internal
+	internal static Shader? LoadShader(string file)
 	{
 		ShaderCreateInfo? data = null;
 
