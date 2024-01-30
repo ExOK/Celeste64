@@ -3,9 +3,9 @@ This is a basic Mod Loader for *Celeste 64: Fragments of the Mountain*, a game m
 
 This is still very early in development, but is currently able to load custom levels alongside the main game, as well as loading additional assets such as custom models, custom dialog, custom textures, etc... (Note: Some of these haven't been tested thoroughly)
 
-You can find prebuilt version of the original game on [itch.io](https://maddymakesgamesinc.itch.io/celeste64).
-
 You can find the built version of this project on the [releases page](https://github.com/jasminegamedev/Celeste64-ModLoader/releases).
+
+You can find prebuilt version of the original game on [itch.io](https://maddymakesgamesinc.itch.io/celeste64).
 
 To add new mods, insert them under the Mods folder that should come with this release.
 There is currently a Test Mod in there that you can play to confirm it is working. (Feel free to delete this mod when you are done, or if you are a mod creator, you can use it as an example for your own projects.)
