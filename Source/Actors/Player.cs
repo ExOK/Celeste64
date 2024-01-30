@@ -1,4 +1,7 @@
 
+using System;
+using static Celeste64.Assets;
+
 namespace Celeste64;
 
 /// <summary>
@@ -84,9 +87,9 @@ public class Player : Actor, IHaveModels, IHaveSprites, IRidePlatforms, ICastPoi
 		public float Percent;
 		public Color Color;
 
-		public Trail()
+		public Trail(string model = "player")
 		{
-			Model = new(Assets.Models["player"]);
+			Model = new(Assets.Models[model]);
 			Model.Flags = ModelFlags.Transparent;
 			Model.MakeMaterialsUnique();
 			foreach (var mat in Model.Materials)
@@ -123,6 +126,8 @@ public class Player : Actor, IHaveModels, IHaveSprites, IRidePlatforms, ICastPoi
 
 	public Vec3 Velocity => velocity;
 	public Vec3 PreviousVelocity => previousVelocity;
+
+	public SkinInfo Skin;
 
 	private Vec3 velocity;
 	private Vec3 previousVelocity;
@@ -193,10 +198,11 @@ public class Player : Actor, IHaveModels, IHaveSprites, IRidePlatforms, ICastPoi
 		PointShadowAlpha = 1.0f;
 		LocalBounds = new BoundingBox(new Vec3(0, 0, 10), 10);
 		UpdateOffScreen = true;
+		Skin = Save.Instance.GetSkin();
 
 		// setup model
 		{
-			Model = new(Assets.Models["player"]);
+			Model = new(Assets.Models[Skin.Model]);
 			Model.SetBlendDuration("Idle", "Dash", 0.05f);
 			Model.SetBlendDuration("Idle", "Run", 0.2f);
 			Model.SetBlendDuration("Run", "Skid", .125f);
@@ -204,8 +210,13 @@ public class Player : Actor, IHaveModels, IHaveSprites, IRidePlatforms, ICastPoi
 			Model.Flags |= ModelFlags.Silhouette;
 			Model.Play("Idle");
 
-			foreach (var mat in Model.Materials)
-				mat.Effects = 0.60f;
+			for (int i = 0; i < Model.Materials.Count; i++)
+			{
+				string name = Model.Materials[i].Name;
+				Model.Materials[i] = Model.Materials[i].Clone();
+				Model.Materials[i].Name = name;
+				Model.Materials[i].Effects = 0.60f;
+			}
 		}
 
 		stateMachine = new();
@@ -495,13 +506,13 @@ public class Player : Actor, IHaveModels, IHaveSprites, IRidePlatforms, ICastPoi
 			{
 				Color color;
 				if (tDashResetFlash > 0)
-					color = CRefillFlash;
+					color = Skin.HairRefillFlash;
 				else if (dashes == 1)
-					color = CNormal;
+					color = Skin.HairNormal;
 				else if (dashes == 0)
-					color = CNoDash;
+					color = Skin.HairNoDash;
 				else
-					color = CTwoDashes;
+					color = Skin.HairTwoDash;
 
 				SetHairColor(color);
 			}
@@ -591,6 +602,33 @@ public class Player : Actor, IHaveModels, IHaveSprites, IRidePlatforms, ICastPoi
 	#endregion
 
 	#region Various Methods
+
+	public void SetSkin(SkinInfo skin)
+	{
+		if(this.Skin != skin)
+		{
+			this.Skin = skin;
+
+			Model = new(Assets.Models[this.Skin.Model]);
+			Model.SetBlendDuration("Idle", "Dash", 0.05f);
+			Model.SetBlendDuration("Idle", "Run", 0.2f);
+			Model.SetBlendDuration("Run", "Skid", .125f);
+			Model.SetLooping("Dash", false);
+			Model.Flags |= ModelFlags.Silhouette;
+			Model.Play("Idle");
+
+			for (int i = 0; i < Model.Materials.Count; i++)
+			{
+				string name = Model.Materials[i].Name;
+				Model.Materials[i] = Model.Materials[i].Clone();
+				Model.Materials[i].Name = name;
+				Model.Materials[i].Effects = 0.60f;
+			}
+
+			trails.Clear();
+			dashTrailsCreated = 0;
+		}
+	}
 
 	private Vec2 RelativeMoveInput
 	{
@@ -1241,7 +1279,7 @@ public class Player : Actor, IHaveModels, IHaveSprites, IRidePlatforms, ICastPoi
 			targetFacing = RelativeMoveInput;
 		Facing = targetFacing;
 
-		lastDashHairColor = dashes <= 0 ? CNoDash : CNormal;
+		lastDashHairColor = dashes <= 0 ? Skin.HairNoDash : Skin.HairNormal;
 		dashedOnGround = onGround;
 		SetDashSpeed(targetFacing);
 		autoJump = true;
@@ -1314,7 +1352,7 @@ public class Player : Actor, IHaveModels, IHaveSprites, IRidePlatforms, ICastPoi
 				break;
 			}
 		if (trail == null)
-			trails.Add(trail = new());
+			trails.Add(trail = new(Skin.Model));
 
 		trail.Model.SetBlendedWeights(Model.GetBlendedWeights());
 		trail.Hair.CopyState(Hair);
@@ -1714,7 +1752,7 @@ public class Player : Actor, IHaveModels, IHaveSprites, IRidePlatforms, ICastPoi
 		if (input != Vec2.Zero)
 			targetFacing = input.Normalized();
 
-		SetHairColor(CFeather);
+		SetHairColor(Skin.HairFeather);
 		HandleFeatherZ();
 
 		tFeatherStart -= Time.Delta;
@@ -1792,11 +1830,11 @@ public class Player : Actor, IHaveModels, IHaveSprites, IRidePlatforms, ICastPoi
 		const float EndWarningTime = 0.8f;
 
 		if (tFeather > EndWarningTime || Time.BetweenInterval(.1f))
-			SetHairColor(CFeather);
+			SetHairColor(Skin.HairFeather);
 		else if (dashes == 2)
-			SetHairColor(CTwoDashes);
+			SetHairColor(Skin.HairTwoDash);
 		else
-			SetHairColor(CNormal);
+			SetHairColor(Skin.HairNormal);
 
 		HandleFeatherZ();
 
@@ -2132,7 +2170,7 @@ public class Player : Actor, IHaveModels, IHaveSprites, IRidePlatforms, ICastPoi
 
 		if (InFeatherState)
 		{
-			populate.Add(Sprite.CreateBillboard(World, Position + Forward * 4 + Vec3.UnitZ * 8, "gradient", 12, CFeather * 0.50f));
+			populate.Add(Sprite.CreateBillboard(World, Position + Forward * 4 + Vec3.UnitZ * 8, "gradient", 12, new Color(Skin.HairFeather) * 0.50f));
 		}
 
 		if (drawOrbs && drawOrbsEase > 0)
@@ -2166,7 +2204,7 @@ public class Player : Actor, IHaveModels, IHaveSprites, IRidePlatforms, ICastPoi
 	{
 		if ((World.Camera.Position - (Position + Vec3.UnitZ * 8)).LengthSquared() > World.Camera.NearPlane * World.Camera.NearPlane)
 		{
-			if (drawHair)
+			if ((!Skin.HideHair || InFeatherState) && drawHair)
 				populate.Add((this, Hair));
 
 			if (drawModel)
@@ -2189,7 +2227,8 @@ public class Player : Actor, IHaveModels, IHaveSprites, IRidePlatforms, ICastPoi
 				trail.Model.Transform = trail.Transform * inverse;
 
 			populate.Add((this, trail.Model));
-			populate.Add((this, trail.Hair));
+			if (!Skin.HideHair || InFeatherState)
+				populate.Add((this, trail.Hair));
 		}
 	}
 

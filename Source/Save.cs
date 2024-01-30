@@ -1,6 +1,7 @@
 
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using static Celeste64.Assets;
 
 namespace Celeste64;
 
@@ -67,6 +68,11 @@ public class Save
 	/// 0-10 Sfx Volume level
 	/// </summary>
 	public int SfxVolume { get; set; } = 10;
+
+	/// <summary>
+	/// SkinName
+	/// </summary>
+	public string SkinName { get; set; } = "Default";
 
 	/// <summary>
 	/// Records for each level
@@ -140,12 +146,24 @@ public class Save
 		SyncSettings();
 	}
 
+	public void SetSkinName(string skin)
+	{
+		SkinName = skin;
+		SyncSettings();
+	}
+
 	public void SyncSettings()
 	{
 		App.Fullscreen = Fullscreen;
 		Audio.SetVCAVolume("vca:/music", Calc.Clamp(MusicVolume / 10.0f, 0, 1));
 		Audio.SetVCAVolume("vca:/sfx", Calc.Clamp(SfxVolume / 10.0f, 0, 1));
 	}
+
+	public SkinInfo GetSkin()
+	{ 
+		return Assets.Skins.FirstOrDefault(s => s.Name == SkinName, Assets.Skins.First());
+	}
+
 
 	public static void Serialize(Stream stream, Save instance)
 	{

@@ -82,6 +82,11 @@ public class World : Scene
 				Get<Player>()?.Kill();
 			}));
 			pauseMenu.Add(new Menu.Spacer());
+			if (Assets.Skins.Count > 0)
+			{
+				List<string> labels = Assets.Skins.Select(x => x.Name).ToList();
+				pauseMenu.Add(new Menu.OptionList("Skin", labels, 0, Assets.Skins.Count, () => Save.Instance.SkinName, Save.Instance.SetSkinName));
+			}
 			pauseMenu.Add(new Menu.Toggle("Fullscreen", Save.Instance.ToggleFullscreen, () => Save.Instance.Fullscreen));
 			pauseMenu.Add(new Menu.Toggle("Z-Guide", Save.Instance.ToggleZGuide, () => Save.Instance.ZGuide));
 			pauseMenu.Add(new Menu.Toggle("Timer", Save.Instance.ToggleTimer, () => Save.Instance.SpeedrunTimer));
@@ -355,6 +360,7 @@ public class World : Scene
 			{
 				SetPaused(false);
 				Audio.Play(Sfx.ui_unpause);
+				Get<Player>()?.SetSkin(Save.Instance.GetSkin());
 			}
 			else
 				pauseMenu.Update();

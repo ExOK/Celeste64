@@ -1,0 +1,10 @@
+{
+    "Model": "granny",
+    "HideHair": true,
+    "Name": "Granny",
+    "HairNormal" : 16777215,
+    "HairNoDash" : 7258367,
+    "HairTwoDash" : 16421375,
+    "HairRefillFlash" : 16777215,
+    "HairFeather" : 15914064
+}
