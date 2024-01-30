@@ -1,4 +1,4 @@
-# Celeste 64: Fragments of the Mountain
+# Celeste 64: Mod Loader
 This is a basic Mod Loader for *Celeste 64: Fragments of the Mountain*, a game made by the original Celeste developers in under 2 weeks for Celeste's 6th Anniversary. It is forked from the source code of that game.
 
 This is still very early in development, but is currently able to load custom levels alongside the main game, as well as loading additional assets such as custom models, custom dialog, custom textures, etc... (Note: Some of these haven't been tested thoroughly)
