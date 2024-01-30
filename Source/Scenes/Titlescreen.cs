@@ -102,6 +102,7 @@ public class Titlescreen : Scene
 				UI.Prompt(batch, Controls.Cancel, "Exit", at, out var width, 1.0f);
 				at.X -= width + 8 * Game.RelativeScale;
 				UI.Prompt(batch, Controls.Confirm, "Confirm", at, out _, 1.0f);
+				UI.Text(batch, Game.VersionString, bounds.BottomLeft + new Vec2(4, -4) * Game.RelativeScale, new Vec2(0, 1), Color.White * 0.25f);
 			}
 
 			if (easing < 1)
