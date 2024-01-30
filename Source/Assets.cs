@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
 
 namespace Celeste64;
@@ -163,7 +164,7 @@ public static class Assets
 			};
 
 			var spritesPath = Path.Join(ContentPath, "Sprites");
-			foreach (var file in Directory.EnumerateFiles(spritesPath, "*.png", SearchOption.AllDirectories))
+            foreach (var file in Directory.EnumerateFiles(spritesPath, "*.png", SearchOption.AllDirectories))
 				packer.Add(GetResourceName(spritesPath, file), new Image(file));
 
 			var result = packer.Pack();
@@ -176,11 +177,22 @@ public static class Assets
 
 			foreach (var it in result.Entries)
 				Subtextures.Add(it.Name, new Subtexture(pages[it.Page], it.Source, it.Frame));
+        }
+
+		// Load in controls
+		string controlsPath = Path.Join(ContentPath, "Controls.json");
+		if (controlsPath != null && File.Exists(controlsPath))
+        {
+#pragma warning disable CS8600
+            JsonNode doc = JsonNode.Parse(File.ReadAllText(controlsPath)); 
+			if (doc != null)
+				Controls.HandleCustomControls(doc);
 		}
 
-		// wait for tasks to finish
-		{
-			foreach (var task in tasks)
+#pragma warning restore CS8600
+        // wait for tasks to finish
+        {
+            foreach (var task in tasks)
 				task.Wait();
 			foreach (var (name, img) in images)
 				Textures.Add(name, new Texture(img) { Name = name });
@@ -192,6 +204,7 @@ public static class Assets
 				Models[name] = model;
 			}
 		}
+
 
 		Log.Info($"Loaded Assets in {timer.ElapsedMilliseconds}ms");
 	}

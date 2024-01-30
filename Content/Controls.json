@@ -1,0 +1,157 @@
+{
+  "__DEVNOTES": [
+    "Replace asterisks (*) with quotes (\") in all examples in these notes.",
+
+    "For Move/Camera/Menu Move, any non-stick input device (i.e., not LeftStick,RightStick,or D-Pad) you MUST have a *Direction* tag of *Up* *Down* *Left* or *Right*.",
+    "This tells the game effectively to move the player in one of those Directions on the press of a button.",
+
+    "For Jump/Dash/Climb/Menu Confirm/Menu Back/Pause:",
+    "any non-Button (i.e. LeftStick or RightStick) *MUST* have a *Direction* tag which dictates that Up on the Left Stick corresponds to the button press.",
+    "D-Pad is replaced with *Control*:[Direction] which corresponds to that Direction on the D-Pad, (i.e. *Controller*: [{*Control*:*Up*}] refers to Up on the D-Pad)",
+
+    "This does allow for any number of inputs to any number of buttons.",
+
+    "For Left Stick, Right Stick, Left Trigger, and Right Trigger, the additional parameter *Deadzone* may be added, where the values are either form of [A,B] or C,",
+    "where A/B/C is a number between 0 and 1 that represents the X and Y Deadzone of the controller before a press is registered. In the case of C, C would represent both X and Y.",
+    "(Left Trigger and Right Trigger only uses C)"
+  ],
+  "Move": {
+    "Controller": [
+      {
+        "Control": "LeftStick"
+      },
+      {
+        "Control": "D-Pad"
+      }
+    ],
+    "Keyboard": [
+      {
+        "Control": "Up",
+        "Direction": "Up"
+      },
+      {
+        "Control": "Left",
+        "Direction": "Left"
+      },
+      {
+        "Control": "Right",
+        "Direction": "Right"
+      },
+      {
+        "Control": "Down",
+        "Direction": "Down"
+      }
+    ]
+  },
+  "Camera": {
+    "Controller": [
+      {
+        "Control": "RightStick",
+        "Deadzone": [ 0.5, 0.7 ]
+      }
+    ],
+    "Keyboard": [
+      {
+        "Control": "W",
+        "Direction": "Up"
+      },
+      {
+        "Control": "A",
+        "Direction": "Left"
+      },
+      {
+        "Control": "D",
+        "Direction": "Right"
+      },
+      {
+        "Control": "S",
+        "Direction": "Down"
+      }
+    ]
+  },
+  "Jump": {
+    "Controller": [
+      { "Control": "A" },
+      { "Control": "Y" }
+    ],
+    "Keyboard": [ { "Control": "C" } ]
+  },
+  "Dash": {
+    "Controller": [
+      { "Control": "B" },
+      { "Control": "X" }
+    ],
+    "Keyboard": [ { "Control": "X" } ]
+  },
+  "Climb": {
+    "Controller": [
+      { "Control": "LeftShoulder" },
+      { "Control": "RightShoulder" },
+      {
+        "Control": "LeftTrigger",
+        "Invert": false,
+        "Deadzone": 0.4
+      },
+      {
+        "Control": "RightTrigger",
+        "Invert": false,
+        "Deadzone": 0.4
+      }
+    ],
+    "Keyboard": [
+      { "Control": "Z" },
+      { "Control": "V" },
+      { "Control": "LeftShift" },
+      { "Control": "RightShift" }
+    ]
+  },
+
+  "Menu Move": {
+    "Controller": [
+      {
+        "Control": "LeftStick",
+        "Deadzone": [ 0.5, 0.5 ]
+      },
+      {
+        "Control": "D-Pad"
+      }
+    ],
+    "Keyboard": [
+      {
+        "Control": "Up",
+        "Direction": "Up"
+      },
+      {
+        "Control": "Left",
+        "Direction": "Left"
+      },
+      {
+        "Control": "Right",
+        "Direction": "Right"
+      },
+      {
+        "Control": "Down",
+        "Direction": "Down"
+      }
+    ]
+  },
+  "Menu Confirm": {
+    "Controller": [ { "Control": "A" } ],
+    "Keyboard": [ { "Control": "C" } ]
+  },
+  "Menu Back": {
+    "Controller": [ { "Control": "B" } ],
+    "Keyboard": [ { "Control": "X" } ]
+  },
+  "Pause": {
+    "Controller": [
+      { "Control": "Start" },
+      { "Control": "Select" },
+      { "Control": "Back" }
+    ],
+    "Keys": [
+      { "Control": "Enter" },
+      { "Control": "Escape" }
+    ]
+  }
+}
