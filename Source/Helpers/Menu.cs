@@ -63,7 +63,7 @@ public class Menu
         }
 
         public override string Label => $"{label} : {labels[getId() - min]}";
-        public override void Slide(int dir) => set(labels[(getId() + dir) % max]);
+        public override void Slide(int dir) => set(labels[(max + getId() + dir) % max]);
 
 		private int getId()
 		{
