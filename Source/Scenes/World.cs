@@ -830,9 +830,12 @@ public class World : Scene
 
 			// apply post fx
 			postMaterial.SetShader(Assets.Shaders["Edge"]);
-			postMaterial.Set("u_depth", Camera.Target.Attachments[1]);
-			postMaterial.Set("u_pixel", new Vec2(1.0f / postCam.Target.Width, 1.0f / postCam.Target.Height));
-			postMaterial.Set("u_edge", new Color(0x110d33));
+            if (postMaterial.Shader?.Has("u_depth") ?? false)
+			    postMaterial.Set("u_depth", Camera.Target.Attachments[1]);
+            if (postMaterial.Shader?.Has("u_pixel") ?? false)
+			    postMaterial.Set("u_pixel", new Vec2(1.0f / postCam.Target.Width, 1.0f / postCam.Target.Height));
+            if (postMaterial.Shader?.Has("u_edge") ?? false)
+			    postMaterial.Set("u_edge", new Color(0x110d33));
 			batch.PushMaterial(postMaterial);
 			batch.Image(Camera.Target.Attachments[0], Color.White);
 			batch.Render(postTarget);

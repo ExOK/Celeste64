@@ -154,7 +154,7 @@ public class Hair : Model
 		state.ModelMatrix = was;
 
 		Materials[0].Color = Color;
-		Materials[0].Set("u_silhouette_color", Color);
+		Materials[0].SilhouetteColor = Color;
 
 		// draw hair
 		var call = new DrawCommand(state.Camera.Target, mesh, Materials[0])
