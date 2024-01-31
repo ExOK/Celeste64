@@ -151,3 +151,9 @@
 [
 
 ]
+
+@PointClass size(-16 -16 0, 16 16 16) model({ "path": model }) = SolidMesh : "Solid Mesh" 
+[
+    model(String) : "Model file path" : : "Set this to a 3D model file."
+	scale(float) : "Scale"
+]
