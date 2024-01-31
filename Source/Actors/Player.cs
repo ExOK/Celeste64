@@ -1479,11 +1479,23 @@ public class Player : Actor, IHaveModels, IHaveSprites, IRidePlatforms, ICastPoi
 		// move around
 		if (climbCornerEase <= 0)
 		{
-			var move = -wallUp * inputTranslated.Y + wallRight * inputTranslated.X;
+			var side = wallRight * inputTranslated.X;
+			var up = -wallUp * inputTranslated.Y;
+			var move = side + up;
 
 			// cancel down vector if we're on the ground
 			if (move.Z < 0 && GroundCheck(out _, out _, out _))
 				move.Z = 0;
+
+			// don't climb over ledges into spikes
+			// (you can still climb up into spikes if they're on the same wall as you)
+			if (move.Z > 0 && World.Overlaps<SpikeBlock>(Position + Vec3.UnitZ * 6 + forward * (ClimbCheckDist + 1)))
+				move.Z = 0;
+
+			// don't move left/right around into a spikes
+			// (you can still climb up into spikes if they're on the same wall as you)
+			if (World.Overlaps<SpikeBlock>(SolidWaistTestPos + side + forward * (ClimbCheckDist + 1)))
+				move -= side;
 
 			if (MathF.Abs(move.X) < 0.1f) move.X = 0;
 			if (MathF.Abs(move.Y) < 0.1f) move.Y = 0;
