@@ -84,13 +84,16 @@ public static class Controls
 
 	private static string GetPromptLocation(string name)
 	{
+		var gamepadPure = Input.Controllers[0];
 		var gamepad = Input.Controllers[0].Gamepad;
 
 		if (!prompts.TryGetValue(gamepad, out var list))
 			prompts[gamepad] = list = new();
 
 		if (!list.TryGetValue(name, out var lookup))
-			list[name] = lookup = $"Controls/{GetControllerName(gamepad)}/{name}";
+		        list[name] = lookup = gamepadPure.Name == "Unknown"
+                		? $"Controls/PC/{name}"
+                		: $"Controls/{GetControllerName(gamepad)}/{name}";
 		
 		return lookup;
 	}
