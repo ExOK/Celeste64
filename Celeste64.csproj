@@ -19,7 +19,11 @@
     <PackageReference Include="Sledge.Formats.Map" Version="1.1.5" />
   </ItemGroup>
 
-  <ItemGroup Condition="($(RuntimeIdentifier) == '' and $([MSBuild]::IsOSPlatform('Linux'))) or $(RuntimeIdentifier) == 'linux-x64'">
+  <ItemGroup Condition="$([MSBuild]::IsOSPlatform('Linux')) And $([System.Runtime.InteropServices.RuntimeInformation]::OSArchitecture) == Arm64">
+    <Content Include="Source/Audio/FMOD/libs/arm64/**" CopyToOutputDirectory="PreserveNewest" Link="%(Filename)%(Extension)" />
+  </ItemGroup>
+
+  <ItemGroup Condition="$([MSBuild]::IsOSPlatform('Linux')) And $([System.Runtime.InteropServices.RuntimeInformation]::OSArchitecture) == X64">
     <Content Include="Source/Audio/FMOD/libs/lib64/**" CopyToOutputDirectory="PreserveNewest" Link="%(Filename)%(Extension)" />
   </ItemGroup>
 
