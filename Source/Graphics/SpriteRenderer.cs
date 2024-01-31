@@ -58,13 +58,17 @@ public class SpriteRenderer
 
 		spriteMesh.SetVertices<SpriteVertex>(CollectionsMarshal.AsSpan(spriteVertices));
 		spriteMesh.SetIndices<int>(CollectionsMarshal.AsSpan(spriteIndices));
-		spriteMaterial.Set("u_matrix", state.Camera.ViewProjection);
-		spriteMaterial.Set("u_far", state.Camera.FarPlane);
-		spriteMaterial.Set("u_near", state.Camera.NearPlane);
+        if (spriteMaterial.Shader?.Has("u_matrix") ?? false)
+		    spriteMaterial.Set("u_matrix", state.Camera.ViewProjection);
+        if (spriteMaterial.Shader?.Has("u_far") ?? false)
+		    spriteMaterial.Set("u_far", state.Camera.FarPlane);
+        if (spriteMaterial.Shader?.Has("u_near") ?? false)
+		    spriteMaterial.Set("u_near", state.Camera.NearPlane);
 
 		foreach (var batch in spriteBatches)
 		{
-			spriteMaterial.Set("u_texture", batch.Texture);
+            if (spriteMaterial.Shader?.Has("u_texture") ?? false)
+			    spriteMaterial.Set("u_texture", batch.Texture);
 
 			var call = new DrawCommand(state.Camera.Target, spriteMesh, spriteMaterial)
 			{

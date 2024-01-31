@@ -60,10 +60,14 @@ public class Skybox
 	public void Render(in Camera camera, in Matrix transform, float size)
 	{
 		var mat = Matrix.CreateScale(size) * transform * camera.ViewProjection;
-		material.Set("u_matrix", mat);
-		material.Set("u_near", camera.NearPlane);
-		material.Set("u_far", camera.FarPlane);
-		material.Set("u_texture", Texture);
+        if (material.Shader?.Has("u_matrix") ?? false)
+		    material.Set("u_matrix", mat);
+        if (material.Shader?.Has("u_near") ?? false)
+		    material.Set("u_near", camera.NearPlane);
+        if (material.Shader?.Has("u_far") ?? false)
+		    material.Set("u_far", camera.FarPlane);
+        if (material.Shader?.Has("u_texture") ?? false)
+		    material.Set("u_texture", Texture);
 
 		DrawCommand cmd = new(camera.Target, mesh, material)
 		{
