@@ -45,9 +45,9 @@ public static class UI
 	{
 		string str;
 		if ((int)time.TotalHours > 0)
-			str = $"{((int)time.TotalHours):00}:{time.Minutes:00}:{time.Seconds:00}:{time.Milliseconds:00}";
+			str = $"{((int)time.TotalHours):00}:{time.Minutes:00}:{time.Seconds:00}:{time.Milliseconds:000}";
 		else
-			str = $"{time.Minutes:00}:{time.Seconds:00}:{time.Milliseconds:00}";
+			str = $"{time.Minutes:00}:{time.Seconds:00}:{time.Milliseconds:000}";
 		Icon(batch, "icon_stopwatch", str, at, align);
 	}
 

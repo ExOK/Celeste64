@@ -7,9 +7,6 @@
     <Nullable>enable</Nullable>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <Version>1.0.1</Version>
-    <PublishSingleFile>true</PublishSingleFile>
-    <PublishTrimmed>true</PublishTrimmed>
-    <Platforms>x64</Platforms>
   </PropertyGroup>
 
   <ItemGroup>
