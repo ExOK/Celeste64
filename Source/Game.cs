@@ -167,10 +167,7 @@ public class Game : Module
 
 			// perform game save between transitions
 			if (transition.Saving)
-			{
-				using var stream = File.Create(Path.Join(App.UserPath, Save.FileName));
-				Save.Serialize(stream, Save.Instance);
-			}
+				Save.Instance.SaveToFile();
 
 			// perform transition
 			switch (transition.Mode)
