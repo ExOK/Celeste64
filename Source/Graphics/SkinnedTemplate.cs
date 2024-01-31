@@ -36,9 +36,10 @@ public class SkinnedTemplate
 			images[logicalImage.Name] = img;
 		}
 
-		// All Materials use the default Texture
+		// All Materials use the default material
 		Materials = new DefaultMaterial[model.LogicalMaterials.Count];
 
+		// create vertex/index array
 		for (int i = 0; i < model.LogicalMeshes.Count; i ++)
 		{
 			var mesh = model.LogicalMeshes[i];
