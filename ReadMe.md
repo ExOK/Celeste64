@@ -17,13 +17,13 @@ https://github.com/ExOK/Celeste64
  - Jazzrabbit
 
 ### Game Created By
-Maddy Thorson
-Noel Berry
-Amora B.
-Pedro "Saint11" Medeiros
-Power Up Audio
-Lena Raine
-Heidy Motta.
+ - Maddy Thorson
+ - Noel Berry
+ - Amora B.
+ - Pedro "Saint11" Medeiros
+ - Power Up Audio
+ - Lena Raine
+ - Heidy Motta.
 
 ### License
  - The Celeste IP and everything in the `Content` folder are owned by [Maddy Makes Games, Inc](https://www.maddymakesgames.com/).
