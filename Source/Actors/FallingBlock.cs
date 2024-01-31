@@ -74,7 +74,7 @@ public sealed class FallingBlock : Solid, IUnlockStrawberry
 					MoveTo(EndPosition.Value);
 				}
 			}
-			else if (Position.Z <= startPosition.Z - 300)
+			else if (WorldBounds.Max.Z < World.DeathPlane - 10)
 			{
 				if (World.Entry.Submap || !string.IsNullOrEmpty(GroupName) || Secret)
 				{

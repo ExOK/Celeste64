@@ -12,7 +12,6 @@ public class SkinnedTemplate
 	}
 
 	public Mesh Mesh { get; set; } = null!;
-	public Texture? Texture { get; private set; } = null;
 	public readonly SharpGLTF.Schema2.ModelRoot Root;
 	public readonly SharpGLTF.Runtime.SceneTemplate Template;
 	public readonly List<Vertex> Vertices = [];
@@ -20,7 +19,8 @@ public class SkinnedTemplate
 	public readonly List<MeshPrimitive>[] Parts;
 	public readonly DefaultMaterial[] Materials;
 
-	private readonly Image? image;
+	// only used while loading, cleared afterwards
+	private readonly Dictionary<string, Image> images = [];
 
 	public SkinnedTemplate(SharpGLTF.Schema2.ModelRoot model)
 	{
@@ -28,16 +28,18 @@ public class SkinnedTemplate
 		Template = SharpGLTF.Runtime.SceneTemplate.Create(model.DefaultScene);
 		Parts = new List<MeshPrimitive>[model.LogicalMeshes.Count];
 		
-		// Only load the first Texture, we only use one
-		if (model.LogicalImages.Count > 0)
+		// load the model's images
+		foreach (var logicalImage in model.LogicalImages)
 		{
-			using var stream = new MemoryStream(model.LogicalImages[0].Content.Content.ToArray());
-			image = new Image(stream);
+			using var stream = new MemoryStream(logicalImage.Content.Content.ToArray());
+			var img = new Image(stream);
+			images[logicalImage.Name] = img;
 		}
 
-		// All Materials use the default Texture
+		// All Materials use the default material
 		Materials = new DefaultMaterial[model.LogicalMaterials.Count];
 
+		// create vertex/index array
 		for (int i = 0; i < model.LogicalMeshes.Count; i ++)
 		{
 			var mesh = model.LogicalMeshes[i];
@@ -87,12 +89,31 @@ public class SkinnedTemplate
 
 	public void ConstructResources()
 	{
-		if (image != null)
-			Texture = new(image);
+		// create all the textures and clear the list of images we had loaded
+		var textures = new Dictionary<string, Texture>();
+		foreach (var (name, image) in images)
+			textures[name] = new Texture(image);
+		images.Clear();
 
+		// create all the materials, find their textures
 		for (int i = 0; i < Root.LogicalMaterials.Count; i++)
-			Materials[i] = new DefaultMaterial(Texture) { Name = Root.LogicalMaterials[i].Name };
+		{
+			var logicalMat = Root.LogicalMaterials[i];
 
+			Materials[i] = new DefaultMaterial() { Name = logicalMat.Name };
+
+			// figure out which texture to use by just using the first texture found
+			foreach (var channel in logicalMat.Channels)
+				if (channel.Texture != null && 
+					channel.Texture.PrimaryImage != null && 
+					textures.TryGetValue(channel.Texture.PrimaryImage.Name, out var texture))
+				{
+					Materials[i].Texture = texture;
+					break;
+				}
+		}
+
+		// upload verts to the mesh
 		Mesh = new();
 		Mesh.SetVertices<Vertex>(CollectionsMarshal.AsSpan(Vertices));
 		Mesh.SetIndices<int>(CollectionsMarshal.AsSpan(Indices));

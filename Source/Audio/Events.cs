@@ -19,8 +19,8 @@ public static class Sfx
 	public const string main_menu_toggle_off = "event:/sfx/ui/main/toggle_off";
 	public const string main_menu_roll_up = "event:/sfx/ui/main/roll_up";
 	public const string main_menu_roll_down = "event:/sfx/ui/main/roll_down";
-	public const string main_menu_restart_confirm_popup = "event:/sfx/ui/main/restart_cancel";
-	public const string main_menu_restart_cancel = "event:/sfx/ui/main/restart_confirm_popup";
+	public const string main_menu_restart_confirm_popup = "event:/sfx/ui/main/restart_confirm_popup";
+	public const string main_menu_restart_cancel = "event:/sfx/ui/main/restart_cancel";
 
 	public const string amb_mountain = "event:/sfx/ambience/mountain";
 	public const string sfx_footstep_general = "event:/sfx/madeline/footstep";

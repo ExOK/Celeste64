@@ -15,6 +15,7 @@ public class World : Scene
 	public EntryInfo Entry = new();
 	public readonly GridPartition<Solid> SolidGrid = new(200, 100);
 	public float GeneralTimer = 0;
+	public float DeathPlane = -100;
 
 	public readonly List<Actor> Actors = [];
 	private readonly List<Actor> adding = [];
@@ -38,6 +39,8 @@ public class World : Scene
 	
 	// makes the Strawberry UI wiggle when one is collected
 	private float strawbCounterWiggle = 0;
+	private float strawbCounterCooldown = 0;
+	private float strawbCounterEase = 0;
 	private int strawbCounterWas;
 
 	private bool IsInEndingArea => Get<Player>() is {} player && Overlaps<EndingArea>(player.Position);
@@ -285,15 +288,29 @@ public class World : Scene
 			Game.Instance.Music.Set("at_baddy", 1);
 		}
 
-		// wiggle strawberry counter
+		// handle strawb counter
 		{
+			// wiggle when gained
 			if (strawbCounterWas != Save.CurrentRecord.Strawberries.Count)
 			{
+				strawbCounterCooldown = 4.0f;
 				strawbCounterWiggle = 1.0f;
 				strawbCounterWas = Save.CurrentRecord.Strawberries.Count;
 			}
 			else
 				Calc.Approach(ref strawbCounterWiggle, 0, Time.Delta / .6f);
+
+			// hold stawb for a while
+			if ((Get<Player>()?.IsStrawberryCounterVisible ?? false))
+				strawbCounterCooldown = 2.0f;
+			else
+				strawbCounterCooldown -= Time.Delta;
+
+			// ease strawb in/out
+			if (IsInEndingArea || Paused || strawbCounterCooldown > 0 || (Get<Player>()?.IsStrawberryCounterVisible ?? false))
+				strawbCounterEase = Calc.Approach(strawbCounterEase, 1, Time.Delta * 6.0f);
+			else
+				strawbCounterEase = Calc.Approach(strawbCounterEase, 0, Time.Delta * 6.0f);
 		}
 
 		// toggle debug draw
@@ -770,14 +787,14 @@ public class World : Scene
 					at.Y += UI.IconSize + 4;
 				}
 
-				if (IsInEndingArea || Paused || (Get<Player>()?.IsStrawberryCounterVisible ?? false))
+				if (strawbCounterEase > 0)
 				{
 					var wiggle = 1 + MathF.Sin(strawbCounterWiggle * MathF.Tau * 2) * strawbCounterWiggle * .3f;
 
 					batch.PushMatrix(
 						Matrix3x2.CreateTranslation(0, -UI.IconSize / 2) * 
 						Matrix3x2.CreateScale(wiggle) * 
-						Matrix3x2.CreateTranslation(at + new Vec2(0, UI.IconSize / 2)));
+						Matrix3x2.CreateTranslation(at + new Vec2(-60 * (1 - Ease.CubeOut(strawbCounterEase)), UI.IconSize / 2)));
 					UI.Strawberries(batch, Save.CurrentRecord.Strawberries.Count, Vec2.Zero);
 					batch.PopMatrix();
 				}
