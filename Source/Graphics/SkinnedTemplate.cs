@@ -19,6 +19,7 @@ public class SkinnedTemplate
 	public readonly List<MeshPrimitive>[] Parts;
 	public readonly DefaultMaterial[] Materials;
 
+	// only used while loading, cleared afterwards
 	private readonly Dictionary<string, Image> images = [];
 
 	public SkinnedTemplate(SharpGLTF.Schema2.ModelRoot model)
@@ -87,10 +88,13 @@ public class SkinnedTemplate
 
 	public void ConstructResources()
 	{
+		// create all the textures and clear the list of images we had loaded
 		var textures = new Dictionary<string, Texture>();
 		foreach (var (name, image) in images)
 			textures[name] = new Texture(image);
+		images.Clear();
 
+		// create all the materials, find their textures
 		for (int i = 0; i < Root.LogicalMaterials.Count; i++)
 		{
 			var logicalMat = Root.LogicalMaterials[i];
@@ -108,6 +112,7 @@ public class SkinnedTemplate
 				}
 		}
 
+		// upload verts to the mesh
 		Mesh = new();
 		Mesh.SetVertices<Vertex>(CollectionsMarshal.AsSpan(Vertices));
 		Mesh.SetIndices<int>(CollectionsMarshal.AsSpan(Indices));
