@@ -154,7 +154,15 @@ public class Save
 
 	public static Save? Deserialize(string data)
 	{
-		return JsonSerializer.Deserialize(data, SaveContext.Default.Save);
+		try
+		{
+			return JsonSerializer.Deserialize(data, SaveContext.Default.Save);
+		}
+		catch (Exception e)
+		{
+			Log.Error(e.ToString());
+			return null;
+		}
 	}
 }
 
