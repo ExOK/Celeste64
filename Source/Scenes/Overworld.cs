@@ -328,11 +328,16 @@ public class Overworld : Scene
 				Matrix.CreateRotationZ((state == States.Entering ? -1 : 1) * rotation * MathF.PI) *
 				Matrix.CreateTranslation(position);
 
-			material.Set("u_matrix", matrix * camera.ViewProjection);
-			material.Set("u_near", camera.NearPlane);
-			material.Set("u_far", camera.FarPlane);
-			material.Set("u_texture", it.Target);
-			material.Set("u_texture_sampler", new TextureSampler(TextureFilter.Linear, TextureWrap.ClampToEdge, TextureWrap.ClampToEdge));
+            if (material.Shader?.Has("u_matrix") ?? false)
+			    material.Set("u_matrix", matrix * camera.ViewProjection);
+            if (material.Shader?.Has("u_near") ?? false)
+			    material.Set("u_near", camera.NearPlane);
+            if (material.Shader?.Has("u_far") ?? false)
+			    material.Set("u_far", camera.FarPlane);
+            if (material.Shader?.Has("u_texture") ?? false)
+			    material.Set("u_texture", it.Target);
+            if (material.Shader?.Has("u_texture_sampler") ?? false)
+			    material.Set("u_texture_sampler", new TextureSampler(TextureFilter.Linear, TextureWrap.ClampToEdge, TextureWrap.ClampToEdge));
 
 			var cmd = new DrawCommand(target, mesh, material)
 			{

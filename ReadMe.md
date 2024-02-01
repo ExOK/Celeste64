@@ -10,16 +10,12 @@ This is still very early in development, but is currently able to load custom le
 [Download the latest release here.](https://github.com/jasminegamedev/Fuji/releases/latest)
 Unzip the folder, then open `Celeste64Launcher.exe` to start playing!
 
-While we work on making a proper updater, you can update by repeating the same process again. Make sure you bring your mod folder over to the new version.
-
-To add new mods, insert them under the Mods folder that should come with this release.
-There is currently a Test Mod in there that you can play to confirm it is working. (Feel free to delete this mod when you are done, or if you are a mod creator, you can use it as an example for your own projects.)
-
 See the original game's github page for more information:
 https://github.com/ExOK/Celeste64
 
 ### Mod Loader Created By
- - Jazzrabbit
+ - Lead Developer: Jazzrabbit
+ - Project Icon by: Wrench
 
 ### Game Created By
  - Maddy Thorson
