@@ -14,7 +14,7 @@ public abstract class GameMod
 
 	public string ModName { get { return modName; } }
 
-	internal GameMod()
+	public GameMod()
 	{
 	}
 
