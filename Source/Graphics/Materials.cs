@@ -162,9 +162,11 @@ public class DefaultMaterial : Material
         {
             if (silhouetteColor != value)
             {
-                silhouetteColor = value;
+                Color modifiedColor = value * 0.8f;
+                modifiedColor.A = 0xFF;
+                silhouetteColor = modifiedColor;
                 if (Shader?.Has("u_silhouette_color") ?? false)
-                    Set("u_silhouette_color", value);
+                    Set("u_silhouette_color", modifiedColor);
             }
         }
     }
