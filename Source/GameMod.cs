@@ -13,8 +13,10 @@ public abstract class GameMod
 	internal string modName = "";
 
 	public string ModName { get { return modName; } }
+	
+	public IModFilesystem Filesystem { get; internal set; }
 
-	internal GameMod()
+	protected GameMod()
 	{
 	}
 

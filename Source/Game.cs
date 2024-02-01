@@ -270,31 +270,42 @@ public class Game : Module
 			// reload state
 			if (Input.Keyboard.Ctrl && Input.Keyboard.Pressed(Keys.R) && !IsMidTransition)
 			{
-				if (scene is World world)
-				{
-					Goto(new Transition()
-					{
-						Mode = Transition.Modes.Replace,
-						Scene = () => new World(world.Entry),
-						ToPause = true,
-						ToBlack = new AngledWipe(),
-						PerformAssetReload = true
-					});
-				}
-				else
-				{
-					Goto(new Transition()
-					{
-						Mode = Transition.Modes.Replace,
-						Scene = () => new Titlescreen(),
-						ToPause = true,
-						ToBlack = new AngledWipe(),
-						PerformAssetReload = true
-					});
-				}
+				ReloadAssets();
 			}
 		}
 		ModManager.Instance.Update(Time.Delta);
+	}
+
+	internal void ReloadAssets()
+	{
+		if (!scenes.TryPeek(out var scene))
+			return;
+
+		if (IsMidTransition)
+			return;
+		
+		if (scene is World world)
+		{
+			Goto(new Transition()
+			{
+				Mode = Transition.Modes.Replace,
+				Scene = () => new World(world.Entry),
+				ToPause = true,
+				ToBlack = new AngledWipe(),
+				PerformAssetReload = true
+			});
+		}
+		else
+		{
+			Goto(new Transition()
+			{
+				Mode = Transition.Modes.Replace,
+				Scene = () => new Titlescreen(),
+				ToPause = true,
+				ToBlack = new AngledWipe(),
+				PerformAssetReload = true
+			});
+		}
 	}
 
 	public override void Render()
