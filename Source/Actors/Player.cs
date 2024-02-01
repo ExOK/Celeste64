@@ -1489,7 +1489,7 @@ public class Player : Actor, IHaveModels, IHaveSprites, IRidePlatforms, ICastPoi
 
 			// don't climb over ledges into spikes
 			// (you can still climb up into spikes if they're on the same wall as you)
-			if (move.Z > 0 && World.Overlaps<SpikeBlock>(Position + Vec3.UnitZ * 6 + forward * (ClimbCheckDist + 1)))
+			if (move.Z > 0 && World.Overlaps<SpikeBlock>(Position + Vec3.UnitZ * ClimbCheckDist + forward * (ClimbCheckDist + 1)))
 				move.Z = 0;
 
 			// don't move left/right around into a spikes
