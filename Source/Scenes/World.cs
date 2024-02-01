@@ -54,6 +54,9 @@ public class World : Scene
 		}
 	}
 
+	// Save.CurrentRecord.Time, but it keeps updating even while IsInEndingArea
+	private TimeSpan totalLevelTime;
+
 	private readonly Stopwatch debugUpdTimer = new();
 	private readonly Stopwatch debugRndTimer = new();
 	private readonly Stopwatch debugFpsTimer = new();
@@ -74,6 +77,8 @@ public class World : Scene
 
 		strawbCounterWas = Save.CurrentRecord.Strawberries.Count;
 		strawbCounterWiggle = 0;
+
+		totalLevelTime = Save.CurrentRecord.Time;
 
 		// setup pause menu
 		{
@@ -272,16 +277,13 @@ public class World : Scene
 		// update audio
 		Audio.SetListener(Camera);
 
-		// increment playtime (if not in the ending area)
+		// increment playtime
+		totalLevelTime += TimeSpan.FromSeconds(Time.Delta);
+		// update the current record time to match the actual total playtime, unless in the ending area
 		if (!IsInEndingArea)
-		{
-			Save.CurrentRecord.Time += TimeSpan.FromSeconds(Time.Delta);
-			Game.Instance.Music.Set("at_baddy", 0);
-		}
-		else
-		{
-			Game.Instance.Music.Set("at_baddy", 1);
-		}
+			Save.CurrentRecord.Time = totalLevelTime;
+
+		Game.Instance.Music.Set("at_baddy", IsInEndingArea ? 1 : 0);
 
 		// handle strawb counter
 		{
