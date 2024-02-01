@@ -19,7 +19,7 @@ public class Badeline : NPC
 				mat.Color = hairColor;
 				mat.Effects = 0;
 			}
-			mat.Set("u_silhouette_color", hairColor);
+            mat.SilhouetteColor = hairColor;
 		}
 
         hair = new()

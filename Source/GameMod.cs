@@ -16,15 +16,17 @@ public abstract class GameMod
 	
 	public IModFilesystem Filesystem { get; internal set; }
 
-	protected GameMod()
+	public GameMod()
 	{
 	}
 
 	public void AddActorFactory(string name, Map.ActorFactory factory)
 	{
-		Map.ModActorFactories.Add(name, factory);
+		if (!Map.ModActorFactories.ContainsKey(name))
+			Map.ModActorFactories.Add(name, factory);
+		else
+			Log.Warning($"An actor factory with the name {name} was already loaded. Factory won't be loaded.");
 	}
-
 
 	// Event Functions. Purposely left blank.
 
