@@ -2067,16 +2067,30 @@ public class Player : Actor, IHaveModels, IHaveSprites, IRidePlatforms, ICastPoi
 
 		if (cassette != null)
 		{
-			if (World.Entry.Submap || !Assets.Maps.ContainsKey(cassette.Map))
+			if (World.Entry.Submap) 
 			{
-				Game.Instance.Goto(new Transition()
+				Game.Instance.Goto(new Transition() 
 				{
 					Mode = Transition.Modes.Pop,
 					ToPause = true,
 					ToBlack = new SpotlightWipe(),
 					StopMusic = true
 				});
-			}
+			} 
+			//Saves and quits game if you collect a cassette with an empty map property when you're not in a submap
+			else if (!Assets.Maps.ContainsKey(cassette.Map)) 
+			{
+				Game.Instance.Goto(new Transition() 
+				{
+					Mode = Transition.Modes.Replace,
+					Scene = () => new Overworld(true),
+					ToPause = true,
+					ToBlack = new SpotlightWipe(),
+					FromBlack = new SlideWipe(),
+					StopMusic = true,
+					Saving = true
+				});
+  			}
 			else
 			{
 				Game.Instance.Goto(new Transition()
