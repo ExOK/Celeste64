@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <OutputType>WinExe</OutputType>
+    <OutputType>Library</OutputType>
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
@@ -13,7 +13,17 @@
     <ApplicationIcon>fuji.ico</ApplicationIcon>
     <PackageIcon>fuji.png</PackageIcon>
     <PackageReadmeFile>ReadMe.md</PackageReadmeFile>
+    <SelfContained>false</SelfContained>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Celeste64Launcher\**" />
+    <Compile Remove="Mods\**" />
+    <EmbeddedResource Remove="Celeste64Launcher\**" />
+    <EmbeddedResource Remove="Mods\**" />
+    <None Remove="Celeste64Launcher\**" />
+    <None Remove="Mods\**" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="FosterFramework" Version="0.1.14-alpha" />
@@ -31,6 +41,11 @@
 
   <ItemGroup Condition="$([MSBuild]::IsOSPlatform('OSX'))">
     <Content Include="Source/Audio/FMOD/libs/osx/**" CopyToOutputDirectory="PreserveNewest" Link="%(Filename)%(Extension)" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Remove="Celeste64Launcher\**" />
+    <Content Remove="Mods\**" />
   </ItemGroup>
 
   <ItemGroup>

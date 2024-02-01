@@ -1,5 +1,4 @@
 
-using System;
 using static Celeste64.Assets;
 
 namespace Celeste64;
@@ -114,7 +113,7 @@ public class Player : Actor, IHaveModels, IHaveSprites, IRidePlatforms, ICastPoi
 	private static Vec3 storedCameraForward;
 	private static float storedCameraDistance;
 
-	private enum States { Normal, Dashing, Skidding, Climbing, StrawbGet, FeatherStart, Feather, Respawn, Dead, StrawbReveal, Cutscene, Bubble, Cassette };
+	public enum States { Normal, Dashing, Skidding, Climbing, StrawbGet, FeatherStart, Feather, Respawn, Dead, StrawbReveal, Cutscene, Bubble, Cassette };
 	private enum Events { Land };
 
 	public bool Dead = false;
@@ -233,6 +232,7 @@ public class Player : Actor, IHaveModels, IHaveSprites, IRidePlatforms, ICastPoi
 		stateMachine.InitState(States.Dead, StDeadUpdate, StDeadEnter);
 		stateMachine.InitState(States.Bubble, null, null, StBubbleExit, StBubbleRoutine);
 		stateMachine.InitState(States.Cassette, null, null, StCassetteExit, StCassetteRoutine);
+		stateMachine.OnStateChanged += HandleStateChange;
 
 		spikeBlockCheck = (spike) =>
 		{
@@ -240,6 +240,11 @@ public class Player : Actor, IHaveModels, IHaveSprites, IRidePlatforms, ICastPoi
 		};
 
 		SetHairColor(0xdb2c00);
+	}
+
+	private void HandleStateChange(States? state)
+	{
+		ModManager.Instance.OnPlayerStateChanged(this, state);
 	}
 
 	#region Added / Update
@@ -391,7 +396,10 @@ public class Player : Actor, IHaveModels, IHaveSprites, IRidePlatforms, ICastPoi
 				if (actor is IPickup pickup)
 				{
 					if ((SolidWaistTestPos - actor.Position).LengthSquared() < pickup.PickupRadius * pickup.PickupRadius)
+					{
 						pickup.Pickup(this);
+						ModManager.Instance.OnItemPickup(this, pickup);
+					}
 				}
 			}
 		}
@@ -433,6 +441,7 @@ public class Player : Actor, IHaveModels, IHaveSprites, IRidePlatforms, ICastPoi
 				float t = Calc.ClampedMap(previousVelocity.Z, 0, MaxFall);
 				ModelScale = Vec3.Lerp(Vec3.One, new(1.4f, 1.4f, .6f), t);
 				stateMachine.CallEvent(Events.Land);
+				ModManager.Instance.OnPlayerLanded(this);
 
 				if (!Game.Instance.IsMidTransition && !InBubble)
 				{
@@ -608,6 +617,8 @@ public class Player : Actor, IHaveModels, IHaveSprites, IRidePlatforms, ICastPoi
 		if(this.Skin != skin)
 		{
 			this.Skin = skin;
+
+			ModManager.Instance.OnPlayerSkinChange(this, skin);
 
 			Model = new(Assets.Models[this.Skin.Model]);
 			Model.SetBlendDuration("Idle", "Dash", 0.05f);
@@ -875,6 +886,7 @@ public class Player : Actor, IHaveModels, IHaveSprites, IRidePlatforms, ICastPoi
 		storedCameraDistance = cameraTargetDistance;
 		Save.CurrentRecord.Deaths++;
 		Dead = true;
+		ModManager.Instance.OnPlayerKill(this);
 	}
 
 	private bool ClimbCheckAt(Vec3 offset, out WallHit hit)

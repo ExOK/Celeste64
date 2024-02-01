@@ -80,6 +80,7 @@ public class Game : Module
 		Controls.Load();
 
 		scenes.Push(new Startup());
+		ModManager.Instance.OnGameLoad(this);
 	}
 
 	public override void Shutdown()
@@ -293,6 +294,7 @@ public class Game : Module
 				}
 			}
 		}
+		ModManager.Instance.Update(Time.Delta);
 	}
 
 	public override void Render()

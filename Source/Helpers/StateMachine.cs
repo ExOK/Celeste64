@@ -16,6 +16,11 @@ public unsafe sealed class StateMachine<TIndex, TEvent>
 	private readonly Func<CoEnumerator>?[] routine = new Func<CoEnumerator>[StateCount];
 	private readonly Action?[][] events;
 
+	public delegate void OnstateChangedDelegate(TIndex? state);
+
+	public OnstateChangedDelegate OnStateChanged;
+
+
 	private TIndex? state;
 	private Routine running = new();
 
@@ -50,6 +55,7 @@ public unsafe sealed class StateMachine<TIndex, TEvent>
 		{
 			PreviousState = state;
 			state = value;
+			OnStateChanged(state);
 			running.Clear();
 			if (PreviousState.HasValue)
 				exit[StateToIndex(PreviousState.Value)]?.Invoke();

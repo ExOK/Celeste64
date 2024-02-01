@@ -135,6 +135,8 @@ public class World : Scene
 		// load content
 		map.Load(this);
 
+		ModManager.Instance.OnWorldLoaded(this);
+
 		Log.Info($"Loaded Map '{Entry.Map}' in {stopwatch.ElapsedMilliseconds}ms");
 	}
 
@@ -171,6 +173,7 @@ public class World : Scene
 		instance.Destroying = false;
 		instance.SetWorld(this);
 		instance.Created();
+		ModManager.Instance.OnActorCreated(instance);
 		return instance;
 	}
 
@@ -240,13 +243,17 @@ public class World : Scene
 
 			// notify they're being added
 			for (int i = 0; i < addCount; i ++)
+			{
 				adding[i].Added();
+				ModManager.Instance.OnActorAdded(adding[i]);
+			}
 			adding.RemoveRange(0, addCount);
 
 			for (int i = 0; i < destroying.Count; i ++)
 			{
 				var it = destroying[i];
 				it.Destroyed();
+				ModManager.Instance.OnActorDestroyed(it);
 
 				// remove from buckets
 				var type = it.GetType();

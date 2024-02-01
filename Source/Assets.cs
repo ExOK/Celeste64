@@ -1,5 +1,4 @@
-﻿using Celeste64.Source;
-using Foster.Framework;
+﻿using Foster.Framework;
 using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Text;
@@ -25,7 +24,7 @@ public static class Assets
 				var baseFolder = AppContext.BaseDirectory;
 				var searchUpPath = "";
 				int up = 0;
-				while (!Directory.Exists(Path.Join(baseFolder, searchUpPath, AssetFolder)) && up++ < 5)
+				while (!Directory.Exists(Path.Join(baseFolder, searchUpPath, AssetFolder)) && up++ < 6)
 					searchUpPath = Path.Join(searchUpPath, "..");
 				if (!Directory.Exists(Path.Join(baseFolder, searchUpPath, AssetFolder)))
 					throw new Exception($"Unable to find {AssetFolder} Directory from '{baseFolder}'");
@@ -220,6 +219,11 @@ public static class Assets
 		foreach (var fontFile in ModLoader.LoadFonts())
 		{
 			Fonts.Add(fontFile.Key, fontFile.Value);
+		}
+
+		foreach (GameMod mod in ModLoader.LoadMods())
+		{
+			ModManager.Instance.RegisterMod(mod);
 		}
 
 		// pack sprites into single texture

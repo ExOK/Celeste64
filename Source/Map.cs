@@ -94,14 +94,16 @@ public class Map
 		["FixedCamera"] = new((map, entity) => new FixedCamera(map.FindTargetNodeFromParam(entity, "target"))) { UseSolidsAsBounds = true },
 		["IntroCar"] = new((map, entity) => new IntroCar(entity.GetFloatProperty("scale", 6))),
 		["SolidMesh"] = new((map, entity) => {
-            var prop = Path.GetFileNameWithoutExtension(entity.GetStringProperty("model", string.Empty));
-            if (Assets.Models.TryGetValue(prop, out var model))
-            {
-                return new SolidMesh(model, entity.GetFloatProperty("scale", 6));
-            }
-            return null;
+			var prop = Path.GetFileNameWithoutExtension(entity.GetStringProperty("model", string.Empty));
+			if (Assets.Models.TryGetValue(prop, out var model))
+			{
+				return new SolidMesh(model, entity.GetFloatProperty("scale", 6));
+			}
+			return null;
 		})
-    };
+	};
+
+	internal static Dictionary<string, ActorFactory> ModActorFactories = new();
 
 	private readonly Dictionary<string, DefaultMaterial> currentMaterials = [];
 	private readonly Dictionary<int, string> groupNames = [];
@@ -190,10 +192,10 @@ public class Map
 			while (n > 1) 
 			{
 				int k = rng.Int(n--);
-                (floatingDecorations[k], floatingDecorations[n]) = 
+				(floatingDecorations[k], floatingDecorations[n]) = 
 				(floatingDecorations[n], floatingDecorations[k]);
-            }
-        }
+			}
+		}
 
 		// TODO:
 		// A LOT more data could be cached here instead of done every time the map is Loaded into a World
@@ -278,6 +280,8 @@ public class Map
 		Log.Info($"Strawb Count: {LoadStrawberryCounter}");
 		LoadStrawberryCounter = 0;
 		LoadWorld = null;
+
+		ModManager.Instance.OnMapLoaded(this);
 	}
 
 	private void LoadActor(World world, SledgeEntity entity)
@@ -340,6 +344,12 @@ public class Map
 			var it = factory.Create(this, entity);
 			if (it != null)
 				HandleActorCreation(world, entity, it, factory);
+		}
+		else if (ModActorFactories.TryGetValue(entity.ClassName, out var modfactory))
+		{
+			var it = modfactory.Create(this, entity);
+			if (it != null)
+				HandleActorCreation(world, entity, it, modfactory);
 		}
 	}
 
@@ -575,27 +585,27 @@ public class Map
 				return Vec3.UnitZ;
 		}
 
-        // Apply scaling to the axes
-        var scaledUAxis = face.UAxis / face.XScale;
-        var scaledVAxis = face.VAxis / face.YScale;
+		// Apply scaling to the axes
+		var scaledUAxis = face.UAxis / face.XScale;
+		var scaledVAxis = face.VAxis / face.YScale;
 
-        // Determine the rotation axis based on the face normal
-        var rotationAxis = GetRotationAxis(face.Plane.Normal);
-        var rotationMatrix = Matrix.CreateFromAxisAngle(rotationAxis, face.Rotation * Calc.DegToRad);
-        rotatedUAxis = Vec3.Transform(scaledUAxis, rotationMatrix);
-        rotatedVAxis = Vec3.Transform(scaledVAxis, rotationMatrix);
+		// Determine the rotation axis based on the face normal
+		var rotationAxis = GetRotationAxis(face.Plane.Normal);
+		var rotationMatrix = Matrix.CreateFromAxisAngle(rotationAxis, face.Rotation * Calc.DegToRad);
+		rotatedUAxis = Vec3.Transform(scaledUAxis, rotationMatrix);
+		rotatedVAxis = Vec3.Transform(scaledVAxis, rotationMatrix);
 	}
 
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static Vec2 CalculateUV(in SledgeFace face, in Vec3 vertex, in Vec2 textureSize, in Vec3 rotatedUAxis, in Vec3 rotatedVAxis)
-    {
-        Vec2 uv;
-        uv.X = vertex.X * rotatedUAxis.X + vertex.Y * rotatedUAxis.Y + vertex.Z * rotatedUAxis.Z;
-        uv.Y = vertex.X * rotatedVAxis.X + vertex.Y * rotatedVAxis.Y + vertex.Z * rotatedVAxis.Z;
-        uv.X += face.XShift;
-        uv.Y += face.YShift;
-        uv.X /= textureSize.X;
-        uv.Y /= textureSize.Y;
-        return uv;
-    }
+	private static Vec2 CalculateUV(in SledgeFace face, in Vec3 vertex, in Vec2 textureSize, in Vec3 rotatedUAxis, in Vec3 rotatedVAxis)
+	{
+		Vec2 uv;
+		uv.X = vertex.X * rotatedUAxis.X + vertex.Y * rotatedUAxis.Y + vertex.Z * rotatedUAxis.Z;
+		uv.Y = vertex.X * rotatedVAxis.X + vertex.Y * rotatedVAxis.Y + vertex.Z * rotatedVAxis.Z;
+		uv.X += face.XShift;
+		uv.Y += face.YShift;
+		uv.X /= textureSize.X;
+		uv.Y /= textureSize.Y;
+		return uv;
+	}
 }

@@ -1,7 +1,9 @@
-﻿using System.Text.Json;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Reflection;
+using System.Text.Json;
 using static Celeste64.Assets;
 
-namespace Celeste64.Source
+namespace Celeste64
 {
 	public class ModLoader
 	{
@@ -18,7 +20,7 @@ namespace Celeste64.Source
 					var baseFolder = AppContext.BaseDirectory;
 					var searchUpPath = "";
 					int up = 0;
-					while (!Directory.Exists(Path.Join(baseFolder, searchUpPath, ModFolder)) && up++ < 5)
+					while (!Directory.Exists(Path.Join(baseFolder, searchUpPath, ModFolder)) && up++ < 6)
 						searchUpPath = Path.Join(searchUpPath, "..");
 					if (!Directory.Exists(Path.Join(baseFolder, searchUpPath, ModFolder)))
 						throw new Exception($"Unable to find {ModFolder} Directory from '{baseFolder}'");
@@ -224,6 +226,39 @@ namespace Celeste64.Source
 				}
 			}
 			return skins;
+		}
+
+		[RequiresUnreferencedCode("Uses Reflection to load mod DLLs")]
+		public static List<GameMod> LoadMods()
+		{
+			var mods = new List<GameMod>();
+
+			foreach (var directory in Directory.EnumerateDirectories(ModFolderPath))
+			{
+				var libraryPath = Path.Join(directory, "DLLs");
+
+				if (!Directory.Exists(libraryPath)) continue;
+
+				foreach (var file in Directory.EnumerateFiles(libraryPath, "*.dll", SearchOption.AllDirectories))
+				{
+					var DLL = Assembly.LoadFile(file);
+
+					foreach (Type type in DLL.GetExportedTypes())
+					{
+						if (type.BaseType == typeof(GameMod))
+						{
+							GameMod? instance = (GameMod?)Activator.CreateInstance(type);
+							if(instance != null)
+							{
+								instance.modName = $"{directory}/{file}";
+								mods.Add(instance);
+							}
+						}
+					}
+				}
+			}
+
+			return mods;
 		}
 	}
 }

@@ -6,7 +6,6 @@ public class SolidMesh : Solid
 	private readonly SkinnedModel model;
 	private readonly float scale = 6;
 	private Vec3 spawnPoint;
-	private bool hasRider = false;
 
 	public SolidMesh(SkinnedTemplate model, float scale)
 	{
