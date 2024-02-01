@@ -25,7 +25,11 @@ public class DefaultMaterial : Material
     public DefaultMaterial(Texture? texture = null)
 		: base(Assets.Shaders["Default"])
 	{
-		Debug.Assert(Shader != null && Shader.Has(MatrixUniformName), $"Shader '{Shader.Name}' is missing '{MatrixUniformName}' uniform");
+        if (!(Shader?.Has(MatrixUniformName) ?? false))
+        {
+            Log.Warning($"Shader '{Shader?.Name}' is missing '{MatrixUniformName}' uniform");
+        }
+        
         Texture = texture;
 		Color = Color.White;
 		Effects = 1.0f;
@@ -34,13 +38,23 @@ public class DefaultMaterial : Material
     public Matrix MVP
     {
         get => matrix;
-        set => Set(MatrixUniformName, matrix = value);
+        set
+        {
+            matrix = value;
+            if (Shader?.Has(MatrixUniformName) ?? false)
+                Set(MatrixUniformName, value);
+        }
     }
 
     public Matrix Model
     {
         get => model;
-        set => Set("u_model", model = value);
+        set
+        {
+            model = value;
+            if (Shader?.Has("u_model") ?? false)
+                Set("u_model", value);
+        }
     }
 
     public Texture? Texture

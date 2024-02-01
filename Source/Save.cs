@@ -147,6 +147,26 @@ public class Save
 		Audio.SetVCAVolume("vca:/sfx", Calc.Clamp(SfxVolume / 10.0f, 0, 1));
 	}
 
+	public void SaveToFile()
+	{
+		var savePath = Path.Join(App.UserPath, FileName);
+		var tempPath = Path.Join(App.UserPath, FileName + ".backup");
+
+		// first save to a temporary file
+		{
+			using var stream = File.Create(tempPath);
+			Serialize(stream, this);
+			stream.Flush();
+		}
+
+		// validate that the temp path worked, and overwride existing if it did.
+		if (File.Exists(tempPath) &&
+			Deserialize(File.ReadAllText(tempPath)) != null)
+		{
+			File.Copy(tempPath, savePath, true);
+		}
+	}
+
 	public static void Serialize(Stream stream, Save instance)
 	{
 		JsonSerializer.Serialize(stream, instance, SaveContext.Default.Save);
@@ -154,7 +174,15 @@ public class Save
 
 	public static Save? Deserialize(string data)
 	{
-		return JsonSerializer.Deserialize(data, SaveContext.Default.Save);
+		try
+		{
+			return JsonSerializer.Deserialize(data, SaveContext.Default.Save);
+		}
+		catch (Exception e)
+		{
+			Log.Error(e.ToString());
+			return null;
+		}
 	}
 }
 

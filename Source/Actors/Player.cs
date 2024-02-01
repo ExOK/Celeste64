@@ -629,7 +629,7 @@ public class Player : Actor, IHaveModels, IHaveSprites, IRidePlatforms, ICastPoi
 				mat.Color = color;
 				mat.Effects = 0;
 			}
-			mat.Set("u_silhouette_color", color);
+            mat.SilhouetteColor = color;
 		}
 
 		Hair.Color = color;

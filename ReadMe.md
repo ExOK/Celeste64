@@ -16,14 +16,14 @@ You can find prebuilt version of the game on [itch.io](https://maddymakesgamesin
 
 ### Tools Used
  - [TrenchBroom](https://trenchbroom.github.io/): For Level Editing
- - [Blender](https://www.blender.org/): For creating 3D Model
+ - [Blender](https://www.blender.org/): For creating 3D Models
  - [Aseprite](https://www.aseprite.org/): For drawing Textures
 
 ### Resources Used
  - [khronos glTF Tutorials](https://github.khronos.org/glTF-Tutorials/gltfTutorial/gltfTutorial_020_Skins.html#the-joint-matrices): To figure out how Mesh Skins/Bones work
  - [LearnOpenGL](https://learnopengl.com/Advanced-OpenGL/Depth-testing): For general rendering concepts / normalizing Depth
  - [Kenny's Input Prompts](https://kenney.nl/assets/input-prompts): For UI Button Prompts
- - [Renogare](https://www.dafont.com/renogare.font): Font for Text
+ - [Renogare](https://www.dafont.com/renogare.font): Main font
 
 ### Created By ...
  - [Maddy Thorson](http://maddymakesgames.com/)
