@@ -9,3 +9,11 @@ Content/FMOD/celeste64/.cache
 Content/FMOD/celeste64/.user
 Content/FMOD/celeste64/.unsaved
 Properties/PublishProfiles/FolderProfile.pubxml
+
+# ignore mods, except for the built in included ones
+Mods
+-Mods/BadelineSkin
+-Mods/GrannySkin
+-Mods/ShortHairSkin
+-Mods/TestLevel
+-Mods/TheoSkin
