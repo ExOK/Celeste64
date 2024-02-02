@@ -17,18 +17,67 @@ public sealed class ModManager
 		}
 	}
 
-	private List<GameMod> mods = new List<GameMod>();
+	public LayeredFilesystem GlobalFilesystem { get; } = new();
+		
+	private CancellationTokenSource _modFilesystemCleanupTimerToken = new();
 
-	public void RegisterMod(GameMod mod)
+	private List<GameMod> mods = [];
+
+	internal void Unload()
+	{
+		_modFilesystemCleanupTimerToken.Cancel();
+		_modFilesystemCleanupTimerToken = new();
+
+		var modsCopy = mods.ToList();
+		foreach (var mod in modsCopy)
+		{
+			DeregisterMod(mod);
+		}
+	}
+	
+	internal void InitializeFilesystemBackgroundCleanup()
+	{
+		// Initialize background mod filesystem cleanup task
+		var timer = new PeriodicTimer(TimeSpan.FromSeconds(5));
+		Task.Run(async () => {
+			while (await timer.WaitForNextTickAsync(_modFilesystemCleanupTimerToken.Token)) {
+				foreach (var mod in mods)
+				{
+					mod.Filesystem.BackgroundCleanup();
+				}
+			}
+		}, _modFilesystemCleanupTimerToken.Token);
+	}
+	
+	internal void RegisterMod(GameMod mod)
 	{
 		mods.Add(mod);
+		GlobalFilesystem.Add(mod);
+		mod.Filesystem.OnFileChanged += OnModFileChanged;
 		mod.OnModLoaded();
 	}
 
-	public void DeregisterMod(GameMod mod)
+	internal void DeregisterMod(GameMod mod)
 	{
 		mods.Remove(mod);
+		GlobalFilesystem.Remove(mod);
+		mod.Filesystem.Dispose();
+		mod.Filesystem.OnFileChanged -= OnModFileChanged;
 		mod.OnModUnloaded();
+	}
+
+	internal void OnModFileChanged(ModFileChangedCtx ctx)
+	{
+		if (ctx.Path is { } filepath)
+		{
+			Log.Info($"File Changed: {filepath} (From mod {ctx.Mod.ModName}). Reloading assets.");
+		}
+		else
+		{
+			Log.Info($"Mod archive for mod {ctx.Mod.ModName} changed. Reloading assets.");
+		}
+		
+		Game.Instance.ReloadAssets();
 	}
 
 	internal void Update(float deltaTime)

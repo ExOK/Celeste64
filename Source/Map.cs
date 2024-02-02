@@ -119,14 +119,14 @@ public class Map
 	public World? LoadWorld;
 	public int LoadStrawberryCounter = 0;
 
-	public Map(string name, string filename)
+	public Map(string name, string virtPath, Stream stream)
 	{
 		Name = name;
-		Filename = filename;
-		Folder = Path.GetDirectoryName(filename) ?? string.Empty;
+		Filename = virtPath;
+		Folder = Path.GetDirectoryName(virtPath) ?? string.Empty;
 
 		var format = new QuakeMapFormat();
-		Data = format.ReadFromFile(filename);
+		Data = format.Read(stream);
 
 		Skybox = Data.Worldspawn.GetStringProperty("skybox", "city");
 		SnowAmount = Data.Worldspawn.GetFloatProperty("snowAmount", 1);

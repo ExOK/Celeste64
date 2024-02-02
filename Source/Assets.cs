@@ -1,10 +1,8 @@
-﻿using Foster.Framework;
-using System.Collections.Concurrent;
+﻿using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using System.Xml.Linq;
 
 namespace Celeste64;
 
@@ -60,170 +58,126 @@ public static class Assets
 		Models.Clear();
 		Fonts.Clear();
 		Audio.Unload();
+		
+		ModLoader.RegisterAllMods();
 
 		var maps = new ConcurrentBag<Map>();
 		var images = new ConcurrentBag<(string, Image)>();
 		var models = new ConcurrentBag<(string, SkinnedTemplate)>();
 		var tasks = new List<Task>();
 
-		// load map files
+		var globalFs = ModManager.Instance.GlobalFilesystem;
+		foreach (var (file, mod) in globalFs.FindFilesInDirectoryRecursiveWithMod("Maps", "map"))
 		{
-			var mapsPath = Path.Join(ContentPath, "Maps");
-			foreach (var file in Directory.EnumerateFiles(mapsPath, "*.map", SearchOption.AllDirectories))
-			{
-				var name = GetResourceName(mapsPath, file);
-				if (name.StartsWith("autosave", StringComparison.OrdinalIgnoreCase))
-					continue;
+			// Skip the "autosave" folder
+			if (file.StartsWith("Maps/autosave", StringComparison.OrdinalIgnoreCase))
+				continue;
 
-				tasks.Add(Task.Run(() =>
-				{
-					var map = new Map(name, file);
-					maps.Add(map);
-				}));
-			}
-
-			// ModloaderCustom
-			foreach (var mapfile in ModLoader.LoadMaps())
-			{
-				tasks.Add(Task.Run(() =>
-				{
-					var map = new Map(mapfile.Key, mapfile.Value);
-					maps.Add(map);
-				}));
-			}
-		}
-
-		// load texture pngs
-		var texturesPath = Path.Join(ContentPath, "Textures");
-		foreach (var file in Directory.EnumerateFiles(texturesPath, "*.png", SearchOption.AllDirectories))
-		{
-			var name = GetResourceName(texturesPath, file);
 			tasks.Add(Task.Run(() =>
 			{
-				var img = new Image(file);
-				img.Premultiply();
-				images.Add((name, img));
+				if (mod.Filesystem.TryOpenFile(file, 
+					    stream => new Map(GetResourceNameFromVirt(file, "Maps"), file, stream), out var map))
+				{
+					maps.Add(map);
+				}
 			}));
 		}
 
-		// ModloaderCustom
-		foreach (var textureFile in ModLoader.LoadTextures())
+		// load texture pngs
+		foreach (var (file, mod) in globalFs.FindFilesInDirectoryRecursiveWithMod("Textures", "png"))
 		{
 			tasks.Add(Task.Run(() =>
 			{
-				var img = new Image(textureFile.Value);
-				img.Premultiply();
-				images.Add((textureFile.Key, img));
+				if (mod.Filesystem.TryLoadImage(file, out var image))
+				{
+					images.Add((GetResourceNameFromVirt(file, "Textures"), image));
+				}
 			}));
 		}
 
 		// load faces
-		var facesPath = Path.Join(ContentPath, "Faces");
-		foreach (var file in Directory.EnumerateFiles(facesPath, "*.png", SearchOption.AllDirectories))
-		{
-			var name = $"faces/{GetResourceName(facesPath, file)}";
-			tasks.Add(Task.Run(() =>
-			{
-				var img = new Image(file);
-				img.Premultiply();
-				images.Add((name, img));
-			}));
-		}
-
-		// ModloaderCustom
-		foreach (var faceFile in ModLoader.LoadFaces())
+		foreach (var (file, mod) in globalFs.FindFilesInDirectoryRecursiveWithMod("Faces", "png"))
 		{
 			tasks.Add(Task.Run(() =>
 			{
-				var img = new Image(faceFile.Value);
-				img.Premultiply();
-				images.Add((faceFile.Key, img));
+				var name = $"faces/{GetResourceNameFromVirt(file, "Faces")}";
+				if (mod.Filesystem.TryLoadImage(file, out var image))
+				{
+					images.Add((name, image));
+				}
 			}));
 		}
 
 		// load glb models
-		var modelPath = Path.Join(ContentPath, "Models");
-		foreach (var file in Directory.EnumerateFiles(modelPath, "*.glb", SearchOption.AllDirectories))
-		{
-			var name = GetResourceName(modelPath, file);
-
-			tasks.Add(Task.Run(() =>
-			{
-				var input = SharpGLTF.Schema2.ModelRoot.Load(file);
-				var model = new SkinnedTemplate(input);
-				models.Add((name, model));
-			}));
-		}
-
-		// ModloaderCustom
-		foreach (var modelFile in ModLoader.LoadModels())
+		foreach (var (file, mod) in globalFs.FindFilesInDirectoryRecursiveWithMod("Models", "glb"))
 		{
 			tasks.Add(Task.Run(() =>
 			{
-				var input = SharpGLTF.Schema2.ModelRoot.Load(modelFile.Value);
-				var model = new SkinnedTemplate(input);
-				models.Add((modelFile.Key, model));
+				if (mod.Filesystem.TryOpenFile(file, stream => SharpGLTF.Schema2.ModelRoot.ReadGLB(stream),
+					    out var input))
+				{
+					var model = new SkinnedTemplate(input);
+					models.Add((GetResourceNameFromVirt(file, "Models"), model));
+				}
 			}));
 		}
 
 		// load audio
-		Audio.Load(Path.Join(ContentPath, "Audio"));
-
-		// ModloaderCustom
-		ModLoader.LoadAudio();
-
-		// load level json
+		var allBankFiles = globalFs.FindFilesInDirectoryRecursiveWithMod("Audio", "bank").ToList();
+		// load strings first
+		foreach (var (file, mod) in allBankFiles)
 		{
-			var data = File.ReadAllText(Path.Join(ContentPath, "Levels.json"));
-			Levels = JsonSerializer.Deserialize(data, LevelInfoListContext.Default.ListLevelInfo) ?? [];
-
-			// ModloaderCustom
-			Levels.AddRange(ModLoader.LoadLevels());
+			if (file.EndsWith(".strings.bank"))
+				mod.Filesystem.TryOpenFile(file, Audio.LoadBankFromStream);
+		}
+		// load banks second
+		foreach (var (file, mod) in allBankFiles)
+		{
+			if (file.EndsWith(".bank") && !file.EndsWith(".strings.bank"))
+				mod.Filesystem.TryOpenFile(file, Audio.LoadBankFromStream);
 		}
 
-		// load dialog json
+		// load level, dialog jsons
+		Levels = [];
+		Dialog = [];
+		foreach (var fs in globalFs.InnerFilesystems)
 		{
-			var data = File.ReadAllText(Path.Join(ContentPath, "Dialog.json"));
-			Dialog = JsonSerializer.Deserialize(data, DialogLineDictContext.Default.DictionaryStringListDialogLine) ?? [];
-
-			// ModloaderCustom
-			foreach (var dialogData in ModLoader.LoadDialog())
+			if (fs.TryOpenFile("Levels.json", 
+				    stream => JsonSerializer.Deserialize(stream, LevelInfoListContext.Default.ListLevelInfo) ?? [], 
+				    out var levels))
 			{
-				Dialog[dialogData.Key] = dialogData.Value;
+				Levels.AddRange(levels);
+			}
+			
+			if (fs.TryOpenFile("Dialog.json", 
+				    stream => JsonSerializer.Deserialize(stream, DialogLineDictContext.Default.DictionaryStringListDialogLine) ?? [], 
+				    out var dialog))
+			{
+				foreach (var (key, value) in dialog)
+				{
+					Dialog[key] = value;
+				}
 			}
 		}
 
 		// load glsl shaders
-		var shadersPath = Path.Join(ContentPath, "Shaders");
-		foreach (var file in Directory.EnumerateFiles(shadersPath, "*.glsl"))
+		foreach (var (file, mod) in globalFs.FindFilesInDirectoryRecursiveWithMod("Shaders", "glsl"))
 		{
-			if (LoadShader(file) is Shader shader)
+			if (mod.Filesystem.TryOpenFile(file, stream => LoadShader(file, stream), out var shader))
 			{
-				shader.Name = GetResourceName(shadersPath, file);
+				shader.Name = GetResourceNameFromVirt(file, "Shaders");
 				Shaders[shader.Name] = shader;
 			}
 		}
-		// ModloaderCustom
-		foreach(var shaderFile in ModLoader.LoadShaders())
-		{
-			Shaders[shaderFile.Key] = shaderFile.Value;
-		}
 
 		// load font files
-		var fontsPath = Path.Join(ContentPath, "Fonts");
-		foreach (var file in Directory.EnumerateFiles(fontsPath, "*.*", SearchOption.AllDirectories))
+		foreach (var (file, mod) in globalFs.FindFilesInDirectoryRecursiveWithMod("Fonts", ""))
+		{
 			if (file.EndsWith(".ttf") || file.EndsWith(".otf"))
-				Fonts.Add(GetResourceName(fontsPath, file), new SpriteFont(file, FontSize));
-
-		// ModloaderCustom
-		foreach (var fontFile in ModLoader.LoadFonts())
-		{
-			Fonts.Add(fontFile.Key, fontFile.Value);
-		}
-
-		foreach (GameMod mod in ModLoader.LoadMods())
-		{
-			ModManager.Instance.RegisterMod(mod);
+			{
+				if (mod.Filesystem.TryOpenFile(file, stream => new SpriteFont(stream, FontSize), out var font))
+					Fonts.Add(GetResourceNameFromVirt(file, "Fonts"), font);
+			}
 		}
 
 		// pack sprites into single texture
@@ -234,14 +188,11 @@ public static class Assets
 				CombineDuplicates = false,
 				Padding = 1
 			};
-
-			var spritesPath = Path.Join(ContentPath, "Sprites");
-			foreach (var file in Directory.EnumerateFiles(spritesPath, "*.png", SearchOption.AllDirectories))
-				packer.Add(GetResourceName(spritesPath, file), new Image(file));
-			// ModloaderCustom
-			foreach (var spriteFile in ModLoader.LoadSprites())
+			
+			foreach (var (file, mod) in globalFs.FindFilesInDirectoryRecursiveWithMod("Sprites", "png"))
 			{
-				packer.Add(spriteFile.Key, new Image(spriteFile.Value));
+				if (mod.Filesystem.TryOpenFile(file, stream => new Image(stream), out var img))
+					packer.Add(GetResourceNameFromVirt(file, "Sprites"), img);
 			}
 
 			var result = packer.Pack();
@@ -261,7 +212,7 @@ public static class Assets
 			foreach (var task in tasks)
 				task.Wait();
 			foreach (var (name, img) in images)
-				Textures.Add(name, new Texture(img) { Name = name });
+				Textures[name] = new Texture(img) { Name = name };
 			foreach (var map in maps)
 				Maps[map.Name] = map;
 			foreach (var (name, model) in models)
@@ -271,58 +222,64 @@ public static class Assets
 			}
 		}
 
-		// ModloaderCustom
 		// Load Skins
-		Skins = ModLoader.LoadSkins();
+		Skins = [
+			new SkinInfo("player", false, "Default", 0xdb2c00, 0x6ec0ff, 0xfa91ff, 0xffffff, 0xf2d450)
+		];
 
+		foreach (var (file, mod) in globalFs.FindFilesInDirectoryRecursiveWithMod("Skins", "json"))
+		{
+			if (mod.Filesystem.TryOpenFile(file,
+				    stream => JsonSerializer.Deserialize(stream, SkinInfoContext.Default.SkinInfo), out var skin))
+			{
+				Skins.Add(skin);
+			}
+		}
 
 		Log.Info($"Loaded Assets in {timer.ElapsedMilliseconds}ms");
 	}
 
-	//ModLoaderCustom: Change to internal
-	internal static string GetResourceName(string contentFolder, string path)
+	internal static string GetResourceNameFromVirt(string virtPath, string folder)
 	{
-		var fullname = Path.Join(Path.GetDirectoryName(path), Path.GetFileNameWithoutExtension(path));
-		var relative = Path.GetRelativePath(contentFolder, fullname);
-		var normalized = relative.Replace("\\", "/");
-		return normalized;
+		var ext = Path.GetExtension(virtPath);
+		// +1 to account for the forward slash
+		return virtPath.AsSpan((folder.Length+1)..^ext.Length).ToString();
 	}
-
-	//ModLoaderCustom: Change to internal
-	internal static Shader? LoadShader(string file)
+	
+	internal static Shader? LoadShader(string virtPath, Stream file)
 	{
-		ShaderCreateInfo? data = null;
+		using var reader = new StreamReader(file);
+		var code = reader.ReadToEnd();
 
-		if (File.Exists(file))
+		StringBuilder vertex = new();
+		StringBuilder fragment = new();
+		StringBuilder? target = null;
+		
+		foreach (var l in code.Split('\n'))
 		{
-			StringBuilder vertex = new();
-			StringBuilder fragment = new();
-			StringBuilder? target = null;
-			foreach (var line in File.ReadAllLines(file))
+			var line = l.Trim('\r');
+			
+			if (line.StartsWith("VERTEX:"))
+				target = vertex;
+			else if (line.StartsWith("FRAGMENT:"))
+				target = fragment;
+			else if (line.StartsWith("#include"))
 			{
-				if (line.StartsWith("VERTEX:"))
-					target = vertex;
-				else if (line.StartsWith("FRAGMENT:"))
-					target = fragment;
-				else if (line.StartsWith("#include"))
-				{
-					var path = Path.Join(Path.GetDirectoryName(file), line[9..]);
-					if (File.Exists(path))
-						target?.Append(File.ReadAllText(path));
-					else
-						throw new Exception($"Unable to find shader include: '{path}'");
-				}
-				else
-					target?.AppendLine(line);
-			}
+				var path = $"{Path.GetDirectoryName(virtPath)}/{line[9..]}";
 
-			data = new(
-				vertexShader: vertex.ToString(),
-				fragmentShader: fragment.ToString()
-			);
+				if (ModManager.Instance.GlobalFilesystem.TryLoadText(path, out var include))
+					target?.Append(include);
+				else
+					throw new Exception($"Unable to find shader include: '{path}'");
+			}
+			else
+				target?.AppendLine(line);
 		}
 
-		return data.HasValue ? new Shader(data.Value) : null;
+		return new Shader(new(
+			vertexShader: vertex.ToString(),
+			fragmentShader: fragment.ToString()
+		));
 	}
 }
 

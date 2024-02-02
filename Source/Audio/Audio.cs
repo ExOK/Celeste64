@@ -138,7 +138,17 @@ public static class Audio
 	public static void LoadBank(string path)
 	{
 		Check(system.loadBankFile(path, LOAD_BANK_FLAGS.NORMAL, out var bank));
+		LoadBank(bank);
+	}
 
+	public static void LoadBankFromStream(Stream stream)
+	{
+		Check(system.loadBankMemory(stream.ReadAllToByteArray(), LOAD_BANK_FLAGS.NORMAL, out var bank));
+		LoadBank(bank);
+	}
+
+	private static void LoadBank(Bank bank)
+	{
 		banks.Add(bank);
 		bank.getEventList(out var evs);
 		bank.getBusList(out var bs);
