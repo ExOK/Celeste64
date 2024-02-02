@@ -12,10 +12,12 @@ It also implements some new functionality like custom skins, and the ability to 
 ### [We're also on Discord, join us!](https://discord.gg/9NJcbSyuae)
 
 # Installation
-- [Download the latest release here.](https://github.com/jasminegamedev/Fuji/releases/latest)
-- Unzip the project.
-- Put your mods into the Mods folder that comes with Fuji.
-- Open `Celeste64Launcher.exe` to start playing!
+- For Windows users:
+    - [Download the latest release here.](https://github.com/jasminegamedev/Fuji/releases/latest)
+    - Unzip the project.
+    - Put your mods into the Mods folder that comes with Fuji.
+    - Open `Celeste64Launcher.exe` to start playing!
+- For Linux/MacOS users you may follow [this](https://github.com/FujiAPI/Fuji/blob/main/.md) guide
 
 ### License
  - The Celeste IP and everything in the `Content` folder are owned by [Maddy Makes Games, Inc](https://www.maddymakesgames.com/).
