@@ -91,6 +91,8 @@ public class World : Scene
 			pauseMenu.Add(new Menu.Spacer());
 			pauseMenu.Add(new Menu.Slider("BGM", 0, 10, () => Save.Instance.MusicVolume, Save.Instance.SetMusicVolume));
 			pauseMenu.Add(new Menu.Slider("SFX", 0, 10, () => Save.Instance.SfxVolume, Save.Instance.SetSfxVolume));
+			pauseMenu.Add(new Menu.Toggle("Invert Camera X Axis", Save.Instance.ToggleXCamera, () => Save.Instance.InvertXCamera));
+			pauseMenu.Add(new Menu.Toggle("Invert Camera Y Axis", Save.Instance.ToggleYCamera, () => Save.Instance.InvertYCamera));
 			pauseMenu.Add(new Menu.Spacer());
 			pauseMenu.Add(new Menu.Option("Save & Quit", () => Game.Instance.Goto(new Transition()
 			{

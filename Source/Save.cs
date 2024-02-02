@@ -68,7 +68,16 @@ public class Save
 	/// </summary>
 	public int SfxVolume { get; set; } = 10;
 
+	///	<summary>
+	/// Invert camera in X direction
+	/// </summary>
+	public bool InvertXCamera { get; set; } = false;
+
 	/// <summary>
+	/// Invert camera in Y direction
+	/// </summary>
+	public bool InvertYCamera { get; set; } = false;
+
 	/// Records for each level
 	/// </summary>
 	public List<LevelRecord> Records { get; set; } = [];
@@ -121,6 +130,16 @@ public class Save
 	public void ToggleZGuide()
 	{
 		ZGuide = !ZGuide;
+	}
+
+	public void ToggleXCamera()
+	{
+		InvertXCamera = !InvertXCamera;
+	}
+
+	public void ToggleYCamera()
+	{
+		InvertYCamera = !InvertYCamera;
 	}
 
 	public void ToggleTimer()
