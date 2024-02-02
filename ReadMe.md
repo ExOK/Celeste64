@@ -9,7 +9,6 @@ TODO
  - [Power Up Audio](https://powerupaudio.com/)
  - [Lena Raine](https://lena.fyi/)
  - [Heidy Motta](https://www.heidy.page/).
- - 
 ### Libraries Used
  - [Foster](https://github.com/FosterFramework/Foster) + [SDL2](https://github.com/libsdl-org/sdl): Input/Windowing/Rendering
  - [SledgeFormats](https://github.com/LogicAndTrick/sledge-formats): Parsing TrenchBroom level formats
