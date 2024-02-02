@@ -1,13 +1,15 @@
-# Celeste 64: Fragments of the Mountain
-This is the source code and general information for *Celeste 64: Fragments of the Mountain*, a game made by the original Celeste developers in under 2 weeks for Celeste's 6th Anniversary. We haven't done a lot of 3D development so much of this is not very optimized, it's coded in libraries mostly intended for 2D games, and we put it all together very, very quickly. Consider this similar to a weekend jam game, so experiment and learn at your own risk!  
+# UMM for Celeste 64: Fragments of the Mountain
+TODO
 
-You can find prebuilt version of the game on [itch.io](https://maddymakesgamesinc.itch.io/celeste64).
-
-### Installation
- - You need [.NET 8.0](https://dotnet.microsoft.com/en-us/download/dotnet/8.0)
- - Clone this repo, make sure NuGet packages are found with `dotnet restore`
- - Run `Celeste64.csproj` with `dotnet run` or `dotnet build`
-
+## Celeste 64: Fragments of the Mountain made by 
+ - [Maddy Thorson](http://maddymakesgames.com/)
+ - [Noel Berry](https://noelberry.ca)
+ - [Amora B.](https://amorabettany.com)
+ - [Pedro "Saint11" Medeiros](http://saint11.org/)
+ - [Power Up Audio](https://powerupaudio.com/)
+ - [Lena Raine](https://lena.fyi/)
+ - [Heidy Motta](https://www.heidy.page/).
+ - 
 ### Libraries Used
  - [Foster](https://github.com/FosterFramework/Foster) + [SDL2](https://github.com/libsdl-org/sdl): Input/Windowing/Rendering
  - [SledgeFormats](https://github.com/LogicAndTrick/sledge-formats): Parsing TrenchBroom level formats
@@ -24,15 +26,6 @@ You can find prebuilt version of the game on [itch.io](https://maddymakesgamesin
  - [LearnOpenGL](https://learnopengl.com/Advanced-OpenGL/Depth-testing): For general rendering concepts / normalizing Depth
  - [Kenny's Input Prompts](https://kenney.nl/assets/input-prompts): For UI Button Prompts
  - [Renogare](https://www.dafont.com/renogare.font): Main font
-
-### Created By ...
- - [Maddy Thorson](http://maddymakesgames.com/)
- - [Noel Berry](https://noelberry.ca)
- - [Amora B.](https://amorabettany.com)
- - [Pedro "Saint11" Medeiros](http://saint11.org/)
- - [Power Up Audio](https://powerupaudio.com/)
- - [Lena Raine](https://lena.fyi/)
- - [Heidy Motta](https://www.heidy.page/).
 
 ### License
  - The Celeste IP and everything in the `Content` folder are owned by [Maddy Makes Games, Inc](https://www.maddymakesgames.com/).
