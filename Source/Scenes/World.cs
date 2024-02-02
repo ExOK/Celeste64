@@ -370,7 +370,6 @@ public class World : Scene
 		{
 			if (Controls.Pause.Pressed || Controls.Cancel.Pressed)
 			{
-				pauseMenu.Index = 0;
 				SetPaused(false);
 				Audio.Play(Sfx.ui_unpause);
 			}
@@ -393,8 +392,10 @@ public class World : Scene
 				Audio.Play(Sfx.ui_pause);
 				pauseSnapshot = Audio.Play(Sfx.snapshot_pause);
 			}
-			else
+			else {
+				pauseMenu.Index = 0;
 				pauseSnapshot.Stop();
+			}
 
 			Controls.Consume();
 			Paused = paused;
