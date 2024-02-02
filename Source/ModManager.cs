@@ -64,6 +64,7 @@ public sealed class ModManager
 		mod.Filesystem.Dispose();
 		mod.Filesystem.OnFileChanged -= OnModFileChanged;
 		mod.OnModUnloaded();
+		mod.OnUnloadedCleanup?.Invoke();
 	}
 
 	internal void OnModFileChanged(ModFileChangedCtx ctx)
