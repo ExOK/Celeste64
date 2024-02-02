@@ -1,4 +1,4 @@
-name: Build for all platforms
+name: Build and build
 
 on:
   push:
@@ -7,9 +7,11 @@ on:
 
 jobs:
   build:
-
-    runs-on: ubuntu-latest
-
+    strategy:
+      matrix:
+        platform: [macos-latest, ubuntu-latest, windows-latest]
+    
+    runs-on: ${{ matrix.platform }}
     steps:
     - uses: actions/checkout@v3
 
@@ -18,121 +20,36 @@ jobs:
       with:
         dotnet-version: 8.0.x
 
-    - name: Create Release
-      id: create_release
-      uses: actions/create-release@v1
+    - name: Build
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        os: ${{ runner.os == 'Windows' && 'win' || runner.os == 'macOS' && 'osx' || 'linux' }}
+      run: |
+        dotnet publish -c Release -r ${{ env.os }}-x64 -p:ImportByWildcardBeforeSolution=false -o build && 
+        cp -r Content build
+
+    - name: Compress (Windows)
+      run: |
+        Compress-Archive build/* Celeste64-${{ github.ref_name }}-${{ runner.os }}-x64.zip
+      if: runner.os == 'Windows'
+    
+    - name: Compress (macOS and Linux)
+      run: |
+        cd build && zip -r ../Celeste64-${{ github.ref_name }}-${{ runner.os }}-x64.zip *
+      if: runner.os != 'Windows'
+
+    - name: Release (GitHub)
+      uses: softprops/action-gh-release@v1
       with:
-        tag_name: ${{ github.ref }}
-        release_name: Release ${{ github.ref }}
+        name: Release ${{ github.ref_name }}
         body: |
-            # Instructions:
+          # Instructions:
 
-            - Download and extract the zip file below according to your OS and machine 
-            - Run the Celeste64 application from the extracted files
-            
-            # Requirements:
-            
-            - **Windows:** x64 or arm64
-            - **Linux:** x64 or arm64
-            - **Mac:** x64 or arm64
-              - Minimum macOS Version: Monterey 12.7 (Unfortunately because of the [Foster framework](https://github.com/FosterFramework/Foster))
-        draft: false
-        prerelease: false
-
-    - name: Build for macOS (x64)
-      run: dotnet publish -r osx-x64 -p:ImportByWildcardBeforeSolution=false
-
-    - name: Compress
-      run: cd bin/Release/net8.0/osx-x64/publish/ && zip -r celeste64-macos-x64.zip *
-    
-    - name: Upload 
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }} 
-        asset_path: ./bin/Release/net8.0/osx-x64/publish/celeste64-macos-x64.zip
-        asset_name: celeste64-macos-x64.zip
-        asset_content_type: application/zip
-
-    - name: Build for macOS (arm)
-      run: dotnet publish -r osx-arm64 -p:ImportByWildcardBeforeSolution=false
-
-    - name: Compress
-      run: cd bin/Release/net8.0/osx-arm64/publish/ && zip -r celeste64-macos-arm.zip *
-    
-    - name: Upload 
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }} 
-        asset_path: ./bin/Release/net8.0/osx-arm64/publish/celeste64-macos-arm.zip
-        asset_name: celeste64-macos-arm.zip
-        asset_content_type: application/zip
-
-    - name: Build for Windows (x64)
-      run: dotnet publish -r win-x64 -p:ImportByWildcardBeforeSolution=false
-
-    - name: Compress
-      run: cd bin/Release/net8.0/win-x64/publish/ && zip -r celeste64-win-x64.zip *
-    
-    - name: Upload 
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }} 
-        asset_path: ./bin/Release/net8.0/win-x64/publish/celeste64-win-x64.zip
-        asset_name: celeste64-win-x64.zip
-        asset_content_type: application/zip
-
-    - name: Build for Windows (arm)
-      run: dotnet publish -r win-arm64 -p:ImportByWildcardBeforeSolution=false
-
-    - name: Compress
-      run: cd bin/Release/net8.0/win-arm64/publish/ && zip -r celeste64-win-arm.zip *
-    
-    - name: Upload 
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }} 
-        asset_path: ./bin/Release/net8.0/win-arm64/publish/celeste64-win-arm.zip
-        asset_name: celeste64-win-arm.zip
-        asset_content_type: application/zip
-
-    - name: Build for Linux (x64)
-      run: dotnet publish -r linux-x64 -p:ImportByWildcardBeforeSolution=false
-
-    - name: Compress
-      run: cd bin/Release/net8.0/linux-x64/publish/ && zip -r celeste64-linux-x64.zip *
-    
-    - name: Upload 
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }} 
-        asset_path: ./bin/Release/net8.0/linux-x64/publish/celeste64-linux-x64.zip
-        asset_name: celeste64-linux-x64.zip
-        asset_content_type: application/zip
-
-    - name: Build for Linux (arm)
-      run: dotnet publish -r linux-arm64 -p:ImportByWildcardBeforeSolution=false
-
-    - name: Compress
-      run: cd bin/Release/net8.0/linux-arm64/publish/ && zip -r celeste64-linux-arm.zip *
-    
-    - name: Upload
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }} 
-        asset_path: ./bin/Release/net8.0/linux-arm64/publish/celeste64-linux-arm.zip
-        asset_name: celeste64-linux-arm.zip
-        asset_content_type: application/zip
+          - Download and extract the zip file below according to your computer 
+          - Run the Celeste64 application from the extracted files
+          
+          # Requirements:
+          
+          - **Windows:** 10 or later, x64
+          - **Linux:** [Distro support list](https://github.com/dotnet/core/blob/main/release-notes/8.0/supported-os.md), x64
+          - **Mac:** Monterey or later, x64 Intel-based or Apple Silicon with Rosetta
+        files: Celeste64-${{ github.ref_name }}-${{ runner.os }}-x64.zip
