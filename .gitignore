@@ -2,6 +2,7 @@
 .idea
 bin
 obj
+build
 *.user
 Content/Map_Test/autosave
 Content/Maps/autosave
