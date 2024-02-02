@@ -5,8 +5,8 @@ public unsafe sealed class StateMachine<TIndex, TEvent>
 	where TIndex : unmanaged, Enum
 	where TEvent : unmanaged, Enum
 {
-	private static readonly int StateCount = Enum.GetValues(typeof(TIndex)).Length;
-	private static readonly int EventCount = Enum.GetValues(typeof(TEvent)).Length;
+	private static readonly int StateCount = Enum.GetValues<TIndex>().Length;
+	private static readonly int EventCount = Enum.GetValues<TEvent>().Length;
 	private static int StateToIndex(TIndex state) => *(int*)(&state);
 	private static int EventToIndex(TEvent state) => *(int*)(&state);
 

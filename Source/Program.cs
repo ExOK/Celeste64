@@ -22,7 +22,7 @@ class Program
 
 		try
 		{
-			App.Run<Game>(Game.GamePath, 1920, 1080);
+			App.Run<Game>(Game.GamePath, 1280, 720);
 		}
 		catch (Exception e)
 		{
