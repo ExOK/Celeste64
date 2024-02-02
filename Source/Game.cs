@@ -322,7 +322,7 @@ public class Game : Module
 
 	private FMOD.RESULT MusicTimelineCallback(FMOD.Studio.EVENT_CALLBACK_TYPE type, IntPtr _event, IntPtr parameters)
 	{
-		// notify that an audio event happend (but handle it on the main thread)
+		// notify that an audio event happened (but handle it on the main thread)
 		if (transitionStep == TransitionStep.None)
 			audioBeatCounterEvent = true;
 		return FMOD.RESULT.OK;
