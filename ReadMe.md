@@ -2,19 +2,20 @@
 ![Fuji](fuji.png)
 
 Fuji is a basic Mod Loader for *Celeste 64: Fragments of the Mountain*, a game made by the original Celeste developers in under 2 weeks for Celeste's 6th Anniversary. It is forked from the source code of that game.
+### [The original game can be found here](https://maddymakesgamesinc.itch.io/celeste64)
+### [You can also See the original game's github page for more information](https://github.com/ExOK/Celeste64)
 
-This is still very early in development, but is currently able to load custom levels alongside the main game, as well as loading additional assets such as custom models, custom dialog, custom textures, etc... (Note: Some of these haven't been tested thoroughly)
+Fuji is still very early in development, but is currently able to load custom levels alongside the main game, as well as loading additional assets such as custom models, custom dialog, custom textures, etc...
+It also implements some new functionality like custom skins, and the ability to load code mods from DLLs.
 
-[More info about Fuji can be found here](https://fujiapi.github.io/)
-
-### [We're on Discord, join us!](https://discord.gg/9NJcbSyuae)
+### [More info about Fuji can be found here](https://fujiapi.github.io/)
+### [We're also on Discord, join us!](https://discord.gg/9NJcbSyuae)
 
 # Installation
-[Download the latest release here.](https://github.com/jasminegamedev/Fuji/releases/latest)
-Unzip the folder, then open `Celeste64Launcher.exe` to start playing!
-
-See the original game's github page for more information:
-https://github.com/ExOK/Celeste64
+- [Download the latest release here.](https://github.com/jasminegamedev/Fuji/releases/latest)
+- Unzip the project.
+- Put your mods into the Mods folder that comees with Fuji.
+- Open `Celeste64Launcher.exe` to start playing!
 
 ### License
  - The Celeste IP and everything in the `Content` folder are owned by [Maddy Makes Games, Inc](https://www.maddymakesgames.com/).
