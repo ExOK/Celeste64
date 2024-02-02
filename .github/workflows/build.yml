@@ -1,0 +1,55 @@
+name: Build and build
+
+on:
+  push:
+    tags:        
+      - '**' 
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        platform: [macos-latest, ubuntu-latest, windows-latest]
+    
+    runs-on: ${{ matrix.platform }}
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: 8.0.x
+
+    - name: Build
+      env:
+        os: ${{ runner.os == 'Windows' && 'win' || runner.os == 'macOS' && 'osx' || 'linux' }}
+      run: |
+        dotnet publish -c Release -r ${{ env.os }}-x64 -p:ImportByWildcardBeforeSolution=false -o build && 
+        cp -r Content build
+
+    - name: Compress (Windows)
+      run: |
+        Compress-Archive build/* Celeste64-${{ github.ref_name }}-${{ runner.os }}-x64.zip
+      if: runner.os == 'Windows'
+    
+    - name: Compress (macOS and Linux)
+      run: |
+        cd build && zip -r ../Celeste64-${{ github.ref_name }}-${{ runner.os }}-x64.zip *
+      if: runner.os != 'Windows'
+
+    - name: Release (GitHub)
+      uses: softprops/action-gh-release@v1
+      with:
+        name: Release ${{ github.ref_name }}
+        body: |
+          # Instructions:
+
+          - Download and extract the zip file below according to your computer 
+          - Run the Celeste64 application from the extracted files
+          
+          # Requirements:
+          
+          - **Windows:** 10 or later, x64
+          - **Linux:** [Distro support list](https://github.com/dotnet/core/blob/main/release-notes/8.0/supported-os.md), x64
+          - **Mac:** Monterey or later, x64 Intel-based or Apple Silicon with Rosetta
+        files: Celeste64-${{ github.ref_name }}-${{ runner.os }}-x64.zip

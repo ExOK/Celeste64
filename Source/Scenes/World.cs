@@ -405,8 +405,10 @@ public class World : Scene
 				Audio.Play(Sfx.ui_pause);
 				pauseSnapshot = Audio.Play(Sfx.snapshot_pause);
 			}
-			else
+			else {
+				pauseMenu.Index = 0;
 				pauseSnapshot.Stop();
+			}
 
 			Controls.Consume();
 			Paused = paused;
@@ -805,6 +807,12 @@ public class World : Scene
 					UI.Strawberries(batch, Save.CurrentRecord.Strawberries.Count, Vec2.Zero);
 					batch.PopMatrix();
 				}
+
+				// show version number when paused / in ending area
+				if (IsInEndingArea || Paused)
+				{
+                    UI.Text(batch, Game.VersionString, bounds.BottomLeft + new Vec2(4, -4) * Game.RelativeScale, new Vec2(0, 1), Color.White * 0.25f);
+                }
 			}
 
 			// overlay
