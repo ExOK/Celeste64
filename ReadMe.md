@@ -1,8 +1,11 @@
-![Fuji](fuji.png)
 # Fuji: A Celeste 64 Mod Loader
+![Fuji](fuji.png)
+
 Fuji is a basic Mod Loader for *Celeste 64: Fragments of the Mountain*, a game made by the original Celeste developers in under 2 weeks for Celeste's 6th Anniversary. It is forked from the source code of that game.
 
 This is still very early in development, but is currently able to load custom levels alongside the main game, as well as loading additional assets such as custom models, custom dialog, custom textures, etc... (Note: Some of these haven't been tested thoroughly)
+
+[More info about Fuji can be found here](https://fujiapi.github.io/)
 
 ### [We're on Discord, join us!](https://discord.gg/9NJcbSyuae)
 
@@ -12,19 +15,6 @@ Unzip the folder, then open `Celeste64Launcher.exe` to start playing!
 
 See the original game's github page for more information:
 https://github.com/ExOK/Celeste64
-
-### Mod Loader Created By
- - Lead Developer: Jazzrabbit
- - Project Icon by: Wrench
-
-### Game Created By
- - Maddy Thorson
- - Noel Berry
- - Amora B.
- - Pedro "Saint11" Medeiros
- - Power Up Audio
- - Lena Raine
- - Heidy Motta.
 
 ### License
  - The Celeste IP and everything in the `Content` folder are owned by [Maddy Makes Games, Inc](https://www.maddymakesgames.com/).
