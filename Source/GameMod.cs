@@ -29,8 +29,7 @@ public abstract class GameMod
 
 	public void AddActorFactory(string name, Map.ActorFactory factory)
 	{
-		if (!Map.ModActorFactories.ContainsKey(name)) {
-			Map.ModActorFactories.Add(name, factory);
+		if (Map.ModActorFactories.TryAdd(name, factory)) {
 			OnUnloadedCleanup += () => Map.ModActorFactories.Remove(name);
 		}
 		else
