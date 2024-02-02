@@ -3,7 +3,7 @@
 
 Fuji is the modding tool used for Celeste 64 modding, you can find it [here](https://github.com/FujiAPI/Fuji). Instead of using the original Celeste 64 files downloaded from Itch or Github, Fuji is a drop-in replacement for Celeste64.
 
-Currently  only Windows builds are provided on the releases [page](https://github.com/FujiAPI/Fuji/releases). If you are on Linux or MacOS you may build Fuji yourself. The steps are as follows:
+Currently only Windows builds are provided on the releases [page](https://github.com/FujiAPI/Fuji/releases). If you are on Linux or MacOS you may build Fuji yourself. The steps are as follows:
 
 Prerequisites: You must have [.NET 8.0](https://dotnet.microsoft.com/en-us/download/dotnet/8.0)
 
