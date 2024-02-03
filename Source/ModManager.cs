@@ -1,7 +1,19 @@
-﻿namespace Celeste64;
+﻿using System.Collections.Frozen;
+
+namespace Celeste64;
 
 public sealed class ModManager
 {
+	// File extensions for which we shouldn't hot reload
+	private static readonly FrozenSet<string> HotReloadIgnoredExtensions = ((string[])[
+		".cs", ".csproj", ".sln", ".pdb", ".user" // C#/Rider related extensions
+	]).ToFrozenSet();
+	
+	// Top-level mod directories for which we shouldn't hot reload
+	private static readonly FrozenSet<string> HotReloadIgnoredFolders = ((string[])[
+		".idea", "bin", "obj", // C#/Rider related folders
+	]).ToFrozenSet();
+	
 	private ModManager() { }
 
 	private static ModManager? instance = null;
@@ -64,12 +76,47 @@ public sealed class ModManager
 		mod.Filesystem.Dispose();
 		mod.Filesystem.OnFileChanged -= OnModFileChanged;
 		mod.OnModUnloaded();
+		mod.OnUnloadedCleanup?.Invoke();
 	}
 
 	internal void OnModFileChanged(ModFileChangedCtx ctx)
 	{
 		if (ctx.Path is { } filepath)
 		{
+			// Filter out paths that we should not reload assets for
+			// Sometimes, the asset watcher returns just the directory name instead of filename, so we have to handle that.
+			if (HotReloadIgnoredExtensions.Contains(Path.GetExtension(filepath)))
+			{
+				return;
+			}
+			
+			var dir = Path.GetDirectoryName(filepath) ?? "";
+			
+			// Filter out top-level directories we don't want
+			if (HotReloadIgnoredFolders.Contains(filepath))
+			{
+				return;
+			}
+			var firstSepIndex = filepath.IndexOfAny(['/', '\\']);
+			if (firstSepIndex != -1)
+			{
+				var topLevelFolder = dir[..firstSepIndex];
+				if (HotReloadIgnoredFolders.Contains(topLevelFolder))
+				{
+					return;
+				}
+			}
+
+			if (filepath.StartsWith("Maps", StringComparison.Ordinal))
+			{
+				// Ignore the autosave folder
+				if (dir.EndsWith("autosave", StringComparison.Ordinal)
+				    || filepath.EndsWith("autosave", StringComparison.Ordinal))
+				{
+					return;
+				}
+			}
+			
 			Log.Info($"File Changed: {filepath} (From mod {ctx.Mod.ModName}). Reloading assets.");
 		}
 		else

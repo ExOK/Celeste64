@@ -82,3 +82,12 @@ public interface ICastPointShadow
 {
 	public float PointShadowAlpha { get; set; }
 }
+
+/// <summary>
+/// Player searches for these and calls HandleDash if it collides at high velocity
+/// </summary>
+public interface IDashTrigger
+{
+    public bool BouncesPlayer { get; }
+    public void HandleDash(Vec3 velocity);
+}

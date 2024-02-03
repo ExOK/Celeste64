@@ -1,17 +1,19 @@
 ﻿
 namespace Celeste64;
 
-public class BreakBlock : Solid
+public class BreakBlock : Solid, IDashTrigger
 {
 	private static readonly string[] glassShards = ["shard_0", "shard_1", "shard_2"];
 	private static readonly string[] woodShards = ["wood_shard_0", "wood_shard_1", "wood_shard_2"];
-	
-	public readonly bool BouncesPlayer;
+
 	public readonly bool Secret;
 
-	public BreakBlock(bool bouncesPlayer, bool transparent, bool secret)
+    public bool BouncesPlayer => bouncesPlayer;
+    private readonly bool bouncesPlayer;
+
+	public BreakBlock(bool bouncesPlayer_, bool transparent, bool secret)
 	{
-		BouncesPlayer = bouncesPlayer;
+		bouncesPlayer = bouncesPlayer_;
 		Transparent = transparent;
 		Secret = secret;
 
@@ -19,7 +21,7 @@ public class BreakBlock : Solid
 			Model.Flags = ModelFlags.Transparent;
 	}
 
-	public void Break(Vec3 direction)
+    public void HandleDash(Vec3 velocity)
 	{
 		var size = LocalBounds.Size;
 		var amount = (size.X * size.Y * size.Z) / 200;
@@ -37,7 +39,7 @@ public class BreakBlock : Solid
 		{
 			var offset = new Vec3(World.Rng.Float(size.X), World.Rng.Float(size.Y), World.Rng.Float(size.Z));
 			var at = Vec3.Transform(offset - size / 2, Matrix);
-			var velocity = direction * World.Rng.Float(100, 400);
+			velocity = velocity.Normalized() * World.Rng.Float(100, 400);
 			World.Request<Debris>().Init(at, velocity, options[World.Rng.Int(options.Length)]);
 		}
 
