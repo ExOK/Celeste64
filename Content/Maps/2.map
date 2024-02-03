@@ -5,7 +5,7 @@
 "classname" "worldspawn"
 "_tb_textures" "textures"
 "_tb_def" "external:../Celeste64.fgd"
-"skybox" "citynew"
+"skybox" "city"
 "snowAmount" "1"
 "snowDirection" "0 0 -1"
 "ambience" "mountain"
