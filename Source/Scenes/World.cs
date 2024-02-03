@@ -77,21 +77,25 @@ public class World : Scene
 
 		// setup pause menu
 		{
-			pauseMenu.Add(new Menu.Option("Resume", () => SetPaused(false)));
+			pauseMenu.Title = "Paused";
+            pauseMenu.Add(new Menu.Option("Resume", () => SetPaused(false)));
 			pauseMenu.Add(new Menu.Option("Retry", () =>
 			{
 				SetPaused(false);
 				Audio.StopBus(Sfx.bus_dialog, false);
 				Get<Player>()?.Kill();
 			}));
-			pauseMenu.Add(new Menu.Spacer());
-			pauseMenu.Add(new Menu.Toggle("Fullscreen", Save.Instance.ToggleFullscreen, () => Save.Instance.Fullscreen));
-			pauseMenu.Add(new Menu.Toggle("Z-Guide", Save.Instance.ToggleZGuide, () => Save.Instance.ZGuide));
-			pauseMenu.Add(new Menu.Toggle("Timer", Save.Instance.ToggleTimer, () => Save.Instance.SpeedrunTimer));
-			pauseMenu.Add(new Menu.Spacer());
-			pauseMenu.Add(new Menu.Slider("BGM", 0, 10, () => Save.Instance.MusicVolume, Save.Instance.SetMusicVolume));
-			pauseMenu.Add(new Menu.Slider("SFX", 0, 10, () => Save.Instance.SfxVolume, Save.Instance.SetSfxVolume));
-			pauseMenu.Add(new Menu.Spacer());
+
+			Menu optionsMenu = new Menu();
+			optionsMenu.Title = "Options";
+			optionsMenu.Add(new Menu.Toggle("Fullscreen", Save.Instance.ToggleFullscreen, () => Save.Instance.Fullscreen));
+			optionsMenu.Add(new Menu.Toggle("Z-Guide", Save.Instance.ToggleZGuide, () => Save.Instance.ZGuide));
+			optionsMenu.Add(new Menu.Toggle("Timer", Save.Instance.ToggleTimer, () => Save.Instance.SpeedrunTimer));
+			optionsMenu.Add(new Menu.Spacer());
+			optionsMenu.Add(new Menu.Slider("BGM", 0, 10, () => Save.Instance.MusicVolume, Save.Instance.SetMusicVolume));
+			optionsMenu.Add(new Menu.Slider("SFX", 0, 10, () => Save.Instance.SfxVolume, Save.Instance.SetSfxVolume));
+			pauseMenu.Add(new Menu.Submenu("Options", pauseMenu, optionsMenu));
+			
 			pauseMenu.Add(new Menu.Option("Save & Quit", () => Game.Instance.Goto(new Transition()
 			{
 				Mode = Transition.Modes.Replace,
@@ -368,8 +372,9 @@ public class World : Scene
 		// unpause
 		else
 		{
-			if (Controls.Pause.Pressed || Controls.Cancel.Pressed)
+			if (Controls.Pause.Pressed || Controls.Cancel.Pressed && pauseMenu.isInMainMenu())
 			{
+				pauseMenu.closeSubmenus();
 				SetPaused(false);
 				Audio.Play(Sfx.ui_unpause);
 			}
