@@ -13,6 +13,12 @@ public static class Controls
 	public static readonly VirtualButton Confirm = new("Confirm");
 	public static readonly VirtualButton Cancel = new("Cancel");
 	public static readonly VirtualButton Pause = new("Pause");
+	
+	public static bool IsNintendo(VirtualButton button, VirtualButton.IBinding binding) => 
+		(binding is VirtualButton.ButtonBinding b && Input.Controllers[b.Controller].Gamepad == Gamepads.Nintendo);
+
+	public static bool IsNotNintendo(VirtualButton button, VirtualButton.IBinding binding) => 
+		(binding is VirtualButton.ButtonBinding b && Input.Controllers[b.Controller].Gamepad != Gamepads.Nintendo);
 
 	public static void Load()
 	{
@@ -26,11 +32,11 @@ public static class Controls
 		Camera.Add(Keys.A, Keys.D, Keys.W, Keys.S);
 
 		Jump.Clear();
-		Jump.Add(0, Buttons.A, Buttons.Y);
+		Jump.Add(0, Buttons.South, Buttons.North);
 		Jump.Add(Keys.C);
 
 		Dash.Clear();
-		Dash.Add(0, Buttons.X, Buttons.B);
+		Dash.Add(0, Buttons.West, Buttons.East);
 		Dash.Add(Keys.X);
 
 		Climb.Clear();
@@ -45,11 +51,13 @@ public static class Controls
 		Menu.AddArrowKeys();
 		
 		Confirm.Clear();
-		Confirm.Add(0, Buttons.A);
+		Confirm.Add(IsNotNintendo, 0, Buttons.South);
+		Confirm.Add(IsNintendo, 0, Buttons.East);
 		Confirm.Add(0, Keys.C);
 		
 		Cancel.Clear();
-		Cancel.Add(0, Buttons.B);
+		Cancel.Add(IsNotNintendo, 0, Buttons.East);
+		Cancel.Add(IsNintendo, 0, Buttons.South);
 		Cancel.Add(0, Keys.X);
 		
 		Pause.Clear();
