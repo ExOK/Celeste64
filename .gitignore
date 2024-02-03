@@ -12,6 +12,6 @@ Content/FMOD/celeste64/.unsaved
 Properties/PublishProfiles/FolderProfile.pubxml
 
 # ignore mods, except for the built in included ones
--Mods
+Mods
 -Mods/DefaultSkins
 -Mods/TestLevel
