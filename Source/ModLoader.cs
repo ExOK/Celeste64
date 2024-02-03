@@ -31,7 +31,6 @@ namespace Celeste64
 			}
 		}
 
-        [RequiresUnreferencedCode("Uses Reflection to load mod DLLs")]
         internal static void RegisterAllMods()
 		{
 			VanillaGameMod vanillaMod = new VanillaGameMod

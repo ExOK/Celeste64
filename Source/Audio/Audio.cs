@@ -304,7 +304,10 @@ public static class Audio
 	}
 
 	internal static void Check(FMOD.RESULT result)
-		=> Debug.Assert(result == FMOD.RESULT.OK, $"FMOD Failed: {result}");
+	{	
+		if(result != FMOD.RESULT.OK)
+			throw new Exception( $"FMOD Failed: {result} ({FMOD.Error.String(result)})");
+	}
 }
 
 public static class AudioUtil

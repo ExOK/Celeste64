@@ -11,7 +11,8 @@ class Program
 	public static void Main(string[] args)
 	{
 		Game.LoaderVersion = typeof(Program).Assembly.GetName().Version!;
-		Log.Info($"Celeste 64 v.{Game.LoaderVersion.Major}.{Game.LoaderVersion.Minor}.{Game.LoaderVersion.Build}");
+		Log.Info($"Celeste 64 v.{Game.GameVersion.Major}.{Game.GameVersion.Minor}.{Game.GameVersion.Build}");
+		Log.Info($"Fuji v.{Game.LoaderVersion.Major}.{Game.LoaderVersion.Minor}.{Game.LoaderVersion.Build}");
 
 		AppDomain.CurrentDomain.UnhandledException += (object sender, UnhandledExceptionEventArgs e) =>
 		{
