@@ -60,7 +60,8 @@ public sealed class ZipModFilesystem : IModFilesystem {
         return stream;
     }
 
-    public bool TryOpenFile<T>(string path, Func<Stream, T> callback, [NotNullWhen(true)] out T? value) {
+    public bool TryOpenFile<T>(string path, Func<Stream, T> callback, [NotNullWhen(true)] out T? value)
+    {
         lock (_lock)
         {
             var zip = OpenZipIfNeeded();
@@ -116,7 +117,8 @@ public sealed class ZipModFilesystem : IModFilesystem {
         }
     }
 
-    public bool FileExists(string path) {
+    public bool FileExists(string path)
+    {
         if (string.IsNullOrWhiteSpace(path))
             return false;
 

@@ -21,7 +21,18 @@ public class Overworld : Scene
 		{
 			Level = level;
 			Target = new Target(CardWidth, CardHeight);
-			Image = new(Assets.Textures[level.Preview]);
+
+			// Prioritize getting Postcards from the this mod if they are available. 
+			GameMod? mod = ModManager.Instance.Mods.FirstOrDefault(mod => mod.Levels.Contains(level));
+			if (mod != null && mod.Textures.ContainsKey(level.Preview))
+			{
+				Image = new(mod.Textures[level.Preview]);
+			}
+			else
+			{
+				Image = new(Assets.Textures[level.Preview]);
+			}
+
 			Menu = new();
 			Menu.UpSound = Sfx.main_menu_roll_up;
 			Menu.DownSound = Sfx.main_menu_roll_down;
@@ -385,8 +396,8 @@ public class Overworld : Scene
 				UI.Prompt(batch, Controls.Confirm, "Confirm", at, out _, 1.0f);
 
 				// show version number on Overworld as well
-                UI.Text(batch, Game.VersionString, bounds.BottomLeft + new Vec2(4, -24) * Game.RelativeScale, new Vec2(0, 1), Color.CornflowerBlue * 0.75f);
-				UI.Text(batch, Game.LoaderVersionString, bounds.BottomLeft + new Vec2(4, -4) * Game.RelativeScale, new Vec2(0, 1), new Color(12326399) * 0.75f);
+                UI.Text(batch, Game.VersionString, bounds.BottomLeft + new Vec2(4, -4) * Game.RelativeScale, new Vec2(0, 1), Color.CornflowerBlue * 0.75f);
+				UI.Text(batch, Game.LoaderVersionString, bounds.BottomLeft + new Vec2(4, -24) * Game.RelativeScale, new Vec2(0, 1), new Color(12326399) * 0.75f);
 			}
 
 			if (cameraCloseUpEase > 0)
