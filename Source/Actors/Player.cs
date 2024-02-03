@@ -798,10 +798,21 @@ public class Player : Actor, IHaveModels, IHaveSprites, IRidePlatforms, ICastPoi
 				tFeatherWallBumpCooldown = 0.50f;
 				Audio.Play(Sfx.sfx_feather_state_bump_wall, Position);
 			}
-			// is it a breakable thing?
-			else if (resolveImpact && hit.Actor is BreakBlock breakable && !breakable.Destroying && velocity.XY().Length() > 90)
+			// does it handle being dashed into?
+			else if (resolveImpact && hit.Actor is IDashTrigger trigger && !hit.Actor.Destroying && velocity.XY().Length() > 90)
 			{
-				BreakBlock(breakable, velocity.Normalized());
+                World.HitStun = 0.1f;
+                trigger.HandleDash(velocity);
+
+                if (trigger.BouncesPlayer)
+                {
+                    velocity.X = -velocity.X * 0.80f;
+                    velocity.Y = -velocity.Y * 0.80f;
+                    velocity.Z = 100;
+
+                    StateMachine.State = States.Normal;
+                    CancelGroundSnap();
+                }
 			}
 			// normal wall
 			else
@@ -1001,22 +1012,6 @@ public class Player : Actor, IHaveModels, IHaveSprites, IRidePlatforms, ICastPoi
 		}
 		else
 			return false;
-	}
-
-	private void BreakBlock(BreakBlock block, Vec3 direction)
-	{
-		World.HitStun = 0.1f;
-		block.Break(direction);
-
-		if (block.BouncesPlayer)
-		{
-			velocity.X = -velocity.X * 0.80f;
-			velocity.Y = -velocity.Y * 0.80f;
-			velocity.Z = 100;
-
-			StateMachine.State = States.Normal;
-			CancelGroundSnap();
-		}
 	}
 
 	internal void Spring(Spring spring)
