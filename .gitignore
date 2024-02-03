@@ -3,12 +3,14 @@
 bin
 obj
 build
+Celeste64-Fuji
 *.user
 Content/Map_Test/autosave
 Content/Maps/autosave
 Content/FMOD/celeste64/.cache
 Content/FMOD/celeste64/.user
 Content/FMOD/celeste64/.unsaved
+Properties/PublishProfiles/FolderProfile.pubxml
 
 # ignore mods, except for the built in included ones
 Mods
