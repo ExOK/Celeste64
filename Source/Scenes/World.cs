@@ -67,6 +67,7 @@ public class World : Scene
 
 		var stopwatch = Stopwatch.StartNew();
 		var map = Assets.Maps[entry.Map];
+		ModManager.Instance.CurrentLevelMod = ModManager.Instance.Mods.FirstOrDefault(mod => mod.Maps.ContainsKey(entry.Map));
 
 		Camera.NearPlane = 20;
 		Camera.FarPlane = 800;
@@ -153,6 +154,7 @@ public class World : Scene
 
 		postTarget?.Dispose();
 		postTarget = null;
+		ModManager.Instance.CurrentLevelMod = null;
 	}
 
 	public T Request<T>() where T : Actor, IRecycle, new()

@@ -1,4 +1,6 @@
-﻿namespace Celeste64;
+﻿using static Celeste64.Assets;
+
+namespace Celeste64;
 
 public abstract class GameMod
 {
@@ -10,11 +12,22 @@ public abstract class GameMod
 	public World? World { get { return world; } }
 	public Map? Map { get { return map; } }
 
-	internal string modName = "";
+	public ModInfo? ModInfo { get; internal set; }
 
-	public string ModName { get { return modName; } }
-	
-	public IModFilesystem Filesystem { get; internal set; }
+	public string ModFolder { get; internal set; } = "";
+
+	// Todo: Hook up way to enable and disable mods
+	public bool Enabled { get { return true; } }
+
+	internal readonly Dictionary<string, Map> Maps = new(StringComparer.OrdinalIgnoreCase);
+	internal readonly Dictionary<string, Shader> Shaders = new(StringComparer.OrdinalIgnoreCase);
+	internal readonly Dictionary<string, Texture> Textures = new(StringComparer.OrdinalIgnoreCase);
+	internal readonly Dictionary<string, SkinnedTemplate> Models = new(StringComparer.OrdinalIgnoreCase);
+	internal readonly Dictionary<string, SpriteFont> Fonts = new(StringComparer.OrdinalIgnoreCase);
+	internal readonly Dictionary<string, List<DialogLine>> Dialog = new(StringComparer.OrdinalIgnoreCase);
+	internal readonly List<LevelInfo> Levels = new();
+
+	public IModFilesystem? Filesystem { get; internal set; }
 
 	/// <summary>
 	/// Cleanup tasks that have to be performed when this mod gets unloaded.
@@ -103,7 +116,7 @@ public abstract class GameMod
 
 	}
 
-	public virtual void OnPlayerSkinChange(Player player, Assets.SkinInfo skin)
+	public virtual void OnPlayerSkinChange(Player player, SkinInfo skin)
 	{
 
 	}

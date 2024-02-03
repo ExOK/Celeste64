@@ -32,15 +32,21 @@ public sealed class ModManager
 	public LayeredFilesystem GlobalFilesystem { get; } = new();
 		
 	private CancellationTokenSource _modFilesystemCleanupTimerToken = new();
+	
+	internal List<GameMod> Mods = [];
 
-	private List<GameMod> mods = [];
+	internal IEnumerable<GameMod> EnabledMods { get {  return Mods.Where(mod => mod.Enabled); } }
+
+	internal VanillaGameMod? VanillaGameMod { get; set; }
+
+	internal GameMod? CurrentLevelMod { get; set; }
 
 	internal void Unload()
 	{
 		_modFilesystemCleanupTimerToken.Cancel();
 		_modFilesystemCleanupTimerToken = new();
 
-		var modsCopy = mods.ToList();
+		var modsCopy = Mods.ToList();
 		foreach (var mod in modsCopy)
 		{
 			DeregisterMod(mod);
@@ -53,9 +59,9 @@ public sealed class ModManager
 		var timer = new PeriodicTimer(TimeSpan.FromSeconds(5));
 		Task.Run(async () => {
 			while (await timer.WaitForNextTickAsync(_modFilesystemCleanupTimerToken.Token)) {
-				foreach (var mod in mods)
+				foreach (var mod in Mods)
 				{
-					mod.Filesystem.BackgroundCleanup();
+					mod.Filesystem?.BackgroundCleanup();
 				}
 			}
 		}, _modFilesystemCleanupTimerToken.Token);
@@ -63,18 +69,20 @@ public sealed class ModManager
 	
 	internal void RegisterMod(GameMod mod)
 	{
-		mods.Add(mod);
+		Mods.Add(mod);
 		GlobalFilesystem.Add(mod);
-		mod.Filesystem.OnFileChanged += OnModFileChanged;
+		if(mod.Filesystem != null)
+			mod.Filesystem.OnFileChanged += OnModFileChanged;
 		mod.OnModLoaded();
 	}
 
 	internal void DeregisterMod(GameMod mod)
 	{
-		mods.Remove(mod);
+		Mods.Remove(mod);
 		GlobalFilesystem.Remove(mod);
-		mod.Filesystem.Dispose();
-		mod.Filesystem.OnFileChanged -= OnModFileChanged;
+		mod.Filesystem?.Dispose();
+		if(mod.Filesystem != null)
+			mod.Filesystem.OnFileChanged -= OnModFileChanged;
 		mod.OnModUnloaded();
 		mod.OnUnloadedCleanup?.Invoke();
 	}
@@ -116,12 +124,12 @@ public sealed class ModManager
 					return;
 				}
 			}
-			
-			Log.Info($"File Changed: {filepath} (From mod {ctx.Mod.ModName}). Reloading assets.");
+
+			Log.Info($"File Changed: {filepath} (From mod {ctx.Mod.ModInfo?.Name}). Reloading assets.");
 		}
 		else
 		{
-			Log.Info($"Mod archive for mod {ctx.Mod.ModName} changed. Reloading assets.");
+			Log.Info($"Mod archive for mod {ctx.Mod.ModInfo?.Name} changed. Reloading assets.");
 		}
 		
 		Game.Instance.ReloadAssets();
@@ -129,7 +137,7 @@ public sealed class ModManager
 
 	internal void Update(float deltaTime)
 	{
-		foreach (var mod in mods)
+		foreach (var mod in Mods)
 		{
 			mod.Update(deltaTime);
 		}
@@ -137,7 +145,7 @@ public sealed class ModManager
 
 	internal void OnGameLoad(Game game)
 	{
-		foreach (var mod in mods)
+		foreach (var mod in Mods)
 		{
 			mod.game = game;
 			mod.OnGameLoaded(game);
@@ -146,7 +154,7 @@ public sealed class ModManager
 
 	internal void OnMapLoaded(Map map)
 	{
-		foreach (var mod in mods)
+		foreach (var mod in Mods)
 		{
 			mod.map = map;
 			mod.OnMapLoaded(map);
@@ -155,7 +163,7 @@ public sealed class ModManager
 
 	internal void OnWorldLoaded(World world)
 	{
-		foreach (var mod in mods)
+		foreach (var mod in Mods)
 		{
 			mod.world = world;
 			mod.OnWorldLoaded(world);
@@ -164,7 +172,7 @@ public sealed class ModManager
 
 	internal void OnActorCreated(Actor actor)
 	{ 
-		foreach (var mod in mods)
+		foreach (var mod in Mods)
 		{
 			mod.OnActorCreated(actor);
 		}
@@ -172,7 +180,7 @@ public sealed class ModManager
 
 	internal void OnActorAdded(Actor actor)
 	{
-		foreach (var mod in mods)
+		foreach (var mod in Mods)
 		{
 			mod.OnActorAdded(actor);
 		}
@@ -180,7 +188,7 @@ public sealed class ModManager
 
 	internal void OnActorDestroyed(Actor actor)
 	{
-		foreach (var mod in mods)
+		foreach (var mod in Mods)
 		{
 			mod.OnActorDestroyed(actor);
 		}
@@ -188,7 +196,7 @@ public sealed class ModManager
 
 	internal void OnPlayerKill(Player player)
 	{
-		foreach (var mod in mods)
+		foreach (var mod in Mods)
 		{
 			mod.OnPlayerKilled(player);
 		}
@@ -196,15 +204,15 @@ public sealed class ModManager
 
 	internal void OnPlayerLanded(Player player)
 	{
-		foreach (var mod in mods)
+		foreach (var mod in Mods)
 		{
 			mod.OnPlayerLanded(player);
 		}
 	}
 
-	internal void OnPlayerSkinChange(Player player, Assets.SkinInfo skin)
+	internal void OnPlayerSkinChange(Player player, SkinInfo skin)
 	{
-		foreach (var mod in mods)
+		foreach (var mod in Mods)
 		{
 			mod.OnPlayerSkinChange(player, skin);
 		}
@@ -212,7 +220,7 @@ public sealed class ModManager
 
 	internal void OnItemPickup(Player player, IPickup item)
 	{
-		foreach (var mod in mods)
+		foreach (var mod in Mods)
 		{
 			mod.OnItemPickup(player, item);
 		}
@@ -221,7 +229,7 @@ public sealed class ModManager
 
 	internal void OnPlayerStateChanged(Player player, Player.States? state)
 	{
-		foreach (var mod in mods)
+		foreach (var mod in Mods)
 		{
 			mod.OnPlayerStateChanged(player, state);
 		}

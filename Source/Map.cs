@@ -70,8 +70,7 @@ public class Map
 		["SignPost"] = new((map, entity) => new Signpost(entity.GetStringProperty("dialog", string.Empty))),
 		["StaticProp"] = new((map, entity) =>
 		{
-			var prop = Path.GetFileNameWithoutExtension(entity.GetStringProperty("model", string.Empty));
-			if (Assets.Models.TryGetValue(prop, out var model))
+			if (Assets.Models.TryGetValueFromFullPath(entity.GetStringProperty("model", string.Empty), out var model))
 			{
 				return new StaticProp(model,
 					entity.GetIntProperty("radius", 6),
@@ -94,8 +93,7 @@ public class Map
 		["FixedCamera"] = new((map, entity) => new FixedCamera(map.FindTargetNodeFromParam(entity, "target"))) { UseSolidsAsBounds = true },
 		["IntroCar"] = new((map, entity) => new IntroCar(entity.GetFloatProperty("scale", 6))),
 		["SolidMesh"] = new((map, entity) => {
-			var prop = Path.GetFileNameWithoutExtension(entity.GetStringProperty("model", string.Empty));
-			if (Assets.Models.TryGetValue(prop, out var model))
+			if (Assets.Models.TryGetValueFromFullPath(entity.GetStringProperty("model", string.Empty), out var model))
 			{
 				return new SolidMesh(model, entity.GetFloatProperty("scale", 6));
 			}

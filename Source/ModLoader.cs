@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
+using System.Text.Json;
 using static Celeste64.Assets;
 
 namespace Celeste64
@@ -33,14 +34,16 @@ namespace Celeste64
         [RequiresUnreferencedCode("Uses Reflection to load mod DLLs")]
         internal static void RegisterAllMods()
 		{
+			VanillaGameMod vanillaMod = new VanillaGameMod
+			{
+				Filesystem = new FolderModFilesystem(ContentPath),
+			};
 			List<GameMod> mods =
 			[
 				// Load vanilla as a mod, to unify all asset loading code
-				new VanillaGameMod
-				{
-					Filesystem = new FolderModFilesystem(ContentPath),
-				}
+				vanillaMod
 			];
+			ModManager.Instance.VanillaGameMod = vanillaMod;
 
 			// Find all mods in directories:
 			foreach (var modDir in Directory.EnumerateDirectories(ModFolderPath))
@@ -48,7 +51,7 @@ namespace Celeste64
 				var modName = Path.GetFileNameWithoutExtension(modDir)!; // Todo: read from some metadata file
 				var fs = new FolderModFilesystem(modDir);
 
-				mods.Add(LoadMod(modName, fs));
+				mods.Add(LoadGameMods(modName, fs));
 				Log.Info($"Loaded mod from directory: {modName}");
 			}
 
@@ -58,7 +61,7 @@ namespace Celeste64
 				var modName = Path.GetFileNameWithoutExtension(modZip)!; // Todo: read from some metadata file
 				var fs = new ZipModFilesystem(modZip);
 
-				mods.Add(LoadMod(modName, fs));
+				mods.Add(LoadGameMods(modName, fs));
 				Log.Info($"Loaded mod from zip: {modName}");
 			}
 
@@ -66,15 +69,14 @@ namespace Celeste64
 			// We've collected all the mods now, time to initialize them
 			foreach (var mod in mods)
 			{
-				mod.Filesystem.AssociateWithMod(mod);
+				mod.Filesystem?.AssociateWithMod(mod);
 				ModManager.Instance.RegisterMod(mod);
 			}
 
 			ModManager.Instance.InitializeFilesystemBackgroundCleanup();
 		}
 
-		[RequiresUnreferencedCode("Uses Reflection to load mod DLLs")]
-		private static GameMod LoadMod(string modName, IModFilesystem fs)
+		private static GameMod LoadGameMods(string modFolder, IModFilesystem fs)
 		{
 			GameMod? loadedMod = null;
 			var anyDllFile = false;
@@ -120,8 +122,39 @@ namespace Celeste64
 				loadedMod = new DummyGameMod();
 			}
 
+
+			ModInfo modInfo;
+			if (fs.TryOpenFile("Fuji.json",
+				stream => JsonSerializer.Deserialize(stream, ModInfoContext.Default.ModInfo),
+				out var info))
+			{
+				modInfo = info;
+				if(string.IsNullOrEmpty(modInfo.Id))
+				{
+					modInfo.Id = modFolder;
+				}
+				if (string.IsNullOrEmpty(modInfo.Name))
+				{
+					modInfo.Name = modFolder;
+				}
+			}
+			else
+			{
+				modInfo = new ModInfo()
+				{
+					Id = modFolder,
+					Name = modFolder,
+					ModAuthor = "Unknown",
+					Description = "",
+					Icon = null,
+					Dependencies = [],
+					AssetReplaceItems = []
+				};
+			}
+
 			loadedMod.Filesystem = fs;
-			loadedMod.modName = modName;
+			loadedMod.ModInfo = modInfo;
+			loadedMod.ModFolder = modFolder;
 			
 			return loadedMod;
 		}

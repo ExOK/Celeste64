@@ -34,15 +34,14 @@ public static class Assets
 	}
 
 	public record struct DialogLine(string Face, string Text, string Voice);
-	public record struct SkinInfo(string Model, bool HideHair, string Name, int HairNormal, int HairNoDash, int HairTwoDash, int HairRefillFlash, int HairFeather);
 
-	public static readonly Dictionary<string, Map> Maps = new(StringComparer.OrdinalIgnoreCase);
-	public static readonly Dictionary<string, Shader> Shaders = new(StringComparer.OrdinalIgnoreCase);
-	public static readonly Dictionary<string, Texture> Textures = new(StringComparer.OrdinalIgnoreCase);
-	public static readonly Dictionary<string, SkinnedTemplate> Models = new(StringComparer.OrdinalIgnoreCase);
+	public static readonly ModAssetDictionary<Map> Maps = new(gameMod => gameMod.Maps);
+	public static readonly ModAssetDictionary<Shader> Shaders = new(gameMod => gameMod.Shaders);
+	public static readonly ModAssetDictionary<Texture> Textures = new(gameMod => gameMod.Textures);
+	public static readonly ModAssetDictionary<SkinnedTemplate> Models = new(gameMod => gameMod.Models);
 	public static readonly Dictionary<string, Subtexture> Subtextures = new(StringComparer.OrdinalIgnoreCase);
-	public static readonly Dictionary<string, SpriteFont> Fonts = new(StringComparer.OrdinalIgnoreCase);
-	public static Dictionary<string, List<DialogLine>> Dialog { get; private set; } = [];
+	public static readonly ModAssetDictionary<SpriteFont> Fonts = new(gameMod => gameMod.Fonts);
+	public static readonly ModAssetDictionary<List<DialogLine>> Dialog = new(gameMod => gameMod.Dialog);
 	public static List<SkinInfo> Skins { get; private set; } = [];
 	public static List<LevelInfo> Levels { get; private set; } = [];
 
@@ -57,13 +56,14 @@ public static class Assets
 		Subtextures.Clear();
 		Models.Clear();
 		Fonts.Clear();
+		Dialog.Clear();
 		Audio.Unload();
 		
 		ModLoader.RegisterAllMods();
 
-		var maps = new ConcurrentBag<Map>();
-		var images = new ConcurrentBag<(string, Image)>();
-		var models = new ConcurrentBag<(string, SkinnedTemplate)>();
+		var maps = new ConcurrentBag<(Map, GameMod)>();
+		var images = new ConcurrentBag<(string, Image, GameMod)>();
+		var models = new ConcurrentBag<(string, SkinnedTemplate, GameMod)>();
 		var tasks = new List<Task>();
 
 		var globalFs = ModManager.Instance.GlobalFilesystem;
@@ -75,10 +75,10 @@ public static class Assets
 
 			tasks.Add(Task.Run(() =>
 			{
-				if (mod.Filesystem.TryOpenFile(file, 
+				if (mod.Filesystem != null && mod.Filesystem.TryOpenFile(file, 
 					    stream => new Map(GetResourceNameFromVirt(file, "Maps"), file, stream), out var map))
 				{
-					maps.Add(map);
+					maps.Add((map, mod));
 				}
 			}));
 		}
@@ -88,9 +88,9 @@ public static class Assets
 		{
 			tasks.Add(Task.Run(() =>
 			{
-				if (mod.Filesystem.TryLoadImage(file, out var image))
+				if (mod.Filesystem != null && mod.Filesystem.TryLoadImage(file, out var image))
 				{
-					images.Add((GetResourceNameFromVirt(file, "Textures"), image));
+					images.Add((GetResourceNameFromVirt(file, "Textures"), image, mod));
 				}
 			}));
 		}
@@ -101,9 +101,9 @@ public static class Assets
 			tasks.Add(Task.Run(() =>
 			{
 				var name = $"faces/{GetResourceNameFromVirt(file, "Faces")}";
-				if (mod.Filesystem.TryLoadImage(file, out var image))
+				if (mod.Filesystem != null && mod.Filesystem.TryLoadImage(file, out var image))
 				{
-					images.Add((name, image));
+					images.Add((name, image, mod));
 				}
 			}));
 		}
@@ -113,11 +113,11 @@ public static class Assets
 		{
 			tasks.Add(Task.Run(() =>
 			{
-				if (mod.Filesystem.TryOpenFile(file, stream => SharpGLTF.Schema2.ModelRoot.ReadGLB(stream),
+				if (mod.Filesystem != null && mod.Filesystem.TryOpenFile(file, stream => SharpGLTF.Schema2.ModelRoot.ReadGLB(stream),
 					    out var input))
 				{
 					var model = new SkinnedTemplate(input);
-					models.Add((GetResourceNameFromVirt(file, "Models"), model));
+					models.Add((GetResourceNameFromVirt(file, "Models"), model, mod));
 				}
 			}));
 		}
@@ -127,35 +127,35 @@ public static class Assets
 		// load strings first
 		foreach (var (file, mod) in allBankFiles)
 		{
-			if (file.EndsWith(".strings.bank"))
+			if (mod.Filesystem != null && file.EndsWith(".strings.bank"))
 				mod.Filesystem.TryOpenFile(file, Audio.LoadBankFromStream);
 		}
 		// load banks second
 		foreach (var (file, mod) in allBankFiles)
 		{
-			if (file.EndsWith(".bank") && !file.EndsWith(".strings.bank"))
+			if (mod.Filesystem != null && file.EndsWith(".bank") && !file.EndsWith(".strings.bank"))
 				mod.Filesystem.TryOpenFile(file, Audio.LoadBankFromStream);
 		}
 
 		// load level, dialog jsons
-		Levels = [];
-		Dialog = [];
-		foreach (var fs in globalFs.InnerFilesystems)
+		foreach (var mod in ModManager.Instance.Mods)
 		{
-			if (fs.TryOpenFile("Levels.json", 
+			mod.Levels.Clear();
+			if (mod.Filesystem != null && mod.Filesystem.TryOpenFile("Levels.json", 
 				    stream => JsonSerializer.Deserialize(stream, LevelInfoListContext.Default.ListLevelInfo) ?? [], 
 				    out var levels))
 			{
+				mod.Levels.AddRange(levels);
 				Levels.AddRange(levels);
 			}
 			
-			if (fs.TryOpenFile("Dialog.json", 
+			if (mod.Filesystem != null && mod.Filesystem.TryOpenFile("Dialog.json", 
 				    stream => JsonSerializer.Deserialize(stream, DialogLineDictContext.Default.DictionaryStringListDialogLine) ?? [], 
 				    out var dialog))
 			{
 				foreach (var (key, value) in dialog)
 				{
-					Dialog[key] = value;
+					Dialog.Add(key, value, mod);
 				}
 			}
 		}
@@ -163,10 +163,10 @@ public static class Assets
 		// load glsl shaders
 		foreach (var (file, mod) in globalFs.FindFilesInDirectoryRecursiveWithMod("Shaders", "glsl"))
 		{
-			if (mod.Filesystem.TryOpenFile(file, stream => LoadShader(file, stream), out var shader))
+			if (mod.Filesystem != null && mod.Filesystem.TryOpenFile(file, stream => LoadShader(file, stream), out var shader))
 			{
 				shader.Name = GetResourceNameFromVirt(file, "Shaders");
-				Shaders[shader.Name] = shader;
+				Shaders.Add(shader.Name, shader, mod);
 			}
 		}
 
@@ -175,8 +175,8 @@ public static class Assets
 		{
 			if (file.EndsWith(".ttf") || file.EndsWith(".otf"))
 			{
-				if (mod.Filesystem.TryOpenFile(file, stream => new SpriteFont(stream, FontSize), out var font))
-					Fonts.Add(GetResourceNameFromVirt(file, "Fonts"), font);
+				if (mod.Filesystem != null && mod.Filesystem.TryOpenFile(file, stream => new SpriteFont(stream, FontSize), out var font))
+					Fonts.Add(GetResourceNameFromVirt(file, "Fonts"), font, mod);
 			}
 		}
 
@@ -188,10 +188,10 @@ public static class Assets
 				CombineDuplicates = false,
 				Padding = 1
 			};
-			
+
 			foreach (var (file, mod) in globalFs.FindFilesInDirectoryRecursiveWithMod("Sprites", "png"))
 			{
-				if (mod.Filesystem.TryOpenFile(file, stream => new Image(stream), out var img))
+				if (mod.Filesystem != null && mod.Filesystem.TryOpenFile(file, stream => new Image(stream), out var img))
 					packer.Add(GetResourceNameFromVirt(file, "Sprites"), img);
 			}
 
@@ -211,28 +211,41 @@ public static class Assets
 		{
 			foreach (var task in tasks)
 				task.Wait();
-			foreach (var (name, img) in images)
-				Textures[name] = new Texture(img) { Name = name };
-			foreach (var map in maps)
-				Maps[map.Name] = map;
-			foreach (var (name, model) in models)
+
+			foreach (var (name, img, mod) in images)
+				Textures.Add(name, new Texture(img) { Name = name }, mod);
+			foreach (var (map, mod) in maps)
+				Maps.Add(map.Name, map, mod);
+			foreach (var (name, model, mod) in models)
 			{
 				model.ConstructResources();
-				Models[name] = model;
+				Models.Add(name, model, mod);
 			}
 		}
 
 		// Load Skins
 		Skins = [
-			new SkinInfo("player", false, "Default", 0xdb2c00, 0x6ec0ff, 0xfa91ff, 0xffffff, 0xf2d450)
+			new SkinInfo{
+				Name = "Madeline",
+				Model = "player",
+				HideHair = false,
+				HairNormal = 0xdb2c00,
+				HairNoDash = 0x6ec0ff,
+				HairTwoDash = 0xfa91ff,
+				HairRefillFlash = 0xffffff,
+				HairFeather = 0xf2d450
+			}
 		];
-
 		foreach (var (file, mod) in globalFs.FindFilesInDirectoryRecursiveWithMod("Skins", "json"))
 		{
-			if (mod.Filesystem.TryOpenFile(file,
-				    stream => JsonSerializer.Deserialize(stream, SkinInfoContext.Default.SkinInfo), out var skin))
+			if (mod.Filesystem != null && mod.Filesystem.TryOpenFile(file,
+				    stream => JsonSerializer.Deserialize(stream, SkinInfoContext.Default.SkinInfo), out var skin) && skin.IsValid())
 			{
 				Skins.Add(skin);
+			}
+			else
+			{
+				Log.Warning($"Improperly configured skin: {file}");
 			}
 		}
 
@@ -286,7 +299,3 @@ public static class Assets
 [JsonSourceGenerationOptions(WriteIndented = true)]
 [JsonSerializable(typeof(Dictionary<string, List<Assets.DialogLine>>))]
 internal partial class DialogLineDictContext : JsonSerializerContext {}
-
-[JsonSourceGenerationOptions(WriteIndented = true)]
-[JsonSerializable(typeof(Assets.SkinInfo))]
-internal partial class SkinInfoContext : JsonSerializerContext { }

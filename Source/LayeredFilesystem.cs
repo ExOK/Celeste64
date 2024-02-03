@@ -14,7 +14,7 @@ public sealed class LayeredFilesystem : IModFilesystem {
     {
     }
     
-    public IEnumerable<IModFilesystem> InnerFilesystems 
+    public IEnumerable<IModFilesystem?> InnerFilesystems 
         => mods.Select(m => m.Filesystem);
 
     private void OnInnerFileChanged(ModFileChangedCtx ctx)
@@ -24,13 +24,19 @@ public sealed class LayeredFilesystem : IModFilesystem {
     
     public void Add(GameMod mod)
     {
-        mod.Filesystem.OnFileChanged += OnInnerFileChanged;
-        mods.Add(mod);
+        if(mod.Filesystem != null)
+        {
+			mod.Filesystem.OnFileChanged += OnInnerFileChanged;
+		}
+		mods.Add(mod);
     }
 
     public void Remove(GameMod mod)
     {
-        mod.Filesystem.OnFileChanged -= OnInnerFileChanged;
+        if (mod.Filesystem != null)
+        {
+            mod.Filesystem.OnFileChanged -= OnInnerFileChanged;
+        }
         mods.Remove(mod);
     }
 
@@ -40,17 +46,17 @@ public sealed class LayeredFilesystem : IModFilesystem {
     {
         foreach (var mod in mods)
         {
-            mod.Filesystem.BackgroundCleanup();
+            mod.Filesystem?.BackgroundCleanup();
         }
     }
 
     public GameMod? FindFirstContaining(string filepath) {
-        return mods.FirstOrDefault(m => m.Filesystem.FileExists(filepath));
+        return mods.FirstOrDefault(m => m.Filesystem != null && m.Filesystem.FileExists(filepath));
     }
 
     public bool TryOpenFile<T>(string path, Func<Stream, T> callback, [NotNullWhen(true)] out T? value) {
         foreach (var mod in mods) {
-            if (mod.Filesystem.TryOpenFile(path, callback, out value))
+            if (mod.Filesystem != null && mod.Filesystem.TryOpenFile(path, callback, out value))
                 return true;
         }
 
@@ -60,9 +66,13 @@ public sealed class LayeredFilesystem : IModFilesystem {
     
     public IEnumerable<string> FindFilesInDirectoryRecursive(string directory, string extension) {
         foreach (var mod in mods) {
-            foreach (var item in mod.Filesystem.FindFilesInDirectoryRecursive(directory, extension)) {
-                yield return item;
-            }
+            if(mod.Filesystem != null)
+            {
+				foreach (var item in mod.Filesystem.FindFilesInDirectoryRecursive(directory, extension))
+				{
+					yield return item;
+				}
+			}
         }
     }
     
@@ -71,22 +81,29 @@ public sealed class LayeredFilesystem : IModFilesystem {
     /// </summary>
     public IEnumerable<(string, GameMod)> FindFilesInDirectoryRecursiveWithMod(string directory, string extension) {
         foreach (var mod in mods) {
-            foreach (var item in mod.Filesystem.FindFilesInDirectoryRecursive(directory, extension)) {
-                yield return (item, mod);
-            }
+            if(mod.Filesystem != null)
+            {
+				foreach (var item in mod.Filesystem.FindFilesInDirectoryRecursive(directory, extension))
+				{
+					yield return (item, mod);
+				}
+			}
         }
     }
 
     public bool FileExists(string path) {
-        return mods.Any(mod => mod.Filesystem.FileExists(path));
+        return mods.Any(mod => mod.Filesystem != null && mod.Filesystem.FileExists(path));
     }
     
     public void Dispose()
     {
         foreach (var m in mods)
         {
-            m.Filesystem.Dispose();
-        }
+            if(m.Filesystem != null)
+            {
+				m.Filesystem.Dispose();
+			}
+		}
 
         mods.Clear();
     }

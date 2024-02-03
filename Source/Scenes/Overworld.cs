@@ -22,7 +22,16 @@ public class Overworld : Scene
 			Level = level;
 			Target = new Target(CardWidth, CardHeight);
 
-			Image = new(Assets.Textures[level.Preview]);
+			// Postcards should always come from the current mod if they are available
+			GameMod? mod = ModManager.Instance.Mods.FirstOrDefault(mod => mod.Levels.Contains(level));
+			if (mod != null && mod.Textures.ContainsKey(level.Preview))
+			{
+				Image = new(mod.Textures[level.Preview]);
+			}
+			else
+			{
+				Image = new(Assets.Textures[level.Preview]);
+			}
 
 			Menu = new();
 			Menu.UpSound = Sfx.main_menu_roll_up;
