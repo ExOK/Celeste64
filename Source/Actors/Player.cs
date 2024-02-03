@@ -799,7 +799,7 @@ public class Player : Actor, IHaveModels, IHaveSprites, IRidePlatforms, ICastPoi
 				Audio.Play(Sfx.sfx_feather_state_bump_wall, Position);
 			}
 			// does it handle being dashed into?
-			else if (resolveImpact && hit.Actor is IDashTrigger trigger && velocity.XY().Length() > 90)
+			else if (resolveImpact && hit.Actor is IDashTrigger trigger && !hit.Actor.Destroying && velocity.XY().Length() > 90)
 			{
                 World.HitStun = 0.1f;
                 trigger.HandleDash(velocity);
