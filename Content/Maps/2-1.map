@@ -4,7 +4,7 @@
 {
 "classname" "worldspawn"
 "_tb_textures" "Textures"
-"_tb_def" "builtin:Generic.fgd"
+"_tb_def" "external:Celeste64.fgd"
 "skybox" "bsides"
 "snowAmount" ".5"
 "snowDirection" "0 0 1"
@@ -246,13 +246,13 @@
 ( -192 656 368 ) ( -192 1008 368 ) ( -192 656 336 ) floor_dirty_concrete -144 32 0 1 1
 }
 }
-// entity 9
+// entity 7
 {
 "classname" "Node"
 "origin" "304 1392 368"
 "targetname" "002"
 }
-// entity 10
+// entity 8
 {
 "classname" "SpikeBlock"
 // brush 0
@@ -265,7 +265,7 @@
 ( 384 1040 368 ) ( 384 1392 368 ) ( 384 1040 336 ) floor_dirty_concrete -16 32 0 1 1
 }
 }
-// entity 11
+// entity 9
 {
 "classname" "TrafficBlock"
 "target" "002"
@@ -279,7 +279,7 @@
 ( -192 1408 384 ) ( -192 1408 385 ) ( -192 1409 384 ) metal_floor_1 0 0 0 1 1
 }
 }
-// entity 12
+// entity 10
 {
 "classname" "TrafficBlock"
 "target" "003"
@@ -306,7 +306,7 @@
 ( -192 1424 368 ) ( -192 1776 368 ) ( -192 1424 336 ) floor_dirty_concrete -144 32 0 1 1
 }
 }
-// entity 14
+// entity 11
 {
 "classname" "Node"
 "origin" "-272 1776 368"
@@ -319,7 +319,7 @@
 "targetname" "004"
 "angle" "270"
 }
-// entity 16
+// entity 12
 {
 "classname" "TrafficBlock"
 "target" "004"
@@ -333,7 +333,7 @@
 ( 96 2144 384 ) ( 96 2143 384 ) ( 96 2144 385 ) metal_floor_1 0 0 180 1 -1
 }
 }
-// entity 17
+// entity 13
 {
 "classname" "SpikeBlock"
 // brush 0
@@ -346,12 +346,12 @@
 ( 96 2800 368 ) ( 96 3424 368 ) ( 96 2800 336 ) floor_dirty_concrete 224 32 180 1 -1
 }
 }
-// entity 18
+// entity 14
 {
 "classname" "Strawberry"
 "origin" "16 3696 456"
 }
-// entity 19
+// entity 15
 {
 "classname" "Decoration"
 // brush 0
@@ -368,7 +368,7 @@
 ( 16 -128 376 ) ( 12 -136 376 ) ( 16 -128 384 ) snow_1 0 15.999985 180 1 -1
 }
 }
-// entity 20
+// entity 16
 {
 "classname" "Decoration"
 // brush 0
@@ -385,7 +385,7 @@
 ( -48 384 384 ) ( -52 392 376 ) ( -48 384 376 ) snow_1 0 15.999985 0 1 1
 }
 }
-// entity 21
+// entity 17
 {
 "classname" "Decoration"
 // brush 0
@@ -402,7 +402,7 @@
 ( 104 68 376 ) ( 104 76 376 ) ( 96 72 308 ) snow_1 72 32 0 1 1
 }
 }
-// entity 22
+// entity 18
 {
 "classname" "Decoration"
 // brush 0
@@ -419,7 +419,7 @@
 ( 104 96 376 ) ( 104 104 376 ) ( 96 100 340 ) snow_1 -84 32 0 1 1
 }
 }
-// entity 23
+// entity 19
 {
 "classname" "Decoration"
 // brush 0
@@ -435,7 +435,7 @@
 ( 64 -110 384 ) ( 68 -130 384 ) ( 64 -122 388 ) snow_1 27.883797 32.647003 0 1 1
 }
 }
-// entity 24
+// entity 20
 {
 "classname" "Decoration"
 // brush 0
@@ -452,7 +452,7 @@
 ( 104 356 376 ) ( 104 364 376 ) ( 96 360 308 ) snow_1 -88 32 0 1 1
 }
 }
-// entity 25
+// entity 21
 {
 "classname" "Decoration"
 // brush 0
@@ -469,7 +469,7 @@
 ( -176 48 384 ) ( -180 56 376 ) ( -176 48 376 ) snow_1 80 15.999985 0 1 1
 }
 }
-// entity 26
+// entity 22
 {
 "classname" "Decoration"
 // brush 0
@@ -486,7 +486,7 @@
 ( 104 52 376 ) ( 104 60 376 ) ( 96 56 340 ) snow_1 -40 32 0 1 1
 }
 }
-// entity 27
+// entity 23
 {
 "classname" "Decoration"
 // brush 0
@@ -503,7 +503,7 @@
 ( -236 -128 376 ) ( -240 -136 376 ) ( -236 -128 384 ) snow_1 0 15.999985 180 1 -1
 }
 }
-// entity 28
+// entity 24
 {
 "classname" "Decoration"
 // brush 0
@@ -519,7 +519,7 @@
 ( -250 -98 384 ) ( -246 -118 384 ) ( -250 -110 388 ) snow_1 15.883797 32.647003 0 1 1
 }
 }
-// entity 29
+// entity 25
 {
 "classname" "Decoration"
 // brush 0
@@ -536,7 +536,7 @@
 ( 86 312 384 ) ( 90 292 384 ) ( 86 300 388 ) rock_2 -10.116211 0.6470337 0 1 1
 }
 }
-// entity 30
+// entity 26
 {
 "classname" "Decoration"
 // brush 0
@@ -553,7 +553,7 @@
 ( 16 384 384 ) ( 12 392 376 ) ( 16 384 376 ) snow_1 0 15.999985 0 1 1
 }
 }
-// entity 31
+// entity 27
 {
 "classname" "Decoration"
 // brush 0
@@ -570,7 +570,7 @@
 ( 96 384 384 ) ( 92 392 376 ) ( 96 384 376 ) snow_1 0 15.999985 0 1 1
 }
 }
-// entity 32
+// entity 28
 {
 "classname" "Decoration"
 // brush 0
@@ -587,7 +587,7 @@
 ( -236 48 376 ) ( -236 48 384 ) ( -240 56 376 ) snow_1 80 15.999985 0 1 1
 }
 }
-// entity 33
+// entity 29
 {
 "classname" "Decoration"
 // brush 0
@@ -604,7 +604,7 @@
 ( -230 22 384 ) ( -234 -2 384 ) ( -234 14 388 ) rock_2 30 4.444458 180 1 -1
 }
 }
-// entity 34
+// entity 30
 {
 "classname" "Decoration"
 // brush 0
@@ -621,7 +621,7 @@
 ( 104 372 376 ) ( 104 380 376 ) ( 96 376 340 ) snow_1 -104 32 0 1 1
 }
 }
-// entity 35
+// entity 31
 {
 "classname" "Decoration"
 // brush 0
@@ -638,7 +638,7 @@
 ( 48 -128 376 ) ( 44 -136 376 ) ( 48 -128 384 ) snow_1 0 15.999985 180 1 -1
 }
 }
-// entity 36
+// entity 32
 {
 "classname" "Decoration"
 // brush 0
@@ -655,7 +655,7 @@
 ( 104 124 376 ) ( 104 132 376 ) ( 96 128 340 ) snow_1 -112 32 0 1 1
 }
 }
-// entity 37
+// entity 33
 {
 "classname" "Decoration"
 // brush 0
@@ -672,7 +672,7 @@
 ( -96 340 384 ) ( -96 356 384 ) ( -96 356 376 ) snow_1 52 16 180 1 -1
 }
 }
-// entity 38
+// entity 34
 {
 "classname" "Decoration"
 // brush 0
@@ -689,7 +689,7 @@
 ( -96 180 384 ) ( -96 196 384 ) ( -96 196 376 ) snow_1 20 16 180 1 -1
 }
 }
-// entity 39
+// entity 35
 {
 "classname" "StaticProp"
 "origin" "160 16 384"
@@ -698,7 +698,7 @@
 "height" "24"
 "radius" "8"
 }
-// entity 40
+// entity 36
 {
 "classname" "StaticProp"
 "origin" "96 -64 384"
@@ -707,14 +707,14 @@
 "height" "24"
 "radius" "8"
 }
-// entity 41
+// entity 37
 {
 "classname" "StaticProp"
 "origin" "-208 -96 384"
 "model" "Models/bush1.glb"
 "angle" "180"
 }
-// entity 42
+// entity 38
 {
 "classname" "StaticProp"
 "origin" "-160 -96 384"
@@ -722,7 +722,7 @@
 "angle" "180"
 "radius" "0"
 }
-// entity 43
+// entity 39
 {
 "classname" "StaticProp"
 "origin" "-192 16 384"
@@ -730,7 +730,7 @@
 "angle" "180"
 "radius" "0"
 }
-// entity 44
+// entity 40
 {
 "classname" "StaticProp"
 "origin" "96 16 384"
@@ -738,7 +738,7 @@
 "angle" "180"
 "radius" "0"
 }
-// entity 45
+// entity 41
 {
 "classname" "StaticProp"
 "origin" "48 -80 384"
@@ -746,7 +746,7 @@
 "angle" "180"
 "radius" "0"
 }
-// entity 46
+// entity 42
 {
 "classname" "StaticProp"
 "origin" "-64 224 384"
@@ -754,7 +754,7 @@
 "angle" "180"
 "radius" "0"
 }
-// entity 47
+// entity 43
 {
 "classname" "Decoration"
 // brush 0
@@ -771,7 +771,7 @@
 ( -4 3768 568 ) ( 0 3776 576 ) ( 0 3776 568 ) snow_1 64 -48 180 1 -1
 }
 }
-// entity 48
+// entity 44
 {
 "classname" "Decoration"
 // brush 0
@@ -788,7 +788,7 @@
 ( 12 3768 568 ) ( 16 3776 576 ) ( 16 3776 568 ) snow_1 64 -48 180 1 -1
 }
 }
-// entity 49
+// entity 45
 {
 "classname" "Decoration"
 // brush 0
@@ -805,7 +805,7 @@
 ( 28 3768 568 ) ( 32 3776 576 ) ( 32 3776 568 ) snow_1 64 -48 180 1 -1
 }
 }
-// entity 50
+// entity 46
 {
 "classname" "StaticProp"
 "origin" "-56 3812 564"
@@ -813,7 +813,7 @@
 "angle" "180"
 "radius" "0"
 }
-// entity 51
+// entity 47
 {
 "classname" "StaticProp"
 "origin" "36 3832 576"
@@ -821,14 +821,14 @@
 "angle" "180"
 "radius" "0"
 }
-// entity 52
+// entity 48
 {
 "classname" "StaticProp"
 "origin" "-88 3752 352"
 "model" "Models/hydrant.glb"
 "angle" "315"
 }
-// entity 53
+// entity 49
 {
 "classname" "SpikeBlock"
 // brush 0
@@ -841,7 +841,7 @@
 ( 96 2672 336 ) ( 96 3296 336 ) ( 96 2672 304 ) floor_dirty_concrete 96 0 180 1 -1
 }
 }
-// entity 54
+// entity 50
 {
 "classname" "func_group"
 "_tb_type" "_tb_layer"
@@ -849,18 +849,19 @@
 "_tb_id" "1"
 "_tb_layer_sort_index" "0"
 "_tb_layer_locked" "1"
+"_tb_layer_hidden" "1"
 }
-// entity 55
+// entity 51
 {
 "classname" "DeathBlock"
 "_tb_layer" "1"
 // brush 0
 {
-( -1408 -64 48 ) ( -1408 -63 48 ) ( -1408 -64 49 ) TB_empty 0 0 0 1 1
-( -64 -1024 48 ) ( -64 -1024 49 ) ( -63 -1024 48 ) TB_empty 0 0 0 1 1
-( -64 -64 48 ) ( -63 -64 48 ) ( -64 -63 48 ) TB_empty 0 0 0 1 1
-( 32 0 272 ) ( 32 1 272 ) ( 33 0 272 ) TB_empty 0 0 0 1 1
-( 32 4832 80 ) ( 33 4832 80 ) ( 32 4832 81 ) TB_empty 0 0 0 1 1
-( 1632 0 80 ) ( 1632 0 81 ) ( 1632 1 80 ) TB_empty 0 0 0 1 1
+( -1408 -32 -64 ) ( -1408 -31 -64 ) ( -1408 -32 -63 ) TB_empty 0 0 0 1 1
+( -64 -992 -64 ) ( -64 -992 -63 ) ( -63 -992 -64 ) TB_empty 0 0 0 1 1
+( -64 -32 -64 ) ( -63 -32 -64 ) ( -64 -31 -64 ) TB_empty 0 0 0 1 1
+( 32 32 160 ) ( 32 33 160 ) ( 33 32 160 ) TB_empty 0 0 0 1 1
+( 32 4864 -32 ) ( 33 4864 -32 ) ( 32 4864 -31 ) TB_empty 0 0 0 1 1
+( 1632 32 -32 ) ( 1632 32 -31 ) ( 1632 33 -32 ) TB_empty 0 0 0 1 1
 }
 }
