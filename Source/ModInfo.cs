@@ -4,7 +4,7 @@ using System.Text.Json.Serialization;
 namespace Celeste64;
 
 /// <summary>
-/// Stores Meta-Info about a specific skin
+/// Stores Meta-Info about a specific Mod
 /// </summary>
 public class ModInfo
 {
