@@ -443,7 +443,10 @@ public class Map
 				if (!used.Contains(face.TextureName))
 				{
 					used.Add(face.TextureName);
-					model.Materials.Add(currentMaterials[face.TextureName]);
+					if (currentMaterials.ContainsKey(face.TextureName))
+						model.Materials.Add(currentMaterials[face.TextureName]);
+					else
+						model.Materials.Add(currentMaterials["wall"]);
 				}
 			}
 
@@ -469,7 +472,7 @@ public class Map
 				{
 					if (face.TextureName.StartsWith("__") || face.TextureName == "TB_empty" || face.TextureName == "invisible")
 						continue;
-					if (face.TextureName != texture.Name)
+					if (face.TextureName != texture.Name && texture.Name != "wall")
 						continue;
 
 					var vertexIndex = meshVertices.Count;
