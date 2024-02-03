@@ -40,8 +40,10 @@ public class Game : Module
     public const string GameTitle = "Celeste 64: Fragments of the Mountain + Fuji Mod Loader";
 	public const int Width = 640;
 	public const int Height = 360;
-	public static readonly Version Version = typeof(Game).Assembly.GetName().Version!;
-	public static readonly string VersionString = $"v.{Version.Major}.{Version.Minor}.{Version.Build}";
+	public static readonly Version GameVersion = typeof(Game).Assembly.GetName().Version!;
+	public static Version LoaderVersion = new Version();
+	public static readonly string VersionString = $"Celeste 64: v.{GameVersion.Major}.{GameVersion.Minor}.{GameVersion.Build}";
+	public static string LoaderVersionString { get { return $"Fuji: v.{LoaderVersion.Major}.{LoaderVersion.Minor}.{LoaderVersion.Build}"; } }
 
 	/// <summary>
 	/// Used by various rendering elements to proportionally scale if you change the default game resolution
