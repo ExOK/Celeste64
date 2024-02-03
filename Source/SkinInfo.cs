@@ -20,7 +20,7 @@ public class SkinInfo
 
 	public bool IsValid()
 	{
-		return !string.IsNullOrEmpty(Name) || !string.IsNullOrEmpty(Model);
+		return !string.IsNullOrEmpty(Name) && !string.IsNullOrEmpty(Model);
 	}
 }
 
