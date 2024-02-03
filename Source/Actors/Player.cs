@@ -268,11 +268,20 @@ public class Player : Actor, IHaveModels, IHaveSprites, IRidePlatforms, ICastPoi
 		{
 			// Rotate Camera
 			{
-				var rot = new Vec2(cameraTargetForward.X, cameraTargetForward.Y).Angle();
-				rot -= Controls.Camera.Value.X * Time.Delta * 4;
+				if (!Controls.BackCamera.Pressed)
+				{
+					var rot = new Vec2(cameraTargetForward.X, cameraTargetForward.Y).Angle();
+					rot -= Controls.Camera.Value.X * Time.Delta * 4;
 
-				var angle = Calc.AngleToVector(rot);
-				cameraTargetForward = new(angle, 0);
+					var angle = Calc.AngleToVector(rot);
+					cameraTargetForward = new(angle, 0);
+				}
+				else
+				{
+					var rot = Facing.Angle();
+					var angle = Calc.AngleToVector(rot);
+					cameraTargetForward = new(angle, 0);
+				}
 			}
 
 			// Move Camera in / out
