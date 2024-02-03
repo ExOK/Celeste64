@@ -129,17 +129,14 @@ namespace Celeste64
 				out var info))
 			{
 				modInfo = info;
-				if(string.IsNullOrEmpty(modInfo.Id))
+				if (!modInfo.IsValid())
 				{
-					modInfo.Id = modFolder;
-				}
-				if (string.IsNullOrEmpty(modInfo.Name))
-				{
-					modInfo.Name = modFolder;
+					throw new Exception($"Fuji Exception: Invalid Fuji.json file for {modFolder}/Fuji.json");
 				}
 			}
 			else
 			{
+				Log.Warning("No Fuji.json file found. Using default");
 				modInfo = new ModInfo()
 				{
 					Id = modFolder,
