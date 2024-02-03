@@ -1,7 +1,4 @@
 
-using System.Reflection.Emit;
-using static Celeste64.Menu;
-
 namespace Celeste64;
 
 public class Menu
@@ -110,13 +107,6 @@ public class Menu
 
 	public bool IsInMainMenu => submenus.Count <= 0;
 	private Menu CurrentMenu => submenus.Count > 0 ? submenus.Peek() : this;
-	private string CurrentTitle => CurrentMenu.Title;
-	private List<Item> CurrentItems => CurrentMenu.items;
-	private int CurrentIndex
-	{
-		get => CurrentMenu.Index;
-		set => CurrentMenu.Index = value;
-	}
 	
 	public Vec2 Size
 	{
@@ -131,7 +121,7 @@ public class Menu
 				size.Y += SpacerHeight + Spacing;
 			}
 	
-			foreach (var item in CurrentItems)
+			foreach (var item in items)
 			{
 				if (string.IsNullOrEmpty(item.Label))
 				{
@@ -145,7 +135,7 @@ public class Menu
 				size.Y += Spacing;
 			}
 	
-			if (CurrentItems.Count > 0)
+			if (items.Count > 0)
 				size.Y -= Spacing;
 	
 			return size;
@@ -170,15 +160,14 @@ public class Menu
 	
 	public void CloseSubMenus() 
 	{
-	    while (submenus.Count > 0)
-			submenus.Pop();
+		submenus.Clear();
 	}
-	
-	public void Update()
+
+	private void HandleInput()
 	{
-		if (CurrentItems.Count > 0 && Focused)
+		if (items.Count > 0)
 		{
-			var was = CurrentIndex;
+			var was = Index;
 			var step = 0;
 
 			if (Controls.Menu.Vertical.Positive.Pressed)
@@ -186,21 +175,29 @@ public class Menu
 			if (Controls.Menu.Vertical.Negative.Pressed)
 				step = -1;
 	
-			CurrentIndex += step;
-			while (!CurrentItems[(CurrentItems.Count + CurrentIndex) % CurrentItems.Count].Selectable)
-				CurrentIndex += step;
-			CurrentIndex = (CurrentItems.Count + CurrentIndex) % CurrentItems.Count;
+			Index += step;
+			while (!items[(items.Count + Index) % items.Count].Selectable)
+				Index += step;
+			Index = (items.Count + Index) % items.Count;
 	
-			if (was != CurrentIndex)
+			if (was != Index)
 				Audio.Play(step < 0 ? UpSound : DownSound);
 	
 			if (Controls.Menu.Horizontal.Negative.Pressed)
-				CurrentItems[CurrentIndex].Slide(-1);
+				items[Index].Slide(-1);
 			if (Controls.Menu.Horizontal.Positive.Pressed)
-				CurrentItems[CurrentIndex].Slide(1);
+				items[Index].Slide(1);
 	
-			if (Controls.Confirm.Pressed && CurrentItems[CurrentIndex].Pressed())
+			if (Controls.Confirm.Pressed && items[Index].Pressed())
 				Controls.Consume();
+		}
+	}
+
+	public void Update()
+	{
+		if (Focused)
+		{
+			CurrentMenu.HandleInput();
 
 	        if (Controls.Cancel.Pressed && !IsInMainMenu) 
 			{
@@ -209,16 +206,17 @@ public class Menu
 			}
 	    }
 	}
-	
-	public void Render(Batcher batch, Vec2 position)
+
+	private void RenderItems(Batcher batch)
 	{
 		var size = Size;
+		var position = Vec2.Zero;
 		batch.PushMatrix(-size / 2);
 	
-		if(!string.IsNullOrEmpty(CurrentTitle)) 
+		if(!string.IsNullOrEmpty(Title)) 
 		{
 			var at = position + new Vec2(size.X / 2, 0);
-			var text = CurrentTitle;
+			var text = Title;
 			var justify = new Vec2(0.5f, 0);
 			var color = new Color(8421504);
 
@@ -232,24 +230,31 @@ public class Menu
 			position.Y += SpacerHeight + Spacing;
 		}
 	
-		for (int i = 0; i < CurrentItems.Count; i ++)
+		for (int i = 0; i < items.Count; i ++)
 		{
-			if (string.IsNullOrEmpty(CurrentItems[i].Label))
+			if (string.IsNullOrEmpty(items[i].Label))
 			{
 				position.Y += SpacerHeight;
 				continue;
 			}
 	
 			var at = position + new Vec2(size.X / 2, 0);
-			var text = CurrentItems[i].Label;
+			var text = items[i].Label;
 			var justify = new Vec2(0.5f, 0);
-			var color = CurrentIndex == i && Focused ? (Time.BetweenInterval(0.1f) ? 0x84FF54 : 0xFCFF59) : Color.White;
+			var color = Index == i && Focused ? (Time.BetweenInterval(0.1f) ? 0x84FF54 : 0xFCFF59) : Color.White;
 			
 			UI.Text(batch, text, at, justify, color);
 	
 			position.Y += font.LineHeight;
 			position.Y += Spacing;    
 	    }
+		batch.PopMatrix();
+	}
+	
+	public void Render(Batcher batch, Vec2 position)
+	{
+		batch.PushMatrix(position);
+		CurrentMenu.RenderItems(batch);
 		batch.PopMatrix();
 	}
 }
