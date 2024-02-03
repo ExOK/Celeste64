@@ -7,6 +7,7 @@ public class Menu
 {
 	public const float Spacing = 4 * Game.RelativeScale;
 	public const float SpacerHeight = 12 * Game.RelativeScale;
+	public const float TitleScale = 0.75f;
 
 	public abstract class Item
 	{
@@ -16,7 +17,25 @@ public class Menu
 		public virtual void Slide(int dir) {}
 	}
 
-	public class Spacer : Item
+	public class Submenu(string label, Menu? rootMenu, Menu? submenu = null) : Item 
+	{
+		private readonly string label = label;
+		public override string Label => label;
+		public override bool Pressed() 
+		{
+			if (submenu != null) 
+			{
+				Audio.Play(Sfx.ui_select);
+				submenu.Index = 0;
+				rootMenu?.PushSubMenu(submenu);
+				return true;
+			}
+			
+			return false;
+		}
+	}
+
+    public class Spacer : Item
 	{
         public override bool Selectable => false;
     }
@@ -106,26 +125,33 @@ public class Menu
 		}
 	}
 
-	public int Index
-	{
-		get => index;
-		set => index = value;
-	}
+	public int Index;
+	public string Title = string.Empty;
 	public bool Focused = true;
 
 	private readonly SpriteFont font;
 	private readonly List<Item> items = [];
-	private int index = 0;
+	private readonly Stack<Menu> submenus = [];
 
 	public string UpSound = Sfx.ui_move;
 	public string DownSound = Sfx.ui_move;
 
+	public bool IsInMainMenu => submenus.Count <= 0;
+	private Menu CurrentMenu => submenus.Count > 0 ? submenus.Peek() : this;
+	
 	public Vec2 Size
 	{
 		get
 		{
 			Vec2 size = Vec2.Zero;
-
+	
+			if (!string.IsNullOrEmpty(Title))
+			{
+				size.X = font.WidthOf(Title) * TitleScale;
+				size.Y += font.LineHeight * TitleScale;
+				size.Y += SpacerHeight + Spacing;
+			}
+	
 			foreach (var item in items)
 			{
 				if (string.IsNullOrEmpty(item.Label))
@@ -139,58 +165,102 @@ public class Menu
 				}
 				size.Y += Spacing;
 			}
-
+	
 			if (items.Count > 0)
 				size.Y -= Spacing;
-
+	
 			return size;
 		}
 	}
-
+	
 	public Menu()
 	{
 		font = Assets.Fonts.First().Value;
 	}
-
+	
 	public Menu Add(Item item)
 	{
 		items.Add(item);
 		return this;
 	}
-
-	public void Update()
+	
+	protected void PushSubMenu(Menu menu) 
 	{
-		if (items.Count > 0 && Focused)
+		submenus.Push(menu);
+	}
+	
+	public void CloseSubMenus() 
+	{
+		submenus.Clear();
+	}
+
+	private void HandleInput()
+	{
+		if (items.Count > 0)
 		{
-			var was = index;
+			var was = Index;
 			var step = 0;
+
 			if (Controls.Menu.Vertical.Positive.Pressed)
 				step = 1;
 			if (Controls.Menu.Vertical.Negative.Pressed)
 				step = -1;
-
-			index += step;
-			while (!items[(items.Count + index) % items.Count].Selectable)
-				index += step;
-			index = (items.Count + index) % items.Count;
-
-			if (was != index)
+	
+			Index += step;
+			while (!items[(items.Count + Index) % items.Count].Selectable)
+				Index += step;
+			Index = (items.Count + Index) % items.Count;
+	
+			if (was != Index)
 				Audio.Play(step < 0 ? UpSound : DownSound);
-
+	
 			if (Controls.Menu.Horizontal.Negative.Pressed)
-				items[index].Slide(-1);
+				items[Index].Slide(-1);
 			if (Controls.Menu.Horizontal.Positive.Pressed)
-				items[index].Slide(1);
-
-			if (Controls.Confirm.Pressed && items[index].Pressed())
+				items[Index].Slide(1);
+	
+			if (Controls.Confirm.Pressed && items[Index].Pressed())
 				Controls.Consume();
 		}
 	}
 
-	public void Render(Batcher batch, Vec2 position)
+	public void Update()
+	{
+		if (Focused)
+		{
+			CurrentMenu.HandleInput();
+
+	        if (Controls.Cancel.Pressed && !IsInMainMenu) 
+			{
+				Audio.Play(Sfx.main_menu_toggle_off);
+				submenus.Pop();
+			}
+	    }
+	}
+
+	private void RenderItems(Batcher batch)
 	{
 		var size = Size;
+		var position = Vec2.Zero;
 		batch.PushMatrix(-size / 2);
+	
+		if(!string.IsNullOrEmpty(Title)) 
+		{
+			var at = position + new Vec2(size.X / 2, 0);
+			var text = Title;
+			var justify = new Vec2(0.5f, 0);
+			var color = new Color(8421504);
+
+			batch.PushMatrix(
+				Matrix3x2.CreateScale(TitleScale) * 
+				Matrix3x2.CreateTranslation(at));
+			UI.Text(batch, text, Vec2.Zero, justify, color);
+			batch.PopMatrix();
+
+			position.Y += font.LineHeight * TitleScale;
+			position.Y += SpacerHeight + Spacing;
+		}
+	
 		for (int i = 0; i < items.Count; i ++)
 		{
 			if (string.IsNullOrEmpty(items[i].Label))
@@ -198,17 +268,24 @@ public class Menu
 				position.Y += SpacerHeight;
 				continue;
 			}
-
+	
 			var at = position + new Vec2(size.X / 2, 0);
 			var text = items[i].Label;
 			var justify = new Vec2(0.5f, 0);
-			var color = index == i && Focused ? (Time.BetweenInterval(0.1f) ? 0x84FF54 : 0xFCFF59) : Color.White;
+			var color = Index == i && Focused ? (Time.BetweenInterval(0.1f) ? 0x84FF54 : 0xFCFF59) : Color.White;
 			
 			UI.Text(batch, text, at, justify, color);
-
+	
 			position.Y += font.LineHeight;
-			position.Y += Spacing;
-		}
+			position.Y += Spacing;    
+	    }
+		batch.PopMatrix();
+	}
+	
+	public void Render(Batcher batch, Vec2 position)
+	{
+		batch.PushMatrix(position);
+		CurrentMenu.RenderItems(batch);
 		batch.PopMatrix();
 	}
 }
