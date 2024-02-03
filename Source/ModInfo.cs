@@ -4,7 +4,7 @@ using System.Text.Json.Serialization;
 namespace Celeste64;
 
 /// <summary>
-/// Stores Meta-Info about a specific skin
+/// Stores Meta-Info about a specific Mod
 /// </summary>
 public class ModInfo
 {
@@ -13,12 +13,13 @@ public class ModInfo
 	public string? ModAuthor { get; set; }
 	public string? Description { get; set; }
 	public string? Icon { get; set; }
+	public string? FujiRequiredVersion { get; set; }
 	public Dictionary<string, string>? Dependencies { get; set; }
 	public Dictionary<string, string>? AssetReplaceItems { get; set; }
 
 	public bool IsValid()
 	{
-		return string.IsNullOrEmpty(Id) && string.IsNullOrEmpty(Name);
+		return !string.IsNullOrEmpty(Id) && !string.IsNullOrEmpty(Name);
 	}
 }
 
