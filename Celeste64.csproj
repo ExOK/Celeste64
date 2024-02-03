@@ -8,7 +8,7 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <Version>1.0.1</Version>
     <PublishSingleFile>true</PublishSingleFile>
-    <PublishTrimmed>true</PublishTrimmed>
+    <PublishTrimmed>false</PublishTrimmed>
     <Platforms>x64</Platforms>
     <ApplicationIcon>fuji.ico</ApplicationIcon>
     <PackageIcon>fuji.png</PackageIcon>

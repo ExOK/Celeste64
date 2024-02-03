@@ -10,7 +10,8 @@ class Program
 	// Copied from Celeste64 project
 	public static void Main(string[] args)
 	{
-		Log.Info($"Celeste 64 v.{Game.Version.Major}.{Game.Version.Minor}.{Game.Version.Build}");
+		Game.LoaderVersion = typeof(Program).Assembly.GetName().Version!;
+		Log.Info($"Celeste 64 v.{Game.LoaderVersion.Major}.{Game.LoaderVersion.Minor}.{Game.LoaderVersion.Build}");
 
 		AppDomain.CurrentDomain.UnhandledException += (object sender, UnhandledExceptionEventArgs e) =>
 		{
@@ -40,7 +41,7 @@ class Program
 		// construct a log message
 		const string ErrorFileName = "ErrorLog.txt";
 		StringBuilder error = new();
-		error.AppendLine($"Celeste 64 v.{Game.Version.Major}.{Game.Version.Minor}.{Game.Version.Build}");
+		error.AppendLine($"Celeste 64 v.{Game.LoaderVersion.Major}.{Game.LoaderVersion.Minor}.{Game.LoaderVersion.Build}");
 		error.AppendLine($"Error Log ({DateTime.Now})");
 		error.AppendLine($"Call Stack:");
 		error.AppendLine(e?.ToString() ?? string.Empty);
