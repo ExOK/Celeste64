@@ -3,6 +3,7 @@
 bin
 obj
 build
+Celeste64-Fuji
 *.user
 Content/Map_Test/autosave
 Content/Maps/autosave
