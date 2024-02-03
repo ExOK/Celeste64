@@ -86,15 +86,15 @@ public class World : Scene
 				Get<Player>()?.Kill();
 			}));
 
-            Menu optionsMenu = new Menu();
+			Menu optionsMenu = new Menu();
 			optionsMenu.Title = "Options";
-            optionsMenu.Add(new Menu.Toggle("Fullscreen", Save.Instance.ToggleFullscreen, () => Save.Instance.Fullscreen));
-            optionsMenu.Add(new Menu.Toggle("Z-Guide", Save.Instance.ToggleZGuide, () => Save.Instance.ZGuide));
-            optionsMenu.Add(new Menu.Toggle("Timer", Save.Instance.ToggleTimer, () => Save.Instance.SpeedrunTimer));
-            optionsMenu.Add(new Menu.Spacer());
-            optionsMenu.Add(new Menu.Slider("BGM", 0, 10, () => Save.Instance.MusicVolume, Save.Instance.SetMusicVolume));
-            optionsMenu.Add(new Menu.Slider("SFX", 0, 10, () => Save.Instance.SfxVolume, Save.Instance.SetSfxVolume));
-            pauseMenu.Add(new Menu.Submenu("Options", pauseMenu, optionsMenu));
+			optionsMenu.Add(new Menu.Toggle("Fullscreen", Save.Instance.ToggleFullscreen, () => Save.Instance.Fullscreen));
+			optionsMenu.Add(new Menu.Toggle("Z-Guide", Save.Instance.ToggleZGuide, () => Save.Instance.ZGuide));
+			optionsMenu.Add(new Menu.Toggle("Timer", Save.Instance.ToggleTimer, () => Save.Instance.SpeedrunTimer));
+			optionsMenu.Add(new Menu.Spacer());
+			optionsMenu.Add(new Menu.Slider("BGM", 0, 10, () => Save.Instance.MusicVolume, Save.Instance.SetMusicVolume));
+			optionsMenu.Add(new Menu.Slider("SFX", 0, 10, () => Save.Instance.SfxVolume, Save.Instance.SetSfxVolume));
+			pauseMenu.Add(new Menu.Submenu("Options", pauseMenu, optionsMenu));
 			
 			pauseMenu.Add(new Menu.Option("Save & Quit", () => Game.Instance.Goto(new Transition()
 			{
@@ -374,8 +374,8 @@ public class World : Scene
 		{
 			if (Controls.Pause.Pressed || Controls.Cancel.Pressed && pauseMenu.isInMainMenu())
 			{
-                pauseMenu.closeSubmenus();
-                SetPaused(false);
+				pauseMenu.closeSubmenus();
+				SetPaused(false);
 				Audio.Play(Sfx.ui_unpause);
 			}
 			else

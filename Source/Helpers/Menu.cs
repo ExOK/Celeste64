@@ -13,7 +13,7 @@ public class Menu
 	{
 		public virtual string Label { get; } = string.Empty;
 		public virtual bool Selectable { get; } = true;
-        public virtual bool Pressed() => false;
+		public virtual bool Pressed() => false;
 		public virtual void Slide(int dir) {}
 	}
 
@@ -21,8 +21,10 @@ public class Menu
 	{
 		private readonly string label = label;
 		public override string Label => label;
-		public override bool Pressed() {
-			if (submenu != null) {
+		public override bool Pressed() 
+		{
+			if (submenu != null) 
+			{
 				Audio.Play(Sfx.ui_select);
 				mainMenu.Index = 0;
 				mainMenu.Title = submenu.Title;
@@ -100,55 +102,55 @@ public class Menu
 		set => index = value;
 	}
 
-    public string Title {
-        get => title;
-        set => title = value;
-    }
+	public string Title {
+		get => title;
+		set => title = value;
+	}
 
-    public bool Focused = true;
+	public bool Focused = true;
 
 	private readonly SpriteFont font;
-    //Stack to keeps track of all menus before current menu
-    private readonly Stack<List<Item>> menuStack = new Stack<List<Item>>();
-    private int index = 0;
+	//Stack to keeps track of all menus before current menu
+	private readonly Stack<List<Item>> menuStack = new Stack<List<Item>>();
+	private int index = 0;
 	private string title = string.Empty;
 
 	public string UpSound = Sfx.ui_move;
 	public string DownSound = Sfx.ui_move;
 
-    protected List<Item> getCurrentItems() 
+	protected List<Item> getCurrentItems() 
 	{
-        return menuStack.Peek();
-    }
-
-    protected void addItemsToStack(List<Item> items) 
+	    return menuStack.Peek();
+	}
+	
+	protected void addItemsToStack(List<Item> items) 
 	{
-        menuStack.Push(items);
-    }
-
-    public bool isInMainMenu() 
+	    menuStack.Push(items);
+	}
+	
+	public bool isInMainMenu() 
 	{
-        return menuStack.Count == 1;
-    }
-
-    public void closeSubmenus() 
+	    return menuStack.Count == 1;
+	}
+	
+	public void closeSubmenus() 
 	{
-        while (menuStack.Count > 1) { menuStack.Pop(); }
-    }
-
-    public Vec2 Size
+	    while (menuStack.Count > 1) { menuStack.Pop(); }
+	}
+	
+	public Vec2 Size
 	{
 		get
 		{
 			Vec2 size = Vec2.Zero;
-
+	
 			if (!string.IsNullOrEmpty(title)) {
-                size.X = font.WidthOf(title);
-                size.Y += font.LineHeight;
+				size.X = font.WidthOf(title);
+				size.Y += font.LineHeight;
 				size.Y += SpacerHeight + Spacing;
-            }
-
-                foreach (var item in getCurrentItems())
+			}
+	
+			foreach (var item in getCurrentItems())
 			{
 				if (string.IsNullOrEmpty(item.Label))
 				{
@@ -161,26 +163,26 @@ public class Menu
 				}
 				size.Y += Spacing;
 			}
-
+	
 			if (getCurrentItems().Count > 0)
 				size.Y -= Spacing;
-
+	
 			return size;
 		}
 	}
-
+	
 	public Menu()
 	{
 		font = Assets.Fonts.First().Value;
 		menuStack.Push(new List<Item>());
 	}
-
+	
 	public Menu Add(Item item)
 	{
-        getCurrentItems().Add(item);
+		getCurrentItems().Add(item);
 		return this;
 	}
-
+	
 	public void Update()
 	{
 		if (getCurrentItems().Count > 0 && Focused)
@@ -191,49 +193,49 @@ public class Menu
 				step = 1;
 			if (Controls.Menu.Vertical.Negative.Pressed)
 				step = -1;
-
+	
 			index += step;
 			while (!getCurrentItems()[(getCurrentItems().Count + index) % getCurrentItems().Count].Selectable)
 				index += step;
 			index = (getCurrentItems().Count + index) % getCurrentItems().Count;
-
+	
 			if (was != index)
 				Audio.Play(step < 0 ? UpSound : DownSound);
-
+	
 			if (Controls.Menu.Horizontal.Negative.Pressed)
-                getCurrentItems()[index].Slide(-1);
+				getCurrentItems()[index].Slide(-1);
 			if (Controls.Menu.Horizontal.Positive.Pressed)
-                getCurrentItems()[index].Slide(1);
-
+				getCurrentItems()[index].Slide(1);
+	
 			if (Controls.Confirm.Pressed && getCurrentItems()[index].Pressed())
 				Controls.Consume();
-            if (Controls.Cancel.Pressed && !isInMainMenu()) 
+	        if (Controls.Cancel.Pressed && !isInMainMenu()) 
 			{
-                Audio.Play(Sfx.main_menu_toggle_off);
+				Audio.Play(Sfx.main_menu_toggle_off);
 				Index = 0;
 				menuStack.Pop();
 			}
-        }
+	    }
 	}
-
+	
 	public void Render(Batcher batch, Vec2 position)
 	{
 		var size = Size;
 		batch.PushMatrix(-size / 2);
-
+	
 		if(!string.IsNullOrEmpty(title)) 
 		{
-            var at = position + new Vec2(size.X / 2, 0);
-            var text = title;
-            var justify = new Vec2(0.5f, 0);
-            var color = new Color(8421504);
+			var at = position + new Vec2(size.X / 2, 0);
+			var text = title;
+			var justify = new Vec2(0.5f, 0);
+			var color = new Color(8421504);
 
-            UI.Text(batch, text, at, justify, color);
+			UI.Text(batch, text, at, justify, color);
 
-            position.Y += font.LineHeight;
-            position.Y += SpacerHeight + Spacing;
-        }
-
+			position.Y += font.LineHeight;
+			position.Y += SpacerHeight + Spacing;
+		}
+	
 		for (int i = 0; i < getCurrentItems().Count; i ++)
 		{
 			if (string.IsNullOrEmpty(getCurrentItems()[i].Label))
@@ -241,17 +243,17 @@ public class Menu
 				position.Y += SpacerHeight;
 				continue;
 			}
-
+	
 			var at = position + new Vec2(size.X / 2, 0);
 			var text = getCurrentItems()[i].Label;
 			var justify = new Vec2(0.5f, 0);
 			var color = index == i && Focused ? (Time.BetweenInterval(0.1f) ? 0x84FF54 : 0xFCFF59) : Color.White;
 			
 			UI.Text(batch, text, at, justify, color);
-
+	
 			position.Y += font.LineHeight;
 			position.Y += Spacing;    
-        }
+	    }
 		batch.PopMatrix();
 	}
 }
