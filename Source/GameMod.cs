@@ -16,16 +16,34 @@ public abstract class GameMod
 	
 	public IModFilesystem Filesystem { get; internal set; }
 
+	/// <summary>
+	/// Cleanup tasks that have to be performed when this mod gets unloaded.
+	/// Called after <see cref="OnModUnloaded"/>, not inside of it,
+	/// to make sure that a mod can't accidentally skip calling this due to not calling base.OnModUnloaded.
+	/// </summary>
+	internal Action? OnUnloadedCleanup { get; private set; }
+
 	public GameMod()
 	{
 	}
 
 	public void AddActorFactory(string name, Map.ActorFactory factory)
 	{
-		if (!Map.ModActorFactories.ContainsKey(name))
-			Map.ModActorFactories.Add(name, factory);
+		if (Map.ModActorFactories.TryAdd(name, factory)) {
+			OnUnloadedCleanup += () => Map.ModActorFactories.Remove(name);
+		}
 		else
 			Log.Warning($"An actor factory with the name {name} was already loaded. Factory won't be loaded.");
+	}
+
+	/// <summary>
+	/// Registers the provided custom player state,
+	/// and ensures it will be deregistered once the mod unloads.
+	/// </summary>
+	public void AddPlayerState<T>() where T : CustomPlayerState, new()
+	{
+		CustomPlayerStateRegistry.Register<T>();
+		OnUnloadedCleanup += CustomPlayerStateRegistry.Deregister<T>;
 	}
 
 	// Event Functions. Purposely left blank.
