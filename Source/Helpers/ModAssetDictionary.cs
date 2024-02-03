@@ -56,7 +56,7 @@ public class ModAssetDictionary<V> : IEnumerable<KeyValuePair<string, V>>
 	/// <exception cref="KeyNotFoundException"></exception>
 	public V Get(string stringKey)
 	{
-		string[] splitkey = stringKey.Split("::");
+		string[] splitkey = stringKey.Split(":");
 
 		string? modName = null;
 		string key = stringKey;
@@ -202,7 +202,7 @@ public class ModAssetDictionary<V> : IEnumerable<KeyValuePair<string, V>>
 	/// <returns></returns>
 	public bool ContainsKey(string key)
 	{
-		string[] split = key.Split("::");
+		string[] split = key.Split(":");
 		foreach (GameMod mod in ModManager.Instance.EnabledMods)
 		{
 			if(getDictionary(mod).ContainsKey(key) || (split.Length == 2 && getDictionary(mod).ContainsKey(split[1])))
@@ -267,11 +267,11 @@ public class ModAssetDictionary<V> : IEnumerable<KeyValuePair<string, V>>
 	/// <returns></returns>
 	public bool TryGetValueFromFullPath(string path, [MaybeNullWhen(false)] out V value)
 	{
-		string[] parts = path.Split("::");
+		string[] parts = path.Split(":");
 		string? prop;
 		if (parts.Length == 2)
 		{
-			prop = $"{parts[0]}::{Path.GetFileNameWithoutExtension(parts[1])}";
+			prop = $"{parts[0]}:{Path.GetFileNameWithoutExtension(parts[1])}";
 		}
 		else
 		{
