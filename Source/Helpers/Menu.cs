@@ -8,6 +8,7 @@ public class Menu
 {
 	public const float Spacing = 4 * Game.RelativeScale;
 	public const float SpacerHeight = 12 * Game.RelativeScale;
+	public const float TitleScale = 0.75f;
 
 	public abstract class Item
 	{
@@ -17,7 +18,7 @@ public class Menu
 		public virtual void Slide(int dir) {}
 	}
 
-	public class Submenu(string label, Menu mainMenu, Menu? submenu = null) : Item 
+	public class Submenu(string label, Menu? rootMenu, Menu? submenu = null) : Item 
 	{
 		private readonly string label = label;
 		public override string Label => label;
@@ -26,11 +27,11 @@ public class Menu
 			if (submenu != null) 
 			{
 				Audio.Play(Sfx.ui_select);
-				mainMenu.Index = 0;
-				mainMenu.Title = submenu.Title;
-				mainMenu.addItemsToStack(submenu.getCurrentItems());
+				submenu.Index = 0;
+				rootMenu?.PushSubMenu(submenu);
 				return true;
 			}
+			
 			return false;
 		}
 	}
@@ -96,46 +97,25 @@ public class Menu
 		}
 	}
 
-	public int Index
-	{
-		get => index;
-		set => index = value;
-	}
-
-	public string Title {
-		get => title;
-		set => title = value;
-	}
-
+	public int Index;
+	public string Title = string.Empty;
 	public bool Focused = true;
 
 	private readonly SpriteFont font;
-	//Stack to keeps track of all menus before current menu
-	private readonly Stack<List<Item>> menuStack = new Stack<List<Item>>();
-	private int index = 0;
-	private string title = string.Empty;
+	private readonly List<Item> items = [];
+	private readonly Stack<Menu> submenus = [];
 
 	public string UpSound = Sfx.ui_move;
 	public string DownSound = Sfx.ui_move;
 
-	protected List<Item> getCurrentItems() 
+	public bool IsInMainMenu => submenus.Count <= 0;
+	private Menu CurrentMenu => submenus.Count > 0 ? submenus.Peek() : this;
+	private string CurrentTitle => CurrentMenu.Title;
+	private List<Item> CurrentItems => CurrentMenu.items;
+	private int CurrentIndex
 	{
-	    return menuStack.Peek();
-	}
-	
-	protected void addItemsToStack(List<Item> items) 
-	{
-	    menuStack.Push(items);
-	}
-	
-	public bool isInMainMenu() 
-	{
-	    return menuStack.Count == 1;
-	}
-	
-	public void closeSubmenus() 
-	{
-	    while (menuStack.Count > 1) { menuStack.Pop(); }
+		get => CurrentMenu.Index;
+		set => CurrentMenu.Index = value;
 	}
 	
 	public Vec2 Size
@@ -144,13 +124,14 @@ public class Menu
 		{
 			Vec2 size = Vec2.Zero;
 	
-			if (!string.IsNullOrEmpty(title)) {
-				size.X = font.WidthOf(title);
-				size.Y += font.LineHeight;
+			if (!string.IsNullOrEmpty(Title))
+			{
+				size.X = font.WidthOf(Title) * TitleScale;
+				size.Y += font.LineHeight * TitleScale;
 				size.Y += SpacerHeight + Spacing;
 			}
 	
-			foreach (var item in getCurrentItems())
+			foreach (var item in CurrentItems)
 			{
 				if (string.IsNullOrEmpty(item.Label))
 				{
@@ -164,7 +145,7 @@ public class Menu
 				size.Y += Spacing;
 			}
 	
-			if (getCurrentItems().Count > 0)
+			if (CurrentItems.Count > 0)
 				size.Y -= Spacing;
 	
 			return size;
@@ -174,46 +155,57 @@ public class Menu
 	public Menu()
 	{
 		font = Assets.Fonts.First().Value;
-		menuStack.Push(new List<Item>());
 	}
 	
 	public Menu Add(Item item)
 	{
-		getCurrentItems().Add(item);
+		items.Add(item);
 		return this;
+	}
+	
+	protected void PushSubMenu(Menu menu) 
+	{
+		submenus.Push(menu);
+	}
+	
+	public void CloseSubMenus() 
+	{
+	    while (submenus.Count > 0)
+			submenus.Pop();
 	}
 	
 	public void Update()
 	{
-		if (getCurrentItems().Count > 0 && Focused)
+		if (CurrentItems.Count > 0 && Focused)
 		{
-			var was = index;
+			var was = CurrentIndex;
 			var step = 0;
+
 			if (Controls.Menu.Vertical.Positive.Pressed)
 				step = 1;
 			if (Controls.Menu.Vertical.Negative.Pressed)
 				step = -1;
 	
-			index += step;
-			while (!getCurrentItems()[(getCurrentItems().Count + index) % getCurrentItems().Count].Selectable)
-				index += step;
-			index = (getCurrentItems().Count + index) % getCurrentItems().Count;
+			CurrentIndex += step;
+			while (!CurrentItems[(CurrentItems.Count + CurrentIndex) % CurrentItems.Count].Selectable)
+				CurrentIndex += step;
+			CurrentIndex = (CurrentItems.Count + CurrentIndex) % CurrentItems.Count;
 	
-			if (was != index)
+			if (was != CurrentIndex)
 				Audio.Play(step < 0 ? UpSound : DownSound);
 	
 			if (Controls.Menu.Horizontal.Negative.Pressed)
-				getCurrentItems()[index].Slide(-1);
+				CurrentItems[CurrentIndex].Slide(-1);
 			if (Controls.Menu.Horizontal.Positive.Pressed)
-				getCurrentItems()[index].Slide(1);
+				CurrentItems[CurrentIndex].Slide(1);
 	
-			if (Controls.Confirm.Pressed && getCurrentItems()[index].Pressed())
+			if (Controls.Confirm.Pressed && CurrentItems[CurrentIndex].Pressed())
 				Controls.Consume();
-	        if (Controls.Cancel.Pressed && !isInMainMenu()) 
+
+	        if (Controls.Cancel.Pressed && !IsInMainMenu) 
 			{
 				Audio.Play(Sfx.main_menu_toggle_off);
-				Index = 0;
-				menuStack.Pop();
+				submenus.Pop();
 			}
 	    }
 	}
@@ -223,31 +215,35 @@ public class Menu
 		var size = Size;
 		batch.PushMatrix(-size / 2);
 	
-		if(!string.IsNullOrEmpty(title)) 
+		if(!string.IsNullOrEmpty(CurrentTitle)) 
 		{
 			var at = position + new Vec2(size.X / 2, 0);
-			var text = title;
+			var text = CurrentTitle;
 			var justify = new Vec2(0.5f, 0);
 			var color = new Color(8421504);
 
-			UI.Text(batch, text, at, justify, color);
+			batch.PushMatrix(
+				Matrix3x2.CreateScale(TitleScale) * 
+				Matrix3x2.CreateTranslation(at));
+			UI.Text(batch, text, Vec2.Zero, justify, color);
+			batch.PopMatrix();
 
-			position.Y += font.LineHeight;
+			position.Y += font.LineHeight * TitleScale;
 			position.Y += SpacerHeight + Spacing;
 		}
 	
-		for (int i = 0; i < getCurrentItems().Count; i ++)
+		for (int i = 0; i < CurrentItems.Count; i ++)
 		{
-			if (string.IsNullOrEmpty(getCurrentItems()[i].Label))
+			if (string.IsNullOrEmpty(CurrentItems[i].Label))
 			{
 				position.Y += SpacerHeight;
 				continue;
 			}
 	
 			var at = position + new Vec2(size.X / 2, 0);
-			var text = getCurrentItems()[i].Label;
+			var text = CurrentItems[i].Label;
 			var justify = new Vec2(0.5f, 0);
-			var color = index == i && Focused ? (Time.BetweenInterval(0.1f) ? 0x84FF54 : 0xFCFF59) : Color.White;
+			var color = CurrentIndex == i && Focused ? (Time.BetweenInterval(0.1f) ? 0x84FF54 : 0xFCFF59) : Color.White;
 			
 			UI.Text(batch, text, at, justify, color);
 	

@@ -77,15 +77,6 @@ public class World : Scene
 
 		// setup pause menu
 		{
-			pauseMenu.Title = "Paused";
-            pauseMenu.Add(new Menu.Option("Resume", () => SetPaused(false)));
-			pauseMenu.Add(new Menu.Option("Retry", () =>
-			{
-				SetPaused(false);
-				Audio.StopBus(Sfx.bus_dialog, false);
-				Get<Player>()?.Kill();
-			}));
-
 			Menu optionsMenu = new Menu();
 			optionsMenu.Title = "Options";
 			optionsMenu.Add(new Menu.Toggle("Fullscreen", Save.Instance.ToggleFullscreen, () => Save.Instance.Fullscreen));
@@ -94,8 +85,16 @@ public class World : Scene
 			optionsMenu.Add(new Menu.Spacer());
 			optionsMenu.Add(new Menu.Slider("BGM", 0, 10, () => Save.Instance.MusicVolume, Save.Instance.SetMusicVolume));
 			optionsMenu.Add(new Menu.Slider("SFX", 0, 10, () => Save.Instance.SfxVolume, Save.Instance.SetSfxVolume));
+
+			pauseMenu.Title = "Paused";
+            pauseMenu.Add(new Menu.Option("Resume", () => SetPaused(false)));
+			pauseMenu.Add(new Menu.Option("Retry", () =>
+			{
+				SetPaused(false);
+				Audio.StopBus(Sfx.bus_dialog, false);
+				Get<Player>()?.Kill();
+			}));
 			pauseMenu.Add(new Menu.Submenu("Options", pauseMenu, optionsMenu));
-			
 			pauseMenu.Add(new Menu.Option("Save & Quit", () => Game.Instance.Goto(new Transition()
 			{
 				Mode = Transition.Modes.Replace,
@@ -372,9 +371,9 @@ public class World : Scene
 		// unpause
 		else
 		{
-			if (Controls.Pause.Pressed || Controls.Cancel.Pressed && pauseMenu.isInMainMenu())
+			if ((Controls.Pause.Pressed || Controls.Cancel.Pressed) && pauseMenu.IsInMainMenu)
 			{
-				pauseMenu.closeSubmenus();
+				pauseMenu.CloseSubMenus();
 				SetPaused(false);
 				Audio.Play(Sfx.ui_unpause);
 			}
