@@ -21,30 +21,30 @@ public static class Controls
 		Move.Clear();
 		Move.AddLeftJoystick(0);
 		Move.AddDPad(0);
-		Move.AddArrowKeys();
+		Move.Add(Keys.A, Keys.D, Keys.W, Keys.S);
 
-		Camera.Clear();
+        Camera.Clear();
 		Camera.AddRightJoystick(0, 0.50f, 0.70f);
-		Camera.Add(Keys.A, Keys.D, Keys.W, Keys.S);
+		Camera.AddArrowKeys();
 
-		Jump.Clear();
-		Jump.Add(0, Buttons.A, Buttons.Y);
-		Jump.Add(Keys.C);
+        Jump.Clear();
+		Jump.Add(0, Buttons.A, Buttons.X);
+		Jump.Add(Keys.Space, Keys.Keypad9);
 
 		Dash.Clear();
-		Dash.Add(0, Buttons.X, Buttons.B);
-		Dash.Add(Keys.X);
+		Dash.Add(0, Buttons.B, Buttons.Y);
+        Dash.Add(0, Axes.LeftTrigger, 1, .4f);
+        Dash.Add(Keys.Keypad0, Keys.Keypad8);
 
 		Climb.Clear();
-		Climb.Add(0, Buttons.LeftShoulder, Buttons.RightShoulder);
+		Climb.Add(0, Buttons.RightShoulder);
 		Climb.Add(0, Axes.RightTrigger, 1, .4f);
-		Climb.Add(0, Axes.LeftTrigger, 1, .4f);
-		Climb.Add(Keys.Z, Keys.V, Keys.LeftShift, Keys.RightShift);
+		Climb.Add(Keys.Keypad7, Keys.KeypadPlus, Keys.LeftShift, Keys.RightShift);
 
 
         UpDash.Clear();
         UpDash.Add(0, Buttons.LeftShoulder);
-        UpDash.Add(Keys.Keypad1);
+        UpDash.Add(Keys.Keypad1, Keys.KeypadDivide);
 
 
         Menu.Clear();
@@ -54,11 +54,11 @@ public static class Controls
 		
 		Confirm.Clear();
 		Confirm.Add(0, Buttons.A);
-		Confirm.Add(0, Keys.C);
+		Confirm.Add(0, Keys.C, Keys.Space, Keys.Keypad9);
 		
 		Cancel.Clear();
 		Cancel.Add(0, Buttons.B);
-		Cancel.Add(0, Keys.X);
+		Cancel.Add(0, Keys.X, Keys.Keypad0, Keys.Keypad8);
 		
 		Pause.Clear();
 		Pause.Add(0, Buttons.Start, Buttons.Select, Buttons.Back);

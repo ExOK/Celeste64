@@ -6,7 +6,7 @@
 "_tb_textures" "textures"
 "_tb_def" "external:../Celeste64.fgd"
 "skybox" "city"
-"snowAmount" "1"
+"snowAmount" "10"
 "snowDirection" "0 0 -1"
 "ambience" "mountain"
 "music" "mus_lvl1"
