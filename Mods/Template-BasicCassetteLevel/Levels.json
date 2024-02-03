@@ -1,0 +1,10 @@
+[
+	{
+		"ID": "TEMPLATE_CASSETTE_LEVEL",
+		"Name": "Cassette Template",
+		"Label": "Cassette Template for modders to copy\nMod By: Jazzrabbit",
+		"Strawberries": 2,
+		"Preview": "Postcards/CassetteTemplate",
+		"Map": "template-cassette"
+	}
+]
