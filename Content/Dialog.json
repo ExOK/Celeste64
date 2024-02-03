@@ -1,7 +1,7 @@
 {
 	"Granny1": [
 		{
-			"Face": "granny/Laugh",
+			"Face": "deadfish",
 			"Voice": "granny/granny1_01_g1",
 			"Text": "It's so cold out here\nI can see my farts."
 		},
@@ -742,6 +742,36 @@
 			"Face": "signpost",
 			"Voice": "credits/credits_13",
 			"Text": "And lastly, thank you to Celeste players everywhere.\nYour love and passion for our little game\ncontinues to inspire us."
+		}
+
+	],
+	"SignPostDeadFish": [
+		{
+			"Face": "deadfish",
+			"Voice": "sign/general_01",
+			"Text": "Hey Girl"
+
+
+
+
+		},
+		{
+			"Face": "deadfish",
+			"Voice": "sign/general_02",
+			"Text": "I heard you had a rough day"
+
+
+
+		},
+		{
+			"Face": "deadfish",
+			"Voice": "sign/general_03",
+			"Text": "So I brought over some DEAD FISH IN A CAN"
+		},
+		{
+			"Face": "sugoifish",
+			"Voice": "sign/general_04",
+			"Text": "Maybe we could EAT THE DEAD FISH together?"
 		}
 	]
 }
