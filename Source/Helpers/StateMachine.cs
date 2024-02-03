@@ -19,7 +19,7 @@ public unsafe sealed class StateMachine<TIndex, TEvent>
 
 	public delegate void OnstateChangedDelegate(TIndex? state);
 
-	public OnstateChangedDelegate OnStateChanged;
+	public OnstateChangedDelegate? OnStateChanged;
 
 
 	private TIndex? state;
@@ -63,7 +63,7 @@ public unsafe sealed class StateMachine<TIndex, TEvent>
 		{
 			PreviousState = state;
 			state = value;
-			OnStateChanged(state);
+			OnStateChanged?.Invoke(state);
 			running.Clear();
 			if (PreviousState.HasValue)
 				exit[StateToIndex(PreviousState.Value)]?.Invoke();
