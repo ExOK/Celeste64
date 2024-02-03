@@ -10,7 +10,9 @@ public static class Controls
 	public static readonly VirtualButton Dash = new("Dash", .1f);
 	public static readonly VirtualButton Climb = new("Climb");
 
-	public static readonly VirtualButton Confirm = new("Confirm");
+    public static readonly VirtualButton UpDash = new("UpDash", .1f);
+
+    public static readonly VirtualButton Confirm = new("Confirm");
 	public static readonly VirtualButton Cancel = new("Cancel");
 	public static readonly VirtualButton Pause = new("Pause");
 
@@ -38,8 +40,14 @@ public static class Controls
 		Climb.Add(0, Axes.RightTrigger, 1, .4f);
 		Climb.Add(0, Axes.LeftTrigger, 1, .4f);
 		Climb.Add(Keys.Z, Keys.V, Keys.LeftShift, Keys.RightShift);
-		
-		Menu.Clear();
+
+
+        UpDash.Clear();
+        UpDash.Add(0, Buttons.LeftShoulder);
+        UpDash.Add(Keys.Keypad1);
+
+
+        Menu.Clear();
 		Menu.AddLeftJoystick(0, 0.50f, 0.50f);
 		Menu.AddDPad(0);
 		Menu.AddArrowKeys();
@@ -65,6 +73,7 @@ public static class Controls
 		Jump.Consume();
 		Dash.Consume();
 		Climb.Consume();
+		UpDash.Consume();
 		Confirm.Consume();
 		Cancel.Consume();
 		Pause.Consume();

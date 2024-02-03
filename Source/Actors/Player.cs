@@ -1150,8 +1150,12 @@ public class Player : Actor, IHaveModels, IHaveSprites, IRidePlatforms, ICastPoi
 		if (TryDash())
 			return;
 
-		// jump & gravity
-		if (tCoyote > 0 && Controls.Jump.ConsumePress())
+        //updash
+        if (TryUpDash())
+            return;
+
+        // jump & gravity
+        if (tCoyote > 0 && Controls.Jump.ConsumePress())
 			Jump();
 		else if (WallJumpCheck())
 			WallJump();
@@ -1224,18 +1228,33 @@ public class Player : Actor, IHaveModels, IHaveSprites, IRidePlatforms, ICastPoi
 	private bool dashedOnGround;
 	private int dashTrailsCreated;
 
-	private bool TryDash()
+    private bool dashedUpward;
+
+    private bool TryDash()
 	{
 		if (dashes > 0 && tDashCooldown <= 0 && Controls.Dash.ConsumePress())
 		{
 			dashes--;
-			stateMachine.State = States.Dashing;
+            dashedUpward = false;
+            stateMachine.State = States.Dashing;
 			return true;
 		}
 		else return false;
-	}
+    }
 
-	private void StDashingEnter()
+    private bool TryUpDash()
+    {
+        if (dashes > 0 && tDashCooldown <= 0 && Controls.UpDash.ConsumePress())
+        {
+            dashes--;
+            dashedUpward = true;
+            stateMachine.State = States.Dashing;
+            return true;
+        }
+        else return false;
+    }
+
+    private void StDashingEnter()
 	{
 		if (RelativeMoveInput != Vec2.Zero)
 			targetFacing = RelativeMoveInput;
@@ -1337,12 +1356,14 @@ public class Player : Actor, IHaveModels, IHaveSprites, IRidePlatforms, ICastPoi
 
 	private void SetDashSpeed(in Vec2 dir)
 	{
-		if (dashedOnGround)
-			velocity = new Vec3(dir, 0) * DashSpeed;
-		else
-			velocity = new Vec3(dir, .4f).Normalized() * DashSpeed;
+        if (dashedOnGround)
+            velocity = new Vec3(dir, 0) * DashSpeed;
+        else if (dashedUpward)
+            velocity = new Vec3(dir.X * 0.2f, dir.Y * 0.2f, 2.0f).Normalized() * DashSpeed;
+        else
+            velocity = new Vec3(dir, .4f).Normalized() * DashSpeed;
 
-	}
+    }
 
 	#endregion
 

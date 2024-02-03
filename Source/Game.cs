@@ -3,8 +3,6 @@ using System.Text.Json;
 
 namespace Celeste64;
 
-//this is literally just a github commit test
-
 public struct Transition
 {
 	public enum Modes

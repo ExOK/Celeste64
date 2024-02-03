@@ -6,5 +6,13 @@
 		"Strawberries": 30,
 		"Preview": "Postcards/ForsakenCity",
 		"Map": "1"
+	},
+	{
+		"ID": "0_FORSAKEN_CITY",
+		"Name": "Forsaken City Copy",
+		"Label": "Copy of Forsaken City",
+		"Strawberries": 30,
+		"Preview": "Postcards/ForsakenCityCopy",
+		"Map": "2"
 	}
 ]
