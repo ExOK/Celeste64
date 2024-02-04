@@ -1,7 +1,15 @@
-# UMM for Celeste 64: Fragments of the Mountain
-TODO
+# Celeste 64: Fragments of the Mountain Ultimate Mod Menu
+*insert awesome logo*
+## The *ultimate* sandbox tool is coming!
 
-## Celeste 64: Fragments of the Mountain made by 
+### Features
+- Physics modifiers
+- ...
+- And that's all! (for now)
+- **BONUS: Comes with *Built-in Discord RPC* showing level name, strawberry count and death count thanks to [Discord RPC C#](https://github.com/Lachee/discord-rpc-csharp)**
+
+# Credits
+## Original game: *Celeste 64: Fragments of the Mountain* by 
  - [Maddy Thorson](http://maddymakesgames.com/)
  - [Noel Berry](https://noelberry.ca)
  - [Amora B.](https://amorabettany.com)
