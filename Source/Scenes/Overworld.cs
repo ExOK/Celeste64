@@ -39,13 +39,13 @@ public class Overworld : Scene
 
 			if (Save.Instance.TryGetRecord(Level.ID) is {} record)
 			{
-				Menu.Add(new Menu.Option("Continue"));
-				Menu.Add(new Menu.Option("Restart"));
+				Menu.Add(new Menu.Option(Loc.Str("Continue")));
+				Menu.Add(new Menu.Option(Loc.Str("Restart")));
 				Complete = record.Strawberries.Count >= Level.Strawberries;
 			}
 			else
 			{
-				Menu.Add(new Menu.Option("Start"));
+				Menu.Add(new Menu.Option(Loc.Str("Start")));
 			}
 		}
 
@@ -57,7 +57,7 @@ public class Overworld : Scene
 			batch.SetSampler(new(TextureFilter.Linear, TextureWrap.ClampToEdge, TextureWrap.ClampToEdge));
 
 			var bounds = Target.Bounds;
-			var font = Assets.Fonts.First().Value;
+			var font = Language.Current.SpriteFont;
 			var img = (SelectionEase < 0.50f ? Image : new(Assets.Textures["postcards/back"]));
 
 			if (img.Texture != null)
@@ -167,8 +167,8 @@ public class Overworld : Scene
 		]);
 		mesh.SetIndices<int>([0, 1, 2, 0, 2, 3]);
 
-		restartConfirmMenu.Add(new Menu.Option("Cancel"));
-		restartConfirmMenu.Add(new Menu.Option("Clear Save & Restart Level"));
+		restartConfirmMenu.Add(new Menu.Option(Loc.Str("Cancel")));
+		restartConfirmMenu.Add(new Menu.Option(Loc.Str("RestartLevel")));
 		restartConfirmMenu.UpSound = Sfx.main_menu_roll_up;
 		restartConfirmMenu.DownSound = Sfx.main_menu_roll_down;
 
@@ -388,17 +388,17 @@ public class Overworld : Scene
 			// button prompts
 			if (state != States.Entering)
 			{
-				var cancelPrompt = state == States.Selecting ? "Back" : "Cancel";
+				var cancelPrompt = Loc.Str(state == States.Selecting ? "back" : "cancel");
 				var at = bounds.BottomRight + new Vec2(-16, -4) * Game.RelativeScale + new Vec2(0, -UI.PromptSize);
 				var width = 0.0f;
 				UI.Prompt(batch, Controls.Cancel, cancelPrompt, at, out width, 1.0f);
 				at.X -= width + 8 * Game.RelativeScale;
-				UI.Prompt(batch, Controls.Confirm, "Confirm", at, out _, 1.0f);
+				UI.Prompt(batch, Controls.Confirm, Loc.Str("confirm"), at, out _, 1.0f);
 
 				// show version number on Overworld as well
                 UI.Text(batch, Game.VersionString, bounds.BottomLeft + new Vec2(4, -4) * Game.RelativeScale, new Vec2(0, 1), Color.CornflowerBlue * 0.75f);
 				UI.Text(batch, Game.LoaderVersionString, bounds.BottomLeft + new Vec2(4, -24) * Game.RelativeScale, new Vec2(0, 1), new Color(12326399) * 0.75f);
-			}
+            }
 
 			if (cameraCloseUpEase > 0)
 			{

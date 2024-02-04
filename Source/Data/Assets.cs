@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Xml.Linq;
 
 namespace Celeste64;
 
@@ -33,16 +34,16 @@ public static class Assets
 		}
 	}
 
-	public record struct DialogLine(string Face, string Text, string Voice);
-
 	public static readonly ModAssetDictionary<Map> Maps = new(gameMod => gameMod.Maps);
 	public static readonly ModAssetDictionary<Shader> Shaders = new(gameMod => gameMod.Shaders);
 	public static readonly ModAssetDictionary<Texture> Textures = new(gameMod => gameMod.Textures);
 	public static readonly ModAssetDictionary<SkinnedTemplate> Models = new(gameMod => gameMod.Models);
 	public static readonly Dictionary<string, Subtexture> Subtextures = new(StringComparer.OrdinalIgnoreCase);
-	public static readonly ModAssetDictionary<SpriteFont> Fonts = new(gameMod => gameMod.Fonts);
-	public static readonly ModAssetDictionary<List<DialogLine>> Dialog = new(gameMod => gameMod.Dialog);
+	public static readonly ModAssetDictionary<Font> Fonts = new(gameMod => gameMod.Fonts);
+	public static readonly ModAssetDictionary<Language> Languages = new(gameMod => gameMod.Languages);
+
 	public static List<SkinInfo> Skins { get; private set; } = [];
+
 	public static List<LevelInfo> Levels { get; private set; } = [];
 
 	public static void Load()
@@ -56,7 +57,7 @@ public static class Assets
 		Subtextures.Clear();
 		Models.Clear();
 		Fonts.Clear();
-		Dialog.Clear();
+		Languages.Clear();
 		Audio.Unload();
 		
 		ModLoader.RegisterAllMods();
@@ -64,6 +65,7 @@ public static class Assets
 		var maps = new ConcurrentBag<(Map, GameMod)>();
 		var images = new ConcurrentBag<(string, Image, GameMod)>();
 		var models = new ConcurrentBag<(string, SkinnedTemplate, GameMod)>();
+		var langs = new ConcurrentBag<(Language, GameMod)>();
 		var tasks = new List<Task>();
 
 		var globalFs = ModManager.Instance.GlobalFilesystem;
@@ -114,11 +116,24 @@ public static class Assets
 			tasks.Add(Task.Run(() =>
 			{
 				if (mod.Filesystem != null && mod.Filesystem.TryOpenFile(file, stream => SharpGLTF.Schema2.ModelRoot.ReadGLB(stream),
-					    out var input))
+						out var input))
 				{
 					var model = new SkinnedTemplate(input);
 					models.Add((GetResourceNameFromVirt(file, "Models"), model, mod));
 				}
+			}));
+		}
+		
+		// load languages
+		foreach (var (file, mod) in globalFs.FindFilesInDirectoryRecursiveWithMod("Text", "json"))
+		{
+			tasks.Add(Task.Run(() =>
+			{
+				if (mod.Filesystem != null && mod.Filesystem.TryLoadText(file, out var data))
+				{
+					if (JsonSerializer.Deserialize(data, LanguageContext.Default.Language) is { } lang)
+						langs.Add((lang, mod));
+				}				
 			}));
 		}
 
@@ -149,15 +164,15 @@ public static class Assets
 				Levels.AddRange(levels);
 			}
 			
-			if (mod.Filesystem != null && mod.Filesystem.TryOpenFile("Dialog.json", 
-				    stream => JsonSerializer.Deserialize(stream, DialogLineDictContext.Default.DictionaryStringListDialogLine) ?? [], 
-				    out var dialog))
-			{
-				foreach (var (key, value) in dialog)
-				{
-					Dialog.Add(key, value, mod);
-				}
-			}
+			// if (mod.Filesystem != null && mod.Filesystem.TryOpenFile("Dialog.json", 
+			// 	    stream => JsonSerializer.Deserialize(stream, DialogLineDictContext.Default.DictionaryStringListDialogLine) ?? [], 
+			// 	    out var dialog))
+			// {
+			// 	foreach (var (key, value) in dialog)
+			// 	{
+			// 		Dialog.Add(key, value, mod);
+			// 	}
+			// }
 		}
 
 		// load glsl shaders
@@ -175,7 +190,7 @@ public static class Assets
 		{
 			if (file.EndsWith(".ttf") || file.EndsWith(".otf"))
 			{
-				if (mod.Filesystem != null && mod.Filesystem.TryOpenFile(file, stream => new SpriteFont(stream, FontSize), out var font))
+				if (mod.Filesystem != null && mod.Filesystem.TryOpenFile(file, stream => new Font(stream), out var font))
 					Fonts.Add(GetResourceNameFromVirt(file, "Fonts"), font, mod);
 			}
 		}
@@ -207,6 +222,7 @@ public static class Assets
 				Subtextures.Add(it.Name, new Subtexture(pages[it.Page], it.Source, it.Frame));
 		}
 
+
 		// wait for tasks to finish
 		{
 			foreach (var task in tasks)
@@ -220,6 +236,13 @@ public static class Assets
 			{
 				model.ConstructResources();
 				Models.Add(name, model, mod);
+			}
+			foreach (var (lang, mod) in langs)
+			{
+				if (Languages.TryGetValue(lang.ID, out var existing))
+					existing.Absorb(lang);
+				else
+					Languages.Add(lang.ID, lang, mod);
 			}
 		}
 
@@ -249,6 +272,9 @@ public static class Assets
 			}
 		}
 
+		// make sure the active language is ready for use
+		Language.Current.Use();
+
 		Log.Info($"Loaded Assets in {timer.ElapsedMilliseconds}ms");
 	}
 
@@ -258,7 +284,7 @@ public static class Assets
 		// +1 to account for the forward slash
 		return virtPath.AsSpan((folder.Length+1)..^ext.Length).ToString();
 	}
-	
+
 	internal static Shader? LoadShader(string virtPath, Stream file)
 	{
 		using var reader = new StreamReader(file);
@@ -295,7 +321,3 @@ public static class Assets
 		));
 	}
 }
-
-[JsonSourceGenerationOptions(WriteIndented = true)]
-[JsonSerializable(typeof(Dictionary<string, List<Assets.DialogLine>>))]
-internal partial class DialogLineDictContext : JsonSerializerContext {}

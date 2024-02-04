@@ -8,7 +8,7 @@ public static class UI
 
 	public static void Text(Batcher batch, string text, in Vec2 at, in Vec2 justify, in Color color)
 	{
-		var font = Assets.Fonts.First().Value;
+		var font = Language.Current.SpriteFont;
 		for (int x = -1; x <= 1; x++)
 			for (int y = -1; y <= 3; y++)
 				batch.Text(font, text, at + new Vec2(x, y), justify, Color.Black);
@@ -28,7 +28,7 @@ public static class UI
 		
 		if (align > 0)
 		{
-			var font = Assets.Fonts.First().Value;
+			var font = Language.Current.SpriteFont;
 			pos.X -= (font.WidthOf(label) + iconAdvance) * align;
 		}
 
@@ -67,7 +67,7 @@ public static class UI
 		var icon = Controls.GetPrompt(button);
 		var size = PromptSize;
 		var iconAdvance = size;
-		var font = Assets.Fonts.First().Value;
+		var font = Language.Current.SpriteFont;
 		width = (font.WidthOf(label) + iconAdvance);
 
 		if (align > 0)

@@ -129,7 +129,6 @@ public class Menu
 	public string Title = string.Empty;
 	public bool Focused = true;
 
-	private readonly SpriteFont font;
 	private readonly List<Item> items = [];
 	private readonly Stack<Menu> submenus = [];
 
@@ -143,7 +142,8 @@ public class Menu
 	{
 		get
 		{
-			Vec2 size = Vec2.Zero;
+			var size = Vec2.Zero;
+			var font = Language.Current.SpriteFont;
 	
 			if (!string.IsNullOrEmpty(Title))
 			{
@@ -171,11 +171,6 @@ public class Menu
 	
 			return size;
 		}
-	}
-	
-	public Menu()
-	{
-		font = Assets.Fonts.First().Value;
 	}
 	
 	public Menu Add(Item item)
@@ -240,6 +235,7 @@ public class Menu
 
 	private void RenderItems(Batcher batch)
 	{
+		var font = Language.Current.SpriteFont;
 		var size = Size;
 		var position = Vec2.Zero;
 		batch.PushMatrix(-size / 2);

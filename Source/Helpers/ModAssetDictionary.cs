@@ -303,6 +303,8 @@ public class ModAssetDictionary<V> : IEnumerable<KeyValuePair<string, V>>
 		return default;
 	}
 
+	public int Count { get { return ModManager.Instance.EnabledMods.SelectMany(mod => getDictionary(mod)).Count(); } }
+
 	/// <summary>
 	/// Used to iterate through all assets for this type in all mods.
 	/// </summary>

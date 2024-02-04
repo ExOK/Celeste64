@@ -17,6 +17,50 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="FosterFramework" Version="0.1.16-alpha" />
+    <PackageReference Include="SharpGLTF.Runtime" Version="1.0.0-alpha0031" />
+    <PackageReference Include="Sledge.Formats.Map" Version="1.1.5" />
+  </ItemGroup>
+
+  <PropertyGroup Condition="($(RuntimeIdentifier) == '' and $([MSBuild]::IsOSPlatform('Linux'))) or $(RuntimeIdentifier.StartsWith('linux'))">
+    <IsLinux>true</IsLinux>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="($(RuntimeIdentifier) == '' and $([MSBuild]::IsOSPlatform('Windowx'))) or $(RuntimeIdentifier.StartsWith('win'))">
+    <IsWindows>true</IsWindows>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="($(RuntimeIdentifier) == '' and $([MSBuild]::IsOSPlatform('OSX'))) or $(RuntimeIdentifier.StartsWith('osx'))">
+    <IsMacOS>true</IsMacOS>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="($(RuntimeIdentifier) == '' and $([System.Runtime.InteropServices.RuntimeInformation]::OSArchitecture) == 'Arm64') or $(RuntimeIdentifier.EndsWith('arm64'))">
+    <IsArm64>true</IsArm64>
+  </PropertyGroup>
+
+  <ItemGroup Condition="$(IsLinux) == 'true' and $(IsArm64) == 'true'">
+    <Content Include="Source/Audio/FMOD/libs/libarm64/**" CopyToOutputDirectory="PreserveNewest" Link="%(Filename)%(Extension)" />
+  </ItemGroup>
+
+  <ItemGroup Condition="$(IsLinux) == 'true' and $(IsArm64) != 'true'">
+    <Content Include="Source/Audio/FMOD/libs/lib64/**" CopyToOutputDirectory="PreserveNewest" Link="%(Filename)%(Extension)" />
+  </ItemGroup>
+
+  <ItemGroup Condition="$(IsWindows) == 'true'">
+    <Content Include="Source/Audio/FMOD/libs/x64/**" CopyToOutputDirectory="PreserveNewest" Link="%(Filename)%(Extension)" />
+  </ItemGroup>
+
+  <ItemGroup Condition="$(IsMacOS) == 'true'">
+    <Content Include="Source/Audio/FMOD/libs/osx/**" CopyToOutputDirectory="PreserveNewest" Link="%(Filename)%(Extension)" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Remove="Celeste64-Fuji\**" />
+    <Content Remove="Celeste64Launcher\**" />
+    <Content Remove="Mods\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Compile Remove="Celeste64-Fuji\**" />
     <Compile Remove="Celeste64Launcher\**" />
     <Compile Remove="Mods\**" />
@@ -26,30 +70,6 @@
     <None Remove="Celeste64-Fuji\**" />
     <None Remove="Celeste64Launcher\**" />
     <None Remove="Mods\**" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="FosterFramework" Version="0.1.15-alpha" />
-    <PackageReference Include="SharpGLTF.Runtime" Version="1.0.0-alpha0031" />
-    <PackageReference Include="Sledge.Formats.Map" Version="1.1.5" />
-  </ItemGroup>
-
-  <ItemGroup Condition="($(RuntimeIdentifier) == '' and $([MSBuild]::IsOSPlatform('Linux'))) or $(RuntimeIdentifier) == 'linux-x64'">
-    <Content Include="Source/Audio/FMOD/libs/lib64/**" CopyToOutputDirectory="PreserveNewest" Link="%(Filename)%(Extension)" />
-  </ItemGroup>
-
-  <ItemGroup Condition="($(RuntimeIdentifier) == '' and $([MSBuild]::IsOSPlatform('Windows'))) or $(RuntimeIdentifier) == 'win-x64'">
-    <Content Include="Source/Audio/FMOD/libs/x64/**" CopyToOutputDirectory="PreserveNewest" Link="%(Filename)%(Extension)" />
-  </ItemGroup>
-
-  <ItemGroup Condition="($(RuntimeIdentifier) == '' and $([MSBuild]::IsOSPlatform('OSX'))) or $(RuntimeIdentifier) == 'osx-x64'">
-    <Content Include="Source/Audio/FMOD/libs/osx/**" CopyToOutputDirectory="PreserveNewest" Link="%(Filename)%(Extension)" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Content Remove="Celeste64-Fuji\**" />
-    <Content Remove="Celeste64Launcher\**" />
-    <Content Remove="Mods\**" />
   </ItemGroup>
 
   <ItemGroup>

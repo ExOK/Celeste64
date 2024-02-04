@@ -73,6 +73,9 @@ public class Save
 	/// SkinName
 	/// </summary>
 	public string SkinName { get; set; } = "Default";
+	/// Current Language ID
+	/// </summary>
+	public string Language = "english";
 
 	/// <summary>
 	/// Records for each level

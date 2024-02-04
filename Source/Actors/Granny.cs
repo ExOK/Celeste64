@@ -24,13 +24,13 @@ public class Granny : NPC
 		yield return Co.Run(cs.FaceEachOther(World.Get<Player>(), this));
 
 		int index = Save.CurrentRecord.GetFlag(TALK_FLAG) + 1;
-		yield return Co.Run(cs.Say(Assets.Dialog[$"Granny{index}"]));
+		yield return Co.Run(cs.Say(Loc.Lines($"Granny{index}")));
 		Save.CurrentRecord.IncFlag(TALK_FLAG);
 		CheckForDialog();
 	}
 
 	private void CheckForDialog()
 	{ 
-		InteractEnabled = Assets.Dialog.ContainsKey($"Granny{Save.CurrentRecord.GetFlag(TALK_FLAG) + 1}");
+		InteractEnabled = Loc.HasLines($"Granny{Save.CurrentRecord.GetFlag(TALK_FLAG) + 1}");
 	}
 }
