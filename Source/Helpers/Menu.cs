@@ -110,7 +110,7 @@ public class Menu
 			if (index != 0 && dir == -1)
 				index--;
 
-			set(Label);
+			set(options[index]);
 		}
 	}
 
