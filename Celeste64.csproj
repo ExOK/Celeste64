@@ -23,7 +23,7 @@
     <IsLinux>true</IsLinux>
   </PropertyGroup>
 
-  <PropertyGroup Condition="($(RuntimeIdentifier) == '' and $([MSBuild]::IsOSPlatform('Windowx'))) or $(RuntimeIdentifier.StartsWith('win'))">
+  <PropertyGroup Condition="($(RuntimeIdentifier) == '' and $([MSBuild]::IsOSPlatform('Windows'))) or $(RuntimeIdentifier.StartsWith('win'))">
     <IsWindows>true</IsWindows>
   </PropertyGroup>
 
