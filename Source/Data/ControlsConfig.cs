@@ -9,14 +9,14 @@ public class ControlsConfig
 
 	public class Binding
 	{
-		public Gamepads? OnlyFor { get; set; }
-		public Gamepads? NotFor { get; set; }
 		public Keys? Key { get; set; }
 		public MouseButtons? MouseButton { get; set; }
 		public Buttons? Button { get; set; }
 		public Axes? Axis { get; set; }
 		public float AxisDeadzone { get; set; }
 		public bool AxisInverted { get; set; }
+		public Gamepads? OnlyFor { get; set; }
+		public Gamepads? NotFor { get; set; }
 
 		public Binding() {}
 		public Binding(Keys input) => Key = input;
@@ -29,41 +29,41 @@ public class ControlsConfig
 			AxisInverted = inverted;
 		}
 
+		private bool Condition(VirtualButton vb, VirtualButton.IBinding binding)
+		{
+			if (!OnlyFor.HasValue && !NotFor.HasValue)
+				return true;
+
+			int index;
+			if (binding is VirtualButton.ButtonBinding btn)
+				index = btn.Controller;
+			else if (binding is VirtualButton.AxisBinding axs)
+				index = axs.Controller;
+			else
+				return true;
+
+			if (OnlyFor.HasValue && Input.Controllers[index].Gamepad != OnlyFor.Value)
+				return false;
+
+			if (NotFor.HasValue && Input.Controllers[index].Gamepad == NotFor.Value)
+				return false;
+
+			return true;
+		}
+
 		public void BindTo(VirtualButton button)
 		{
-			VirtualButton.ConditionFn condition = (b, binding) =>
-			{
-				if (!OnlyFor.HasValue && !NotFor.HasValue)
-					return true;
-
-				int index;
-				if (binding is VirtualButton.ButtonBinding btn)
-					index = btn.Controller;
-				else if (binding is VirtualButton.AxisBinding axs)
-					index = axs.Controller;
-				else
-					return true;
-
-				if (OnlyFor.HasValue && Input.Controllers[index].Gamepad != OnlyFor.Value)
-					return false;
-
-				if (NotFor.HasValue && Input.Controllers[index].Gamepad == NotFor.Value)
-					return false;
-
-				return true;
-			};
-
 			if (Key.HasValue)
 				button.Add(Key.Value);
 
 			if (Button.HasValue)
-				button.Add(condition, 0, Button.Value);
+				button.Add(Condition, 0, Button.Value);
 
 			if (MouseButton.HasValue)
 				button.Add(MouseButton.Value);
 
 			if (Axis.HasValue)
-				button.Add(condition, 0, Axis.Value, AxisInverted ? -1 : 1, AxisDeadzone);
+				button.Add(Condition, 0, Axis.Value, AxisInverted ? -1 : 1, AxisDeadzone);
 		}
 	}
 
