@@ -513,20 +513,6 @@
 "startOn" "0"
 // brush 0
 {
-( -32 2080 352 ) ( -32 2081 352 ) ( -32 2080 353 ) casset_block_1 0 0 0 1 1
-( -32 2080 352 ) ( -32 2080 353 ) ( -31 2080 352 ) casset_block_1 0 0 0 1 1
-( -32 2080 320 ) ( -31 2080 320 ) ( -32 2081 320 ) casset_block_1 0 0 0 1 1
-( 96 2208 416 ) ( 96 2209 416 ) ( 97 2208 416 ) casset_block_1 0 0 0 1 1
-( 96 2208 384 ) ( 97 2208 384 ) ( 96 2208 385 ) casset_block_1 0 0 0 1 1
-( 96 2208 384 ) ( 96 2208 385 ) ( 96 2209 384 ) casset_block_1 0 0 0 1 1
-}
-}
-// entity 30
-{
-"classname" "CassetteBlock"
-"startOn" "0"
-// brush 0
-{
 ( -160 2592 416 ) ( -160 2593 416 ) ( -160 2592 417 ) casset_block_1 0 0 0 1 1
 ( -160 2592 416 ) ( -160 2592 417 ) ( -159 2592 416 ) casset_block_1 0 0 0 1 1
 ( -160 2592 384 ) ( -159 2592 384 ) ( -160 2593 384 ) casset_block_1 0 0 0 1 1
@@ -535,7 +521,7 @@
 ( -64 2720 448 ) ( -64 2720 449 ) ( -64 2721 448 ) casset_block_1 0 0 0 1 1
 }
 }
-// entity 31
+// entity 30
 {
 "classname" "CassetteBlock"
 "startOn" "1"
@@ -549,7 +535,7 @@
 ( -64 2720 608 ) ( -64 2720 609 ) ( -64 2721 608 ) casset_block_2 0 0 0 1 1
 }
 }
-// entity 32
+// entity 31
 {
 "classname" "CassetteBlock"
 "startOn" "0"
@@ -563,7 +549,7 @@
 ( -64 2720 704 ) ( -64 2720 705 ) ( -64 2721 704 ) casset_block_1 0 0 0 1 1
 }
 }
-// entity 33
+// entity 32
 {
 "classname" "CassetteBlock"
 "startOn" "1"
@@ -578,83 +564,12 @@
 ( -64 2720 864 ) ( -64 2720 865 ) ( -64 2721 864 ) casset_block_2 0 0 0 1 1
 }
 }
-// entity 34
-{
-"classname" "CassetteBlock"
-"startOn" "0"
-// brush 0
-{
-( 128 2592 416 ) ( 128 2593 416 ) ( 128 2592 417 ) casset_block_1 0 0 0 1 1
-( 128 2592 416 ) ( 128 2592 417 ) ( 129 2592 416 ) casset_block_1 0 0 0 1 1
-( 128 2592 384 ) ( 129 2592 384 ) ( 128 2593 384 ) casset_block_1 0 0 0 1 1
-( 256 2720 512 ) ( 256 2721 512 ) ( 257 2720 512 ) casset_block_1 0 0 0 1 1
-( 256 2720 448 ) ( 257 2720 448 ) ( 256 2720 449 ) casset_block_1 0 0 0 1 1
-( 224 2720 448 ) ( 224 2720 449 ) ( 224 2721 448 ) casset_block_1 0 0 0 1 1
-}
-}
-// entity 35
-{
-"classname" "CassetteBlock"
-"startOn" "1"
-// brush 0
-{
-( 128 2592 576 ) ( 128 2593 576 ) ( 128 2592 577 ) casset_block_2 0 0 0 1 1
-( 128 2592 576 ) ( 128 2592 577 ) ( 129 2592 576 ) casset_block_2 0 0 0 1 1
-( 128 2592 512 ) ( 129 2592 512 ) ( 128 2593 512 ) casset_block_2 0 0 0 1 1
-( 256 2720 640 ) ( 256 2721 640 ) ( 257 2720 640 ) casset_block_2 0 0 0 1 1
-( 256 2720 608 ) ( 257 2720 608 ) ( 256 2720 609 ) casset_block_2 0 0 0 1 1
-( 224 2720 608 ) ( 224 2720 609 ) ( 224 2721 608 ) casset_block_2 0 0 0 1 1
-}
-}
-// entity 36
-{
-"classname" "CassetteBlock"
-"startOn" "0"
-// brush 0
-{
-( 128 2592 672 ) ( 128 2593 672 ) ( 128 2592 673 ) casset_block_1 0 0 0 1 1
-( 128 2592 672 ) ( 128 2592 673 ) ( 129 2592 672 ) casset_block_1 0 0 0 1 1
-( 128 2592 640 ) ( 129 2592 640 ) ( 128 2593 640 ) casset_block_1 0 0 0 1 1
-( 256 2720 768 ) ( 256 2721 768 ) ( 257 2720 768 ) casset_block_1 0 0 0 1 1
-( 256 2720 704 ) ( 257 2720 704 ) ( 256 2720 705 ) casset_block_1 0 0 0 1 1
-( 224 2720 704 ) ( 224 2720 705 ) ( 224 2721 704 ) casset_block_1 0 0 0 1 1
-}
-}
-// entity 37
-{
-"classname" "CassetteBlock"
-"startOn" "1"
-// brush 0
-{
-( 128 2592 832 ) ( 128 2593 832 ) ( 128 2592 833 ) casset_block_2 0 0 0 1 1
-( 128 2592 832 ) ( 128 2592 833 ) ( 129 2592 832 ) casset_block_2 0 0 0 1 1
-( 128 2592 768 ) ( 129 2592 768 ) ( 128 2593 768 ) casset_block_2 0 0 0 1 1
-( 256 2720 896 ) ( 256 2721 896 ) ( 257 2720 896 ) casset_block_2 0 0 0 1 1
-( 256 2720 864 ) ( 257 2720 864 ) ( 256 2720 865 ) casset_block_2 0 0 0 1 1
-( 224 2592 768 ) ( 256 2592 832 ) ( 256 2720 832 ) casset_block_2 0 0 0 1 1
-( 256 2720 864 ) ( 256 2720 865 ) ( 256 2721 864 ) casset_block_2 0 0 0 1 1
-}
-}
-// entity 38
-{
-"classname" "CassetteBlock"
-"startOn" "0"
-// brush 0
-{
-( -32 3552 704 ) ( -32 3553 704 ) ( -32 3552 705 ) casset_block_1 0 0 0 1 1
-( -32 3552 704 ) ( -32 3552 705 ) ( -31 3552 704 ) casset_block_1 0 0 0 1 1
-( -32 3552 672 ) ( -31 3552 672 ) ( -32 3553 672 ) casset_block_1 0 0 0 1 1
-( 96 3680 768 ) ( 96 3681 768 ) ( 97 3680 768 ) casset_block_1 0 0 0 1 1
-( 96 3712 736 ) ( 97 3712 736 ) ( 96 3712 737 ) casset_block_1 0 0 0 1 1
-( 96 3680 736 ) ( 96 3680 737 ) ( 96 3681 736 ) casset_block_1 0 0 0 1 1
-}
-}
-// entity 39
+// entity 33
 {
 "classname" "Strawberry"
 "origin" "32 4608 504"
 }
-// entity 40
+// entity 34
 {
 "classname" "FloatingDecoration"
 // brush 0
@@ -668,7 +583,7 @@
 ( 259.3137084989862 4749.856406460551 387.59591794226526 ) ( 259.31370849898667 4748.856406460551 387.59591794226526 ) ( 259.0548894538829 4749.856406460552 388.56184376855435 ) rock_5 -18.143555 9.368134 180 1 -0.9861487
 }
 }
-// entity 41
+// entity 35
 {
 "classname" "FloatingDecoration"
 // brush 0
@@ -682,7 +597,7 @@
 ( -137.944041328391 4681.797958971134 387.59591794226526 ) ( -137.81463180583978 4681.573815103091 388.56184376855435 ) ( -138.42700424153554 4682.634475274872 387.8547369873677 ) rock_5 -5.019043 -30.096313 17.192127 0.8756408 0.9915912
 }
 }
-// entity 42
+// entity 36
 {
 "classname" "FloatingDecoration"
 // brush 0
@@ -696,7 +611,7 @@
 ( 86.055958671609 4896.098318189812 491.6144947312896 ) ( 86.18536819416022 4896.622837242649 492.45600108223607 ) ( 85.57299575846446 4896.87283724265 491.20600108223516 ) rock_5 5.814453 22.018799 332.19214 0.8756408 0.9915912
 }
 }
-// entity 43
+// entity 37
 {
 "classname" "FloatingDecoration"
 // brush 0
@@ -710,14 +625,14 @@
 ( -15.901681810186346 4701.79696041507 532.7362220721325 ) ( -15.43806370557013 4700.66121376013 531.8505178184143 ) ( -15.21387471914386 4701.6272466495 534.8443216531117 ) rock_5 -27.18164 18.576416 217.94868 1.4402752 -2.0070024
 }
 }
-// entity 44
+// entity 38
 {
 "classname" "StaticProp"
 "origin" "96 4624 384"
 "model" "Models/bush1.glb"
 "angle" "180"
 }
-// entity 45
+// entity 39
 {
 "classname" "StaticProp"
 "origin" "-32 4528 384"
@@ -725,7 +640,7 @@
 "angle" "180"
 "radius" "0"
 }
-// entity 46
+// entity 40
 {
 "classname" "StaticProp"
 "origin" "16 4592 384"
@@ -733,7 +648,7 @@
 "angle" "180"
 "radius" "0"
 }
-// entity 47
+// entity 41
 {
 "classname" "StaticProp"
 "origin" "64 4576 384"
@@ -741,7 +656,7 @@
 "angle" "180"
 "radius" "0"
 }
-// entity 48
+// entity 42
 {
 "classname" "StaticProp"
 "origin" "112 4528 384"
@@ -749,7 +664,7 @@
 "angle" "180"
 "radius" "0"
 }
-// entity 49
+// entity 43
 {
 "classname" "StaticProp"
 "origin" "80 4464 384"
@@ -757,7 +672,7 @@
 "angle" "180"
 "radius" "0"
 }
-// entity 50
+// entity 44
 {
 "classname" "StaticProp"
 "origin" "-48 4496 384"
@@ -765,7 +680,7 @@
 "angle" "180"
 "radius" "0"
 }
-// entity 51
+// entity 45
 {
 "classname" "StaticProp"
 "origin" "16 4464 384"
@@ -773,14 +688,14 @@
 "angle" "180"
 "radius" "0"
 }
-// entity 52
+// entity 46
 {
 "classname" "StaticProp"
 "origin" "112 0 384"
 "model" "Models/sign4.glb"
 "angle" "180"
 }
-// entity 53
+// entity 47
 {
 "classname" "StaticProp"
 "origin" "208 -272 384"
@@ -788,7 +703,7 @@
 "angle" "90"
 "radius" "6"
 }
-// entity 54
+// entity 48
 {
 "classname" "StaticProp"
 "origin" "-16 48 384"
@@ -796,14 +711,14 @@
 "angle" "180"
 "radius" "0"
 }
-// entity 55
+// entity 49
 {
 "classname" "StaticProp"
 "origin" "112 1216 384"
 "model" "Models/sign1.glb"
 "angle" "180"
 }
-// entity 56
+// entity 50
 {
 "classname" "Decoration"
 // brush 0
@@ -820,7 +735,7 @@
 ( -48 1088 376 ) ( -52 1080 376 ) ( -48 1088 384 ) snow_1 64 15.9999695 180 1 -1
 }
 }
-// entity 57
+// entity 51
 {
 "classname" "func_group"
 "_tb_type" "_tb_layer"
@@ -829,7 +744,7 @@
 "_tb_layer_sort_index" "0"
 "_tb_layer_locked" "1"
 }
-// entity 58
+// entity 52
 {
 "classname" "DeathBlock"
 "_tb_layer" "1"
