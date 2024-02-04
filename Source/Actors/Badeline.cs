@@ -68,7 +68,7 @@ public class Badeline : NPC
 		yield return Co.Run(cs.FaceEachOther(World.Get<Player>(), this));
 
 		int index = Save.CurrentRecord.GetFlag(TALK_FLAG) + 1;
-		yield return Co.Run(cs.Say(Assets.Dialog[$"Baddy{index}"]));
+		yield return Co.Run(cs.Say(Loc.Lines($"Baddy{index}")));
 		Save.CurrentRecord.IncFlag(TALK_FLAG);
 		CheckForDialog();
 	}
@@ -81,7 +81,7 @@ public class Badeline : NPC
 
 	private void CheckForDialog()
 	{ 
-		InteractEnabled = Assets.Dialog.ContainsKey($"Baddy{Save.CurrentRecord.GetFlag(TALK_FLAG) + 1}");
+		InteractEnabled = Loc.HasLines($"Baddy{Save.CurrentRecord.GetFlag(TALK_FLAG) + 1}");
 	}
 }
 

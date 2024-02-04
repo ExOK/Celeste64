@@ -24,14 +24,14 @@ public class Theo : NPC
 		yield return Co.Run(cs.FaceEachOther(World.Get<Player>(), this));
 
 		int index = Save.CurrentRecord.GetFlag(TALK_FLAG) + 1;
-		yield return Co.Run(cs.Say(Assets.Dialog[$"Theo{index}"]));
+		yield return Co.Run(cs.Say(Loc.Lines($"Theo{index}")));
 		Save.CurrentRecord.IncFlag(TALK_FLAG);
 		CheckForDialog();
 	}
 
 	private void CheckForDialog()
 	{ 
-		InteractEnabled = Assets.Dialog.ContainsKey($"Theo{Save.CurrentRecord.GetFlag(TALK_FLAG) + 1}");
+		InteractEnabled = Loc.HasLines($"Theo{Save.CurrentRecord.GetFlag(TALK_FLAG) + 1}");
 	}
 }
 

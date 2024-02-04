@@ -24,6 +24,6 @@ public class Signpost : NPC, IHaveModels
 	private CoEnumerator Talk(Cutscene cs)
 	{
 		yield return Co.Run(cs.Face(World.Get<Player>(), Position));
-		yield return Co.Run(cs.Say(Assets.Dialog[Conversation]));
+		yield return Co.Run(cs.Say(Loc.Lines(Conversation)));
 	}
 }

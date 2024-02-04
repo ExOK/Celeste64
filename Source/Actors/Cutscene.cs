@@ -35,7 +35,7 @@ public class Cutscene : Actor, IHaveUI
 		dialogSnapshot.Stop();
     }
 
-    public CoEnumerator Say(List<Assets.DialogLine> lines)
+    public CoEnumerator Say(List<Language.Line> lines)
 	{
 		foreach (var line in lines)
 		{
@@ -216,7 +216,7 @@ public class Cutscene : Actor, IHaveUI
 		if (saying.Ease > 0 && !string.IsNullOrEmpty(saying.Text) && !World.Paused)
 		{
 			var ease = Ease.CubeOut(saying.Ease);
-			var font = Assets.Fonts.First().Value;
+			var font = Language.Current.SpriteFont;
 			var size = font.SizeOf(saying.Text);
 			var pos = bounds.TopCenter + new Vec2(0, TopOffset) - size / 2 - Vec2.One * Padding + new Vec2(0, EaseOffset * (1 - ease));
 

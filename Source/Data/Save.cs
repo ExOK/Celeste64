@@ -69,6 +69,11 @@ public class Save
 	public int SfxVolume { get; set; } = 10;
 
 	/// <summary>
+	/// Current Language ID
+	/// </summary>
+	public string Language = "english";
+
+	/// <summary>
 	/// Records for each level
 	/// </summary>
 	public List<LevelRecord> Records { get; set; } = [];

@@ -78,24 +78,24 @@ public class World : Scene
 		// setup pause menu
 		{
 			Menu optionsMenu = new Menu();
-			optionsMenu.Title = "Options";
-			optionsMenu.Add(new Menu.Toggle("Fullscreen", Save.Instance.ToggleFullscreen, () => Save.Instance.Fullscreen));
-			optionsMenu.Add(new Menu.Toggle("Z-Guide", Save.Instance.ToggleZGuide, () => Save.Instance.ZGuide));
-			optionsMenu.Add(new Menu.Toggle("Timer", Save.Instance.ToggleTimer, () => Save.Instance.SpeedrunTimer));
+			optionsMenu.Title = Loc.Str("OptionsTitle");
+			optionsMenu.Add(new Menu.Toggle(Loc.Str("OptionsFullscreen"), Save.Instance.ToggleFullscreen, () => Save.Instance.Fullscreen));
+			optionsMenu.Add(new Menu.Toggle(Loc.Str("OptionsZGuide"), Save.Instance.ToggleZGuide, () => Save.Instance.ZGuide));
+			optionsMenu.Add(new Menu.Toggle(Loc.Str("OptionsTimer"), Save.Instance.ToggleTimer, () => Save.Instance.SpeedrunTimer));
 			optionsMenu.Add(new Menu.Spacer());
-			optionsMenu.Add(new Menu.Slider("BGM", 0, 10, () => Save.Instance.MusicVolume, Save.Instance.SetMusicVolume));
-			optionsMenu.Add(new Menu.Slider("SFX", 0, 10, () => Save.Instance.SfxVolume, Save.Instance.SetSfxVolume));
+			optionsMenu.Add(new Menu.Slider(Loc.Str("OptionsBGM"), 0, 10, () => Save.Instance.MusicVolume, Save.Instance.SetMusicVolume));
+			optionsMenu.Add(new Menu.Slider(Loc.Str("OptionsSFX"), 0, 10, () => Save.Instance.SfxVolume, Save.Instance.SetSfxVolume));
 
-			pauseMenu.Title = "Paused";
-            pauseMenu.Add(new Menu.Option("Resume", () => SetPaused(false)));
-			pauseMenu.Add(new Menu.Option("Retry", () =>
+			pauseMenu.Title = Loc.Str("PauseTitle");
+            pauseMenu.Add(new Menu.Option(Loc.Str("PauseResume"), () => SetPaused(false)));
+			pauseMenu.Add(new Menu.Option(Loc.Str("PauseRetry"), () =>
 			{
 				SetPaused(false);
 				Audio.StopBus(Sfx.bus_dialog, false);
 				Get<Player>()?.Kill();
 			}));
-			pauseMenu.Add(new Menu.Submenu("Options", pauseMenu, optionsMenu));
-			pauseMenu.Add(new Menu.Option("Save & Quit", () => Game.Instance.Goto(new Transition()
+			pauseMenu.Add(new Menu.Submenu(Loc.Str("PauseOptions"), pauseMenu, optionsMenu));
+			pauseMenu.Add(new Menu.Option(Loc.Str("PauseSaveQuit"), () => Game.Instance.Goto(new Transition()
 			{
 				Mode = Transition.Modes.Replace,
 				Scene = () => new Overworld(true),
@@ -752,7 +752,7 @@ public class World : Scene
 		{
 			batch.SetSampler(new TextureSampler(TextureFilter.Linear, TextureWrap.ClampToEdge, TextureWrap.ClampToEdge));
 			var bounds = new Rect(0, 0, target.Width, target.Height);
-			var font = Assets.Fonts.First().Value;
+			var font = Language.Current.SpriteFont;
 
 			foreach (var actor in All<IHaveUI>())
 				(actor as IHaveUI)!.RenderUI(batch, bounds);
