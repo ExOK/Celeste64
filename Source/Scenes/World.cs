@@ -390,6 +390,7 @@ public class World : Scene
 		{
 			Audio.SetBusPaused(Sfx.bus_gameplay, paused);
 			Audio.SetBusPaused(Sfx.bus_bside_music, paused);
+			Audio.SetBusPaused(Sfx.bus_dialog, paused);
 
 			if (paused)
 			{
