@@ -14,6 +14,11 @@ public class Language
 	public string ID { get; set; } = string.Empty;
 	public string Label { get; set; } = string.Empty;
 	public string Font { get; set; } = string.Empty;
+	[JsonIgnore]
+	public ModAssetDictionary<string> ModStrings { get; set; } = new(gamemod => gamemod.Strings);
+	[JsonIgnore]
+	public ModAssetDictionary<List<Line>> ModDialog { get; set; } = new(gamemod => gamemod.DialogLines);
+
 	public Dictionary<string, string> Strings { get; set; } = new(StringComparer.OrdinalIgnoreCase);
 	public Dictionary<string, List<Line>> Dialog { get; set; } = new(StringComparer.OrdinalIgnoreCase);
 
@@ -22,13 +27,18 @@ public class Language
 
 	public string GetString(string key)
 	{
-		if (Strings.TryGetValue(key, out var value))
+		if (ModStrings.TryGetValue(key, out var modValue))
+			return modValue;
+		else if (Strings.TryGetValue(key, out var value))
 			return value;
+
 		return "<MISSING>";
 	}
 
 	public List<Line> GetLines(string key)
 	{
+		if (ModDialog.TryGetValue(key, out var modValue))
+			return modValue;
 		if (Dialog.TryGetValue(key, out var value))
 			return value;
 		return EmptyLines;
@@ -46,7 +56,7 @@ public class Language
             codepoints.Add(i);
 
 		// strings values
-		foreach (var (key, value) in Strings)
+		foreach (var (key, value) in ModStrings)
 		{
 			for (int i = 0; i < value.Length; i ++)
 			{
@@ -57,7 +67,7 @@ public class Language
 		}
 
 		// dialog lines
-		foreach (var (key, lines) in Dialog)
+		foreach (var (key, lines) in ModDialog)
 		{
 			foreach (var line in lines)
 			{
@@ -73,13 +83,28 @@ public class Language
 		spriteFont = new SpriteFont(Assets.Fonts[Font], Assets.FontSize, codepoints.ToArray());
 	}
 
-	public void Absorb(Language other)
+	public void Absorb(Language other, GameMod mod)
 	{
-		foreach (var (k, v) in other.Strings)
-			Strings[k] = v;
-		foreach (var (k, v) in other.Dialog)
-			Dialog[k] = v;
+		if(other.Strings != null)
+		{
+			foreach (var (k, v) in other.Strings)
+				ModStrings.Add(k, v, mod);
+		}
+		if (other.Dialog != null)
+		{
+			foreach (var (k, v) in other.Dialog)
+				ModDialog.Add(k, v, mod);
+		}
 	}
+
+	public void OnCreate(GameMod mod)
+	{
+		foreach (var (k, v) in Strings)
+			ModStrings.Add(k, v, mod);
+		foreach (var (k, v) in Dialog)
+			ModDialog.Add(k, v, mod);
+	}
+
 
 	public SpriteFont SpriteFont => spriteFont ?? throw new Exception("Call Language.Use() before using its SpriteFont");
 

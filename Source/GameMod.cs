@@ -24,7 +24,8 @@ public abstract class GameMod
 	internal readonly Dictionary<string, Texture> Textures = new(StringComparer.OrdinalIgnoreCase);
 	internal readonly Dictionary<string, SkinnedTemplate> Models = new(StringComparer.OrdinalIgnoreCase);
 	internal readonly Dictionary<string, Font> Fonts = new(StringComparer.OrdinalIgnoreCase);
-	internal readonly Dictionary<string, Language> Languages = new(StringComparer.OrdinalIgnoreCase);
+	internal readonly Dictionary<string, string> Strings = new(StringComparer.OrdinalIgnoreCase);
+	internal readonly Dictionary<string, List<Language.Line>> DialogLines = new(StringComparer.OrdinalIgnoreCase);
 
 	//internal readonly Dictionary<string, List<DialogLine>> Dialog = new(StringComparer.OrdinalIgnoreCase);
 	internal readonly List<LevelInfo> Levels = new();

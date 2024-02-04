@@ -40,7 +40,7 @@ public static class Assets
 	public static readonly ModAssetDictionary<SkinnedTemplate> Models = new(gameMod => gameMod.Models);
 	public static readonly Dictionary<string, Subtexture> Subtextures = new(StringComparer.OrdinalIgnoreCase);
 	public static readonly ModAssetDictionary<Font> Fonts = new(gameMod => gameMod.Fonts);
-	public static readonly ModAssetDictionary<Language> Languages = new(gameMod => gameMod.Languages);
+	public static readonly Dictionary<string, Language> Languages = new(StringComparer.OrdinalIgnoreCase);
 
 	public static List<SkinInfo> Skins { get; private set; } = [];
 
@@ -240,9 +240,12 @@ public static class Assets
 			foreach (var (lang, mod) in langs)
 			{
 				if (Languages.TryGetValue(lang.ID, out var existing))
-					existing.Absorb(lang);
+					existing.Absorb(lang, mod);
 				else
-					Languages.Add(lang.ID, lang, mod);
+				{
+					lang.OnCreate(mod);
+					Languages.Add(lang.ID, lang);
+				}
 			}
 		}
 
