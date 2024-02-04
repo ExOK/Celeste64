@@ -14063,21 +14063,11 @@
 }
 // entity 603
 {
-"classname" "PlayerSpawn"
-"origin" "2096 4496 2320"
-}
-// entity 604
-{
-"classname" "PlayerSpawn"
-"origin" "-672 2224 2080"
-}
-// entity 605
-{
 "classname" "SignPost"
 "origin" "728 3848 2136"
 "dialog" "SignPostDeadFish"
 }
-// entity 606
+// entity 604
 {
 "classname" "GateBlock"
 "target" "gateTest"
@@ -14091,40 +14081,52 @@
 ( 608 4064 2160 ) ( 608 4128 2160 ) ( 608 4128 2144 ) deadfish 0 0 0 1 1
 }
 }
-// entity 607
+// entity 605
 {
 "classname" "Node"
 "origin" "288 4128 2240"
 "targetname" "gateTest"
 }
-// entity 608
+// entity 606
 {
 "classname" "Coin"
 "origin" "560 3968 2144"
 }
-// entity 609
+// entity 607
 {
 "classname" "Refill"
 "origin" "624 3776 2144"
 "double" "1"
 }
+// entity 608
+{
+"classname" "Cassette"
+"origin" "-448 3248 528"
+"map" "2-1"
+}
+// entity 609
+{
+"classname" "Cassette"
+"origin" "-352 3248 528"
+"map" "2-2"
+}
 // entity 610
 {
 "classname" "Cassette"
-"origin" "-448 3248 496"
-"map" "2-1"
+"origin" "-256 3248 528"
+"map" "2-3"
 }
 // entity 611
 {
 "classname" "Cassette"
-"origin" "-352 3248 496"
-"map" "2-2"
+"origin" "-160 3152 528"
+"map" "2-4"
 }
 // entity 612
 {
 "classname" "Cassette"
-"origin" "-256 3248 496"
-"map" "2-3"
+"origin" "-160 3056 528"
+"map" "2-5"
 }
 // entity 613
 {
