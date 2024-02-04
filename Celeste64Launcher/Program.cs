@@ -42,7 +42,8 @@ class Program
 		// construct a log message
 		const string ErrorFileName = "ErrorLog.txt";
 		StringBuilder error = new();
-		error.AppendLine($"Celeste 64 v.{Game.LoaderVersion.Major}.{Game.LoaderVersion.Minor}.{Game.LoaderVersion.Build}");
+		error.AppendLine($"Celeste 64 v.{Game.GameVersion.Major}.{Game.GameVersion.Minor}.{Game.GameVersion.Build}");
+		error.AppendLine($"Fuji v.{Game.LoaderVersion.Major}.{Game.LoaderVersion.Minor}.{Game.LoaderVersion.Build}");
 		error.AppendLine($"Error Log ({DateTime.Now})");
 		error.AppendLine($"Call Stack:");
 		error.AppendLine(e?.ToString() ?? string.Empty);
