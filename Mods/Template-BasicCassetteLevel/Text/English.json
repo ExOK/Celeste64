@@ -1,0 +1,40 @@
+{
+	"ID": "english",
+	"Label": "English",
+	"Font": "Renogare",
+	"Dialog":
+	{
+		"TestSign": [
+			{
+				"Face": "signpost",
+				"Voice": "sign/general_01",
+				"Text": "Secret Sign\nDo NOT read"
+			},
+			{
+				"Face": "signpost",
+				"Voice": "sign/ellipses_01",
+				"Text": "..."
+			},
+			{
+				"Face": "signpost",
+				"Voice": "sign/general_03",
+				"Text": "But since you found me,\nhere's a tip:"
+			},
+			{
+				"Face": "signpost",
+				"Voice": "sign/general_02",
+				"Text": "This is a test mod level. \nTo beat it, collect the Cassette at the end."
+			},
+			{
+				"Face": "signpost",
+				"Voice": "sign/ellipses_01",
+				"Text": "..."
+			},
+			{
+				"Face": "signpost",
+				"Voice": "sign/snark_02",
+				"Text": "What are you waiting for? Go!"
+			}
+		]
+	}
+}
