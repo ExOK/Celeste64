@@ -69,6 +69,11 @@ public class Save
 	public int SfxVolume { get; set; } = 10;
 
 	/// <summary>
+	/// Invert the camera in given directions
+	/// </summary>
+	public string InvertCamera { get; set; } = "None";
+
+	/// <summary>
 	/// Current Language ID
 	/// </summary>
 	public string Language = "english";
@@ -126,6 +131,11 @@ public class Save
 	public void ToggleZGuide()
 	{
 		ZGuide = !ZGuide;
+	}
+
+	public void SetCameraInverted(string value)
+	{
+		InvertCamera = value;
 	}
 
 	public void ToggleTimer()
