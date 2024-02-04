@@ -9,60 +9,61 @@ public static class Controls
 	public static readonly VirtualButton Jump = new("Jump", .1f);
 	public static readonly VirtualButton Dash = new("Dash", .1f);
 	public static readonly VirtualButton Climb = new("Climb");
-
 	public static readonly VirtualButton Confirm = new("Confirm");
 	public static readonly VirtualButton Cancel = new("Cancel");
 	public static readonly VirtualButton Pause = new("Pause");
-	
-	public static bool IsNintendo(VirtualButton button, VirtualButton.IBinding binding) => 
-		(binding is VirtualButton.ButtonBinding b && Input.Controllers[b.Controller].Gamepad == Gamepads.Nintendo);
 
-	public static bool IsNotNintendo(VirtualButton button, VirtualButton.IBinding binding) => 
-		(binding is VirtualButton.ButtonBinding b && Input.Controllers[b.Controller].Gamepad != Gamepads.Nintendo);
+	public static void Load(ControlsConfig? config = null)
+	{
+		static ControlsConfig.Stick FindStick(ControlsConfig? config, string name)
+		{
+			if (config != null && config.Sticks.TryGetValue(name, out var stick))
+				return stick;
+			if (ControlsConfig.Defaults.Sticks.TryGetValue(name, out stick))
+				return stick;
+			throw new Exception($"Missing Stick Binding for '{name}'");
+		}
 
-	public static void Load()
+		static List<ControlsConfig.Binding> FindAction(ControlsConfig? config, string name)
+		{
+			if (config != null && config.Actions.TryGetValue(name, out var action))
+				return action;
+			if (ControlsConfig.Defaults.Actions.TryGetValue(name, out action))
+				return action;
+			throw new Exception($"Missing Action Binding for '{name}'");
+		}
+
+		Clear();
+
+		FindStick(config, "Move").BindTo(Move);
+		FindStick(config, "Camera").BindTo(Camera);
+		FindStick(config, "Menu").BindTo(Menu);
+
+		foreach (var it in FindAction(config, "Jump"))
+			it.BindTo(Jump);
+		foreach (var it in FindAction(config, "Dash"))
+			it.BindTo(Dash);
+		foreach (var it in FindAction(config, "Climb"))
+			it.BindTo(Climb);
+		foreach (var it in FindAction(config, "Confirm"))
+			it.BindTo(Confirm);
+		foreach (var it in FindAction(config, "Cancel"))
+			it.BindTo(Cancel);
+		foreach (var it in FindAction(config, "Pause"))
+			it.BindTo(Pause);
+	}
+
+	public static void Clear()
 	{
 		Move.Clear();
-		Move.AddLeftJoystick(0);
-		Move.AddDPad(0);
-		Move.AddArrowKeys();
-
 		Camera.Clear();
-		Camera.AddRightJoystick(0, 0.50f, 0.70f);
-		Camera.Add(Keys.A, Keys.D, Keys.W, Keys.S);
-
 		Jump.Clear();
-		Jump.Add(0, Buttons.South, Buttons.North);
-		Jump.Add(Keys.C);
-
 		Dash.Clear();
-		Dash.Add(0, Buttons.West, Buttons.East);
-		Dash.Add(Keys.X);
-
 		Climb.Clear();
-		Climb.Add(0, Buttons.LeftShoulder, Buttons.RightShoulder);
-		Climb.Add(0, Axes.RightTrigger, 1, .4f);
-		Climb.Add(0, Axes.LeftTrigger, 1, .4f);
-		Climb.Add(Keys.Z, Keys.V, Keys.LeftShift, Keys.RightShift);
-		
 		Menu.Clear();
-		Menu.AddLeftJoystick(0, 0.50f, 0.50f);
-		Menu.AddDPad(0);
-		Menu.AddArrowKeys();
-		
 		Confirm.Clear();
-		Confirm.Add(IsNotNintendo, 0, Buttons.South);
-		Confirm.Add(IsNintendo, 0, Buttons.East);
-		Confirm.Add(0, Keys.C);
-		
 		Cancel.Clear();
-		Cancel.Add(IsNotNintendo, 0, Buttons.East);
-		Cancel.Add(IsNintendo, 0, Buttons.South);
-		Cancel.Add(0, Keys.X);
-		
 		Pause.Clear();
-		Pause.Add(0, Buttons.Start, Buttons.Select, Buttons.Back);
-		Pause.Add(0, Keys.Enter, Keys.Escape);
 	}
 
 	public static void Consume()
@@ -76,7 +77,6 @@ public static class Controls
 		Confirm.Consume();
 		Cancel.Consume();
 		Pause.Consume();
-		
 	}
 
 	private static readonly Dictionary<string, Dictionary<string, string>> prompts = [];

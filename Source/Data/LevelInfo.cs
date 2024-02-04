@@ -30,6 +30,6 @@ public class LevelInfo
 	}
 }
 
-[JsonSourceGenerationOptions(WriteIndented = true)]
+[JsonSourceGenerationOptions(WriteIndented = true, AllowTrailingCommas = true)]
 [JsonSerializable(typeof(List<LevelInfo>))]
 internal partial class LevelInfoListContext : JsonSerializerContext {}

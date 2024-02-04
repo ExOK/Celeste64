@@ -191,6 +191,6 @@ public class Save
 	}
 }
 
-[JsonSourceGenerationOptions(WriteIndented = true)]
+[JsonSourceGenerationOptions(WriteIndented = true, AllowTrailingCommas = true)]
 [JsonSerializable(typeof(Save))]
 internal partial class SaveContext : JsonSerializerContext {}
