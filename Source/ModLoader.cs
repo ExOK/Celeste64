@@ -142,6 +142,7 @@ namespace Celeste64
 					Name = modFolder,
 					ModAuthor = "Unknown",
 					Description = "",
+					Version = "0.0.0",
 					Icon = null,
 					Dependencies = [],
 					AssetReplaceItems = []
