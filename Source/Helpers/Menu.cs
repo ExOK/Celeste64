@@ -94,6 +94,26 @@ public class Menu
 		}
 	}
 
+	public class MultiSelect(string label, List<string> options, Action<string> set) : Item
+	{
+		private readonly List<string> options = options;
+		private readonly Action<string> set = set;
+		private int index = 0;
+		public override string Label => $"{label} : {options[index]}";
+
+		public override void Slide(int dir) 
+		{
+			Audio.Play(Sfx.ui_select);
+
+			if (index != options.Count() - 1 && dir == 1)
+				index++;
+			if (index != 0 && dir == -1)
+				index--;
+
+			set(Label);
+		}
+	}
+
 	public int Index;
 	public string Title = string.Empty;
 	public bool Focused = true;

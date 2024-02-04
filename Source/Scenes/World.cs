@@ -85,6 +85,7 @@ public class World : Scene
 			optionsMenu.Add(new Menu.Spacer());
 			optionsMenu.Add(new Menu.Slider(Loc.Str("OptionsBGM"), 0, 10, () => Save.Instance.MusicVolume, Save.Instance.SetMusicVolume));
 			optionsMenu.Add(new Menu.Slider(Loc.Str("OptionsSFX"), 0, 10, () => Save.Instance.SfxVolume, Save.Instance.SetSfxVolume));
+			optionsMenu.Add(new Menu.MultiSelect(Loc.Str("OptionsInvertCamera"), new List<string> { "None", "X", "Y", "Both"} , Save.Instance.SetCameraInverted));
 
 			pauseMenu.Title = Loc.Str("PauseTitle");
             pauseMenu.Add(new Menu.Option(Loc.Str("PauseResume"), () => SetPaused(false)));
