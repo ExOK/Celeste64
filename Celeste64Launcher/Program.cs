@@ -10,9 +10,14 @@ class Program
 	// Copied from Celeste64 project
 	public static void Main(string[] args)
 	{
-		Game.LoaderVersion = typeof(Program).Assembly.GetName().Version!;
+		Version loaderVersion = typeof(Program).Assembly.GetName().Version!;
+		Game.LoaderVersion = $"Fuji: v.{loaderVersion.Major}.{loaderVersion.Minor}.{loaderVersion.Build}";
+		if (!string.IsNullOrEmpty(BuildProperties.ModVersion()))
+		{
+			Game.LoaderVersion += "-" + BuildProperties.ModVersion();
+		}
 		Log.Info($"Celeste 64 v.{Game.GameVersion.Major}.{Game.GameVersion.Minor}.{Game.GameVersion.Build}");
-		Log.Info($"Fuji v.{Game.LoaderVersion.Major}.{Game.LoaderVersion.Minor}.{Game.LoaderVersion.Build}");
+		Log.Info(Game.LoaderVersion);
 
 		AppDomain.CurrentDomain.UnhandledException += (object sender, UnhandledExceptionEventArgs e) =>
 		{
@@ -43,7 +48,7 @@ class Program
 		const string ErrorFileName = "ErrorLog.txt";
 		StringBuilder error = new();
 		error.AppendLine($"Celeste 64 v.{Game.GameVersion.Major}.{Game.GameVersion.Minor}.{Game.GameVersion.Build}");
-		error.AppendLine($"Fuji v.{Game.LoaderVersion.Major}.{Game.LoaderVersion.Minor}.{Game.LoaderVersion.Build}");
+		error.AppendLine(Game.LoaderVersion);
 		error.AppendLine($"Error Log ({DateTime.Now})");
 		error.AppendLine($"Call Stack:");
 		error.AppendLine(e?.ToString() ?? string.Empty);

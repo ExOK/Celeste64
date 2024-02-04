@@ -21,21 +21,43 @@
 		<PackageReference Include="FosterFramework" Version="0.1.16-alpha" />
 		<PackageReference Include="SharpGLTF.Runtime" Version="1.0.0-alpha0031" />
     <PackageReference Include="Sledge.Formats.Map" Version="1.1.5" />
+
+		<PackageReference Include="EmbeddedBuildProperty" Version="1.0.0" />
   </ItemGroup>
 
-  <ItemGroup Condition="$([MSBuild]::IsOSPlatform('Linux'))">
-    <Content Include="../Source/Audio/FMOD/libs/lib64/**" CopyToOutputDirectory="PreserveNewest" Link="%(Filename)%(Extension)" />
-  </ItemGroup>
+	<PropertyGroup Condition="($(RuntimeIdentifier) == '' and $([MSBuild]::IsOSPlatform('Linux'))) or $(RuntimeIdentifier.StartsWith('linux'))">
+		<IsLinux>true</IsLinux>
+	</PropertyGroup>
 
-  <ItemGroup Condition="$([MSBuild]::IsOSPlatform('Windows'))">
-    <Content Include="../Source/Audio/FMOD/libs/x64/**" CopyToOutputDirectory="PreserveNewest" Link="%(Filename)%(Extension)" />
-  </ItemGroup>
+	<PropertyGroup Condition="($(RuntimeIdentifier) == '' and $([MSBuild]::IsOSPlatform('Windows'))) or $(RuntimeIdentifier.StartsWith('win'))">
+		<IsWindows>true</IsWindows>
+	</PropertyGroup>
 
-  <ItemGroup Condition="$([MSBuild]::IsOSPlatform('OSX'))">
-    <Content Include="../Source/Audio/FMOD/libs/osx/**" CopyToOutputDirectory="PreserveNewest" Link="%(Filename)%(Extension)" />
-  </ItemGroup>
-  
-  <ItemGroup>
+	<PropertyGroup Condition="($(RuntimeIdentifier) == '' and $([MSBuild]::IsOSPlatform('OSX'))) or $(RuntimeIdentifier.StartsWith('osx'))">
+		<IsMacOS>true</IsMacOS>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="($(RuntimeIdentifier) == '' and $([System.Runtime.InteropServices.RuntimeInformation]::OSArchitecture) == 'Arm64') or $(RuntimeIdentifier.EndsWith('arm64'))">
+		<IsArm64>true</IsArm64>
+	</PropertyGroup>
+
+	<ItemGroup Condition="$(IsLinux) == 'true' and $(IsArm64) == 'true'">
+		<Content Include="Source/Audio/FMOD/libs/libarm64/**" CopyToOutputDirectory="PreserveNewest" Link="%(Filename)%(Extension)" />
+	</ItemGroup>
+
+	<ItemGroup Condition="$(IsLinux) == 'true' and $(IsArm64) != 'true'">
+		<Content Include="Source/Audio/FMOD/libs/lib64/**" CopyToOutputDirectory="PreserveNewest" Link="%(Filename)%(Extension)" />
+	</ItemGroup>
+
+	<ItemGroup Condition="$(IsWindows) == 'true'">
+		<Content Include="Source/Audio/FMOD/libs/x64/**" CopyToOutputDirectory="PreserveNewest" Link="%(Filename)%(Extension)" />
+	</ItemGroup>
+
+	<ItemGroup Condition="$(IsMacOS) == 'true'">
+		<Content Include="Source/Audio/FMOD/libs/osx/**" CopyToOutputDirectory="PreserveNewest" Link="%(Filename)%(Extension)" />
+	</ItemGroup>
+
+	<ItemGroup>
     <ProjectReference Include="..\Celeste64.csproj">
       <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
     </ProjectReference>

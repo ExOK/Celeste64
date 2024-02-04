@@ -26,7 +26,7 @@
     <IsLinux>true</IsLinux>
   </PropertyGroup>
 
-  <PropertyGroup Condition="($(RuntimeIdentifier) == '' and $([MSBuild]::IsOSPlatform('Windowx'))) or $(RuntimeIdentifier.StartsWith('win'))">
+  <PropertyGroup Condition="($(RuntimeIdentifier) == '' and $([MSBuild]::IsOSPlatform('Windows'))) or $(RuntimeIdentifier.StartsWith('win'))">
     <IsWindows>true</IsWindows>
   </PropertyGroup>
 
@@ -53,6 +53,7 @@
   <ItemGroup Condition="$(IsMacOS) == 'true'">
     <Content Include="Source/Audio/FMOD/libs/osx/**" CopyToOutputDirectory="PreserveNewest" Link="%(Filename)%(Extension)" />
   </ItemGroup>
+	
 
   <ItemGroup>
     <Content Remove="Celeste64-Fuji\**" />

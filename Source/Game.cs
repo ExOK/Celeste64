@@ -41,9 +41,8 @@ public class Game : Module
 	public const int Width = 640;
 	public const int Height = 360;
 	public static readonly Version GameVersion = typeof(Game).Assembly.GetName().Version!;
-	public static Version LoaderVersion = new Version();
 	public static readonly string VersionString = $"Celeste 64: v.{GameVersion.Major}.{GameVersion.Minor}.{GameVersion.Build}";
-	public static string LoaderVersionString { get { return $"Fuji: v.{LoaderVersion.Major}.{LoaderVersion.Minor}.{LoaderVersion.Build}"; } }
+	public static string LoaderVersion { get; set; } = "";
 
 	/// <summary>
 	/// Used by various rendering elements to proportionally scale if you change the default game resolution
@@ -176,20 +175,20 @@ public class Game : Module
 			// perform transition
 			switch (transition.Mode)
 			{
-			case Transition.Modes.Replace:
-			Debug.Assert(transition.Scene != null);
-			if (scenes.Count > 0)
-				scenes.Pop();
-			scenes.Push(transition.Scene());
-			break;
-			case Transition.Modes.Push:
-			Debug.Assert(transition.Scene != null);
-			scenes.Push(transition.Scene());
-			audioBeatCounter = 0;
-			break;
-			case Transition.Modes.Pop:
-			scenes.Pop();
-			break;
+				case Transition.Modes.Replace:
+					Debug.Assert(transition.Scene != null);
+					if (scenes.Count > 0)
+						scenes.Pop();
+					scenes.Push(transition.Scene());
+					break;
+				case Transition.Modes.Push:
+					Debug.Assert(transition.Scene != null);
+					scenes.Push(transition.Scene());
+					audioBeatCounter = 0;
+					break;
+				case Transition.Modes.Pop:
+					scenes.Pop();
+				break;
 			}
 
 			// don't let the game sit in a sceneless place
