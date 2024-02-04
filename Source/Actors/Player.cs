@@ -269,7 +269,23 @@ public class Player : Actor, IHaveModels, IHaveSprites, IRidePlatforms, ICastPoi
 			// Rotate Camera
 			{
 				var rot = new Vec2(cameraTargetForward.X, cameraTargetForward.Y).Angle();
-				rot -= Controls.Camera.Value.X * Time.Delta * 4;
+				if (Controls.BackCamera.Pressed)
+				{
+					rot = Facing.Angle();
+				}
+				else if (Controls.Camera.Value.X != 0)
+				{
+					rot -= Controls.Camera.Value.X * Time.Delta * 4;
+				}
+				else
+				{
+					// If the camera isn't moving, snap the angle to the nearest 90 degrees if we're close enough
+					float? cameraPositionToSnapTo = CameraPositionToSnapTo(rot, MathF.PI / 10);
+					if (cameraPositionToSnapTo.HasValue)
+					{
+						rot = Calc.AngleApproach(rot, cameraPositionToSnapTo.Value, 4);
+					}
+				}
 
 				var angle = Calc.AngleToVector(rot);
 				cameraTargetForward = new(angle, 0);
@@ -586,6 +602,17 @@ public class Player : Actor, IHaveModels, IHaveSprites, IRidePlatforms, ICastPoi
 				cameraPosition = hit.Point - Vec3.UnitZ * 5;
 			}
 		}
+	}
+
+	private float? CameraPositionToSnapTo(float currentAngle, float sensitivity)
+	{
+		for (int i = 0; i < 4; i++)
+		{
+			float angle = i * MathF.PI / 2;
+			if (Calc.AbsAngleDiff(currentAngle, angle) < sensitivity)
+				return angle;
+		}
+		return null;
 	}
 
 	#endregion

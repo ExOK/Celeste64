@@ -9,8 +9,9 @@ public static class Controls
 	public static readonly VirtualButton Jump = new("Jump", .1f);
 	public static readonly VirtualButton Dash = new("Dash", .1f);
 	public static readonly VirtualButton Climb = new("Climb");
+	public static readonly VirtualButton BackCamera = new("BackCamera");
 
-	public static readonly VirtualButton Confirm = new("Confirm");
+    public static readonly VirtualButton Confirm = new("Confirm");
 	public static readonly VirtualButton Cancel = new("Cancel");
 	public static readonly VirtualButton Pause = new("Pause");
 	
@@ -31,6 +32,10 @@ public static class Controls
 		Camera.AddRightJoystick(0, 0.50f, 0.70f);
 		Camera.Add(Keys.A, Keys.D, Keys.W, Keys.S);
 
+		BackCamera.Clear();
+		BackCamera.Add(0, Axes.LeftTrigger, 1, .4f);
+		BackCamera.Add(Keys.E);
+
 		Jump.Clear();
 		Jump.Add(0, Buttons.South, Buttons.North);
 		Jump.Add(Keys.C);
@@ -42,7 +47,6 @@ public static class Controls
 		Climb.Clear();
 		Climb.Add(0, Buttons.LeftShoulder, Buttons.RightShoulder);
 		Climb.Add(0, Axes.RightTrigger, 1, .4f);
-		Climb.Add(0, Axes.LeftTrigger, 1, .4f);
 		Climb.Add(Keys.Z, Keys.V, Keys.LeftShift, Keys.RightShift);
 		
 		Menu.Clear();
@@ -70,6 +74,7 @@ public static class Controls
 		Move.Consume();
 		Menu.Consume();
 		Camera.Consume();
+		BackCamera.Consume();
 		Jump.Consume();
 		Dash.Consume();
 		Climb.Consume();
