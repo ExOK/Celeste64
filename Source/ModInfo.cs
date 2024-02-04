@@ -10,6 +10,7 @@ public class ModInfo
 {
 	public string Id { get; set; } = "";
 	public string Name { get; set; } = "";
+	public string? Version { get; set; }
 	public string? ModAuthor { get; set; }
 	public string? Description { get; set; }
 	public string? Icon { get; set; }
