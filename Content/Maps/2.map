@@ -14063,16 +14063,11 @@
 }
 // entity 603
 {
-"classname" "PlayerSpawn"
-"origin" "2096 4496 2320"
-}
-// entity 604
-{
 "classname" "SignPost"
 "origin" "728 3848 2136"
 "dialog" "SignPostDeadFish"
 }
-// entity 605
+// entity 604
 {
 "classname" "GateBlock"
 "target" "gateTest"
@@ -14086,53 +14081,52 @@
 ( 608 4064 2160 ) ( 608 4128 2160 ) ( 608 4128 2144 ) deadfish 0 0 0 1 1
 }
 }
-// entity 606
+// entity 605
 {
 "classname" "Node"
 "origin" "288 4128 2240"
 "targetname" "gateTest"
 }
-// entity 607
+// entity 606
 {
 "classname" "Coin"
 "origin" "560 3968 2144"
 }
-// entity 608
+// entity 607
 {
 "classname" "Refill"
 "origin" "624 3776 2144"
 "double" "1"
 }
+// entity 608
+{
+"classname" "Cassette"
+"origin" "-448 3248 528"
+"map" "2-1"
+}
 // entity 609
 {
-"classname" "FloatingDecoration"
-// brush 0
-{
-( 336 3808 2256 ) ( 336 3744 2256 ) ( 336 3744 2176 ) deadfish 0 0 0 1 1
-( 336 3744 2256 ) ( 432 3744 2256 ) ( 432 3744 2176 ) deadfish 0 0 0 1 1
-( 432 3744 2176 ) ( 432 3808 2176 ) ( 336 3808 2176 ) deadfish 0 0 0 1 1
-( 336 3808 2256 ) ( 432 3808 2256 ) ( 432 3744 2256 ) deadfish 0 0 0 1 1
-( 432 3808 2176 ) ( 432 3808 2256 ) ( 336 3808 2256 ) deadfish 0 0 0 1 1
-( 432 3744 2256 ) ( 432 3808 2256 ) ( 432 3808 2176 ) deadfish 0 0 0 1 1
-}
+"classname" "Cassette"
+"origin" "-352 3248 528"
+"map" "2-2"
 }
 // entity 610
 {
 "classname" "Cassette"
-"origin" "-448 3248 496"
-"map" "2-1"
+"origin" "-256 3248 528"
+"map" "2-3"
 }
 // entity 611
 {
 "classname" "Cassette"
-"origin" "-352 3248 496"
-"map" "2-2"
+"origin" "-160 3152 528"
+"map" "2-4"
 }
 // entity 612
 {
 "classname" "Cassette"
-"origin" "-256 3248 496"
-"map" "2-3"
+"origin" "-160 3056 528"
+"map" "2-5"
 }
 // entity 613
 {
