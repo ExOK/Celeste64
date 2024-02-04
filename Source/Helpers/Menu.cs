@@ -94,23 +94,39 @@ public class Menu
 		}
 	}
 
-	public class MultiSelect(string label, List<string> options, Action<string> set) : Item
+	public class MultiSelect(string label, List<string> options, Func<int> get, Action<int> set) : Item
 	{
 		private readonly List<string> options = options;
-		private readonly Action<string> set = set;
-		private int index = 0;
-		public override string Label => $"{label} : {options[index]}";
+		private readonly Action<int> set = set;
+		public override string Label => $"{label} : {options[get()]}";
 
 		public override void Slide(int dir) 
 		{
 			Audio.Play(Sfx.ui_select);
 
-			if (index != options.Count() - 1 && dir == 1)
+			int index = get();
+			if (index < options.Count() - 1 && dir == 1)
 				index++;
-			if (index != 0 && dir == -1)
+			if (index > 0 && dir == -1)
 				index--;
+			set(index);
+		}
+	}
 
-			set(options[index]);
+	public class MultiSelect<T> : MultiSelect where T : struct, Enum
+	{
+		private static List<string> GetEnumOptions()
+		{
+			var list = new List<string>();
+			foreach (var it in Enum.GetNames<T>())
+				list.Add(it);
+			return list;
+		}
+
+		public MultiSelect(string label, Action<T> set, Func<T> get)
+			: base(label, GetEnumOptions(), () => (int)(object)get(), (i) => set((T)(object)i))
+		{
+
 		}
 	}
 

@@ -51,6 +51,11 @@ public static class Controls
 			it.BindTo(Cancel);
 		foreach (var it in FindAction(config, "Pause"))
 			it.BindTo(Pause);
+
+		Camera.Horizontal.Negative.Bindings.Add(new MouseAxisBinding() { Axis = new Vec2(-1, 0), Sign = -1 });
+		Camera.Horizontal.Positive.Bindings.Add(new MouseAxisBinding() { Axis = new Vec2(1, 0), Sign = 1 });
+		Camera.Vertical.Negative.Bindings.Add(new MouseAxisBinding() { Axis = new Vec2(0, -1), Sign = -1 });
+		Camera.Vertical.Positive.Bindings.Add(new MouseAxisBinding() { Axis = new Vec2(0, 1), Sign = 1 });
 	}
 
 	public static void Clear()

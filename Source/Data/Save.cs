@@ -8,6 +8,14 @@ public class Save
 {
 	public const string FileName = "save.json";
 
+	public enum InvertCameraOptions
+	{
+		None,
+		X,
+		Y,
+		Both
+	}
+
 	/// <summary>
 	/// Stored data associated with a single level
 	/// </summary>
@@ -71,7 +79,7 @@ public class Save
 	/// <summary>
 	/// Invert the camera in given directions
 	/// </summary>
-	public string InvertCamera { get; set; } = "None";
+	public InvertCameraOptions InvertCamera { get; set; } = InvertCameraOptions.None;
 
 	/// <summary>
 	/// Current Language ID
@@ -133,7 +141,7 @@ public class Save
 		ZGuide = !ZGuide;
 	}
 
-	public void SetCameraInverted(string value)
+	public void SetCameraInverted(InvertCameraOptions value)
 	{
 		InvertCamera = value;
 	}
@@ -201,6 +209,6 @@ public class Save
 	}
 }
 
-[JsonSourceGenerationOptions(WriteIndented = true, AllowTrailingCommas = true)]
+[JsonSourceGenerationOptions(WriteIndented = true, AllowTrailingCommas = true, UseStringEnumConverter = true)]
 [JsonSerializable(typeof(Save))]
 internal partial class SaveContext : JsonSerializerContext {}
