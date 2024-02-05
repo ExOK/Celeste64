@@ -91,11 +91,13 @@ public class ControlsConfig
 		}
 	}
 
+	public double? Version { get; set; }
 	public Dictionary<string, List<Binding>> Actions { get; set; } = [];
 	public Dictionary<string, Stick> Sticks { get; set; } = [];
 
 	public static ControlsConfig Defaults = new()
 	{
+		Version = 1.1,
 		Actions = new() {
 			["Jump"] = [
 				new(Keys.C),
@@ -119,7 +121,7 @@ public class ControlsConfig
 				new(Buttons.East) { OnlyFor = Gamepads.Nintendo },
 			],
 			["Cancel"] = [
-				new(Keys.X),
+				new(Keys.X), new(Keys.Escape),
 				new(Buttons.East) { NotFor = Gamepads.Nintendo },
 				new(Buttons.South) { OnlyFor = Gamepads.Nintendo },
 			],
@@ -197,6 +199,39 @@ public class ControlsConfig
 			},
 		}
 	};
+
+	public void Update()
+    {
+        Version ??= 1.0;
+		bool updated = false;
+
+		if (Version == null)
+		{
+			updated = true;
+			Version = 1.0;
+
+		}
+
+		if (Version < 1.1)
+		{
+			updated = true;
+			Version = 1.1;
+			Actions["Cancel"].Add(new(Keys.Escape));
+		}
+
+        if (updated)
+        {
+			var controlsPath = Path.Join(App.UserPath, FileName);
+			var stream = File.Create(controlsPath);
+			Serialize(stream, this);
+			stream.Flush();
+        }
+    }
+
+	public static void Serialize(Stream stream, ControlsConfig instance)
+	{
+		JsonSerializer.Serialize(stream, instance, ControlsConfigContext.Default.ControlsConfig);
+	}
 }
 
 // All of this is just so the Binding values are on a single line to increase readability

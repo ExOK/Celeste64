@@ -372,7 +372,7 @@ public class World : Scene
 		// unpause
 		else
 		{
-			if ((Controls.Pause.Pressed || Controls.Cancel.Pressed) && pauseMenu.IsInMainMenu)
+			if ((Controls.Pause.Pressed && !Controls.Cancel.Pressed) || (Controls.Cancel.Pressed && pauseMenu.IsInMainMenu))
 			{
 				pauseMenu.CloseSubMenus();
 				SetPaused(false);

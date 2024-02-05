@@ -51,7 +51,7 @@ public class Startup : Scene
 				JsonSerializer.Serialize(stream, ControlsConfig.Defaults, ControlsConfigContext.Default.ControlsConfig);
 				stream.Flush();
 			}
-			
+			controls.Update();
 			Controls.Load(controls);
 		}
 
