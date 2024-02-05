@@ -20,7 +20,7 @@ public class SkinnedTemplate
 	public readonly DefaultMaterial[] Materials;
 
 	// only used while loading, cleared afterwards
-	private readonly Dictionary<string, Image> images = [];
+	private readonly Dictionary<SharpGLTF.Memory.MemoryImage, Image> images = [];
 
 	public SkinnedTemplate(SharpGLTF.Schema2.ModelRoot model)
 	{
@@ -33,7 +33,7 @@ public class SkinnedTemplate
 		{
 			using var stream = new MemoryStream(logicalImage.Content.Content.ToArray());
 			var img = new Image(stream);
-			images[logicalImage.Name] = img;
+			images.Add(logicalImage.Content, img);
 		}
 
 		// All Materials use the default material
@@ -90,9 +90,9 @@ public class SkinnedTemplate
 	public void ConstructResources()
 	{
 		// create all the textures and clear the list of images we had loaded
-		var textures = new Dictionary<string, Texture>();
-		foreach (var (name, image) in images)
-			textures[name] = new Texture(image);
+		var textures = new Dictionary<SharpGLTF.Memory.MemoryImage, Texture>();
+		foreach (var image in images)
+			textures[image.Key] = new Texture(image.Value);
 		images.Clear();
 
 		// create all the materials, find their textures
@@ -106,7 +106,7 @@ public class SkinnedTemplate
 			foreach (var channel in logicalMat.Channels)
 				if (channel.Texture != null && 
 					channel.Texture.PrimaryImage != null && 
-					textures.TryGetValue(channel.Texture.PrimaryImage.Name, out var texture))
+					textures.TryGetValue(channel.Texture.PrimaryImage.Content, out var texture))
 				{
 					Materials[i].Texture = texture;
 					break;
