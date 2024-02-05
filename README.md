@@ -2,7 +2,8 @@
 <p align="center">
     <img src="fuji.png" width="200">
 </p>
-Fuji is a basic Mod Loader for *Celeste 64: Fragments of the Mountain*, a game made by the original Celeste developers in under 2 weeks for Celeste's 6th Anniversary. It is forked from the source code of that game.
+
+Fuji is a basic Mod Loader for <b>Celeste 64: Fragments of the Mountain</b>, a game made by the original Celeste developers in under 2 weeks for Celeste's 6th Anniversary. It is forked from the source code of that game.
 
 ### [The original game can be found here](https://maddymakesgamesinc.itch.io/celeste64)
 ### [You can also see the original game's github page for more information](https://github.com/ExOK/Celeste64)
