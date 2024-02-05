@@ -43,9 +43,6 @@ public class World : Scene
 	private float strawbCounterEase = 0;
 	private int strawbCounterWas;
 
-	// the position that the camera follows
-	public Vector3 CameraDestPos;
-
 	private bool IsInEndingArea => Get<Player>() is {} player && Overlaps<EndingArea>(player.Position);
 	private bool IsPauseEnabled
 	{
