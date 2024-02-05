@@ -1,0 +1,114 @@
+name: Build and publish stable branch
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ 'main' ]
+    paths-ignore:
+      - "README.md"
+      - ".gitignore"
+      - ".editorconfig"
+
+permissions:
+  contents: write
+
+jobs:
+  build:    
+    strategy:
+      matrix:
+        platform: [ubuntu-latest, macos-latest, windows-latest]
+    
+    runs-on: ${{ matrix.platform }}
+    steps:
+    - uses: actions/checkout@v3
+    - name: Fetch all tags
+      run: git fetch --depth=1 origin +refs/tags/*:refs/tags/*
+    - name: Get current short hash
+      id: vars
+      run: echo "SHORT_SHA=$(echo ${{ github.sha }} | cut -c1-7)" >> "$env:GITHUB_OUTPUT"
+      if: runner.os == 'Windows'
+    - name : Get Short Hash Linux
+      run: |
+        calculatedSha=$(git rev-parse --short ${{ github.sha }})
+        echo "SHORT_SHA=$calculatedSha" >> $GITHUB_ENV
+      if: runner.os != 'Windows'
+    - name: echo short hash
+      run: echo "Short SHA is ${{ env.SHORT_SHA }}"
+      if: runner.os == 'Windows'
+    - name: echo short hash
+      run: echo "Short SHA is $SHORT_SHA"
+      if: runner.os != 'Windows'
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: 8.0.x
+
+    - name: Build (linux and mac)
+      env:
+        os: ${{ runner.os == 'Windows' && 'win' || runner.os == 'macOS' && 'osx' || 'linux' }}
+      run: |
+        dotnet publish Celeste64Launcher/Celeste64Launcher.csproj -c Release -r ${{env.os}}-x64 -p:ImportByWildcardBeforeSolution=false "-p:EmbeddedBuildProperty=ModVersion=${{ env.SHORT_SHA }}" -o build && cp -r Content Mods build
+      if: runner.os != 'Windows'
+    - name: Build (windows)
+      env:
+        os: ${{ runner.os == 'Windows' && 'win' || runner.os == 'macOS' && 'osx' || 'linux' }}
+      run: |
+        dotnet publish Celeste64Launcher/Celeste64Launcher.csproj -c Release -r win-x64 -p:ImportByWildcardBeforeSolution=false "-p:EmbeddedBuildProperty=ModVersion=${{steps.vars.outputs.SHORT_SHA}}" -o build && xcopy Mods build\Mods /s /e /h /i /y && xcopy Content build\Content /s /e /h /i /y
+      if: runner.os == 'Windows'
+    - name: Compress (Windows)
+      run: |
+        Compress-Archive build/* Celeste64-Fuji-${{ runner.os }}-x64.zip
+      if: runner.os == 'Windows'
+    
+    - name: Compress (macOS and Linux)
+      run: |
+        cd build && zip -r ../Celeste64-Fuji-${{ runner.os }}-x64.zip *
+      if: runner.os != 'Windows'
+      
+    - name: Publish Github Release Windows
+      uses: ncipollo/release-action@v1
+      with:
+        artifacts: Celeste64-Fuji-${{ runner.os }}-x64.zip
+        tag: "stable-${{steps.vars.outputs.SHORT_SHA}}"
+        body: |
+          # Instructions:
+
+          - Download and extract the zip file below according to your computer
+          - Run the Celeste64 application from the extracted files
+
+          # Requirements:
+
+          - **Windows:** 10 or later, x64
+          - **Linux:** [Distro support list](https://github.com/dotnet/core/blob/main/release-notes/8.0/supported-os.md), x64
+          - **macOS:** Monterey or later, x64 Intel-based or Apple Silicon with Rosetta
+        allowUpdates: true
+        name: "Fuji ${{steps.vars.outputs.SHORT_SHA}}"
+        prerelease: false
+        makeLatest: true
+        draft: true
+        commit: "${{ github.sha }}"
+      if: runner.os == 'Windows'
+
+    - name: Publish Github Release Linux and Mac
+      uses: ncipollo/release-action@v1
+      with:
+        artifacts: Celeste64-Fuji-${{ runner.os }}-x64.zip
+        tag: "stable-${{ env.SHORT_SHA }}"
+        body: |
+          # Instructions:
+
+          - Download and extract the zip file below according to your computer
+          - Run the Celeste64 application from the extracted files
+
+          # Requirements:
+
+          - **Windows:** 10 or later, x64
+          - **Linux:** [Distro support list](https://github.com/dotnet/core/blob/main/release-notes/8.0/supported-os.md), x64
+          - **macOS:** Monterey or later, x64 Intel-based or Apple Silicon with Rosetta
+        allowUpdates: true
+        name: "Fuji ${{ env.SHORT_SHA }}"
+        prerelease: false
+        makeLatest: true
+        draft: true
+        commit: "${{ github.sha }}"
+      if: runner.os != 'Windows'
