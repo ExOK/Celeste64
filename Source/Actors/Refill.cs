@@ -33,7 +33,7 @@ public class Refill : Actor, IHaveSprites, IPickup, IHaveModels, ICastPointShado
 	{
 		if (tCollect > 0)
 		{
-			var size = (1.0f - Ease.CubeIn(tCollect)) * 50;
+			var size = (1.0f - Ease.Cube.In(tCollect)) * 50;
 			var alpha = tCollect;
 
 			populate.Add(Sprite.CreateFlat(World, Position - Vec3.UnitZ * 3, "ring", size * 0.75f, Color.White * alpha * alpha));

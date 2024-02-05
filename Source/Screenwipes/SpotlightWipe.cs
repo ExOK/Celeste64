@@ -45,14 +45,14 @@ public class SpotlightWipe : ScreenWipe
 		if (!Linear)
 		{
 			if (ease < EaseOpenPercent)
-				radius = Ease.CubeInOut(ease / EaseOpenPercent) * openRadius;
+				radius = Ease.Cube.InOut(ease / EaseOpenPercent) * openRadius;
 			else if (ease < 1f - EaseClosePercent)
 				radius = openRadius;
 			else
 				radius = openRadius + ((ease - (1 - EaseClosePercent)) / EaseClosePercent) * (bounds.Width - openRadius);
 		}
 		else
-			radius = Ease.CubeInOut(ease) * bounds.Width;
+			radius = Ease.Cube.InOut(ease) * bounds.Width;
 
 		DrawSpotlight(batch, point, radius);
 	}
