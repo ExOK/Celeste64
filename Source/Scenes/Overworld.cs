@@ -198,7 +198,7 @@ public class Overworld : Scene
 		{
 			var it = entries[i];
 			Calc.Approach(ref it.HighlightEase, index == i ? 1.0f : 0.0f, Time.Delta * 8.0f); 
-			Calc.Approach(ref it.SelectionEase, index == i && state == States.Selected || state == States.Restarting ? 1.0f : 0.0f, Time.Delta * 4.0f);
+			Calc.Approach(ref it.SelectionEase, index == i && (state == States.Selected || state == States.Restarting) ? 1.0f : 0.0f, Time.Delta * 4.0f);
 
 			if (it.SelectionEase >= 0.50f && state == States.Selected)
 				it.Menu.Update();

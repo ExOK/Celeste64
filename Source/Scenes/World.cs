@@ -334,7 +334,7 @@ public class World : Scene
 		if (!Paused)
 		{
 			// start pause menu
-			if (Controls.Pause.Pressed && IsPauseEnabled)
+			if (Controls.Pause.ConsumePress() && IsPauseEnabled)
 			{
 				SetPaused(true);
 				return;
@@ -386,7 +386,7 @@ public class World : Scene
 		// unpause
 		else
 		{
-			if ((Controls.Pause.Pressed || Controls.Cancel.Pressed) && pauseMenu.IsInMainMenu)
+			if (Controls.Pause.ConsumePress() || (pauseMenu.IsInMainMenu && Controls.Cancel.ConsumePress()))
 			{
 				pauseMenu.CloseSubMenus();
 				SetPaused(false);
@@ -394,7 +394,9 @@ public class World : Scene
 				Get<Player>()?.SetSkin(Save.Instance.GetSkin());
 			}
 			else
+			{
 				pauseMenu.Update();
+			}
 		}
 
 		debugUpdTimer.Stop();
