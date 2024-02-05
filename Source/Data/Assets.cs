@@ -1,4 +1,5 @@
-﻿using System.Collections.Concurrent;
+﻿using Foster.Framework;
+using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Text;
 using System.Text.Json;
@@ -38,7 +39,7 @@ public static class Assets
 	public static readonly ModAssetDictionary<Shader> Shaders = new(gameMod => gameMod.Shaders);
 	public static readonly ModAssetDictionary<Texture> Textures = new(gameMod => gameMod.Textures);
 	public static readonly ModAssetDictionary<SkinnedTemplate> Models = new(gameMod => gameMod.Models);
-	public static readonly Dictionary<string, Subtexture> Subtextures = new(StringComparer.OrdinalIgnoreCase);
+	public static readonly ModAssetDictionary<Subtexture> Subtextures = new(gameMod => gameMod.Subtextures);
 	public static readonly ModAssetDictionary<Font> Fonts = new(gameMod => gameMod.Fonts);
 	public static readonly Dictionary<string, Language> Languages = new(StringComparer.OrdinalIgnoreCase);
 
@@ -197,29 +198,42 @@ public static class Assets
 
 		// pack sprites into single texture
 		{
-			var packer = new Packer
-			{
-				Trim = false,
-				CombineDuplicates = false,
-				Padding = 1
-			};
+			var packers = new Dictionary<GameMod, Packer>();
 
 			foreach (var (file, mod) in globalFs.FindFilesInDirectoryRecursiveWithMod("Sprites", "png"))
 			{
 				if (mod.Filesystem != null && mod.Filesystem.TryOpenFile(file, stream => new Image(stream), out var img))
-					packer.Add(GetResourceNameFromVirt(file, "Sprites"), img);
+				{
+					if (packers.ContainsKey(mod))
+					{
+						packers[mod].Add(GetResourceNameFromVirt(file, "Sprites"), img);
+					}
+					else
+					{
+						packers[mod] = new Packer
+						{
+							Trim = false,
+							CombineDuplicates = false,
+							Padding = 1
+						};
+						packers[mod].Add(GetResourceNameFromVirt(file, "Sprites"), img);
+					}
+				}
 			}
 
-			var result = packer.Pack();
-			var pages = new List<Texture>();
-			foreach (var it in result.Pages)
+			foreach(var modpacker in packers)
 			{
-				it.Premultiply();
-				pages.Add(new Texture(it));
-			}
+				var result = modpacker.Value.Pack();
+				var pages = new List<Texture>();
+				foreach (var it in result.Pages)
+				{
+					it.Premultiply();
+					pages.Add(new Texture(it));
+				}
 
-			foreach (var it in result.Entries)
-				Subtextures.Add(it.Name, new Subtexture(pages[it.Page], it.Source, it.Frame));
+				foreach (var it in result.Entries)
+					Subtextures.Add(it.Name, new Subtexture(pages[it.Page], it.Source, it.Frame), modpacker.Key);
+			}
 		}
 
 

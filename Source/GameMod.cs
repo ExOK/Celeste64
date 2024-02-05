@@ -22,6 +22,7 @@ public abstract class GameMod
 	internal readonly Dictionary<string, Map> Maps = new(StringComparer.OrdinalIgnoreCase);
 	internal readonly Dictionary<string, Shader> Shaders = new(StringComparer.OrdinalIgnoreCase);
 	internal readonly Dictionary<string, Texture> Textures = new(StringComparer.OrdinalIgnoreCase);
+	internal readonly Dictionary<string, Subtexture> Subtextures = new(StringComparer.OrdinalIgnoreCase);
 	internal readonly Dictionary<string, SkinnedTemplate> Models = new(StringComparer.OrdinalIgnoreCase);
 	internal readonly Dictionary<string, Font> Fonts = new(StringComparer.OrdinalIgnoreCase);
 	internal readonly Dictionary<string, string> Strings = new(StringComparer.OrdinalIgnoreCase);
