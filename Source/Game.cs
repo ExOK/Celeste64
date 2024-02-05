@@ -78,7 +78,6 @@ public class Game : Module
 		App.VSync = true;
 		App.Title = GameTitle;
 		Audio.Init();
-		Controls.Load();
 
 		scenes.Push(new Startup());
 		ModManager.Instance.OnGameLoad(this);

@@ -135,6 +135,8 @@ public static class Loc
 
 [JsonSourceGenerationOptions(
 	WriteIndented = true, 
-	PreferredObjectCreationHandling = JsonObjectCreationHandling.Populate)]
+	PreferredObjectCreationHandling = JsonObjectCreationHandling.Populate,
+	AllowTrailingCommas = true
+)]
 [JsonSerializable(typeof(Language))]
 internal partial class LanguageContext : JsonSerializerContext {}
