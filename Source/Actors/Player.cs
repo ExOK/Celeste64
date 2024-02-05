@@ -2030,7 +2030,7 @@ public class Player : Actor, IHaveModels, IHaveSprites, IRidePlatforms, ICastPoi
 
 			for (float p = 0; p < 1.0f; p += Time.Delta / 3)
 			{
-				cameraOverride = new(Utils.Bezier(fromPos, control, toPos, Ease.SineIn(p)), lookAt);
+				cameraOverride = new(Utils.Bezier(fromPos, control, toPos, Ease.Sine.In(p)), lookAt);
 				yield return Co.SingleFrame;
 			}
 
@@ -2038,7 +2038,7 @@ public class Player : Actor, IHaveModels, IHaveSprites, IRidePlatforms, ICastPoi
 			{
 				GetCameraTarget(out var lookAtTo, out var posTo, out _);
 
-				var t = Ease.SineOut(p);
+				var t = Ease.Sine.Out(p);
 				cameraOverride = new(Vec3.Lerp(toPos, posTo, t), Vec3.Lerp(lookAt, lookAtTo, t));
 				yield return Co.SingleFrame;
 			}
@@ -2269,11 +2269,11 @@ public class Player : Actor, IHaveModels, IHaveSprites, IRidePlatforms, ICastPoi
 		{
 			var ease = drawOrbsEase;
 			var col = Math.Floor(ease * 10) % 2 == 0 ? Hair.Color : Color.White;
-			var s = (ease < 0.5f) ? (0.5f + ease) : (Ease.CubeOut(1 - (ease - 0.5f) * 2));
+			var s = (ease < 0.5f) ? (0.5f + ease) : (Ease.Cube.Out(1 - (ease - 0.5f) * 2));
 			for (int i = 0; i < 8; i ++)
 			{
 				var rot = (i / 8f + ease * 0.25f) * MathF.Tau;
-				var rad = Ease.CubeOut(ease) * 16;
+				var rad = Ease.Cube.Out(ease) * 16;
 				var pos = SolidWaistTestPos + World.Camera.Left * MathF.Cos(rot) * rad + World.Camera.Up * MathF.Sin(rot) * rad;
 				var size = 3 * s;
 				populate.Add(Sprite.CreateBillboard(World, pos, "circle", size + 0.5f, Color.Black) with { Post = true });
@@ -2309,7 +2309,7 @@ public class Player : Actor, IHaveModels, IHaveSprites, IRidePlatforms, ICastPoi
 				continue;
 
 			// I HATE this alpha fade out but don't have time to make some kind of full-model fade out effect
-			var alpha = Ease.CubeOut(Calc.ClampedMap(trail.Percent, 0.5f, 1.0f, 1, 0));
+			var alpha = Ease.Cube.Out(Calc.ClampedMap(trail.Percent, 0.5f, 1.0f, 1, 0));
 
 			foreach (var mat in trail.Model.Materials)
 				mat.Color = trail.Color * alpha;

@@ -127,7 +127,7 @@ public class Strawberry : Actor, IHaveModels, IHaveSprites, IPickup, ICastPointS
 		var pulse = Pulse;
 		if (pulse < 1.0f)
 		{
-			var size = Ease.CubeOut(pulse) * 20;
+			var size = Ease.Cube.Out(pulse) * 20;
 			var alpha = 1.0f - pulse;
 			populate.Add(Sprite.CreateBillboard(World, haloPos, "gradient", size, HaloColor * 0.40f * alpha));
 		}
@@ -141,7 +141,7 @@ public class Strawberry : Actor, IHaveModels, IHaveSprites, IPickup, ICastPointS
 		{
 			var scale = 3.0f;
 			if (!IsCollected && !isCollecting)
-				scale += Ease.BackIn(Ease.UpDown(Pulse)) * 0.50f;
+				scale += Ease.Back.In(Ease.UpDown(Pulse)) * 0.50f;
 			scale *= scaleMultiplier;
 
 			if (isCollecting)
