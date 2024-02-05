@@ -318,7 +318,7 @@ public class Overworld : Scene
 		var camera = new Camera
 		{
 			Target = target,
-			Position = new Vec3(0, -100 + 30 * Ease.CubeIn(cameraCloseUpEase), 0),
+			Position = new Vec3(0, -100 + 30 * Ease.Cube.In(cameraCloseUpEase), 0),
 			LookAt = new Vec3(0, 0, 0),
 			NearPlane = 1,
 			FarPlane = 1000
@@ -327,11 +327,11 @@ public class Overworld : Scene
 		for (int i = 0; i < entries.Count; i ++)
 		{
 			var it = entries[i];
-			var shift = Ease.CubeIn(1.0f - it.HighlightEase) * 30 - Ease.CubeIn(it.SelectionEase) * 20;
+			var shift = Ease.Cube.In(1.0f - it.HighlightEase) * 30 - Ease.Cube.In(it.SelectionEase) * 20;
 			if (i != index)
-				shift += Ease.CubeInOut(selectedEase) * 50;
+				shift += Ease.Cube.InOut(selectedEase) * 50;
 			var position = new Vec3((i - slide) * 60, shift, 0);
-			var rotation = Ease.CubeInOut(it.SelectionEase);
+			var rotation = Ease.Cube.InOut(it.SelectionEase);
 			var matrix = 
 				Matrix.CreateScale(new Vec3(it.SelectionEase >= 0.50f ? -1 : 1, 1, 1)) *
 				Matrix.CreateRotationX(wobble.Y * it.HighlightEase) *
@@ -403,7 +403,7 @@ public class Overworld : Scene
 			if (cameraCloseUpEase > 0)
 			{
 				batch.PushBlend(BlendMode.Subtract);
-				batch.Rect(bounds, Color.White * Ease.CubeIn(cameraCloseUpEase));
+				batch.Rect(bounds, Color.White * Ease.Cube.In(cameraCloseUpEase));
 				batch.PopBlend();
 			}
 			batch.Render(target);

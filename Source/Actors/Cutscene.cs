@@ -215,7 +215,7 @@ public class Cutscene : Actor, IHaveUI
 
 		if (saying.Ease > 0 && !string.IsNullOrEmpty(saying.Text) && !World.Paused)
 		{
-			var ease = Ease.CubeOut(saying.Ease);
+			var ease = Ease.Cube.Out(saying.Ease);
 			var font = Language.Current.SpriteFont;
 			var size = font.SizeOf(saying.Text);
 			var pos = bounds.TopCenter + new Vec2(0, TopOffset) - size / 2 - Vec2.One * Padding + new Vec2(0, EaseOffset * (1 - ease));
