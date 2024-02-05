@@ -1462,6 +1462,13 @@ public class Player : Actor, IHaveModels, IHaveSprites, IRidePlatforms, ICastPoi
 			return;
 		}
 
+		if (Controls.Dash.ConsumePress() && dashes > 0 && tDashCooldown <= 0)
+		{
+			stateMachine.State = States.Dashing;
+			dashes--;
+			return;
+		}
+
 		CancelGroundSnap();
 
 		var forward = new Vec3(targetFacing, 0);
