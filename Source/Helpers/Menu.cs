@@ -230,7 +230,7 @@ public class Menu
 		{
 			CurrentMenu.HandleInput();
 
-	        if (Controls.Cancel.Pressed && !IsInMainMenu) 
+	        if (Controls.Cancel.ConsumePress() && !IsInMainMenu) 
 			{
 				Audio.Play(Sfx.main_menu_toggle_off);
 				submenus.Pop();
