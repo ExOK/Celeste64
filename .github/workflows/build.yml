@@ -5,17 +5,9 @@ on:
   push:
     branches: [ '*' ]
     paths-ignore:
-      - "ReadMe.md"
+      - "README.md"
       - ".gitignore"
       - ".editorconfig"
-  pull_request:
-    branches: [ '*' ]
-    paths-ignore:
-      - "ReadMe.md"
-      - ".gitignore"
-      - ".editorconfig"
-    tags:        
-      - '**' 
 
 permissions:
   contents: write
