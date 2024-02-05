@@ -50,7 +50,7 @@ public class Titlescreen : Scene
 		var camera = new Camera
 		{
 			Target = target,
-			Position = Vec3.Lerp(camFrom, camTo, Ease.CubeOut(easing)),
+			Position = Vec3.Lerp(camFrom, camTo, Ease.Cube.Out(easing)),
 			LookAt = new Vec3(0, 0, 70),
 			NearPlane = 10,
 			FarPlane = 300
@@ -65,7 +65,7 @@ public class Titlescreen : Scene
 				Matrix.CreateRotationX(wobble.Y) *
 				Matrix.CreateRotationZ(wobble.X) *
 				Matrix.CreateTranslation(0, 0, 53) *
-				Matrix.CreateRotationZ(-(1.0f - Ease.CubeOut(easing)) * 10)
+				Matrix.CreateRotationZ(-(1.0f - Ease.Cube.Out(easing)) * 10)
 				,
 			Silhouette = false,
 			SunDirection = -Vec3.UnitZ,
@@ -108,7 +108,7 @@ public class Titlescreen : Scene
 			if (easing < 1)
 			{
 				batch.PushBlend(BlendMode.Subtract);
-				batch.Rect(bounds, Color.White * (1 - Ease.CubeOut(easing)));
+				batch.Rect(bounds, Color.White * (1 - Ease.Cube.Out(easing)));
 				batch.PopBlend();
 			}
 

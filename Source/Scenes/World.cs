@@ -795,7 +795,7 @@ public class World : Scene
 					batch.PushMatrix(
 						Matrix3x2.CreateTranslation(0, -UI.IconSize / 2) * 
 						Matrix3x2.CreateScale(wiggle) * 
-						Matrix3x2.CreateTranslation(at + new Vec2(-60 * (1 - Ease.CubeOut(strawbCounterEase)), UI.IconSize / 2)));
+						Matrix3x2.CreateTranslation(at + new Vec2(-60 * (1 - Ease.Cube.Out(strawbCounterEase)), UI.IconSize / 2)));
 					UI.Strawberries(batch, Save.CurrentRecord.Strawberries.Count, Vec2.Zero);
 					batch.PopMatrix();
 				}
