@@ -1,9 +1,9 @@
-name: Build and publish
+name: Build and publish beta branch
 
 on:
   workflow_dispatch:
   push:
-    branches: [ '*' ]
+    branches: [ 'beta' ]
     paths-ignore:
       - "README.md"
       - ".gitignore"
@@ -69,7 +69,7 @@ jobs:
       uses: ncipollo/release-action@v1
       with:
         artifacts: Celeste64-Fuji-${{ runner.os }}-x64.zip
-        tag: "${{steps.vars.outputs.SHORT_SHA}}"
+        tag: "beta-${{steps.vars.outputs.SHORT_SHA}}"
         body: |
           # Instructions:
 
@@ -82,7 +82,7 @@ jobs:
           - **Linux:** [Distro support list](https://github.com/dotnet/core/blob/main/release-notes/8.0/supported-os.md), x64
           - **macOS:** Monterey or later, x64 Intel-based or Apple Silicon with Rosetta
         allowUpdates: true
-        name: "Celeste 64 Fuji Prerelease V.${{steps.vars.outputs.SHORT_SHA}}"
+        name: "Fuji Beta Build ${{steps.vars.outputs.SHORT_SHA}}"
         prerelease: true
         makeLatest: false
         commit: "${{ github.sha }}"
@@ -92,7 +92,7 @@ jobs:
       uses: ncipollo/release-action@v1
       with:
         artifacts: Celeste64-Fuji-${{ runner.os }}-x64.zip
-        tag: "${{ env.SHORT_SHA }}"
+        tag: "beta-${{ env.SHORT_SHA }}"
         body: |
           # Instructions:
 
@@ -105,7 +105,7 @@ jobs:
           - **Linux:** [Distro support list](https://github.com/dotnet/core/blob/main/release-notes/8.0/supported-os.md), x64
           - **macOS:** Monterey or later, x64 Intel-based or Apple Silicon with Rosetta
         allowUpdates: true
-        name: "Celeste 64 Fuji Prerelease V.${{ env.SHORT_SHA }}"
+        name: "Fuji Beta Build ${{ env.SHORT_SHA }}"
         prerelease: true
         makeLatest: false
         commit: "${{ github.sha }}"
