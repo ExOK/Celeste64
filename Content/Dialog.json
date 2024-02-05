@@ -676,7 +676,6 @@
 			"Text": "I surely don't know, for\nI am but a humble signpost."
 		}
 	],
-
 	"CreditsSign": [
 		{
 			"Face": "signpost",
@@ -750,18 +749,11 @@
 			"Face": "deadfish",
 			"Voice": "sign/general_01",
 			"Text": "Hey Girl"
-
-
-
-
 		},
 		{
 			"Face": "deadfish",
 			"Voice": "sign/general_02",
 			"Text": "I heard you had a rough day"
-
-
-
 		},
 		{
 			"Face": "deadfish",
@@ -772,6 +764,13 @@
 			"Face": "sugoifish",
 			"Voice": "sign/general_04",
 			"Text": "Maybe we could EAT THE DEAD FISH together?"
+		}
+	],
+	"SignUpDash": [
+		{
+			"Face": "signpost",
+			"Voice": "sign/general_01",
+			"Text": "Press Left Bumper to dash upwards!"
 		}
 	]
 }

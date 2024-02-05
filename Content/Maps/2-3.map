@@ -92,15 +92,6 @@
 ( 128 1312 256 ) ( 129 1312 256 ) ( 128 1312 257 ) wall_ruined_1 0 -32 0 1 1
 ( 96 576 288 ) ( 96 575 288 ) ( 96 576 289 ) wall_ruined_1 0 -32 180 1 -1
 }
-// brush 8
-{
-( 96 832 256 ) ( 96 832 257 ) ( 96 831 256 ) wall_ruined_1 32 -32 180 1 -1
-( 160 704 288 ) ( 160 704 289 ) ( 161 704 288 ) wall_ruined_1 0 -32 0 1 1
-( 128 832 320 ) ( 128 831 320 ) ( 129 832 320 ) wall_ruined_1 32 0 270 1 1
-( 160 704 352 ) ( 161 704 352 ) ( 160 703 352 ) wall_ruined_1 32 0 270 1 1
-( 128 832 256 ) ( 129 832 256 ) ( 128 832 257 ) wall_ruined_1 0 -32 0 1 1
-( 320 704 288 ) ( 320 703 288 ) ( 320 704 289 ) wall_ruined_1 32 -32 180 1 -1
-}
 }
 // entity 1
 {
@@ -445,23 +436,28 @@
 // entity 26
 {
 "classname" "Node"
-"origin" "32 1904 304"
+"origin" "32 1072 304"
 "targetname" "000"
 }
 // entity 27
 {
-"classname" "SpikeBlock"
-// brush 0
-{
-( 1248 368 896 ) ( 1248 448 896 ) ( 1248 448 1024 ) floor_dirty_concrete 0 0 0 1 -1
-( 1120 320 896 ) ( 1120 320 897 ) ( 1121 320 896 ) floor_dirty_concrete 0 0 0 1 1
-( 992 448 864 ) ( 992 447 864 ) ( 993 448 864 ) floor_dirty_concrete 0 0 270 1 1
-( 1120 320 896 ) ( 1121 320 896 ) ( 1120 319 896 ) floor_dirty_concrete 0 0 270 1 1
-( 992 448 864 ) ( 993 448 864 ) ( 992 448 865 ) floor_dirty_concrete 0 0 0 1 1
-( 1376 320 896 ) ( 1376 319 896 ) ( 1376 320 897 ) floor_dirty_concrete 0 0 180 1 -1
-}
+"classname" "Coin"
+"origin" "736 1152 624"
+"angle" "270"
 }
 // entity 28
+{
+"classname" "Coin"
+"origin" "1312 1328 592"
+"angle" "270"
+}
+// entity 29
+{
+"classname" "Coin"
+"origin" "1488 384 592"
+"angle" "270"
+}
+// entity 30
 {
 "classname" "func_group"
 "_tb_type" "_tb_layer"
@@ -469,7 +465,7 @@
 "_tb_id" "1"
 "_tb_layer_sort_index" "0"
 }
-// entity 29
+// entity 31
 {
 "classname" "DeathBlock"
 "_tb_layer" "1"
@@ -483,7 +479,7 @@
 ( 2128 -352 224 ) ( 2128 -352 225 ) ( 2128 -351 224 ) TB_empty 0 0 0 1 1
 }
 }
-// entity 30
+// entity 32
 {
 "classname" "func_group"
 "_tb_type" "_tb_layer"
@@ -600,12 +596,12 @@
 }
 // brush 12
 {
-( 1248 448 320 ) ( 1248 448 321 ) ( 1248 447 320 ) wall_ruined_1 -64 -64 180 1 -1
-( 1280 320 352 ) ( 1280 320 353 ) ( 1281 320 352 ) wall_ruined_1 -64 -64 0 1 1
-( 1248 448 320 ) ( 1248 447 320 ) ( 1249 448 320 ) wall_ruined_1 -64 64 270 1 1
-( 1280 320 864 ) ( 1281 320 864 ) ( 1280 319 864 ) wall_ruined_1 -64 64 270 1 1
-( 1248 448 320 ) ( 1249 448 320 ) ( 1248 448 321 ) wall_ruined_1 -64 -64 0 1 1
-( 1376 320 352 ) ( 1376 319 352 ) ( 1376 320 353 ) wall_ruined_1 -64 -64 180 1 -1
+( 1248 448 640 ) ( 1248 320 640 ) ( 1248 320 320 ) wall_ruined_1 -64 -64 180 1 -1
+( 1248 320 640 ) ( 1376 320 640 ) ( 1376 320 320 ) wall_ruined_1 -64 -64 0 1 1
+( 1376 320 320 ) ( 1376 448 320 ) ( 1248 448 320 ) wall_ruined_1 -64 64 270 1 1
+( 1248 448 640 ) ( 1376 448 640 ) ( 1376 320 640 ) wall_ruined_1 -64 64 270 1 1
+( 1376 448 320 ) ( 1376 448 640 ) ( 1248 448 640 ) wall_ruined_1 -64 -64 0 1 1
+( 1376 320 640 ) ( 1376 448 640 ) ( 1376 448 320 ) wall_ruined_1 -64 -64 180 1 -1
 }
 // brush 13
 {
@@ -635,7 +631,7 @@
 ( 864 320 352 ) ( 864 319 352 ) ( 864 320 353 ) wall_ruined_1 -64 -64 180 1 -1
 }
 }
-// entity 31
+// entity 33
 {
 "classname" "SpikeBlock"
 "_tb_layer" "2"
@@ -649,7 +645,7 @@
 ( 608 576 448 ) ( 608 575 448 ) ( 608 576 449 ) floor_dirty_concrete -96 -224 180 1 -1
 }
 }
-// entity 32
+// entity 34
 {
 "classname" "SpikeBlock"
 "_tb_layer" "2"
@@ -663,21 +659,21 @@
 ( 608 1056 672 ) ( 608 1055 672 ) ( 608 1056 673 ) floor_dirty_concrete -128 0 180 1 -1
 }
 }
-// entity 33
+// entity 35
 {
 "classname" "Coin"
 "origin" "736 1152 624"
 "angle" "270"
 "_tb_layer" "2"
 }
-// entity 34
+// entity 36
 {
 "classname" "Coin"
 "origin" "640 768 368"
 "angle" "270"
 "_tb_layer" "2"
 }
-// entity 35
+// entity 37
 {
 "classname" "SpikeBlock"
 "_tb_layer" "2"
@@ -691,7 +687,7 @@
 ( 864 1088 448 ) ( 864 1087 448 ) ( 864 1088 449 ) floor_dirty_concrete -96 -224 180 1 -1
 }
 }
-// entity 36
+// entity 38
 {
 "classname" "SpikeBlock"
 "_tb_layer" "2"
@@ -705,7 +701,7 @@
 ( 1376 1216 672 ) ( 1376 1216 673 ) ( 1376 1217 672 ) floor_dirty_concrete -32 0 0 1 1
 }
 }
-// entity 37
+// entity 39
 {
 "classname" "SpikeBlock"
 "_tb_layer" "2"
@@ -719,28 +715,28 @@
 ( 1376 960 448 ) ( 1376 959 448 ) ( 1376 960 449 ) floor_dirty_concrete 32 -224 180 1 -1
 }
 }
-// entity 38
+// entity 40
 {
 "classname" "SpikeBlock"
 "_tb_layer" "2"
 // brush 0
 {
-( 1248 800 640 ) ( 1248 800 641 ) ( 1248 799 640 ) floor_dirty_concrete 0 0 180 1 -1
-( 1376 448 672 ) ( 1376 448 673 ) ( 1377 448 672 ) floor_dirty_concrete -192 0 0 1 1
-( 1248 800 640 ) ( 1248 799 640 ) ( 1249 800 640 ) floor_dirty_concrete 0 192 270 1 1
-( 1376 672 672 ) ( 1377 672 672 ) ( 1376 671 672 ) floor_dirty_concrete 0 192 270 1 1
-( 1248 832 640 ) ( 1249 832 640 ) ( 1248 832 641 ) floor_dirty_concrete -192 0 0 1 1
-( 1376 672 672 ) ( 1376 671 672 ) ( 1376 672 673 ) floor_dirty_concrete 0 0 180 1 -1
+( 1248 832 672 ) ( 1248 320 672 ) ( 1248 320 640 ) floor_dirty_concrete 0 0 180 1 -1
+( 1248 320 672 ) ( 1376 320 672 ) ( 1376 320 640 ) floor_dirty_concrete -192 0 0 1 1
+( 1376 320 640 ) ( 1376 832 640 ) ( 1248 832 640 ) floor_dirty_concrete 0 192 270 1 1
+( 1248 832 672 ) ( 1376 832 672 ) ( 1376 320 672 ) floor_dirty_concrete 0 192 270 1 1
+( 1376 832 640 ) ( 1376 832 672 ) ( 1248 832 672 ) floor_dirty_concrete -192 0 0 1 1
+( 1376 320 672 ) ( 1376 832 672 ) ( 1376 832 640 ) floor_dirty_concrete 0 0 180 1 -1
 }
 }
-// entity 39
+// entity 41
 {
 "classname" "Coin"
 "origin" "1312 576 432"
 "angle" "270"
 "_tb_layer" "2"
 }
-// entity 40
+// entity 42
 {
 "classname" "SpikeBlock"
 "_tb_layer" "2"
@@ -754,14 +750,14 @@
 ( 992 320 672 ) ( 992 319 672 ) ( 992 320 673 ) floor_dirty_concrete -96 0 180 1 -1
 }
 }
-// entity 41
+// entity 43
 {
 "classname" "Coin"
 "origin" "928 384 784"
 "angle" "270"
 "_tb_layer" "2"
 }
-// entity 42
+// entity 44
 {
 "classname" "SpikeBlock"
 "_tb_layer" "2"
