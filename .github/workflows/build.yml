@@ -13,6 +13,8 @@ jobs:
         include:
           - platform: macos-latest
             arch: x64
+          - platform: macos-latest
+            arch: arm64
           - platform: ubuntu-latest
             arch: x64
           - platform: ubuntu-latest
@@ -60,5 +62,5 @@ jobs:
           
           - **Windows:** 10 or later, x64
           - **Linux:** [Distro support list](https://github.com/dotnet/core/blob/main/release-notes/8.0/supported-os.md), x64 or ARM64
-          - **Mac:** Monterey or later, x64 Intel-based or Apple Silicon with Rosetta
+          - **Mac:** Monterey or later, x64 or ARM64
         files: Celeste64-${{ github.ref_name }}-${{ runner.os }}-${{ matrix.arch }}.zip
