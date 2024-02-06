@@ -21,7 +21,7 @@ public sealed class ZipModFilesystem : IModFilesystem {
     // keeps track of whether a file is known to exist or known not to exist in the zip.
     private readonly ConcurrentDictionary<string, bool> _knownExistingFiles = new();
 
-		private readonly string modRoot = "";
+    private readonly string modRoot = "";
 
     public ZipModFilesystem(string zipFilePath) {
         Root = zipFilePath;
@@ -41,18 +41,16 @@ public sealed class ZipModFilesystem : IModFilesystem {
         };
 
 			var zip = OpenZipIfNeeded();
-			var modFolder = Path.GetFileNameWithoutExtension(zipFilePath);
+      var modFolder = Path.GetFileNameWithoutExtension(zipFilePath);
 
-			foreach (ZipArchiveEntry entry in zip.Entries)
-			{
-				if (entry.FullName.Contains(Path.GetFileName(modFolder), StringComparison.OrdinalIgnoreCase))
-				{
-					modRoot = modFolder + "/";
-					break;
-				}
-			}
+      foreach (ZipArchiveEntry entry in zip.Entries) {
+        if (entry.FullName.Contains(Path.GetFileName(modFolder), StringComparison.OrdinalIgnoreCase)) {
+          modRoot = modFolder + "/";
+          break;
+        }
+      }
 
-			watcher.EnableRaisingEvents = true;
+      watcher.EnableRaisingEvents = true;
     }
     
     public void AssociateWithMod(GameMod mod)
@@ -82,13 +80,12 @@ public sealed class ZipModFilesystem : IModFilesystem {
 
             var stream = OpenFile(path, zip);
             if (stream is null) {
-								stream = OpenFile(modRoot + path, zip);
+              stream = OpenFile(modRoot + path, zip);
 
-							if (stream is null)
-							{
-								value = default;
-								return false;
-							}
+              if (stream is null) {
+                value = default;
+                return false;
+              }
             }
 
             value = callback(stream)!;
