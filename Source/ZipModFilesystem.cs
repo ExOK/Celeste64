@@ -21,6 +21,8 @@ public sealed class ZipModFilesystem : IModFilesystem {
     // keeps track of whether a file is known to exist or known not to exist in the zip.
     private readonly ConcurrentDictionary<string, bool> _knownExistingFiles = new();
 
+    private readonly string modRoot = "";
+
     public ZipModFilesystem(string zipFilePath) {
         Root = zipFilePath;
 
@@ -38,7 +40,17 @@ public sealed class ZipModFilesystem : IModFilesystem {
                 OnFileChanged?.Invoke(new(mod, null));
         };
 
-        watcher.EnableRaisingEvents = true;
+			var zip = OpenZipIfNeeded();
+      var modFolder = $"{Path.GetFileNameWithoutExtension(zipFilePath)}/";
+
+      foreach (ZipArchiveEntry entry in zip.Entries) {
+        if (entry.FullName.StartsWith(modFolder, StringComparison.OrdinalIgnoreCase)) {
+          modRoot = modFolder;
+          break;
+        }
+      }
+
+      watcher.EnableRaisingEvents = true;
     }
     
     public void AssociateWithMod(GameMod mod)
@@ -66,7 +78,7 @@ public sealed class ZipModFilesystem : IModFilesystem {
         {
             var zip = OpenZipIfNeeded();
 
-            using var stream = OpenFile(path, zip);
+            using var stream = OpenFile(modRoot+path, zip);
             if (stream is null) {
                 value = default;
                 return false;
@@ -88,9 +100,9 @@ public sealed class ZipModFilesystem : IModFilesystem {
             files = zip.Entries.Select(e => {
                 var fullName = e.FullName;
                 var valid = !fullName.EndsWith('/') 
-                            && fullName.StartsWith(directory, StringComparison.Ordinal)
+                            && fullName.StartsWith(modRoot + directory, StringComparison.Ordinal)
                             && fullName.EndsWith(extension, StringComparison.Ordinal);
-                return valid ? fullName : null;
+                return valid ? fullName.Substring(modRoot.Length) : null;
             }).Where(x => x is { }).ToList()!;
         }
 
@@ -122,17 +134,19 @@ public sealed class ZipModFilesystem : IModFilesystem {
         if (string.IsNullOrWhiteSpace(path))
             return false;
 
-        if (_knownExistingFiles.TryGetValue(path, out var knownResult))
+         var realPath = modRoot + path;
+
+        if (_knownExistingFiles.TryGetValue(realPath, out var knownResult))
             return knownResult;
 
         bool exists;
         lock (_lock)
         {
             var zip = OpenZipIfNeeded();
-            exists = zip.GetEntry(path) is { };
+            exists = zip.GetEntry(realPath) is { };
         }
 
-        _knownExistingFiles[path] = exists;
+        _knownExistingFiles[realPath] = exists;
         
         return exists;
     }
