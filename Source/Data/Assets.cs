@@ -73,7 +73,7 @@ public static class Assets
 		foreach (var (file, mod) in globalFs.FindFilesInDirectoryRecursiveWithMod("Maps", "map"))
 		{
 			// Skip the "autosave" folder
-			if (file.StartsWith("Maps/autosave", StringComparison.OrdinalIgnoreCase))
+			if (file.Contains("Maps/autosave", StringComparison.OrdinalIgnoreCase))
 				continue;
 
 			tasks.Add(Task.Run(() =>
@@ -157,12 +157,22 @@ public static class Assets
 		foreach (var mod in ModManager.Instance.Mods)
 		{
 			mod.Levels.Clear();
-			if (mod.Filesystem != null && mod.Filesystem.TryOpenFile("Levels.json", 
-				    stream => JsonSerializer.Deserialize(stream, LevelInfoListContext.Default.ListLevelInfo) ?? [], 
-				    out var levels))
+
+			var jsonFiles = globalFs.FindFilesInDirectoryRecursiveWithMod("", "json").ToList();
+
+			foreach (var json in jsonFiles)
 			{
-				mod.Levels.AddRange(levels);
-				Levels.AddRange(levels);
+				if (Path.GetFileNameWithoutExtension(json.Item1) != "Levels")
+					continue;
+
+				if (mod.Filesystem != null && mod.Filesystem.TryOpenFile(json.Item1,
+							stream => JsonSerializer.Deserialize(stream, LevelInfoListContext.Default.ListLevelInfo) ?? [],
+							out var levels))
+				{
+					mod.Levels.AddRange(levels);
+					Levels.AddRange(levels);
+					break;
+				}
 			}
 			
 			// if (mod.Filesystem != null && mod.Filesystem.TryOpenFile("Dialog.json", 
@@ -297,9 +307,7 @@ public static class Assets
 
 	internal static string GetResourceNameFromVirt(string virtPath, string folder)
 	{
-		var ext = Path.GetExtension(virtPath);
-		// +1 to account for the forward slash
-		return virtPath.AsSpan((folder.Length+1)..^ext.Length).ToString();
+		return virtPath.Substring(virtPath.IndexOf(folder) + folder.Length).TrimStart('\\', '/').Replace(Path.GetExtension(virtPath), "");
 	}
 
 	internal static Shader? LoadShader(string virtPath, Stream file)
