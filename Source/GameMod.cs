@@ -46,11 +46,14 @@ public abstract class GameMod
 
 	public void AddActorFactory(string name, Map.ActorFactory factory)
 	{
-		if (Map.ModActorFactories.TryAdd(name, factory)) {
+		if (Map.ModActorFactories.TryAdd(name, factory))
+		{
 			OnUnloadedCleanup += () => Map.ModActorFactories.Remove(name);
 		}
 		else
+		{
 			Log.Warning($"An actor factory with the name {name} was already loaded. Factory won't be loaded.");
+		}
 	}
 
 	/// <summary>
@@ -74,10 +77,19 @@ public abstract class GameMod
 	{
 
 	}
+	public virtual void OnAssetsLoaded()
+	{
+
+	}
 
 	public virtual void OnGameLoaded(Game game)
 	{ 
 			
+	}
+
+	public virtual void OnPreMapLoaded(World world, Map map)
+	{
+
 	}
 
 	public virtual void OnMapLoaded(Map map)

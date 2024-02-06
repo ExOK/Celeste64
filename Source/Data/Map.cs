@@ -109,7 +109,7 @@ public class Map
 	private readonly List<SledgeEntity> staticDecorations = [];
 	private readonly List<SledgeEntity> floatingDecorations = [];
 	private readonly List<SledgeEntity> entities = [];
-	private readonly HashSet<string> checkpoints = [];
+	public readonly HashSet<string> Checkpoints = [];
 	private readonly BoundingBox localStaticSolidsBounds;
 	private readonly Matrix baseTransform = Matrix.CreateScale(0.2f);
 
@@ -153,7 +153,7 @@ public class Map
 					}
 					else if (entity.ClassName == "PlayerSpawn")
 					{
-						checkpoints.Add(entity.GetStringProperty("name", StartCheckpoint));
+						Checkpoints.Add(entity.GetStringProperty("name", StartCheckpoint));
 						entities.Add(entity);
 					}
 					else
@@ -318,7 +318,13 @@ public class Map
 			world.Add(it);
 		}
 
-		if (entity.ClassName == "PlayerSpawn")
+		if (ModActorFactories.TryGetValue(entity.ClassName, out var modfactory))
+		{
+			var it = modfactory.Create(this, entity);
+			if (it != null)
+				HandleActorCreation(world, entity, it, modfactory);
+		}
+		else if (entity.ClassName == "PlayerSpawn")
 		{
 			var name = entity.GetStringProperty("name", StartCheckpoint);
 
@@ -328,7 +334,7 @@ public class Map
 			var spawnsPlayer = 
 				(world.Entry.CheckPoint == name) ||
 				(string.IsNullOrEmpty(world.Entry.CheckPoint) && name == StartCheckpoint) ||
-				(!checkpoints.Contains(world.Entry.CheckPoint) && name == StartCheckpoint);
+				(!Checkpoints.Contains(world.Entry.CheckPoint) && name == StartCheckpoint);
 
 			if (spawnsPlayer)
 				HandleActorCreation(world, entity, new Player(), null);
@@ -342,12 +348,6 @@ public class Map
 			var it = factory.Create(this, entity);
 			if (it != null)
 				HandleActorCreation(world, entity, it, factory);
-		}
-		else if (ModActorFactories.TryGetValue(entity.ClassName, out var modfactory))
-		{
-			var it = modfactory.Create(this, entity);
-			if (it != null)
-				HandleActorCreation(world, entity, it, modfactory);
 		}
 	}
 

@@ -292,6 +292,8 @@ public static class Assets
 		// make sure the active language is ready for use
 		Language.Current.Use();
 
+		ModManager.Instance.OnAssetsLoaded();
+
 		Log.Info($"Loaded Assets in {timer.ElapsedMilliseconds}ms");
 	}
 

@@ -143,12 +143,29 @@ public sealed class ModManager
 		}
 	}
 
+	internal void OnAssetsLoaded()
+	{
+		foreach (var mod in Mods)
+		{
+			mod.OnAssetsLoaded();
+		}
+	}
+
 	internal void OnGameLoad(Game game)
 	{
 		foreach (var mod in Mods)
 		{
 			mod.game = game;
 			mod.OnGameLoaded(game);
+		}
+	}
+
+	internal void OnPreMapLoaded(World world, Map map)
+	{
+		foreach (var mod in Mods)
+		{
+			mod.map = map;
+			mod.OnPreMapLoaded(world, map);
 		}
 	}
 

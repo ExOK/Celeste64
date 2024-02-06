@@ -89,7 +89,10 @@ public class World : Scene
 			optionsMenu.Add(new Menu.Slider(Loc.Str("OptionsSFX"), 0, 10, () => Save.Instance.SfxVolume, Save.Instance.SetSfxVolume));
 
 			pauseMenu.Title = Loc.Str("PauseTitle");
-            pauseMenu.Add(new Menu.Option(Loc.Str("PauseResume"), () => SetPaused(false)));
+            pauseMenu.Add(new Menu.Option(Loc.Str("PauseResume"), () =>
+			{
+				SetPaused(false);
+			}));
 			pauseMenu.Add(new Menu.Option(Loc.Str("PauseRetry"), () =>
 			{
 				SetPaused(false);
@@ -136,6 +139,8 @@ public class World : Scene
 			Music = $"event:/music/{map.Music}";
 			Ambience = $"event:/sfx/ambience/{map.Ambience}";
 		}
+
+		ModManager.Instance.OnPreMapLoaded(this, map);
 
 		// load content
 		map.Load(this);
@@ -391,7 +396,6 @@ public class World : Scene
 				pauseMenu.CloseSubMenus();
 				SetPaused(false);
 				Audio.Play(Sfx.ui_unpause);
-				Get<Player>()?.SetSkin(Save.Instance.GetSkin());
 			}
 			else
 			{
@@ -404,6 +408,18 @@ public class World : Scene
 
 	public void SetPaused(bool paused)
 	{
+		if(paused == false)
+		{
+			Player? ply = Get<Player>();
+			if (ply != null)
+			{
+				if (ply.Skin != Save.Instance.GetSkin())
+				{
+					ply.SetSkin(Save.Instance.GetSkin());
+					ModManager.Instance.OnPlayerSkinChange(ply, Save.Instance.GetSkin());
+				}
+			}
+		}
 		if (paused != Paused)
 		{
 			Audio.SetBusPaused(Sfx.bus_gameplay, paused);
