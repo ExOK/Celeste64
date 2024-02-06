@@ -521,19 +521,25 @@ public class Map
 
 			// add collider vertices
 			var vertexIndex = colliderVertices.Count;
+			var last = Vec3.Zero;
 			for (int i = 0; i < face.Vertices.Count; i++)
-				colliderVertices.Add(Vec3.Transform(face.Vertices[i], transform));
-
-			// add collider face
-			var plane = Plane.Normalize(Plane.Transform(face.Plane, transform));
-			var colliderFace = new Solid.Face { Plane = plane };
-			for (int i = 0; i < face.Vertices.Count; i ++)
 			{
 				// skip collider vertices that are too close together ...
-				if (i == 0 || (colliderVertices[vertexIndex + i - 1] - colliderVertices[vertexIndex + i]).LengthSquared() > 1)
-					colliderFace.Indices.Add(vertexIndex + i);
+				var it = Vec3.Transform(face.Vertices[i], transform);
+				if (i == 0 || (last - it).LengthSquared() > 1)
+					colliderVertices.Add(last = it);
 			}
-			colliderFaces.Add(colliderFace);
+
+			// add collider face
+			if (colliderVertices.Count > vertexIndex)
+			{
+				colliderFaces.Add(new ()
+				{
+					Plane = Plane.Normalize(Plane.Transform(face.Plane, transform)),
+					VertexStart = vertexIndex,
+					VertexCount = colliderVertices.Count - vertexIndex
+				});
+			}
 		}
 
 		// set up values

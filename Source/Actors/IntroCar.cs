@@ -43,8 +43,9 @@ public class IntroCar : Solid
 					{
 						faces.Add(new Face()
 						{
-							Plane = Plane.CreateFromVertices(vertices[v + n + 0], vertices[v + n + 1], vertices[v + n + 2]), 
-							Indices = [v + n + 0, v + n + 1, v + n + 2]
+							Plane = Plane.CreateFromVertices(vertices[v + n + 0], vertices[v + n + 1], vertices[v + n + 2]),
+							VertexStart = v + n,
+							VertexCount = 3
 						});
 					}
 				}
