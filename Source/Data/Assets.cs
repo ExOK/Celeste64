@@ -157,22 +157,12 @@ public static class Assets
 		foreach (var mod in ModManager.Instance.Mods)
 		{
 			mod.Levels.Clear();
-
-			var jsonFiles = globalFs.FindFilesInDirectoryRecursiveWithMod("", "json").ToList();
-
-			foreach (var json in jsonFiles)
+			if (mod.Filesystem != null && mod.Filesystem.TryOpenFile("Levels.json", 
+				    stream => JsonSerializer.Deserialize(stream, LevelInfoListContext.Default.ListLevelInfo) ?? [], 
+				    out var levels))
 			{
-				if (Path.GetFileNameWithoutExtension(json.Item1) != "Levels")
-					continue;
-
-				if (mod.Filesystem != null && mod.Filesystem.TryOpenFile(json.Item1,
-							stream => JsonSerializer.Deserialize(stream, LevelInfoListContext.Default.ListLevelInfo) ?? [],
-							out var levels))
-				{
-					mod.Levels.AddRange(levels);
-					Levels.AddRange(levels);
-					break;
-				}
+				mod.Levels.AddRange(levels);
+				Levels.AddRange(levels);
 			}
 			
 			// if (mod.Filesystem != null && mod.Filesystem.TryOpenFile("Dialog.json", 

@@ -87,12 +87,6 @@ public sealed class LayeredFilesystem : IModFilesystem {
 				{
 					yield return (item, mod);
 				}
-
-				if(mod.ModFolder.Length > 0)
-				foreach (var item in mod.Filesystem.FindFilesInDirectoryRecursive(mod.ModFolder+"/"+directory, extension))
-				{
-					yield return (item, mod);
-				}
 			}
         }
     }

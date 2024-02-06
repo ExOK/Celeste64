@@ -79,10 +79,8 @@ namespace Celeste64
 		{
 			GameMod? loadedMod = null;
 			var anyDllFile = false;
-
-			List<string> dlls = [.. fs.FindFilesInDirectoryRecursive("DLLs", "dll"), .. fs.FindFilesInDirectoryRecursive(modFolder + "/" + "DLLs", "dll")];
-
-			foreach (var dllFile in dlls)
+				
+			foreach (var dllFile in fs.FindFilesInDirectoryRecursive("DLLs", "dll"))
 			{
 				if (!fs.TryOpenFile(dllFile, stream => Assembly.Load(stream.ReadAllToByteArray()), out var asm))
 				{
