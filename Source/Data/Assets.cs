@@ -73,7 +73,7 @@ public static class Assets
 		foreach (var (file, mod) in globalFs.FindFilesInDirectoryRecursiveWithMod("Maps", "map"))
 		{
 			// Skip the "autosave" folder
-			if (file.Contains("Maps/autosave", StringComparison.OrdinalIgnoreCase))
+			if (file.StartsWith("Maps/autosave", StringComparison.OrdinalIgnoreCase))
 				continue;
 
 			tasks.Add(Task.Run(() =>
@@ -297,7 +297,9 @@ public static class Assets
 
 	internal static string GetResourceNameFromVirt(string virtPath, string folder)
 	{
-		return virtPath.Substring(virtPath.IndexOf(folder) + folder.Length).TrimStart('\\', '/').Replace(Path.GetExtension(virtPath), "");
+		var ext = Path.GetExtension(virtPath);
+		// +1 to account for the forward slash
+		return virtPath.AsSpan((folder.Length+1)..^ext.Length).ToString();
 	}
 
 	internal static Shader? LoadShader(string virtPath, Stream file)

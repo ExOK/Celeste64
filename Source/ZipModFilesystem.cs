@@ -78,14 +78,10 @@ public sealed class ZipModFilesystem : IModFilesystem {
         {
             var zip = OpenZipIfNeeded();
 
-            var stream = OpenFile(path, zip);
+            using var stream = OpenFile(modRoot+path, zip);
             if (stream is null) {
-              stream = OpenFile(modRoot + path, zip);
-
-              if (stream is null) {
                 value = default;
                 return false;
-              }
             }
 
             value = callback(stream)!;
@@ -106,7 +102,7 @@ public sealed class ZipModFilesystem : IModFilesystem {
                 var valid = !fullName.EndsWith('/') 
                             && fullName.StartsWith(modRoot + directory, StringComparison.Ordinal)
                             && fullName.EndsWith(extension, StringComparison.Ordinal);
-                return valid ? fullName : null;
+                return valid ? fullName.Replace(modRoot, "") : null;
             }).Where(x => x is { }).ToList()!;
         }
 
@@ -138,17 +134,17 @@ public sealed class ZipModFilesystem : IModFilesystem {
         if (string.IsNullOrWhiteSpace(path))
             return false;
 
-        if (_knownExistingFiles.TryGetValue(path, out var knownResult))
+        if (_knownExistingFiles.TryGetValue(modRoot+path, out var knownResult))
             return knownResult;
 
         bool exists;
         lock (_lock)
         {
             var zip = OpenZipIfNeeded();
-            exists = zip.GetEntry(path) is { };
+            exists = zip.GetEntry(modRoot+path) is { };
         }
 
-        _knownExistingFiles[path] = exists;
+        _knownExistingFiles[modRoot+path] = exists;
         
         return exists;
     }
