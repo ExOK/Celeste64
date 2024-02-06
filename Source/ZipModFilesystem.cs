@@ -134,17 +134,19 @@ public sealed class ZipModFilesystem : IModFilesystem {
         if (string.IsNullOrWhiteSpace(path))
             return false;
 
-        if (_knownExistingFiles.TryGetValue(modRoot+path, out var knownResult))
+         var realPath = modRoot + path;
+
+        if (_knownExistingFiles.TryGetValue(realPath, out var knownResult))
             return knownResult;
 
         bool exists;
         lock (_lock)
         {
             var zip = OpenZipIfNeeded();
-            exists = zip.GetEntry(modRoot+path) is { };
+            exists = zip.GetEntry(realPath) is { };
         }
 
-        _knownExistingFiles[modRoot+path] = exists;
+        _knownExistingFiles[realPath] = exists;
         
         return exists;
     }
