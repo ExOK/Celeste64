@@ -3,7 +3,7 @@
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net8.0</TargetFramework>
-    <Platforms>x64</Platforms>
+    <Platforms>x64;ARM64;ARM</Platforms>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
@@ -14,7 +14,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="FosterFramework" Version="0.1.17-alpha" />
+    <PackageReference Include="FosterFramework" Version="0.1.18-alpha" />
     <PackageReference Include="SharpGLTF.Runtime" Version="1.0.0-alpha0031" />
     <PackageReference Include="Sledge.Formats.Map" Version="1.1.5" />
   </ItemGroup>
@@ -35,11 +35,19 @@
     <IsArm64>true</IsArm64>
   </PropertyGroup>
 
+  <PropertyGroup Condition="($(RuntimeIdentifier) == '' and $([System.Runtime.InteropServices.RuntimeInformation]::OSArchitecture) == 'Arm') or $(RuntimeIdentifier.EndsWith('arm'))">
+    <IsArm>true</IsArm>
+  </PropertyGroup>
+
   <ItemGroup Condition="$(IsLinux) == 'true' and $(IsArm64) == 'true'">
     <Content Include="Source/Audio/FMOD/libs/libarm64/**" CopyToOutputDirectory="PreserveNewest" Link="%(Filename)%(Extension)" />
   </ItemGroup>
 
-  <ItemGroup Condition="$(IsLinux) == 'true' and $(IsArm64) != 'true'">
+  <ItemGroup Condition="$(IsLinux) == 'true' and $(IsArm) == 'true'">
+    <Content Include="Source/Audio/FMOD/libs/libarm/**" CopyToOutputDirectory="PreserveNewest" Link="%(Filename)%(Extension)" />
+  </ItemGroup>
+
+  <ItemGroup Condition="$(IsLinux) == 'true' and $(IsArm64) != 'true' and $(IsArm) != 'true'">
     <Content Include="Source/Audio/FMOD/libs/lib64/**" CopyToOutputDirectory="PreserveNewest" Link="%(Filename)%(Extension)" />
   </ItemGroup>
 
