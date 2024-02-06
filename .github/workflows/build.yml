@@ -3,7 +3,8 @@ name: Build and build
 on:
   push:
     tags:        
-      - '**' 
+      - '**'
+  workflow_dispatch:
 
 jobs:
   build:
