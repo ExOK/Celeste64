@@ -3,7 +3,6 @@
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net8.0</TargetFramework>
-    <Platforms>x64;ARM64;ARM</Platforms>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
@@ -31,12 +30,18 @@
     <IsMacOS>true</IsMacOS>
   </PropertyGroup>
 
+  <PropertyGroup Condition="($(RuntimeIdentifier) == '' and $([System.Runtime.InteropServices.RuntimeInformation]::OSArchitecture) == 'x64') or $(RuntimeIdentifier.EndsWith('x64'))">
+    <PlatformTarget>x64</PlatformTarget>
+  </PropertyGroup>
+
   <PropertyGroup Condition="($(RuntimeIdentifier) == '' and $([System.Runtime.InteropServices.RuntimeInformation]::OSArchitecture) == 'Arm64') or $(RuntimeIdentifier.EndsWith('arm64'))">
     <IsArm64>true</IsArm64>
+    <PlatformTarget>ARM64</PlatformTarget>
   </PropertyGroup>
 
   <PropertyGroup Condition="($(RuntimeIdentifier) == '' and $([System.Runtime.InteropServices.RuntimeInformation]::OSArchitecture) == 'Arm') or $(RuntimeIdentifier.EndsWith('arm'))">
     <IsArm>true</IsArm>
+    <PlatformTarget>ARM</PlatformTarget>
   </PropertyGroup>
 
   <ItemGroup Condition="$(IsLinux) == 'true' and $(IsArm64) == 'true'">
