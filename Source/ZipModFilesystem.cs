@@ -44,7 +44,7 @@ public sealed class ZipModFilesystem : IModFilesystem {
       var modFolder = Path.GetFileNameWithoutExtension(zipFilePath);
 
       foreach (ZipArchiveEntry entry in zip.Entries) {
-        if (entry.FullName.Contains(Path.GetFileName(modFolder), StringComparison.OrdinalIgnoreCase)) {
+        if (entry.FullName.StartsWith(Path.GetFileName(modFolder), StringComparison.OrdinalIgnoreCase)) {
           modRoot = modFolder + "/";
           break;
         }
