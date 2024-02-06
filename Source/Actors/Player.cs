@@ -1566,7 +1566,7 @@ public class Player : Actor, IHaveModels, IHaveSprites, IRidePlatforms, ICastPoi
 
 		if (dashes > 0 && tDashCooldown <= 0 && Controls.Dash.ConsumePress())
 		{
-			stateMachine.State = States.Dashing;
+			StateMachine.State = States.Dashing;
 			dashes--;
 			return;
 		}
