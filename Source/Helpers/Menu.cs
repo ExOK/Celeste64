@@ -243,18 +243,17 @@ public class Menu
 		var font = Language.Current.SpriteFont;
 		var size = Size;
 		var position = Vec2.Zero;
-		batch.PushMatrix(-size / 2);
+		batch.PushMatrix(new Vec2(0, -size.Y / 2));
 	
 		if(!string.IsNullOrEmpty(Title)) 
 		{
-			var at = position + new Vec2(size.X / 2, 0);
 			var text = Title;
 			var justify = new Vec2(0.5f, 0);
 			var color = new Color(8421504);
 
 			batch.PushMatrix(
 				Matrix3x2.CreateScale(TitleScale) * 
-				Matrix3x2.CreateTranslation(at));
+				Matrix3x2.CreateTranslation(position));
 			UI.Text(batch, text, Vec2.Zero, justify, color);
 			batch.PopMatrix();
 
@@ -270,12 +269,11 @@ public class Menu
 				continue;
 			}
 	
-			var at = position + new Vec2(size.X / 2, 0);
 			var text = items[i].Label;
 			var justify = new Vec2(0.5f, 0);
 			var color = Index == i && Focused ? (Time.BetweenInterval(0.1f) ? 0x84FF54 : 0xFCFF59) : Color.White;
 			
-			UI.Text(batch, text, at, justify, color);
+			UI.Text(batch, text, position, justify, color);
 	
 			position.Y += font.LineHeight;
 			position.Y += Spacing;    
