@@ -41,11 +41,11 @@ public sealed class ZipModFilesystem : IModFilesystem {
         };
 
 			var zip = OpenZipIfNeeded();
-      var modFolder = Path.GetFileNameWithoutExtension(zipFilePath);
+      var modFolder = $"{Path.GetFileNameWithoutExtension(zipFilePath)}/";
 
       foreach (ZipArchiveEntry entry in zip.Entries) {
-        if (entry.FullName.StartsWith(Path.GetFileName(modFolder), StringComparison.OrdinalIgnoreCase)) {
-          modRoot = modFolder + "/";
+        if (entry.FullName.StartsWith(modFolder, StringComparison.OrdinalIgnoreCase)) {
+          modRoot = modFolder;
           break;
         }
       }
