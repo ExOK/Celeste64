@@ -102,7 +102,7 @@ public sealed class ZipModFilesystem : IModFilesystem {
                 var valid = !fullName.EndsWith('/') 
                             && fullName.StartsWith(modRoot + directory, StringComparison.Ordinal)
                             && fullName.EndsWith(extension, StringComparison.Ordinal);
-                return valid ? fullName.Replace(modRoot, "") : null;
+                return valid ? fullName.Substring(modRoot.Length) : null;
             }).Where(x => x is { }).ToList()!;
         }
 
