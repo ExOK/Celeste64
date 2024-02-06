@@ -26,7 +26,8 @@ public class Solid : Actor, IHaveModels
 	public struct Face
 	{
 		public Plane Plane;
-		public StackList16<int> Indices;
+		public int VertexStart;
+		public int VertexCount;
 	}
 
 	public Vec3[] LocalVertices = [];
