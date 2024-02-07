@@ -10,59 +10,59 @@ public class Player : Actor, IHaveModels, IHaveSprites, IRidePlatforms, ICastPoi
 {
 	#region Constants
 
-	protected virtual float defaultAcceleration { get { return 500; } }
-	protected virtual float defaultPastMaxDeccel { get { return 60; } }
-	protected virtual float defaultAirAccelMultMin { get { return .5f; } }
-	protected virtual float defaultAirAccelMultMax { get { return 1f; } }
-	protected virtual float defaultMaxSpeed { get { return 64; } }
-	protected virtual float defaultRotateSpeed { get { return MathF.Tau * 1.5f; } }
-	protected virtual float defaultRotateSpeedAboveMax { get { return MathF.Tau * .6f; } }
-	protected virtual float defaultFriction { get { return 800; } }
-	protected virtual float defaultAirFrictionMult { get { return .1f; } }
-	protected virtual float defaultGravity { get { return 600; } }
-	protected virtual float defaultMaxFall { get { return -120; } }
-	protected virtual float defaultHalfGravThreshold { get { return 100; } }
-	protected virtual float defaultJumpHoldTime { get { return .1f; } }
-	protected virtual float defaultJumpSpeed { get { return 90; } }
-	protected virtual float defaultJumpXYBoost { get { return 10; } } 
-	protected virtual float defaultCoyoteTime { get { return .12f; } }
+	public virtual float defaultAcceleration { get { return 500; } }
+	public virtual float defaultPastMaxDeccel { get { return 60; } }
+	public virtual float defaultAirAccelMultMin { get { return .5f; } }
+	public virtual float defaultAirAccelMultMax { get { return 1f; } }
+	public virtual float defaultMaxSpeed { get { return 64; } }
+	public virtual float defaultRotateSpeed { get { return MathF.Tau * 1.5f; } }
+	public virtual float defaultRotateSpeedAboveMax { get { return MathF.Tau * .6f; } }
+	public virtual float defaultFriction { get { return 800; } }
+	public virtual float defaultAirFrictionMult { get { return .1f; } }
+	public virtual float defaultGravity { get { return 600; } }
+	public virtual float defaultMaxFall { get { return -120; } }
+	public virtual float defaultHalfGravThreshold { get { return 100; } }
+	public virtual float defaultJumpHoldTime { get { return .1f; } }
+	public virtual float defaultJumpSpeed { get { return 90; } }
+	public virtual float defaultJumpXYBoost { get { return 10; } } 
+	public virtual float defaultCoyoteTime { get { return .12f; } }
 
-	protected virtual float defaultDashSpeed { get { return 140; } }
-	protected virtual float defaultDashEndSpeedMult { get { return .75f; } }
-	protected virtual float defaultDashTime { get { return .2f; } }
-	protected virtual float defaultDashResetCooldown { get { return .2f; } }
-	protected virtual float defaultDashCooldown { get { return .1f; } }
-	protected virtual float defaultDashRotateSpeed { get { return MathF.Tau * .3f; } }
+	public virtual float defaultDashSpeed { get { return 140; } }
+	public virtual float defaultDashEndSpeedMult { get { return .75f; } }
+	public virtual float defaultDashTime { get { return .2f; } }
+	public virtual float defaultDashResetCooldown { get { return .2f; } }
+	public virtual float defaultDashCooldown { get { return .1f; } }
+	public virtual float defaultDashRotateSpeed { get { return MathF.Tau * .3f; } }
 
-	protected virtual float defaultDashJumpSpeed { get { return 40; } }
-	protected virtual float defaultDashJumpHoldSpeed { get { return 20; } }
-	protected virtual float defaultDashJumpHoldTime { get { return .3f; } }
-	protected virtual float defaultDashJumpXYBoost { get { return 16; } }
+	public virtual float defaultDashJumpSpeed { get { return 40; } }
+	public virtual float defaultDashJumpHoldSpeed { get { return 20; } }
+	public virtual float defaultDashJumpHoldTime { get { return .3f; } }
+	public virtual float defaultDashJumpXYBoost { get { return 16; } }
 
-	protected virtual float defaultSkidDotThreshold { get { return -.7f; } }
-	protected virtual float defaultSkiddingStartAccel { get { return 300; } }
-	protected virtual float defaultSkiddingAccel { get { return 500; } }
-	protected virtual float defaultSkidJumpSpeed { get { return 120; } }
-	protected virtual float defaultSkidJumpHoldTime { get { return .16f; } }
+	public virtual float defaultSkidDotThreshold { get { return -.7f; } }
+	public virtual float defaultSkiddingStartAccel { get { return 300; } }
+	public virtual float defaultSkiddingAccel { get { return 500; } }
+	public virtual float defaultSkidJumpSpeed { get { return 120; } }
+	public virtual float defaultSkidJumpHoldTime { get { return .16f; } }
 
-	protected virtual float defaultWallPushoutDist { get { return 3; } }
-	protected virtual float defaultClimbCheckDist { get { return 4; } }
-	protected virtual float defaultClimbSpeed { get { return 40; } }
-	protected virtual float defaultClimbHopUpSpeed { get { return 80; } }
-	protected virtual float defaultClimbHopForwardSpeed { get { return 40; } }
-	protected virtual float defaultClimbHopNoMoveTime { get { return .25f; } }
+	public virtual float defaultWallPushoutDist { get { return 3; } }
+	public virtual float defaultClimbCheckDist { get { return 4; } }
+	public virtual float defaultClimbSpeed { get { return 40; } }
+	public virtual float defaultClimbHopUpSpeed { get { return 80; } }
+	public virtual float defaultClimbHopForwardSpeed { get { return 40; } }
+	public virtual float defaultClimbHopNoMoveTime { get { return .25f; } }
 
-	protected virtual float defaultSpringJumpSpeed { get { return 160; } }
-	protected virtual float defaultSpringJumpHoldTime { get { return .3f; } }
+	public virtual float defaultSpringJumpSpeed { get { return 160; } }
+	public virtual float defaultSpringJumpHoldTime { get { return .3f; } }
 
-	protected virtual float defaultFeatherStartTime { get { return .4f; ; } }
-	protected virtual float defaultFeatherFlySpeed { get { return 100; } }
-	protected virtual float defaultFeatherStartSpeed { get { return 140; } }
-	protected virtual float defaultFeatherTurnSpeed { get { return MathF.Tau * .75f; } }
-	protected virtual float defaultFeatherAccel { get { return 60; } }
-	protected virtual float defaultFeatherDuration { get { return 2.2f; } } 
-	protected virtual float defaultFeatherExitXYMult { get { return .5f; } }
-	protected virtual float defaultFeatherExitZSpeed { get { return 60; } }
+	public virtual float defaultFeatherStartTime { get { return .4f; ; } }
+	public virtual float defaultFeatherFlySpeed { get { return 100; } }
+	public virtual float defaultFeatherStartSpeed { get { return 140; } }
+	public virtual float defaultFeatherTurnSpeed { get { return MathF.Tau * .75f; } }
+	public virtual float defaultFeatherAccel { get { return 60; } }
+	public virtual float defaultFeatherDuration { get { return 2.2f; } } 
+	public virtual float defaultFeatherExitXYMult { get { return .5f; } }
+	public virtual float defaultFeatherExitZSpeed { get { return 60; } }
 	#endregion
 
 
@@ -150,7 +150,7 @@ public class Player : Actor, IHaveModels, IHaveSprites, IRidePlatforms, ICastPoi
 		DashCooldown = defaultDashCooldown;
 		DashRotateSpeed = defaultDashRotateSpeed;
 
-		DashJumpSpeed = defaultJumpSpeed;
+		DashJumpSpeed = defaultDashJumpSpeed;
 		DashJumpHoldSpeed = defaultDashJumpHoldSpeed;
 		DashJumpHoldTime = defaultDashJumpHoldTime;
 		DashJumpXYBoost = defaultDashJumpXYBoost;
