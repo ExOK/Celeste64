@@ -26,6 +26,10 @@ public class Startup : Scene
 			Save.Instance.SyncSettings();
 		}
 
+		// make sure the active language is ready for use,
+		// since the save file may have loaded a different language than default.
+		Language.Current.Use();
+
 		// try to load controls, or overwrite with defaults if they don't exist
 		{
 			var controlsFile = Path.Join(App.UserPath, ControlsConfig.FileName);
