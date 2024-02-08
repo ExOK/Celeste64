@@ -20,6 +20,8 @@
     <PackageReference Include="FosterFramework" Version="0.1.18-alpha" />
     <PackageReference Include="SharpGLTF.Runtime" Version="1.0.0-alpha0031" />
     <PackageReference Include="Sledge.Formats.Map" Version="1.1.5" />
+
+    <PackageReference Include="ImGui.NET" Version="1.90.1.1" />
   </ItemGroup>
 
   <PropertyGroup Condition="($(RuntimeIdentifier) == '' and $([MSBuild]::IsOSPlatform('Linux'))) or $(RuntimeIdentifier.StartsWith('linux'))">
