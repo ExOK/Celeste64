@@ -1,4 +1,4 @@
-﻿using FMOD;
+using FMOD;
 using Foster.Framework;
 using System.Collections.Concurrent;
 using System.Diagnostics;
@@ -252,7 +252,9 @@ public static class Assets
 			foreach (var (lang, mod) in langs)
 			{
 				if (Languages.TryGetValue(lang.ID, out var existing))
+				{
 					existing.Absorb(lang, mod);
+				}
 				else
 				{
 					lang.OnCreate(mod);

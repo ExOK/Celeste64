@@ -87,9 +87,10 @@ public class Save
 	/// </summary>
 	public InvertCameraOptions InvertCamera { get; set; } = InvertCameraOptions.None;
 
+	/// <summary>
 	/// Current Language ID
 	/// </summary>
-	public string Language = "english";
+	public string Language { get; set; } = "english";
 
 	/// <summary>
 	/// Records for each level
