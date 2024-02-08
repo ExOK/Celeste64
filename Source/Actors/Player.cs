@@ -1998,6 +1998,12 @@ public class Player : Actor, IHaveModels, IHaveSprites, IRidePlatforms, ICastPoi
 	private void StCutsceneEnter()
 	{
 		Model.Play("Idle");
+		// Fix white hair in cutscene bug
+		if (tDashResetFlash > 0)
+		{
+			tDashResetFlash = 0;
+			SetHairColor(CNormal);
+		}
 	}
 
 	private void StCutsceneUpdate()
