@@ -7,7 +7,7 @@ using Texture = Foster.Framework.Texture;
 
 namespace Celeste64.Mod;
 
-public class ImGuiRenderer
+internal class ImGuiRenderer
 {
     private readonly List<Mesh> meshes = [];
 

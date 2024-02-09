@@ -6,12 +6,22 @@ public class ImGuiManager
 {
     private readonly ImGuiRenderer renderer;
 
+    /// <summary>
+    /// List of currently used <see cref="ImGuiHandler"/>s.
+    /// </summary>
     public static List<ImGuiHandler> Handlers { get; } = [];
 
+    /// <summary>
+    /// Whether the keyboard input was consumed by Dear ImGui. 
+    /// </summary>
     public bool WantCaptureKeyboard { get; private set; }
+    
+    /// <summary>
+    /// Whether the mouse input  was consumed by Dear ImGui. 
+    /// </summary>
     public bool WantCaptureMouse { get; private set; }
 
-    public ImGuiManager()
+    internal ImGuiManager()
     {
         renderer = new ImGuiRenderer();
         renderer.RebuildFontAtlas();
