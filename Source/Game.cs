@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics;
 using System.Text.Json;
 using Celeste64.Mod;
+using Celeste64.Mod.Patches;
 
 namespace Celeste64;
 
@@ -76,6 +77,9 @@ public class Game : Module
 	public override void Startup()
 	{
 		instance = this;
+        
+        // Fuji: apply patches
+        Patches.Load();
 		
 		Time.FixedStep = true;
 		App.VSync = true;
@@ -99,6 +103,9 @@ public class Game : Module
 			it.Disposed();
 		}
 		
+        // Fuji: remove patches
+        Patches.Unload();
+        
 		scenes.Clear();
 		instance = null;
 	}

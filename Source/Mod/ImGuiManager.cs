@@ -14,12 +14,12 @@ public class ImGuiManager
     /// <summary>
     /// Whether the keyboard input was consumed by Dear ImGui. 
     /// </summary>
-    public bool WantCaptureKeyboard { get; private set; }
+    public static bool WantCaptureKeyboard { get; private set; }
     
     /// <summary>
     /// Whether the mouse input  was consumed by Dear ImGui. 
     /// </summary>
-    public bool WantCaptureMouse { get; private set; }
+    public static bool WantCaptureMouse { get; private set; }
 
     internal ImGuiManager()
     {
