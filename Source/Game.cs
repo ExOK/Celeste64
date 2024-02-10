@@ -200,6 +200,7 @@ public class Game : Module
 			if (scenes.TryPeek(out var nextScene))
 			{
 				nextScene.Entered();
+				ModManager.Instance.OnSceneEntered(nextScene);
 				nextScene.Update();
 			}
 

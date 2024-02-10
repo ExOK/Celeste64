@@ -125,6 +125,7 @@ public abstract class GameMod
 	{
 
 	}
+
 	public virtual void OnAssetsLoaded()
 	{
 
@@ -141,6 +142,11 @@ public abstract class GameMod
 	}
 
 	public virtual void OnMapLoaded(Map map)
+	{
+
+	}
+
+	public virtual void OnSceneEntered(Scene scene)
 	{
 
 	}

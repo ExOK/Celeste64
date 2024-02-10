@@ -158,6 +158,14 @@ public sealed class ModManager
 		}
 	}
 
+	internal void OnSceneEntered(Scene scene)
+	{
+		foreach (var mod in EnabledMods)
+		{
+			mod.OnSceneEntered(scene);
+		}
+	}
+
 	internal void OnGameLoad(Game game)
 	{
 		foreach (var mod in EnabledMods)
