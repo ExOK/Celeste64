@@ -6,7 +6,6 @@ public class ModInfoMenu : Menu
 	public const int CardHeight = (int)(320 * Game.RelativeScale);
 	public readonly Target Target;
 
-
 	Subtexture postcardImage;
 	Subtexture stampImage;
 	Subtexture strawberryImage;
@@ -22,10 +21,10 @@ public class ModInfoMenu : Menu
 		strawberryImage = Assets.Subtextures["icon_strawberry"];
 		Target = new Target(CardWidth, CardHeight);
 
-		Add(new Toggle(Loc.Str("PauseEnabled"), 
+		Add(new Toggle(Loc.Str("PauseModEnabled"),
 			() => {
 				//If we are trying to disable the current mod, don't
-				if(Mod != null && Mod.ModInfo != null && Mod != ModManager.Instance.CurrentLevelMod)
+				if (Mod != null && Mod != ModManager.Instance.CurrentLevelMod)
 				{
 					Save.Instance.GetOrMakeMod(Mod.ModInfo.Id).Enabled = !Save.Instance.GetOrMakeMod(Mod.ModInfo.Id).Enabled;
 
@@ -43,7 +42,7 @@ public class ModInfoMenu : Menu
 					}
 				}
 			},
-			() => Save.Instance.GetOrMakeMod(Mod?.ModInfo?.Id ?? "").Enabled));
+			() => Mod != null ? Save.Instance.GetOrMakeMod(Mod.ModInfo.Id).Enabled : false));
 		Add(new Option(Loc.Str("Back"), () =>
 		{
 			if(RootMenu != null)
@@ -137,20 +136,20 @@ public class ModInfoMenu : Menu
 	{
 		var font = Language.Current.SpriteFont;
 
-		if (Mod != null && Mod.ModInfo != null && postcardImage.Texture != null)
+		if (Mod != null && postcardImage.Texture != null)
 		{
 			// TODO: This is messy and probably should be cleaned up and rewritten, but I'm holding off for now because I think we might want to do a visual polish pass on it later anyways.
 			var bounds = Target.Bounds;
 			var scale = MathF.Max(bounds.Width / postcardImage.Width, bounds.Height / postcardImage.Height);
 			var size = new Vec2(postcardImage.Width, postcardImage.Height);
 			batch.Image(postcardImage, bounds.TopLeft, size / 2, Vec2.One * scale, 0, Color.White);
-			batch.Text(font, $"{Mod.ModInfo?.Name ?? ""}\nBy: {Mod.ModInfo?.ModAuthor ?? "Unknown"}\nv.{Mod.ModInfo?.Version}", bounds.TopLeft - size / 4 + new Vec2(16, 12) * Game.RelativeScale, Foster.Framework.Color.Black * 0.7f);
+			batch.Text(font, $"{Mod.ModInfo.Name}\nBy: {Mod.ModInfo.ModAuthor ?? "Unknown"}\nv.{Mod.ModInfo.Version}", bounds.TopLeft - size / 4 + new Vec2(16, 12) * Game.RelativeScale, Color.Black * 0.7f);
 			batch.PushMatrix(Matrix3x2.CreateScale(.7f) * Matrix3x2.CreateTranslation(bounds.TopLeft - size / 4 + new Vec2(14, 72) * Game.RelativeScale));
-			batch.Text(font, GenerateModDescription(Mod.ModInfo?.Description ?? "", 40, 15), Vec2.Zero, Color.Black);
+			batch.Text(font, GenerateModDescription(Mod.ModInfo.Description ?? "", 40, 15), Vec2.Zero, Color.Black);
 			batch.PopMatrix();
 
 			float imgScale = 0.9f;
-			Subtexture image = Mod.Subtextures.TryGetValue(Mod.ModInfo?.Icon ?? "", out Subtexture value) ? value : strawberryImage;
+			Subtexture image = Mod.Subtextures.TryGetValue(Mod.ModInfo.Icon ?? "", out Subtexture value) ? value : strawberryImage;
 			float imgSizeMin = MathF.Min(postcardImage.Width, postcardImage.Height) / 6;
 			Vec2 stampImageSize = new Vec2(imgSizeMin / stampImage.Width, imgSizeMin / stampImage.Height);
 			Vec2 imageSize = new Vec2(imgSizeMin / image.Width, imgSizeMin / image.Height);

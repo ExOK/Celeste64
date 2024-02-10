@@ -209,7 +209,7 @@ public static class Assets
 			{
 				if (mod.Filesystem != null && mod.Filesystem.TryOpenFile(file, stream => new Image(stream), out var img))
 				{
-					packer.Add($"{mod.ModInfo?.Id}:{GetResourceNameFromVirt(file, "Sprites")}", img);
+					packer.Add($"{mod.ModInfo.Id}:{GetResourceNameFromVirt(file, "Sprites")}", img);
 				}
 			}
 
@@ -224,7 +224,7 @@ public static class Assets
 			foreach (var it in result.Entries)
 			{
 				string[] nameSplit = it.Name.Split(':');
-				GameMod? mod = ModManager.Instance.Mods.FirstOrDefault(mod => mod.ModInfo != null && mod.ModInfo.Id == nameSplit[0]) ?? ModManager.Instance.VanillaGameMod;
+				GameMod? mod = ModManager.Instance.Mods.FirstOrDefault(mod => mod.ModInfo.Id == nameSplit[0]) ?? ModManager.Instance.VanillaGameMod;
 				if(mod != null)
 				{
 					Subtextures.Add(nameSplit[1], new Subtexture(pages[it.Page], it.Source, it.Frame), mod);
@@ -279,7 +279,7 @@ public static class Assets
 			if (mod.Filesystem != null && mod.Filesystem.TryOpenFile(file,
 				    stream => JsonSerializer.Deserialize(stream, SkinInfoContext.Default.SkinInfo), out var skin) && skin.IsValid())
 			{
-				skin.ModId = mod.ModInfo?.Id ?? "";
+				skin.ModId = mod.ModInfo.Id;
 				Skins.Add(skin);
 			}
 			else

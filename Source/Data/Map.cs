@@ -284,40 +284,6 @@ public class Map
 
 	private void LoadActor(World world, SledgeEntity entity)
 	{
-		void HandleActorCreation(World world, SledgeEntity entity, Actor it, ActorFactory? factory)
-		{
-			if ((factory?.IsSolidGeometry ?? false) && it is Solid solid)
-			{
-				List<SledgeSolid> collection = [];
-				CollectSolids(entity, collection);
-				GenerateSolid(solid, collection);
-			}
-
-			if (entity.Properties.ContainsKey("origin"))
-				it.Position = Vec3.Transform(entity.GetVectorProperty("origin", Vec3.Zero), baseTransform);
-
-			if (entity.Properties.ContainsKey("_tb_group") && 
-				groupNames.TryGetValue(entity.GetIntProperty("_tb_group", -1), out var groupName))
-				it.GroupName = groupName;
-
-			if (entity.Properties.ContainsKey("angle"))
-				it.Facing = Calc.AngleToVector(entity.GetIntProperty("angle", 0) * Calc.DegToRad - MathF.PI / 2);
-
-			if (factory?.UseSolidsAsBounds ?? false)
-			{
-				BoundingBox bounds = new();
-				if (entity.Children.FirstOrDefault() is SledgeSolid sol)
-					bounds = CalculateSolidBounds(sol, baseTransform);
-
-				it.Position = bounds.Center;
-				bounds.Min -= it.Position;
-				bounds.Max -= it.Position;
-				it.LocalBounds = bounds;
-			}
-			
-			world.Add(it);
-		}
-
 		if (ModActorFactories.TryGetValue(entity.ClassName, out var modfactory))
 		{
 			var it = modfactory.Create(this, entity);
@@ -349,6 +315,40 @@ public class Map
 			if (it != null)
 				HandleActorCreation(world, entity, it, factory);
 		}
+	}
+	
+	public void HandleActorCreation(World world, SledgeEntity entity, Actor it, ActorFactory? factory)
+	{
+		if ((factory?.IsSolidGeometry ?? false) && it is Solid solid)
+		{
+			List<SledgeSolid> collection = [];
+			CollectSolids(entity, collection);
+			GenerateSolid(solid, collection);
+		}
+
+		if (entity.Properties.ContainsKey("origin"))
+			it.Position = Vec3.Transform(entity.GetVectorProperty("origin", Vec3.Zero), baseTransform);
+
+		if (entity.Properties.ContainsKey("_tb_group") && 
+		    groupNames.TryGetValue(entity.GetIntProperty("_tb_group", -1), out var groupName))
+			it.GroupName = groupName;
+
+		if (entity.Properties.ContainsKey("angle"))
+			it.Facing = Calc.AngleToVector(entity.GetIntProperty("angle", 0) * Calc.DegToRad - MathF.PI / 2);
+
+		if (factory?.UseSolidsAsBounds ?? false)
+		{
+			BoundingBox bounds = new();
+			if (entity.Children.FirstOrDefault() is SledgeSolid sol)
+				bounds = CalculateSolidBounds(sol, baseTransform);
+
+			it.Position = bounds.Center;
+			bounds.Min -= it.Position;
+			bounds.Max -= it.Position;
+			it.LocalBounds = bounds;
+		}
+			
+		world.Add(it);
 	}
 
 	private SledgeEntity? FindTargetEntity(SledgeMapObject obj, string targetName)

@@ -109,7 +109,7 @@ public sealed class ModManager
 			    
 			    filepath.EndsWith("Fuji.json"))
 			{
-				Log.Info($"File Changed: {filepath} (From mod {ctx.Mod.ModInfo?.Name}). Reloading assets.");
+				Log.Info($"File Changed: {filepath} (From mod {ctx.Mod.ModInfo.Name}). Reloading assets.");
 			} 
 			else
 			{
@@ -119,7 +119,7 @@ public sealed class ModManager
 		}
 		else
 		{
-			Log.Info($"Mod archive for mod {ctx.Mod.ModInfo?.Name} changed. Reloading assets.");
+			Log.Info($"Mod archive for mod {ctx.Mod.ModInfo.Name} changed. Reloading assets.");
 		}
 		
 		Game.Instance.ReloadAssets();
@@ -149,11 +149,10 @@ public sealed class ModManager
 		}
 	}
 
-	internal void OnGameLoad(Game game)
+	internal void OnGameLoaded(Game game)
 	{
 		foreach (var mod in EnabledMods)
 		{
-			mod.game = game;
 			mod.OnGameLoaded(game);
 		}
 	}
@@ -162,7 +161,6 @@ public sealed class ModManager
 	{
 		foreach (var mod in EnabledMods)
 		{
-			mod.map = map;
 			mod.OnPreMapLoaded(world, map);
 		}
 	}
@@ -171,7 +169,6 @@ public sealed class ModManager
 	{
 		foreach (var mod in EnabledMods)
 		{
-			mod.map = map;
 			mod.OnMapLoaded(map);
 		}
 	}
@@ -180,7 +177,6 @@ public sealed class ModManager
 	{
 		foreach (var mod in EnabledMods)
 		{
-			mod.world = world;
 			mod.OnWorldLoaded(world);
 		}
 	}

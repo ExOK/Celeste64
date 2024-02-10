@@ -23,7 +23,6 @@ public class ModSelectionMenu : Menu
 	private ModInfoMenu modInfoMenu;
 	public Menu? RootMenu;
 
-
 	internal ModSelectionMenu()
 	{
 		postcardImage = new(Assets.Textures["postcards/back-empty"]);
@@ -48,24 +47,24 @@ public class ModSelectionMenu : Menu
 	private void RenderMod(Batcher batch, GameMod mod, Vec2 pos, Vec2 size)
 	{
 		float imgScale = 0.7f;
-		Subtexture image = mod.Subtextures.TryGetValue(mod.ModInfo?.Icon ?? "", out Subtexture value) ? value : strawberryImage;
+		Subtexture image = mod.Subtextures.TryGetValue(mod.ModInfo.Icon ?? "", out Subtexture value) ? value : strawberryImage;
 		Vec2 imageSize = new Vec2(size.X / image.Width, size.Y / image.Height);
 		batch.Rect(pos - (size * imgScale) / 2, size * imgScale, Color.White);
 		batch.Image(image, pos - (size * imgScale) / 2, imageSize * imgScale, imageSize * imgScale, 0, Color.White);
 		batch.PushMatrix(Matrix3x2.CreateScale(.6f) * Matrix3x2.CreateTranslation(pos + new Vec2(0, size.Y * 0.4f)));
-		batch.Text(Language.Current.SpriteFont, GenerateModName(mod.ModInfo?.Name ?? "", 16, 2), Vec2.Zero, new Vec2(0.5f, 0), Color.Black * 0.7f);
+		batch.Text(Language.Current.SpriteFont, GenerateModName(mod.ModInfo.Name ?? "", 16, 2), Vec2.Zero, new Vec2(0.5f, 0), Color.Black * 0.7f);
 		batch.PopMatrix();
 	}
 
 	private void RenderCurrentMod(Batcher batch, GameMod mod, Vec2 pos, Vec2 size)
 	{
 		float imgScale = 0.8f;
-		Subtexture image = mod.Subtextures.TryGetValue(mod.ModInfo?.Icon ?? "", out Subtexture value) ? value : strawberryImage;
+		Subtexture image = mod.Subtextures.TryGetValue(mod.ModInfo.Icon ?? "", out Subtexture value) ? value : strawberryImage;
 		Vec2 imageSize = new Vector2(size.X / image.Width, size.Y / image.Height);
 		batch.Rect(pos - (size * imgScale) / 2, size * imgScale, Color.LightGray);
 		batch.Image(image, pos - (size * imgScale) / 2, imageSize * imgScale, imageSize * imgScale, 0, Color.White);
 		batch.PushMatrix(Matrix3x2.CreateScale(.7f) * Matrix3x2.CreateTranslation(pos + new Vec2(0, size.Y * 0.4f)));
-		batch.Text(Language.Current.SpriteFont, GenerateModName(mod.ModInfo?.Name ?? "", 16, 2), Vec2.Zero, new Vec2(0.5f, 0), Color.Black);
+		batch.Text(Language.Current.SpriteFont, GenerateModName(mod.ModInfo.Name ?? "", 16, 2), Vec2.Zero, new Vec2(0.5f, 0), Color.Black);
 		batch.PopMatrix();
 	}
 
@@ -108,7 +107,6 @@ public class ModSelectionMenu : Menu
 		var size = new Vec2(sizeMin, sizeMin);
 
 		var offset = new Vec2(postcardImage.Width * -0.19f, postcardImage.Height * 0.5f * -0.15f);
-
 
 		int index =0;
 		for (int i = 0; i < rows && CurrentPageStart + index < mods.Length; i++)
@@ -176,7 +174,7 @@ public class ModSelectionMenu : Menu
 		{
 			modInfoMenu.Mod = mods[CurrentPageStart + CurrentIndex];
 			Audio.Play(Sfx.ui_select);
-			if(RootMenu != null)
+			if (RootMenu != null)
 			{
 				RootMenu.PushSubMenu(modInfoMenu);
 			}
