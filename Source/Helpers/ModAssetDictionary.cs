@@ -20,7 +20,7 @@ public class ModAssetDictionary<V> : IEnumerable<KeyValuePair<string, V>>
 	/// </summary>
 	public void Clear()
 	{
-		foreach (var mod in ModManager.Instance.EnabledMods)
+		foreach (var mod in ModManager.Instance.Mods)
 		{
 			getDictionary(mod).Clear();
 		}
@@ -89,7 +89,7 @@ public class ModAssetDictionary<V> : IEnumerable<KeyValuePair<string, V>>
 			}
 			else
 			{
-				GameMod? targetMod = ModManager.Instance.EnabledMods.FirstOrDefault(mod => mod.ModInfo?.Id == modName);
+				GameMod? targetMod = ModManager.Instance.EnabledMods.FirstOrDefault(mod => mod.ModInfo.Id == modName);
 				if (targetMod != null 
 					&& getDictionary(targetMod).TryGetValue(key, out V? targetModValue)
 					&& targetModValue != null)

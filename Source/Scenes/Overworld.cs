@@ -17,13 +17,12 @@ public class Overworld : Scene
 		public float HighlightEase;
 		public float SelectionEase;
 
-		public Entry(LevelInfo level)
+		public Entry(LevelInfo level, GameMod mod)
 		{
 			Level = level;
 			Target = new Target(CardWidth, CardHeight);
 
 			// Postcards should always come from the current mod if they are available
-			GameMod? mod = ModManager.Instance.Mods.FirstOrDefault(mod => mod.Levels.Contains(level));
 			if (mod != null && mod.Textures.ContainsKey(level.Preview))
 			{
 				Image = new(mod.Textures[level.Preview]);
@@ -154,7 +153,13 @@ public class Overworld : Scene
 		Music = "event:/music/mus_title";
 		
 		foreach (var level in Assets.Levels)
-			entries.Add(new(level));
+		{
+			GameMod? mod = ModManager.Instance.Mods.FirstOrDefault(mod => mod.Levels.Contains(level));
+			if (mod != null && mod.Enabled)
+			{
+				entries.Add(new(level, mod));
+			}
+		}
 
 		var cardWidth = CardWidth / 6.0f / Game.RelativeScale;
 		var cardHeight = CardHeight / 6.0f / Game.RelativeScale;

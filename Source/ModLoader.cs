@@ -1,42 +1,49 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using System.Reflection;
+﻿using System.Reflection;
 using System.Text.Json;
-using static Celeste64.Assets;
 
 namespace Celeste64
 {
 	public static class ModLoader
 	{
-		public const string ModFolder = "Mods";
+		public const string ModsFolder = "Mods";
 
-		private static string? modFolderPath = null;
+		private static string? modsFolderPath = null;
 
 		public static string ModFolderPath
 		{
 			get
 			{
-				if (modFolderPath == null)
+				if (modsFolderPath == null)
 				{
 					var baseFolder = AppContext.BaseDirectory;
 					var searchUpPath = "";
 					int up = 0;
-					while (!Directory.Exists(Path.Join(baseFolder, searchUpPath, ModFolder)) && up++ < 6)
+					while (!Directory.Exists(Path.Join(baseFolder, searchUpPath, ModsFolder)) && up++ < 6)
 						searchUpPath = Path.Join(searchUpPath, "..");
-					if (!Directory.Exists(Path.Join(baseFolder, searchUpPath, ModFolder)))
-						throw new Exception($"Unable to find {ModFolder} Directory from '{baseFolder}'");
-					modFolderPath = Path.Join(baseFolder, searchUpPath, ModFolder);
+					if (!Directory.Exists(Path.Join(baseFolder, searchUpPath, ModsFolder)))
+						throw new Exception($"Unable to find {ModsFolder} Directory from '{baseFolder}'");
+					modsFolderPath = Path.Join(baseFolder, searchUpPath, ModsFolder);
 				}
 
-				return modFolderPath;
+				return modsFolderPath;
 			}
 		}
 
         internal static void RegisterAllMods()
 		{
-			VanillaGameMod vanillaMod = new VanillaGameMod
+			// Mod Infos are required now, so make a dummy mod info for the valilla game too. This shouldn't really be used for anything.
+			ModInfo vanillaModInfo = new ModInfo()
 			{
-				Filesystem = new FolderModFilesystem(ContentPath),
+				Id = "Celeste64Vanilla",
+				Name = "Celese 64: Fragments of the Mountains",
+				Version = "1.0.0"
 			};
+			VanillaGameMod vanillaMod = new VanillaGameMod()
+			{
+				ModInfo = vanillaModInfo,
+				Filesystem = new FolderModFilesystem(Assets.ContentPath)
+			};
+
 			List<GameMod> mods =
 			[
 				// Load vanilla as a mod, to unify all asset loading code
@@ -50,7 +57,7 @@ namespace Celeste64
 				var modName = Path.GetFileNameWithoutExtension(modDir)!; // Todo: read from some metadata file
 				var fs = new FolderModFilesystem(modDir);
 
-				mods.Add(LoadGameMods(modName, fs));
+				mods.Add(LoadGameMod(modName, fs));
 				Log.Info($"Loaded mod from directory: {modName}");
 			}
 
@@ -60,7 +67,7 @@ namespace Celeste64
 				var modName = Path.GetFileNameWithoutExtension(modZip)!; // Todo: read from some metadata file
 				var fs = new ZipModFilesystem(modZip);
 
-				mods.Add(LoadGameMods(modName, fs));
+				mods.Add(LoadGameMod(modName, fs));
 				Log.Info($"Loaded mod from zip: {modName}");
 			}
 
@@ -75,11 +82,27 @@ namespace Celeste64
 			ModManager.Instance.InitializeFilesystemBackgroundCleanup();
 		}
 
-		private static GameMod LoadGameMods(string modFolder, IModFilesystem fs)
+		private static GameMod LoadGameMod(string modFolder, IModFilesystem fs)
 		{
 			GameMod? loadedMod = null;
 			var anyDllFile = false;
-				
+
+			ModInfo modInfo;
+			if (fs.TryOpenFile("Fuji.json",
+				stream => JsonSerializer.Deserialize(stream, ModInfoContext.Default.ModInfo),
+				out var info))
+			{
+				modInfo = info;
+				if (!modInfo.IsValid())
+				{
+					throw new Exception($"Fuji Exception: Invalid Fuji.json file for {modFolder}/Fuji.json");
+				}
+			}
+			else
+			{
+				throw new Exception($"Fuji Exception: Tried to load mod {modFolder} but could not find a valid Fuji.json file");
+			}
+
 			foreach (var dllFile in fs.FindFilesInDirectoryRecursive("DLLs", "dll"))
 			{
 				if (!fs.TryOpenFile(dllFile, stream => Assembly.Load(stream.ReadAllToByteArray()), out var asm))
@@ -107,6 +130,8 @@ namespace Celeste64
 						continue;
 
 					loadedMod = instance;
+					instance.Filesystem = fs;
+					instance.ModInfo = modInfo;
 				}
 			}
 
@@ -118,40 +143,12 @@ namespace Celeste64
 				}
 			
 				// No GameMod, create a dummy one
-				loadedMod = new DummyGameMod();
-			}
-
-
-			ModInfo modInfo;
-			if (fs.TryOpenFile("Fuji.json",
-				stream => JsonSerializer.Deserialize(stream, ModInfoContext.Default.ModInfo),
-				out var info))
-			{
-				modInfo = info;
-				if (!modInfo.IsValid())
+				loadedMod = new DummyGameMod()
 				{
-					throw new Exception($"Fuji Exception: Invalid Fuji.json file for {modFolder}/Fuji.json");
-				}
-			}
-			else
-			{
-				Log.Warning("No Fuji.json file found. Using default");
-				modInfo = new ModInfo()
-				{
-					Id = modFolder,
-					Name = modFolder,
-					ModAuthor = "Unknown",
-					Description = "",
-					Version = "0.0.0",
-					Icon = null,
-					Dependencies = [],
-					AssetReplaceItems = []
+					ModInfo = modInfo,
+					Filesystem = fs
 				};
 			}
-
-			loadedMod.Filesystem = fs;
-			loadedMod.ModInfo = modInfo;
-			loadedMod.ModFolder = modFolder;
 			
 			return loadedMod;
 		}

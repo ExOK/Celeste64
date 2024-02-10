@@ -67,7 +67,10 @@ public class Game : Module
 
 	public AudioHandle Ambience;
 	public AudioHandle Music;
-    
+
+	public Scene? Scene { get { return scenes.Peek(); } }
+	public World? World { get { return scenes.Peek() is World world ? world : null; } }
+
 	public Game()
 	{
 		// If this isn't stored, the delegate will get GC'd and everything will crash :)
@@ -89,7 +92,7 @@ public class Game : Module
         imGuiManager = new ImGuiManager();
 
 		scenes.Push(new Startup());
-		ModManager.Instance.OnGameLoad(this);
+		ModManager.Instance.OnGameLoaded(this);
 	}
 
 	public override void Shutdown()
@@ -212,6 +215,7 @@ public class Game : Module
 			if (scenes.TryPeek(out var nextScene))
 			{
 				nextScene.Entered();
+				ModManager.Instance.OnSceneEntered(nextScene);
 				nextScene.Update();
 			}
 

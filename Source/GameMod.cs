@@ -1,24 +1,19 @@
-using static Celeste64.Assets;
-
-namespace Celeste64;
+﻿namespace Celeste64;
 
 public abstract class GameMod
 {
-	internal Game? game;
-	internal World? world;
-	internal Map? map;
+	#region Internally Used Data
+	internal Save.ModRecord ModSaveData { get { return Save.Instance.GetOrMakeMod(ModInfo.Id); } }
 
-	public Game? Game { get { return game; } }
-	public World? World { get { return world; } }
-	public Map? Map { get { return map; } }
+	// These surpress the not-null warning, because they get set as part of the Mod Loading step, not the constructor.
+	// Otherwise, this would require extra null checks whenever we use them, even though they should never be null, or it would require every
+	// gamemod to declare its own constructor, which we don't want either.
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
+	internal IModFilesystem Filesystem { get; set; }
+	internal ModInfo ModInfo { get; set; }
+#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
 
-	public ModInfo? ModInfo { get; internal set; }
-
-	public string ModFolder { get; internal set; } = "";
-
-	// Todo: Hook up way to enable and disable mods
-	public bool Enabled { get { return true; } }
-
+	// Used for storing the assets loaded for this mod specifically.
 	internal readonly Dictionary<string, Map> Maps = new(StringComparer.OrdinalIgnoreCase);
 	internal readonly Dictionary<string, Shader> Shaders = new(StringComparer.OrdinalIgnoreCase);
 	internal readonly Dictionary<string, Texture> Textures = new(StringComparer.OrdinalIgnoreCase);
@@ -27,12 +22,7 @@ public abstract class GameMod
 	internal readonly Dictionary<string, Font> Fonts = new(StringComparer.OrdinalIgnoreCase);
 	internal readonly Dictionary<string, Dictionary<string, string>> Strings = new(StringComparer.OrdinalIgnoreCase);
 	internal readonly Dictionary<string, Dictionary<string, List<Language.Line>>> DialogLines = new(StringComparer.OrdinalIgnoreCase);
-
-
-	//internal readonly Dictionary<string, List<DialogLine>> Dialog = new(StringComparer.OrdinalIgnoreCase);
 	internal readonly List<LevelInfo> Levels = new();
-
-	public IModFilesystem? Filesystem { get; internal set; }
 
 	/// <summary>
 	/// Cleanup tasks that have to be performed when this mod gets unloaded.
@@ -40,11 +30,56 @@ public abstract class GameMod
 	/// to make sure that a mod can't accidentally skip calling this due to not calling base.OnModUnloaded.
 	/// </summary>
 	internal Action? OnUnloadedCleanup { get; private set; }
+	#endregion
 
-	public GameMod()
+	// This is here to give mods easier access to these objects, so they don't have to get them themselves
+	// Warning, these may be null if they haven't been initialized yet, so you should always do a null check before using them.
+	public Game? Game { get { return Game.Instance; } }
+	public World? World { get { return Game != null ? Game.World : null; } }
+	public Map? Map { get { return World != null ? World.Map : null; } }
+	public Player? Player { get { return World != null ? World.Get<Player>() : null; } }
+
+	// Common Metadata about this mod.
+	public bool Enabled { get { return this is VanillaGameMod || ModSaveData.Enabled; } }
+
+	#region Save Functions
+	// These functions allow modders to save data and get save data from the save file.
+	// These are done as wrapper functions mostly to make it harder to accidentally mess up the save data in an unexpected way
+	// And so we can change how they work later if needed.
+
+	public string SaveString(string key, string value)
 	{
+		return ModSaveData.SetString(key, value);
 	}
+	public string GetString(string key)
+	{
+		return ModSaveData.GetString(key);
+	}
+	public int SaveInt(string key, int value)
+	{
+		return ModSaveData.SetInt(key, value);
+	}
+	public int GetInt(string key)
+	{
+		return ModSaveData.GetInt(key);
+	}
+	public float SaveFloat(string key, float value)
+	{
+		return ModSaveData.SetFloat(key, value);
+	}
+	public float GetFloat(string key)
+	{
+		return ModSaveData.GetFloat(key);
+	}
+	#endregion
 
+
+	/// <summary>
+	/// This allows modders to add their own actors to the actor factory system.
+	/// This can also be used to replace existing actors, but be warned that only one mod can replace something at a time.
+	/// </summary>
+	/// <param name="name"></param>
+	/// <param name="factory"></param>
 	public void AddActorFactory(string name, Map.ActorFactory factory)
 	{
 		if (Map.ModActorFactories.TryAdd(name, factory))
@@ -67,85 +102,121 @@ public abstract class GameMod
 		OnUnloadedCleanup += CustomPlayerStateRegistry.Deregister<T>;
 	}
 
-	// Event Functions. Purposely left blank.
-
-	public virtual void OnModLoaded()
+	/// <summary>
+	/// Saves data to the save file for this mod, that can be accessed with a given key.
+	/// </summary>
+	public void SaveData(string key, string data)
 	{
-
+		if (!string.IsNullOrEmpty(key) && !string.IsNullOrEmpty(data))
+		{
+			Save.Instance.GetOrMakeMod(ModInfo.Id).Settings.TryAdd(key, data);
+		}
 	}
 
-	public virtual void OnModUnloaded()
-	{
+	// Game Event Functions. These are used to provide an "interface" of sorts that mods can easily override.
+	// They will not be called if the mod is disabled.
 
-	}
-	public virtual void OnAssetsLoaded()
-	{
+	/// <summary>
+	/// Called when the Mod is first loaded, or when it becomes enabled
+	/// </summary>
+	public virtual void OnModLoaded(){}
 
-	}
+	/// <summary>
+	/// Called when a mod is unloaded, or when it becomes disabled
+	/// </summary>
+	public virtual void OnModUnloaded(){}
 
-	public virtual void OnGameLoaded(Game game)
-	{ 
-			
-	}
+	/// <summary>
+	/// Called once every frame
+	/// </summary>
+	/// <param name="deltaTime">How much time passed since the previous update</param>
+	public virtual void Update(float deltaTime) {}
 
-	public virtual void OnPreMapLoaded(World world, Map map)
-	{
+	/// <summary>
+	/// Called at the very beginning of when the game is loaded
+	/// </summary>
+	/// <param name="game"></param>
+	public virtual void OnGameLoaded(Game game){}
 
-	}
+	/// <summary>
+	/// Called after all assets have been loaded or reloaded.
+	/// </summary>
+	public virtual void OnAssetsLoaded() { }
 
-	public virtual void OnMapLoaded(Map map)
-	{
+	/// <summary>
+	/// Called right before the Map load starts.
+	/// This is probably the ideal place to register custom mod actors
+	/// </summary>
+	/// <param name="world">A reference to the world</param>
+	/// <param name="map">A reference to the map that was loaded</param>
+	public virtual void OnPreMapLoaded(World world, Map map){}
 
-	}
+	/// <summary>
+	/// Called after a map is finished loading.
+	/// </summary>
+	/// <param name="map">A reference to the map that was loaded</param>
+	public virtual void OnMapLoaded(Map map){}
 
-	public virtual void OnWorldLoaded(World world)
-	{
+	/// <summary>
+	/// Called after a scene transistion either when a scene is first loaded, or reloaded.
+	/// </summary>
+	/// <param name="scene">A reference to the Scene that was entered</param>
+	public virtual void OnSceneEntered(Scene scene){}
 
-	}
+	/// <summary>
+	/// Called after the world finishes loading.
+	/// </summary>
+	/// <param name="world">A reference to the World object that was created</param>
+	public virtual void OnWorldLoaded(World world){}
 
-	public virtual void OnActorCreated(Actor actor)
-	{
+	/// <summary>
+	/// Called whenever a new actor is first created.
+	/// </summary>
+	/// <param name="actor">A reference to the Actor that was created.</param>
+	public virtual void OnActorCreated(Actor actor){}
 
-	}
+	/// <summary>
+	/// Called after an actor is actually added to the world.
+	/// </summary>
+	/// <param name="actor">A reference to the Actor that was added</param>
+	public virtual void OnActorAdded(Actor actor){}
 
-	public virtual void OnActorAdded(Actor actor)
-	{
+	/// <summary>
+	/// Called when an actor is destroyed.
+	/// </summary>
+	/// <param name="actor">A reference to the actor that was destroyed</param>
+	public virtual void OnActorDestroyed(Actor actor){}
 
-	}
+	/// <summary>
+	/// Called when the player is killed
+	/// </summary>
+	/// <param name="player">A reference to the player</param>
+	public virtual void OnPlayerKilled(Player player) {}
 
-	public virtual void OnActorDestroyed(Actor actor)
-	{
+	/// <summary>
+	/// Called whenever a player lands on the ground.
+	/// </summary>
+	/// <param name="player">A reference to the player</param>
+	public virtual void OnPlayerLanded(Player player) {}
 
-	}
+	/// <summary>
+	/// Called whenever the player's state changes
+	/// </summary>
+	/// <param name="player">A reference to the player</param>
+	/// <param name="state">The new state</param>
+	public virtual void OnPlayerStateChanged(Player player, Player.States? state){}
 
-	public virtual void OnPlayerKilled(Player ply)
-	{
+	/// <summary>
+	/// Called when the current skin is changed.
+	/// </summary>
+	/// <param name="player">A reference to the player</param>
+	/// <param name="skin">The new skin that this changed to</param>
+	public virtual void OnPlayerSkinChange(Player player, SkinInfo skin){}
 
-	}
-
-	public virtual void OnPlayerStateChanged(Player ply, Player.States? state)
-	{
-
-	}
-
-	public virtual void OnPlayerLanded(Player ply)
-	{
-
-	}
-
-	public virtual void OnPlayerSkinChange(Player player, SkinInfo skin)
-	{
-
-	}
-
-
-	public virtual void OnItemPickup(Player ply, IPickup item)
-	{
-
-	}
-
-	public virtual void Update(float deltaTime)
-	{
-
-	}
+	/// <summary>
+	/// Called whenever an item is pickuped up by the player
+	/// </summary>
+	/// <param name="player">The player that picked up the item</param>
+	/// <param name="item">The IPickup item that was picked up</param>
+	public virtual void OnItemPickup(Player player, IPickup item){}
 }

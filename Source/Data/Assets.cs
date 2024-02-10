@@ -1,11 +1,7 @@
-using FMOD;
-using Foster.Framework;
-using System.Collections.Concurrent;
+﻿using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Text;
 using System.Text.Json;
-using System.Text.Json.Serialization;
-using System.Xml.Linq;
 
 namespace Celeste64;
 
@@ -45,6 +41,8 @@ public static class Assets
 	public static readonly Dictionary<string, Language> Languages = new(StringComparer.OrdinalIgnoreCase);
 
 	public static List<SkinInfo> Skins { get; private set; } = [];
+
+	public static List<SkinInfo> EnabledSkins { get { return Skins.Where(skin => skin.IsEnabled()).ToList(); } }
 
 	public static List<LevelInfo> Levels { get; private set; } = [];
 
@@ -209,7 +207,7 @@ public static class Assets
 			{
 				if (mod.Filesystem != null && mod.Filesystem.TryOpenFile(file, stream => new Image(stream), out var img))
 				{
-					packer.Add($"{mod.ModInfo?.Id}:{GetResourceNameFromVirt(file, "Sprites")}", img);
+					packer.Add($"{mod.ModInfo.Id}:{GetResourceNameFromVirt(file, "Sprites")}", img);
 				}
 			}
 
@@ -224,13 +222,11 @@ public static class Assets
 			foreach (var it in result.Entries)
 			{
 				string[] nameSplit = it.Name.Split(':');
-				GameMod? mod = ModManager.Instance.Mods.FirstOrDefault(mod => mod.ModInfo != null && mod.ModInfo.Id == nameSplit[0]);
-				if(mod == null)
+				GameMod? mod = ModManager.Instance.Mods.FirstOrDefault(mod => mod.ModInfo.Id == nameSplit[0]) ?? ModManager.Instance.VanillaGameMod;
+				if(mod != null)
 				{
-					mod = ModManager.Instance.VanillaGameMod;
+					Subtextures.Add(nameSplit[1], new Subtexture(pages[it.Page], it.Source, it.Frame), mod);
 				}
-				Subtextures.Add(nameSplit[1], new Subtexture(pages[it.Page], it.Source, it.Frame), mod);
-
 			}
 		}
 
@@ -281,6 +277,7 @@ public static class Assets
 			if (mod.Filesystem != null && mod.Filesystem.TryOpenFile(file,
 				    stream => JsonSerializer.Deserialize(stream, SkinInfoContext.Default.SkinInfo), out var skin) && skin.IsValid())
 			{
+				skin.ModId = mod.ModInfo.Id;
 				Skins.Add(skin);
 			}
 			else
