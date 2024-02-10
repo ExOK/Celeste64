@@ -7,27 +7,27 @@ namespace Celeste64
 {
 	public static class ModLoader
 	{
-		public const string ModFolder = "Mods";
+		public const string ModsFolder = "Mods";
 
-		private static string? modFolderPath = null;
+		private static string? modsFolderPath = null;
 
 		public static string ModFolderPath
 		{
 			get
 			{
-				if (modFolderPath == null)
+				if (modsFolderPath == null)
 				{
 					var baseFolder = AppContext.BaseDirectory;
 					var searchUpPath = "";
 					int up = 0;
-					while (!Directory.Exists(Path.Join(baseFolder, searchUpPath, ModFolder)) && up++ < 6)
+					while (!Directory.Exists(Path.Join(baseFolder, searchUpPath, ModsFolder)) && up++ < 6)
 						searchUpPath = Path.Join(searchUpPath, "..");
-					if (!Directory.Exists(Path.Join(baseFolder, searchUpPath, ModFolder)))
-						throw new Exception($"Unable to find {ModFolder} Directory from '{baseFolder}'");
-					modFolderPath = Path.Join(baseFolder, searchUpPath, ModFolder);
+					if (!Directory.Exists(Path.Join(baseFolder, searchUpPath, ModsFolder)))
+						throw new Exception($"Unable to find {ModsFolder} Directory from '{baseFolder}'");
+					modsFolderPath = Path.Join(baseFolder, searchUpPath, ModsFolder);
 				}
 
-				return modFolderPath;
+				return modsFolderPath;
 			}
 		}
 
@@ -151,7 +151,6 @@ namespace Celeste64
 
 			loadedMod.Filesystem = fs;
 			loadedMod.ModInfo = modInfo;
-			loadedMod.ModFolder = modFolder;
 			
 			return loadedMod;
 		}

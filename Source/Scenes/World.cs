@@ -62,12 +62,15 @@ public class World : Scene
 	private int debugUpdateCount;
 	public static bool DebugDraw { get; private set; } = false;
 
+	public Map Map {  get; private set; }
+
 	public World(EntryInfo entry)
 	{
 		Entry = entry;
 
 		var stopwatch = Stopwatch.StartNew();
 		var map = Assets.Maps[entry.Map];
+		Map = map;
 		Map.ModActorFactories.Clear();
 
 		ModManager.Instance.CurrentLevelMod = ModManager.Instance.Mods.FirstOrDefault(mod => mod.Maps.ContainsKey(entry.Map));

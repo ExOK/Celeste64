@@ -64,6 +64,7 @@ public class Game : Module
 	public AudioHandle Ambience;
 	public AudioHandle Music;
 
+	public Scene? Scene { get { return scenes.Peek(); } }
 	public World? World { get { return scenes.Peek() is World world ? world : null; } }
 
 	public Game()
@@ -82,7 +83,7 @@ public class Game : Module
 		Audio.Init();
 
 		scenes.Push(new Startup());
-		ModManager.Instance.OnGameLoad(this);
+		ModManager.Instance.OnGameLoaded(this);
 	}
 
 	public override void Shutdown()
