@@ -116,7 +116,7 @@ public class Save
 	/// <summary>
 	/// SkinName
 	/// </summary>
-	public string SkinName { get; set; } = "Default";
+	public string SkinName { get; set; } = "Madeline";
 
 	/// <summary>
 	/// Invert the camera in given directions

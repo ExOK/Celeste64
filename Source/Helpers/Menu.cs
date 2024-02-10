@@ -65,17 +65,17 @@ public class Menu
 	{
 		private readonly string label;
 		private readonly int min;
-		private readonly int max;
 		private readonly Func<string> get;
+		private readonly Func<int> getMax;
 		private readonly Func<List<string>> getLabels;
 		private readonly Action<string> set;
 
-		public OptionList(string label, Func<List<string>> getLabels, int min, int max, Func<string> get, Action<string> set)
+		public OptionList(string label, Func<List<string>> getLabels, int min, Func<int> getMax, Func<string> get, Action<string> set)
 		{
 			this.label = label;
 			this.getLabels = getLabels;
+			this.getMax = getMax;
 			this.min = min;
-			this.max = max;
 			this.get = get;
 			this.set = set;
 		}
@@ -85,7 +85,7 @@ public class Menu
 		{
 			if(getLabels().Count > 1)
 			{
-				set(getLabels()[(max + getId() + dir) % max]);
+				set(getLabels()[(getMax() + getId() + dir) % getMax()]);
 			}
 		}
 

@@ -116,8 +116,8 @@ public class World : Scene
 				pauseMenu.Add(new Menu.OptionList("Skin",
 					() => Assets.EnabledSkins.Select(x => x.Name).ToList(),
 					0,
-					Assets.EnabledSkins.Count,
-					() => Save.Instance.SkinName, Save.Instance.SetSkinName)
+					() => Assets.EnabledSkins.Count,
+					() => Save.Instance.GetSkin().Name, Save.Instance.SetSkinName)
 				);
 			}
 			pauseMenu.Add(new Menu.Submenu(Loc.Str("PauseOptions"), pauseMenu, optionsMenu));

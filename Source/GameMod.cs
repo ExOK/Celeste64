@@ -3,8 +3,15 @@
 public abstract class GameMod
 {
 	#region Internally Used Data
-	internal Save.ModRecord ModSaveData { get { return Save.Instance.GetOrMakeMod(ModInfo?.Id ?? ""); } }
-	internal IModFilesystem? Filesystem { get; set; }
+	internal Save.ModRecord ModSaveData { get { return Save.Instance.GetOrMakeMod(ModInfo.Id); } }
+
+	// These surpress the not-null warning, because they get set as part of the Mod Loading step, not the constructor.
+	// Otherwise, this would require extra null checks whenever we use them, even though they should never be null, or it would require every
+	// gamemod to declare its own constructor, which we don't want either.
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
+	internal IModFilesystem Filesystem { get; set; }
+	internal ModInfo ModInfo { get; set; }
+#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
 
 	// Used for storing the assets loaded for this mod specifically.
 	internal readonly Dictionary<string, Map> Maps = new(StringComparer.OrdinalIgnoreCase);
@@ -33,10 +40,7 @@ public abstract class GameMod
 	public Player? Player { get { return World != null ? World.Get<Player>() : null; } }
 
 	// Common Metadata about this mod.
-	public ModInfo? ModInfo { get; internal set; }
 	public bool Enabled { get { return this is VanillaGameMod || ModSaveData.Enabled; } }
-
-	public GameMod(){}
 
 	#region Save Functions
 	// These functions allow modders to save data and get save data from the save file.
@@ -103,7 +107,7 @@ public abstract class GameMod
 	/// </summary>
 	public void SaveData(string key, string data)
 	{
-		if (!string.IsNullOrEmpty(key) && !string.IsNullOrEmpty(data) && ModInfo != null)
+		if (!string.IsNullOrEmpty(key) && !string.IsNullOrEmpty(data))
 		{
 			Save.Instance.GetOrMakeMod(ModInfo.Id).Settings.TryAdd(key, data);
 		}
