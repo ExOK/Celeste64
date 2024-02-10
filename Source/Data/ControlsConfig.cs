@@ -118,6 +118,9 @@ public class ControlsConfig
 			["CameraRightStep"] = [
 				new(Buttons.RightShoulder),
 			],
+			["CameraResetY"] = [
+				new(Buttons.RightStick),
+			],
 			["Confirm"] = [
 				new(Keys.C),
 				new(Buttons.South) { NotFor = Gamepads.Nintendo },

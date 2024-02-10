@@ -14,6 +14,7 @@ public static class Controls
 	public static readonly VirtualButton Pause = new("Pause");
 	public static readonly VirtualButton CameraLeftStep = new("CameraLeftStep");
 	public static readonly VirtualButton CameraRightStep = new("CameraRightStep");
+	public static readonly VirtualButton CameraResetY = new("CameraResetY");
 
 	public static void Load(ControlsConfig? config = null)
 	{
@@ -57,6 +58,8 @@ public static class Controls
 			it.BindTo(CameraLeftStep);
 		foreach (var it in FindAction(config, "CameraRightStep"))
 			it.BindTo(CameraRightStep);
+		foreach (var it in FindAction(config, "CameraResetY"))
+			it.BindTo(CameraResetY);
 	}
 
 	public static void Clear()

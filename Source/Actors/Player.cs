@@ -288,6 +288,10 @@ public class Player : Actor, IHaveModels, IHaveSprites, IRidePlatforms, ICastPoi
 			}
 
 			// Move Camera in / out
+			if (Controls.CameraResetY.Pressed)
+			{
+				cameraTargetDistance = 0.50f;
+			}
 			if (Controls.Camera.Value.Y != 0)
 			{
 				var invertY = Save.Instance.InvertCamera == Save.InvertCameraOptions.Y || Save.Instance.InvertCamera == Save.InvertCameraOptions.Both;
