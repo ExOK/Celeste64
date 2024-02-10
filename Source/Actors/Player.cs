@@ -269,8 +269,19 @@ public class Player : Actor, IHaveModels, IHaveSprites, IRidePlatforms, ICastPoi
 			// Rotate Camera
 			{
 				var invertX = Save.Instance.InvertCamera == Save.InvertCameraOptions.X || Save.Instance.InvertCamera == Save.InvertCameraOptions.Both;
+				var invertX_val = invertX ? -1 : 1;
 				var rot = new Vec2(cameraTargetForward.X, cameraTargetForward.Y).Angle();
-				rot -= Controls.Camera.Value.X * Time.Delta * 4 * (invertX ? -1 : 1);
+				rot -= Controls.Camera.Value.X * Time.Delta * 4 * invertX_val;
+
+				// Rotate camera by 45° steps
+				if (Controls.CameraLeftStep.Pressed)
+				{
+					rot = (MathF.Round(rot * 4 / MathF.PI) + invertX_val) * MathF.PI * 0.25f;
+				}
+				if (Controls.CameraRightStep.Pressed)
+				{
+					rot = (MathF.Round(rot * 4 / MathF.PI) - invertX_val) * MathF.PI * 0.25f;
+				}
 
 				var angle = Calc.AngleToVector(rot);
 				cameraTargetForward = new(angle, 0);
