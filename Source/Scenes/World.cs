@@ -71,7 +71,6 @@ public class World : Scene
 		var stopwatch = Stopwatch.StartNew();
 		var map = Assets.Maps[entry.Map];
 		Map = map;
-		Map.ModActorFactories.Clear();
 
 		ModManager.Instance.CurrentLevelMod = ModManager.Instance.Mods.FirstOrDefault(mod => mod.Maps.ContainsKey(entry.Map));
 

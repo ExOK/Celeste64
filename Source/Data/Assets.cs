@@ -59,7 +59,8 @@ public static class Assets
 		Fonts.Clear();
 		Languages.Clear();
 		Audio.Unload();
-		
+
+		Map.ModActorFactories.Clear();
 		ModLoader.RegisterAllMods();
 
 		var maps = new ConcurrentBag<(Map, GameMod)>();
