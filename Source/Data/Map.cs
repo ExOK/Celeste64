@@ -109,7 +109,7 @@ public class Map
 	private readonly List<SledgeEntity> staticDecorations = [];
 	private readonly List<SledgeEntity> floatingDecorations = [];
 	private readonly List<SledgeEntity> entities = [];
-	private readonly HashSet<string> checkpoints = [];
+	public readonly HashSet<string> Checkpoints = [];
 	private readonly BoundingBox localStaticSolidsBounds;
 	private readonly Matrix baseTransform = Matrix.CreateScale(0.2f);
 
@@ -153,7 +153,7 @@ public class Map
 					}
 					else if (entity.ClassName == "PlayerSpawn")
 					{
-						checkpoints.Add(entity.GetStringProperty("name", StartCheckpoint));
+						Checkpoints.Add(entity.GetStringProperty("name", StartCheckpoint));
 						entities.Add(entity);
 					}
 					else
@@ -284,41 +284,13 @@ public class Map
 
 	private void LoadActor(World world, SledgeEntity entity)
 	{
-		void HandleActorCreation(World world, SledgeEntity entity, Actor it, ActorFactory? factory)
+		if (ModActorFactories.TryGetValue(entity.ClassName, out var modfactory))
 		{
-			if ((factory?.IsSolidGeometry ?? false) && it is Solid solid)
-			{
-				List<SledgeSolid> collection = [];
-				CollectSolids(entity, collection);
-				GenerateSolid(solid, collection);
-			}
-
-			if (entity.Properties.ContainsKey("origin"))
-				it.Position = Vec3.Transform(entity.GetVectorProperty("origin", Vec3.Zero), baseTransform);
-
-			if (entity.Properties.ContainsKey("_tb_group") && 
-				groupNames.TryGetValue(entity.GetIntProperty("_tb_group", -1), out var groupName))
-				it.GroupName = groupName;
-
-			if (entity.Properties.ContainsKey("angle"))
-				it.Facing = Calc.AngleToVector(entity.GetIntProperty("angle", 0) * Calc.DegToRad - MathF.PI / 2);
-
-			if (factory?.UseSolidsAsBounds ?? false)
-			{
-				BoundingBox bounds = new();
-				if (entity.Children.FirstOrDefault() is SledgeSolid sol)
-					bounds = CalculateSolidBounds(sol, baseTransform);
-
-				it.Position = bounds.Center;
-				bounds.Min -= it.Position;
-				bounds.Max -= it.Position;
-				it.LocalBounds = bounds;
-			}
-			
-			world.Add(it);
+			var it = modfactory.Create(this, entity);
+			if (it != null)
+				HandleActorCreation(world, entity, it, modfactory);
 		}
-
-		if (entity.ClassName == "PlayerSpawn")
+		else if (entity.ClassName == "PlayerSpawn")
 		{
 			var name = entity.GetStringProperty("name", StartCheckpoint);
 
@@ -328,7 +300,7 @@ public class Map
 			var spawnsPlayer = 
 				(world.Entry.CheckPoint == name) ||
 				(string.IsNullOrEmpty(world.Entry.CheckPoint) && name == StartCheckpoint) ||
-				(!checkpoints.Contains(world.Entry.CheckPoint) && name == StartCheckpoint);
+				(!Checkpoints.Contains(world.Entry.CheckPoint) && name == StartCheckpoint);
 
 			if (spawnsPlayer)
 				HandleActorCreation(world, entity, new Player(), null);
@@ -343,12 +315,40 @@ public class Map
 			if (it != null)
 				HandleActorCreation(world, entity, it, factory);
 		}
-		else if (ModActorFactories.TryGetValue(entity.ClassName, out var modfactory))
+	}
+	
+	public void HandleActorCreation(World world, SledgeEntity entity, Actor it, ActorFactory? factory)
+	{
+		if ((factory?.IsSolidGeometry ?? false) && it is Solid solid)
 		{
-			var it = modfactory.Create(this, entity);
-			if (it != null)
-				HandleActorCreation(world, entity, it, modfactory);
+			List<SledgeSolid> collection = [];
+			CollectSolids(entity, collection);
+			GenerateSolid(solid, collection);
 		}
+
+		if (entity.Properties.ContainsKey("origin"))
+			it.Position = Vec3.Transform(entity.GetVectorProperty("origin", Vec3.Zero), baseTransform);
+
+		if (entity.Properties.ContainsKey("_tb_group") && 
+		    groupNames.TryGetValue(entity.GetIntProperty("_tb_group", -1), out var groupName))
+			it.GroupName = groupName;
+
+		if (entity.Properties.ContainsKey("angle"))
+			it.Facing = Calc.AngleToVector(entity.GetIntProperty("angle", 0) * Calc.DegToRad - MathF.PI / 2);
+
+		if (factory?.UseSolidsAsBounds ?? false)
+		{
+			BoundingBox bounds = new();
+			if (entity.Children.FirstOrDefault() is SledgeSolid sol)
+				bounds = CalculateSolidBounds(sol, baseTransform);
+
+			it.Position = bounds.Center;
+			bounds.Min -= it.Position;
+			bounds.Max -= it.Position;
+			it.LocalBounds = bounds;
+		}
+			
+		world.Add(it);
 	}
 
 	private SledgeEntity? FindTargetEntity(SledgeMapObject obj, string targetName)

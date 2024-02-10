@@ -15,9 +15,13 @@ public class Language
 	public string Label { get; set; } = string.Empty;
 	public string Font { get; set; } = string.Empty;
 	[JsonIgnore]
-	public ModAssetDictionary<string> ModStrings { get; set; } = new(gamemod => gamemod.Strings);
+	public ModAssetDictionary<string> ModStrings { get; set; } = new(
+		gamemod => gamemod.Strings.TryGetValue(Language.Current.ID, out var value) ? value : []
+	);
 	[JsonIgnore]
-	public ModAssetDictionary<List<Line>> ModDialog { get; set; } = new(gamemod => gamemod.DialogLines);
+	public ModAssetDictionary<List<Line>> ModDialog { get; set; } = new(
+		gamemod => gamemod.DialogLines.TryGetValue(Language.Current.ID, out var value) ? value : []
+	);
 
 	public Dictionary<string, string> Strings { get; set; } = new(StringComparer.OrdinalIgnoreCase);
 	public Dictionary<string, List<Line>> Dialog { get; set; } = new(StringComparer.OrdinalIgnoreCase);
@@ -85,24 +89,34 @@ public class Language
 
 	public void Absorb(Language other, GameMod mod)
 	{
-		if(other.Strings != null)
+		if (!mod.Strings.ContainsKey(ID))
+		{
+			mod.Strings.Add(ID, new Dictionary<string, string>());
+		}
+		if (!mod.DialogLines.ContainsKey(ID))
+		{
+			mod.DialogLines.Add(ID, new Dictionary<string, List<Line>>());
+		}
+		if (other.Strings != null)
 		{
 			foreach (var (k, v) in other.Strings)
-				ModStrings.Add(k, v, mod);
+				mod.Strings[ID].Add(k, v);
 		}
 		if (other.Dialog != null)
 		{
 			foreach (var (k, v) in other.Dialog)
-				ModDialog.Add(k, v, mod);
+				mod.DialogLines[ID].Add(k, v);
 		}
 	}
 
 	public void OnCreate(GameMod mod)
 	{
+		mod.Strings.Add(ID, new Dictionary<string, string>());
+		mod.DialogLines.Add(ID, new Dictionary<string, List<Line>>());
 		foreach (var (k, v) in Strings)
-			ModStrings.Add(k, v, mod);
+			mod.Strings[ID].Add(k, v);
 		foreach (var (k, v) in Dialog)
-			ModDialog.Add(k, v, mod);
+			mod.DialogLines[ID].Add(k, v);
 	}
 
 

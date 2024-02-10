@@ -70,18 +70,22 @@
 	
 
   <ItemGroup>
+    <Content Remove="build\**" />
     <Content Remove="Celeste64-Fuji\**" />
     <Content Remove="Celeste64Launcher\**" />
     <Content Remove="Mods\**" />
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Remove="build\**" />
     <Compile Remove="Celeste64-Fuji\**" />
     <Compile Remove="Celeste64Launcher\**" />
     <Compile Remove="Mods\**" />
+    <EmbeddedResource Remove="build\**" />
     <EmbeddedResource Remove="Celeste64-Fuji\**" />
     <EmbeddedResource Remove="Celeste64Launcher\**" />
     <EmbeddedResource Remove="Mods\**" />
+    <None Remove="build\**" />
     <None Remove="Celeste64-Fuji\**" />
     <None Remove="Celeste64Launcher\**" />
     <None Remove="Mods\**" />

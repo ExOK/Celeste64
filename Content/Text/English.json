@@ -23,7 +23,10 @@
 		"OptionsTimer": "Timer",
 		"OptionsBGM": "BGM",
 		"OptionsSFX": "SFX",
-		"OptionsInvertCamera": "Inverted Camera"
+		"OptionsInvertCamera": "Inverted Camera",
+
+		"PauseMods": "Mods",
+		"PauseEnabled": "Enabled"
 	},
 	"Dialog":
 	{

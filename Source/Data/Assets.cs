@@ -1,10 +1,7 @@
-﻿using Foster.Framework;
-using System.Collections.Concurrent;
+﻿using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Text;
 using System.Text.Json;
-using System.Text.Json.Serialization;
-using System.Xml.Linq;
 
 namespace Celeste64;
 
@@ -44,6 +41,8 @@ public static class Assets
 	public static readonly Dictionary<string, Language> Languages = new(StringComparer.OrdinalIgnoreCase);
 
 	public static List<SkinInfo> Skins { get; private set; } = [];
+
+	public static List<SkinInfo> EnabledSkins { get { return Skins.Where(skin => skin.IsEnabled()).ToList(); } }
 
 	public static List<LevelInfo> Levels { get; private set; } = [];
 
@@ -198,41 +197,36 @@ public static class Assets
 
 		// pack sprites into single texture
 		{
-			var packers = new Dictionary<GameMod, Packer>();
-
+			Packer packer = new Packer
+			{
+				Trim = false,
+				CombineDuplicates = false,
+				Padding = 1
+			};
 			foreach (var (file, mod) in globalFs.FindFilesInDirectoryRecursiveWithMod("Sprites", "png"))
 			{
 				if (mod.Filesystem != null && mod.Filesystem.TryOpenFile(file, stream => new Image(stream), out var img))
 				{
-					if (packers.ContainsKey(mod))
-					{
-						packers[mod].Add(GetResourceNameFromVirt(file, "Sprites"), img);
-					}
-					else
-					{
-						packers[mod] = new Packer
-						{
-							Trim = false,
-							CombineDuplicates = false,
-							Padding = 1
-						};
-						packers[mod].Add(GetResourceNameFromVirt(file, "Sprites"), img);
-					}
+					packer.Add($"{mod.ModInfo?.Id}:{GetResourceNameFromVirt(file, "Sprites")}", img);
 				}
 			}
 
-			foreach(var modpacker in packers)
+			var result = packer.Pack();
+			var pages = new List<Texture>();
+			foreach (var it in result.Pages)
 			{
-				var result = modpacker.Value.Pack();
-				var pages = new List<Texture>();
-				foreach (var it in result.Pages)
-				{
-					it.Premultiply();
-					pages.Add(new Texture(it));
-				}
+				it.Premultiply();
+				pages.Add(new Texture(it));
+			}
 
-				foreach (var it in result.Entries)
-					Subtextures.Add(it.Name, new Subtexture(pages[it.Page], it.Source, it.Frame), modpacker.Key);
+			foreach (var it in result.Entries)
+			{
+				string[] nameSplit = it.Name.Split(':');
+				GameMod? mod = ModManager.Instance.Mods.FirstOrDefault(mod => mod.ModInfo != null && mod.ModInfo.Id == nameSplit[0]) ?? ModManager.Instance.VanillaGameMod;
+				if(mod != null)
+				{
+					Subtextures.Add(nameSplit[1], new Subtexture(pages[it.Page], it.Source, it.Frame), mod);
+				}
 			}
 		}
 
@@ -254,7 +248,9 @@ public static class Assets
 			foreach (var (lang, mod) in langs)
 			{
 				if (Languages.TryGetValue(lang.ID, out var existing))
+				{
 					existing.Absorb(lang, mod);
+				}
 				else
 				{
 					lang.OnCreate(mod);
@@ -281,6 +277,7 @@ public static class Assets
 			if (mod.Filesystem != null && mod.Filesystem.TryOpenFile(file,
 				    stream => JsonSerializer.Deserialize(stream, SkinInfoContext.Default.SkinInfo), out var skin) && skin.IsValid())
 			{
+				skin.ModId = mod.ModInfo?.Id ?? "";
 				Skins.Add(skin);
 			}
 			else
@@ -291,6 +288,8 @@ public static class Assets
 
 		// make sure the active language is ready for use
 		Language.Current.Use();
+
+		ModManager.Instance.OnAssetsLoaded();
 
 		Log.Info($"Loaded Assets in {timer.ElapsedMilliseconds}ms");
 	}

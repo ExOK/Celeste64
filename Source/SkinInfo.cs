@@ -18,9 +18,17 @@ public class SkinInfo
 	public int HairRefillFlash { get; set; } = 0;
 	public int HairFeather { get; set; } = 0;
 
+	[JsonIgnore]
+	public string ModId = "";
+
 	public bool IsValid()
 	{
 		return !string.IsNullOrEmpty(Name) && !string.IsNullOrEmpty(Model);
+	}
+
+	public bool IsEnabled()
+	{
+		return Save.Instance.GetOrMakeMod(ModId).Enabled;
 	}
 }
 

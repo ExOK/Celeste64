@@ -20,7 +20,7 @@ public class ModAssetDictionary<V> : IEnumerable<KeyValuePair<string, V>>
 	/// </summary>
 	public void Clear()
 	{
-		foreach (var mod in ModManager.Instance.EnabledMods)
+		foreach (var mod in ModManager.Instance.Mods)
 		{
 			getDictionary(mod).Clear();
 		}
