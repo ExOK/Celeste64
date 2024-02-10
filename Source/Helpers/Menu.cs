@@ -1,6 +1,4 @@
 
-using System.Reflection.Emit;
-
 namespace Celeste64;
 
 public class Menu
@@ -28,6 +26,7 @@ public class Menu
 				Audio.Play(Sfx.ui_select);
 				submenu.Index = 0;
 				rootMenu?.PushSubMenu(submenu);
+				submenu.Initialized();
 				return true;
 			}
 			
@@ -62,31 +61,37 @@ public class Menu
         public override void Slide(int dir) => set(Calc.Clamp(get() + dir, min, max));
     }
 
-    public class OptionList : Item
-    {
+	public class OptionList : Item
+	{
 		private readonly string label;
-        private readonly List<string> labels = [];
-        private readonly int min;
-        private readonly int max;
-        private readonly Func<string> get;
-        private readonly Action<string> set;
+		private readonly int min;
+		private readonly int max;
+		private readonly Func<string> get;
+		private readonly Func<List<string>> getLabels;
+		private readonly Action<string> set;
 
-        public OptionList(string label, List<string> labels, int min, int max, Func<string> get, Action<string> set)
-        {
+		public OptionList(string label, Func<List<string>> getLabels, int min, int max, Func<string> get, Action<string> set)
+		{
 			this.label = label;
-            this.labels = labels;
-            this.min = min;
-            this.max = max;
-            this.get = get;
-            this.set = set;
-        }
+			this.getLabels = getLabels;
+			this.min = min;
+			this.max = max;
+			this.get = get;
+			this.set = set;
+		}
 
-        public override string Label => $"{label} : {labels[getId() - min]}";
-        public override void Slide(int dir) => set(labels[(max + getId() + dir) % max]);
+		public override string Label => $"{label} : {getLabels()[getId() - min]}";
+		public override void Slide(int dir) 
+		{
+			if(getLabels().Count > 1)
+			{
+				set(getLabels()[(max + getId() + dir) % max]);
+			}
+		}
 
 		private int getId()
 		{
-			int id = labels.IndexOf(get());
+			int id = getLabels().IndexOf(get());
 			return id > -1 ? id : 0;
 		}
     }
@@ -165,14 +170,14 @@ public class Menu
 	public string Title = string.Empty;
 	public bool Focused = true;
 
-	private readonly List<Item> items = [];
-	private readonly Stack<Menu> submenus = [];
+	protected readonly List<Item> items = [];
+	protected readonly Stack<Menu> submenus = [];
 
 	public string UpSound = Sfx.ui_move;
 	public string DownSound = Sfx.ui_move;
 
 	public bool IsInMainMenu => submenus.Count <= 0;
-	private Menu CurrentMenu => submenus.Count > 0 ? submenus.Peek() : this;
+	protected Menu CurrentMenu => submenus.Count > 0 ? submenus.Peek() : this;
 	
 	public Vec2 Size
 	{
@@ -208,6 +213,11 @@ public class Menu
 			return size;
 		}
 	}
+
+	public virtual void Initialized()
+	{
+
+	}
 	
 	public Menu Add(Item item)
 	{
@@ -215,17 +225,22 @@ public class Menu
 		return this;
 	}
 	
-	protected void PushSubMenu(Menu menu) 
+	internal void PushSubMenu(Menu menu) 
 	{
 		submenus.Push(menu);
 	}
-	
+
+	internal void PopSubMenu()
+	{
+		submenus.Pop();
+	}
+
 	public void CloseSubMenus() 
 	{
 		submenus.Clear();
 	}
 
-	private void HandleInput()
+	protected virtual void HandleInput()
 	{
 		if (items.Count > 0)
 		{
@@ -269,7 +284,7 @@ public class Menu
 	    }
 	}
 
-	private void RenderItems(Batcher batch)
+	protected virtual void RenderItems(Batcher batch)
 	{
 		var font = Language.Current.SpriteFont;
 		var size = Size;
@@ -312,7 +327,7 @@ public class Menu
 		batch.PopMatrix();
 	}
 	
-	public void Render(Batcher batch, Vec2 position)
+	public virtual void Render(Batcher batch, Vec2 position)
 	{
 		batch.PushMatrix(position);
 		CurrentMenu.RenderItems(batch);

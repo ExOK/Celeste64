@@ -53,6 +53,7 @@ public class World : Scene
 			return player.IsAbleToPause;
 		}
 	}
+	internal bool NeedsReload = false;
 
 	private readonly Stopwatch debugUpdTimer = new();
 	private readonly Stopwatch debugRndTimer = new();
@@ -67,6 +68,8 @@ public class World : Scene
 
 		var stopwatch = Stopwatch.StartNew();
 		var map = Assets.Maps[entry.Map];
+		Map.ModActorFactories.Clear();
+
 		ModManager.Instance.CurrentLevelMod = ModManager.Instance.Mods.FirstOrDefault(mod => mod.Maps.ContainsKey(entry.Map));
 
 		Camera.NearPlane = 20;
@@ -88,6 +91,12 @@ public class World : Scene
 			optionsMenu.Add(new Menu.Slider(Loc.Str("OptionsBGM"), 0, 10, () => Save.Instance.MusicVolume, Save.Instance.SetMusicVolume));
 			optionsMenu.Add(new Menu.Slider(Loc.Str("OptionsSFX"), 0, 10, () => Save.Instance.SfxVolume, Save.Instance.SetSfxVolume));
 
+			ModSelectionMenu modMenu = new ModSelectionMenu()
+			{
+				RootMenu = pauseMenu,
+				Title = "Mods Menu"
+			};
+
 			pauseMenu.Title = Loc.Str("PauseTitle");
             pauseMenu.Add(new Menu.Option(Loc.Str("PauseResume"), () =>
 			{
@@ -99,12 +108,17 @@ public class World : Scene
 				Audio.StopBus(Sfx.bus_dialog, false);
 				Get<Player>()?.Kill();
 			}));
-			if (Assets.Skins.Count > 0)
+			if (Assets.EnabledSkins.Count > 1)
 			{
-				List<string> labels = Assets.Skins.Select(x => x.Name).ToList();
-				pauseMenu.Add(new Menu.OptionList("Skin", labels, 0, Assets.Skins.Count, () => Save.Instance.SkinName, Save.Instance.SetSkinName));
+				pauseMenu.Add(new Menu.OptionList("Skin",
+					() => Assets.EnabledSkins.Select(x => x.Name).ToList(),
+					0,
+					Assets.EnabledSkins.Count,
+					() => Save.Instance.SkinName, Save.Instance.SetSkinName)
+				);
 			}
 			pauseMenu.Add(new Menu.Submenu(Loc.Str("PauseOptions"), pauseMenu, optionsMenu));
+			pauseMenu.Add(new Menu.Submenu(Loc.Str("PauseMods"), pauseMenu, modMenu));
 			pauseMenu.Add(new Menu.Option(Loc.Str("PauseSaveQuit"), () => Game.Instance.Goto(new Transition()
 			{
 				Mode = Transition.Modes.Replace,
@@ -410,6 +424,12 @@ public class World : Scene
 	{
 		if(paused == false)
 		{
+			if(NeedsReload)
+			{
+				NeedsReload = false;
+				Game.Instance.ReloadAssets();
+			}
+
 			Player? ply = Get<Player>();
 			if (ply != null)
 			{

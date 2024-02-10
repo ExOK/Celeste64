@@ -64,6 +64,8 @@ public class Game : Module
 	public AudioHandle Ambience;
 	public AudioHandle Music;
 
+	public World? World { get { return scenes.Peek() is World world ? world : null; } }
+
 	public Game()
 	{
 		// If this isn't stored, the delegate will get GC'd and everything will crash :)
