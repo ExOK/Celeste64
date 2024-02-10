@@ -2277,6 +2277,12 @@ public class Player : Actor, IHaveModels, IHaveSprites, IRidePlatforms, ICastPoi
 	protected virtual void StCutsceneEnter()
 	{
 		Model.Play("Idle");
+		// Fix white hair in cutscene bug
+		if (tDashResetFlash > 0)
+		{
+			tDashResetFlash = 0;
+			SetHairColor(CNormal);
+		}
 	}
 
 	protected virtual void StCutsceneUpdate()
