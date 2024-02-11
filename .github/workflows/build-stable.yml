@@ -48,14 +48,17 @@ jobs:
         os: ${{ runner.os == 'linux' }}
       run: |
         cd Celeste64Launcher/ && dotnet publish -p:PublishProfile=LinuxProfile -p:ImportByWildcardBeforeSolution=false -o ../build && cd ../ && cp -r Content Mods build
+      if: runner.os == 'linux'
     - name: Build (macOS)
       env:
         os: ${{ runner.os == 'macOS' && 'osx' }}
       run: |
         cd Celeste64Launcher/ && dotnet publish -P:PublishProfile=MacOSProfile -p:ImportByWildcardBeforeSolution=false -o ../build && cd ../ && cp -r Content Mods build
+      if: runner.os == 'macOS'
     - name: Build (windows)
       env:
         os: ${{ runner.os == 'Windows' && 'win' }}
+      if: runner.os == 'Windows'
       run: |
         cd Celeste64Launcher/ && dotnet publish /p:PublishProfile=WindowsProfile -p:ImportByWildcardBeforeSolution=false -o ..\build && cd ..\ && xcopy Mods build\Mods /s /e /h /i /y && xcopy Content build\Content /s /e /h /i /y
     - name: Compress (Windows)
