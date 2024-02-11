@@ -3,7 +3,7 @@ name: Build and publish stable branch
 on:
   workflow_dispatch:
   push:
-    branches: [ 'main' ]
+    branches: [ 'monomod' ]
     paths-ignore:
       - "README.md"
       - ".gitignore"
@@ -43,18 +43,21 @@ jobs:
       with:
         dotnet-version: 8.0.x
 
-    - name: Build (linux and mac)
+    - name: Build (linux)
       env:
-        os: ${{ runner.os == 'Windows' && 'win' || runner.os == 'macOS' && 'osx' || 'linux' }}
+        os: ${{ runner.os == 'linux' }}
       run: |
-        dotnet publish Celeste64Launcher/Celeste64Launcher.csproj -c Release -r ${{env.os}}-x64 -p:ImportByWildcardBeforeSolution=false -o build && cp -r Content Mods build
-      if: runner.os != 'Windows'
+        cd Celeste64Launcher/ && dotnet publish -p:PublishProfile=LinuxProfile -p:ImportByWildcardBeforeSolution=false -o ../build && cd ../ && cp -r Content Mods build
+    - name: Build (macOS)
+      env:
+        os: ${{ runner.os == 'macOS' && 'osx' }}
+      run: |
+        cd Celeste64Launcher/ && dotnet publish -P:PublishProfile=MacOSProfile -p:ImportByWildcardBeforeSolution=false -o ../build && cd ../ && cp -r Content Mods build
     - name: Build (windows)
       env:
-        os: ${{ runner.os == 'Windows' && 'win' || runner.os == 'macOS' && 'osx' || 'linux' }}
+        os: ${{ runner.os == 'Windows' && 'win' }}
       run: |
-        dotnet publish Celeste64Launcher/Celeste64Launcher.csproj -c Release -r win-x64 -p:ImportByWildcardBeforeSolution=false -o build && xcopy Mods build\Mods /s /e /h /i /y && xcopy Content build\Content /s /e /h /i /y
-      if: runner.os == 'Windows'
+        cd Celeste64Launcher/ && dotnet publish /p:PublishProfile=WindowsProfile -p:ImportByWildcardBeforeSolution=false -o ..\build && cd ..\ && xcopy Mods build\Mods /s /e /h /i /y && xcopy Content build\Content /s /e /h /i /y
     - name: Compress (Windows)
       run: |
         Compress-Archive build/* Celeste64-Fuji-${{ runner.os }}-x64.zip

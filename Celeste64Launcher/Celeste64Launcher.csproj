@@ -13,8 +13,8 @@
     <PackageIcon>..\fuji.png</PackageIcon>
     <PackageReadmeFile>..\ReadMe.md</PackageReadmeFile>
     <StartupObject>Program</StartupObject>
-    <SelfContained>true</SelfContained>
-    <PublishSingleFile>true</PublishSingleFile>
+    <SelfContained>false</SelfContained>
+    <PublishSingleFile>false</PublishSingleFile>
   </PropertyGroup>
 
   <ItemGroup>
