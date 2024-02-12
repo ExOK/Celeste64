@@ -204,7 +204,7 @@ public class Overworld : Scene
 		for (int i = 0; i < entries.Count; i++)
 		{
 			var it = entries[i];
-			Calc.Approach(ref it.HighlightEase, index == i ? 1.0f : 0.0f, Time.Delta * 8.0f); 
+			Calc.Approach(ref it.HighlightEase, index == i ? 1.0f : 0.0f, Time.Delta * 8.0f);
 			Calc.Approach(ref it.SelectionEase, index == i && (state == States.Selected || state == States.Restarting) ? 1.0f : 0.0f, Time.Delta * 4.0f);
 
 			if (it.SelectionEase >= 0.50f && state == States.Selected)
@@ -214,7 +214,7 @@ public class Overworld : Scene
 
 		if (Game.Instance.IsMidTransition)
 			return;
-		
+
 		if (state == States.Selecting && !Paused)
 		{
 			var was = index;
@@ -255,7 +255,8 @@ public class Overworld : Scene
 			{
 				Paused = !Paused;
 
-				if (Paused) {
+				if (Paused)
+				{
 					Menu optionsMenu = new Menu();
 					optionsMenu.Title = Loc.Str("OptionsTitle");
 					optionsMenu.Add(new Menu.Toggle(Loc.Str("OptionsFullscreen"), Save.Instance.ToggleFullscreen, () => Save.Instance.Fullscreen));
@@ -279,7 +280,8 @@ public class Overworld : Scene
 					pauseMenu.Add(new Menu.Submenu(Loc.Str("PauseOptions"), pauseMenu, optionsMenu));
 					pauseMenu.Add(new Menu.Option(Loc.Str("Exit"), () =>
 					{
-						if (Game.Instance.NeedsReload) {
+						if (Game.Instance.NeedsReload)
+						{
 							Game.Instance.ReloadAssets();
 						}
 						Paused = false;
@@ -340,6 +342,17 @@ public class Overworld : Scene
 			if (cameraCloseUpEase >= 1.0f)
 			{
 				entries[index].Level.Enter(new SlideWipe(), 1.5f);
+			}
+		}
+		else if (Paused)
+		{
+			if (Controls.Pause.ConsumePress())
+			{
+				if (Game.Instance.NeedsReload)
+				{
+					Game.Instance.ReloadAssets();
+				}
+				Paused = false;
 			}
 		}
 	}
@@ -441,12 +454,19 @@ public class Overworld : Scene
 				// button prompts
 				if (state != States.Entering)
 				{
-					var cancelPrompt = Loc.Str(state == States.Selecting ? "back" : "cancel");
+					var cancelPrompt = Loc.Str(state == States.Selecting ? "Back" : "Cancel");
 					var at = bounds.BottomRight + new Vec2(-16, -4) * Game.RelativeScale + new Vec2(0, -UI.PromptSize);
 					var width = 0.0f;
+					var width2 = 0.0f;
 					UI.Prompt(batch, Controls.Cancel, cancelPrompt, at, out width, 1.0f);
 					at.X -= width + 8 * Game.RelativeScale;
-					UI.Prompt(batch, Controls.Confirm, Loc.Str("confirm"), at, out _, 1.0f);
+					UI.Prompt(batch, Controls.Confirm, Loc.Str("Confirm"), at, out width2, 1.0f);
+
+					if(state == States.Selecting)
+					{
+						at.X -= width2 + 8 * Game.RelativeScale;
+						UI.Prompt(batch, Controls.Pause, Loc.Str("OptionsTitle"), at, out _, 1.0f);
+					}
 
 					// show version number on Overworld as well
 					UI.Text(batch, Game.VersionString, bounds.BottomLeft + new Vec2(4, -4) * Game.RelativeScale, new Vec2(0, 1), Color.CornflowerBlue * 0.75f);
