@@ -94,15 +94,22 @@ public abstract class GameMod
 
 	/// <summary>
 	/// Disables the mod "safely" (accounts for dependent mods, etc.)
+	/// If it returns true, this means it is not safe to disable the mod.
+	/// You should first simulate the operation with DisableSafe(true).
+	/// If it is not safe to disable the mod (if the function returns true), it's recommended that you don't go through with it.
 	/// </summary>
-	public void DisableSafe()
+	/// <param name="simulate"></param>
+	public bool DisableSafe(bool simulate)
 	{
 		bool shouldEvac = false;
 
 		foreach (GameMod dependent in this.GetDependents())
 		{
-			Save.Instance.GetOrMakeMod(dependent.ModInfo.Id).Enabled = false;
-			dependent.OnModUnloaded();
+			if (!simulate)
+			{
+				Save.Instance.GetOrMakeMod(dependent.ModInfo.Id).Enabled = false;
+				dependent.OnModUnloaded();
+			}
 
 			if (dependent == ModManager.Instance.CurrentLevelMod)
 			{
@@ -110,9 +117,9 @@ public abstract class GameMod
 			} // We'll want to adjust behaviour if the current level's parent mod must be disabled.
 		}
 
-		this.OnModUnloaded();
+		if (!simulate) { this.OnModUnloaded(); }
 
-		if (shouldEvac)
+		if (shouldEvac && !simulate)
 		{
 			Game.Instance.Goto(new Transition()
 			{
@@ -124,7 +131,7 @@ public abstract class GameMod
 			});
 		} // If necessary, evacuate to main menu!!
 
-		return;
+		return shouldEvac;
 	}
 
 	/// <summary>

@@ -27,7 +27,8 @@
 
 		"PauseMods": "Mods",
 		"PauseModEnabled": "Enabled",
-		"PauseModsConfirmDisable": "Continue & Disable Mod"
+		"PauseModsConfirmDisable": "Continue & Disable Mod",
+		"ModSafeDisableErrorMessage": "This mod can't be disabled because it would disable the level you're currently in.\nTry going to the main menu first."
 	},
 	"Dialog":
 	{
