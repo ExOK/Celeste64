@@ -87,15 +87,25 @@ namespace Celeste64
 			GameMod? loadedMod = null;
 			var anyDllFile = false;
 
+			string fujiJsonFileName = "";
+			var candidateFiles = fs.FindFilesInDirectoryRecursive("", "json");
+
+			foreach (var jsonFileName in candidateFiles) {
+				if (jsonFileName.ToLower() == "fuji.json") {
+					fujiJsonFileName = jsonFileName;
+					break;
+				}
+			}
+
 			ModInfo modInfo;
-			if (fs.TryOpenFile("Fuji.json",
+			if (fs.TryOpenFile(fujiJsonFileName,
 				stream => JsonSerializer.Deserialize(stream, ModInfoContext.Default.ModInfo),
 				out var info))
 			{
 				modInfo = info;
 				if (!modInfo.IsValid())
 				{
-					throw new Exception($"Fuji Exception: Invalid Fuji.json file for {modFolder}/Fuji.json");
+					throw new Exception($"Fuji Exception: Invalid Fuji.json file for {modFolder}");
 				}
 			}
 			else
