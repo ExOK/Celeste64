@@ -26,7 +26,8 @@
 		"OptionsInvertCamera": "Inverted Camera",
 
 		"PauseMods": "Mods",
-		"PauseModEnabled": "Enabled"
+		"PauseModEnabled": "Enabled",
+		"PauseModsConfirmDisable": "Continue & Disable Mod"
 	},
 	"Dialog":
 	{

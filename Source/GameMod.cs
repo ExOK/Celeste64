@@ -75,6 +75,75 @@ public abstract class GameMod
 
 
 	/// <summary>
+	/// Get all mods which depend on this mod.
+	/// </summary>
+	public List<GameMod> GetDependents()
+	{
+		List<GameMod> depMods = new List<GameMod>();
+
+		foreach (GameMod mod in ModManager.Instance.Mods)
+		{
+			if (mod.ModInfo.Dependencies != null && mod.ModInfo.Dependencies.ContainsKey(this.ModInfo.Id) && mod.Enabled)
+			{
+				depMods.Add(mod);
+			}
+		}
+
+		return depMods;
+	}
+
+	/// <summary>
+	/// Disables the mod "safely" (accounts for dependent mods, etc.)
+	/// </summary>
+	public void DisableSafe()
+	{
+		bool shouldEvac = false;
+
+		foreach (GameMod dependent in this.GetDependents())
+		{
+			Save.Instance.GetOrMakeMod(dependent.ModInfo.Id).Enabled = false;
+			dependent.OnModUnloaded();
+
+			if (dependent == ModManager.Instance.CurrentLevelMod)
+			{
+				shouldEvac = true;
+			} // We'll want to adjust behaviour if the current level's parent mod must be disabled.
+		}
+
+		this.OnModUnloaded();
+
+		if (shouldEvac)
+		{
+			Game.Instance.Goto(new Transition()
+			{
+				Mode = Transition.Modes.Replace,
+				Scene = () => new Titlescreen(),
+				ToPause = true,
+				ToBlack = new AngledWipe(),
+				PerformAssetReload = true
+			});
+		} // If necessary, evacuate to main menu!!
+
+		return;
+	}
+
+	/// <summary>
+	/// Enables the mod's dependencies.
+	/// </summary>
+	public void EnableDependencies()
+	{
+		if (ModInfo.Dependencies != null)
+		{
+			foreach (var dep in ModInfo.Dependencies.Keys.ToList())
+			{
+				Save.Instance.GetOrMakeMod(dep).Enabled = true;
+			}
+		}
+
+		return;
+	}
+
+	/// <summary>
 	/// This allows modders to add their own actors to the actor factory system.
 	/// This can also be used to replace existing actors, but be warned that only one mod can replace something at a time.
 	/// </summary>
