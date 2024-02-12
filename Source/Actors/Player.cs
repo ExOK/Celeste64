@@ -124,7 +124,7 @@ public class Player : Actor, IHaveModels, IHaveSprites, IRidePlatforms, ICastPoi
 	public virtual float FeatherExitXYMult { get; set; }
 	public virtual float FeatherExitZSpeed { get; set; }
 
-	protected void ResetDefaultValues()
+	public void ResetDefaultValues()
 	{
 		Acceleration = defaultAcceleration;
 		PastMaxDeccel = defaultPastMaxDeccel;
@@ -276,9 +276,9 @@ public class Player : Actor, IHaveModels, IHaveSprites, IRidePlatforms, ICastPoi
 	protected Sound? sfxFeather;
 	protected Sound? sfxBubble;
 
-	protected Vec3 SolidWaistTestPos 
+	public Vec3 SolidWaistTestPos 
 		=> Position + Vec3.UnitZ * 3;
-	protected Vec3 SolidHeadTestPos 
+	public Vec3 SolidHeadTestPos 
 		=> Position + Vec3.UnitZ * 10;
 
 	public virtual bool InFeatherState 
@@ -310,7 +310,6 @@ public class Player : Actor, IHaveModels, IHaveSprites, IRidePlatforms, ICastPoi
 	private List<StatusEffect> statusEffects { get; } = new List<StatusEffect>();
 
 	public ReadOnlyCollection<StatusEffect> StatusEffects => statusEffects.AsReadOnly();
-
 
 	public Player()
 	{
@@ -1011,7 +1010,7 @@ public class Player : Actor, IHaveModels, IHaveSprites, IRidePlatforms, ICastPoi
 	public virtual void CancelGroundSnap() =>
 		tGroundSnapCooldown = 0.1f;
 
-	protected virtual void Jump()
+	public virtual void Jump()
 	{
 		Position = Position with { Z = coyoteZ };
 		holdJumpSpeed = velocity.Z = JumpSpeed;
@@ -1034,7 +1033,7 @@ public class Player : Actor, IHaveModels, IHaveSprites, IRidePlatforms, ICastPoi
 		Audio.Play(Sfx.sfx_jump, Position);
 	}
 
-	protected virtual void WallJump()
+	public virtual void WallJump()
 	{
 		holdJumpSpeed = velocity.Z = JumpSpeed;
 		tHoldJump = JumpHoldTime;
@@ -1050,7 +1049,7 @@ public class Player : Actor, IHaveModels, IHaveSprites, IRidePlatforms, ICastPoi
 		Audio.Play(Sfx.sfx_jump_wall, Position);
 	}
 
-	protected virtual void SkidJump()
+	public virtual void SkidJump()
 	{
 		Position = Position with { Z = coyoteZ };
 		holdJumpSpeed = velocity.Z = SkidJumpSpeed;
@@ -1074,7 +1073,7 @@ public class Player : Actor, IHaveModels, IHaveSprites, IRidePlatforms, ICastPoi
 		Audio.Play(Sfx.sfx_jump_skid, Position);
 	}
 
-	protected virtual void DashJump()
+	public virtual void DashJump()
 	{
 		Position = Position with { Z = coyoteZ };
 		velocity.Z = DashJumpSpeed;
@@ -1103,7 +1102,7 @@ public class Player : Actor, IHaveModels, IHaveSprites, IRidePlatforms, ICastPoi
 		Audio.Play(Sfx.sfx_jump_superslide, Position);
 	}
 
-	protected virtual void AddPlatformVelocity(bool playSound)
+	public virtual void AddPlatformVelocity(bool playSound)
 	{
 		if (tPlatformVelocityStorage > 0)
 		{
@@ -1137,7 +1136,7 @@ public class Player : Actor, IHaveModels, IHaveSprites, IRidePlatforms, ICastPoi
 		}
 	}
 
-	protected virtual bool ClimbCheckAt(Vec3 offset, out WallHit hit)
+	public virtual bool ClimbCheckAt(Vec3 offset, out WallHit hit)
 	{
 		if (World.SolidWallCheckClosestToNormal(SolidWaistTestPos + offset, ClimbCheckDist, -new Vec3(targetFacing, 0), out hit)
 		&& (RelativeMoveInput == Vec2.Zero || Vec2.Dot(hit.Normal.XY().Normalized(), RelativeMoveInput) <= -0.5f)
@@ -1146,7 +1145,7 @@ public class Player : Actor, IHaveModels, IHaveSprites, IRidePlatforms, ICastPoi
 		return false;
 	}
 
-	protected virtual bool TryClimb()
+	public virtual bool TryClimb()
 	{
 		var result = ClimbCheckAt(Vec3.Zero, out var wall);
 
@@ -1173,15 +1172,15 @@ public class Player : Actor, IHaveModels, IHaveSprites, IRidePlatforms, ICastPoi
 		}
 	}
 
-	protected virtual bool ClimbNormalCheck(in Vec3 normal)
+	public virtual bool ClimbNormalCheck(in Vec3 normal)
 	{
 		return MathF.Abs(normal.Z) < 0.35f; 
 	}
 
-	protected virtual bool FloorNormalCheck(in Vec3 normal)
+	public virtual bool FloorNormalCheck(in Vec3 normal)
 		=> !ClimbNormalCheck(normal) && normal.Z > 0;
 
-	protected virtual bool WallJumpCheck()
+	public virtual bool WallJumpCheck()
 	{
 		if (Controls.Jump.Pressed 
 		&& World.SolidWallCheckClosestToNormal(SolidWaistTestPos, ClimbCheckDist, -new Vec3(targetFacing, 0), out var hit))
@@ -1195,7 +1194,7 @@ public class Player : Actor, IHaveModels, IHaveSprites, IRidePlatforms, ICastPoi
 			return false;
 	}
 
-	internal void Spring(Spring spring)
+	public void Spring(Spring spring)
 	{
 		StateMachine.State = States.Normal;
 
@@ -1222,7 +1221,7 @@ public class Player : Actor, IHaveModels, IHaveSprites, IRidePlatforms, ICastPoi
 
 	#region Normal State
 
-	protected const float FootstepInterval = .3f;
+	public const float FootstepInterval = .3f;
 
 	protected float tHoldJump;
 	protected float holdJumpSpeed;
@@ -1497,16 +1496,16 @@ public class Player : Actor, IHaveModels, IHaveSprites, IRidePlatforms, ICastPoi
 	#region Dashing State
 
 	public virtual int Dashes => dashes;
-	protected int dashes = 1;
-	protected float tDash;
-	protected float tDashCooldown;
-	protected float tDashResetCooldown;
-	protected float tDashResetFlash;
-	protected float tNoDashJump;
-	protected bool dashedOnGround;
-	protected int dashTrailsCreated;
+	public int dashes = 1;
+	public float tDash;
+	public float tDashCooldown;
+	public float tDashResetCooldown;
+	public float tDashResetFlash;
+	public float tNoDashJump;
+	public bool dashedOnGround;
+	public int dashTrailsCreated;
 
-	protected virtual bool TryDash()
+	public virtual bool TryDash()
 	{
 		if (dashes > 0 && tDashCooldown <= 0 && Controls.Dash.ConsumePress())
 		{
@@ -1630,7 +1629,7 @@ public class Player : Actor, IHaveModels, IHaveSprites, IRidePlatforms, ICastPoi
 
 	#region Skidding State
 
-	protected float tNoSkidJump;
+	public float tNoSkidJump;
 
 	protected virtual void StSkiddingEnter()
 	{
