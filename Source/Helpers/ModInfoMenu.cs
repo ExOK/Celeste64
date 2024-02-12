@@ -36,10 +36,8 @@ public class ModInfoMenu : Menu
 					{
 						Mod.OnModUnloaded();
 					}
-					//if (Game.Instance.World != null)
-					//{
-						Game.Instance.NeedsReload = true;
-					//}
+
+					Game.Instance.NeedsReload = true;
 				}
 			},
 			() => Mod != null ? Save.Instance.GetOrMakeMod(Mod.ModInfo.Id).Enabled : false));
