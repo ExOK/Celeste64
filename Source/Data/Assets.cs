@@ -157,22 +157,7 @@ public static class Assets
 		foreach (var mod in ModManager.Instance.Mods)
 		{
 			mod.Levels.Clear();
-
-			if (mod.Filesystem == null) 
-				return;
-
-			string levelsJsonFileName = "";
-			var candidateFiles = mod.Filesystem.FindFilesInDirectoryRecursive("", "json");
-
-			foreach (var jsonFileName in candidateFiles) {
-				if (jsonFileName.ToLower() == "levels.json") {
-					levelsJsonFileName = jsonFileName;
-					break;
-				}
-			}
-
-
-			if (mod.Filesystem.TryOpenFile(levelsJsonFileName, 
+			if (mod.Filesystem != null && mod.Filesystem.TryOpenFile("Levels.json", 
 				    stream => JsonSerializer.Deserialize(stream, LevelInfoListContext.Default.ListLevelInfo) ?? [], 
 				    out var levels))
 			{
