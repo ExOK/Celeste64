@@ -53,7 +53,6 @@ public class World : Scene
 			return player.IsAbleToPause;
 		}
 	}
-	internal bool NeedsReload = false;
 
 	private readonly Stopwatch debugUpdTimer = new();
 	private readonly Stopwatch debugRndTimer = new();
@@ -426,9 +425,9 @@ public class World : Scene
 	{
 		if(paused == false)
 		{
-			if(NeedsReload)
+			if(Game.Instance.NeedsReload)
 			{
-				NeedsReload = false;
+				Game.Instance.NeedsReload = false;
 				Game.Instance.ReloadAssets();
 			}
 

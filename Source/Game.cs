@@ -67,6 +67,8 @@ public class Game : Module
 	public Scene? Scene { get { return scenes.Peek(); } }
 	public World? World { get { return scenes.Peek() is World world ? world : null; } }
 
+	internal bool NeedsReload = false;
+
 	public Game()
 	{
 		// If this isn't stored, the delegate will get GC'd and everything will crash :)
