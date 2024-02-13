@@ -64,8 +64,8 @@ public class Game : Module
 	public AudioHandle Ambience;
 	public AudioHandle Music;
 
-	public Scene? Scene { get { return scenes.Peek(); } }
-	public World? World { get { return scenes.Peek() is World world ? world : null; } }
+	public Scene? Scene { get { return scenes.TryPeek(out Scene? scene) ? scene : null; } }
+	public World? World { get { return Scene is World world ? world : null; } }
 
 	internal bool NeedsReload = false;
 

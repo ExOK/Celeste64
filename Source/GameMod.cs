@@ -1,4 +1,6 @@
-﻿namespace Celeste64;
+﻿using MonoMod.RuntimeDetour;
+
+namespace Celeste64;
 
 public abstract class GameMod
 {
@@ -168,6 +170,11 @@ public abstract class GameMod
 		}
 	}
 
+	// Passthrough functions to simplify adding stuff to the Hook Manager.
+	public static void RegisterHook(Hook hook) => HookManager.Instance.RegisterHook(hook);
+	public static void RegisterILHook(ILHook iLHook) => HookManager.Instance.RegisterILHook(iLHook);
+	public static void RemoveHook(Hook hook) => HookManager.Instance.RemoveHook(hook);
+	public static void RemoveILHook(ILHook iLHook) => HookManager.Instance.RemoveILHook(iLHook);
 	/// <summary>
 	/// Registers the provided custom player state,
 	/// and ensures it will be deregistered once the mod unloads.
@@ -176,17 +183,6 @@ public abstract class GameMod
 	{
 		CustomPlayerStateRegistry.Register<T>();
 		OnUnloadedCleanup += CustomPlayerStateRegistry.Deregister<T>;
-	}
-
-	/// <summary>
-	/// Saves data to the save file for this mod, that can be accessed with a given key.
-	/// </summary>
-	public void SaveData(string key, string data)
-	{
-		if (!string.IsNullOrEmpty(key) && !string.IsNullOrEmpty(data))
-		{
-			Save.Instance.GetOrMakeMod(ModInfo.Id).Settings.TryAdd(key, data);
-		}
 	}
 
 	// Game Event Functions. These are used to provide an "interface" of sorts that mods can easily override.
