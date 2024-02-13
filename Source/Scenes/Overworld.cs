@@ -5,6 +5,8 @@ public class Overworld : Scene
 {
 	public const int CardWidth = (int)(480 * Game.RelativeScale);
 	public const int CardHeight = (int)(320 * Game.RelativeScale);
+	public bool Paused;
+	public Menu pauseMenu;
 
 	public class Entry
 	{
@@ -202,7 +204,7 @@ public class Overworld : Scene
 		for (int i = 0; i < entries.Count; i++)
 		{
 			var it = entries[i];
-			Calc.Approach(ref it.HighlightEase, index == i ? 1.0f : 0.0f, Time.Delta * 8.0f); 
+			Calc.Approach(ref it.HighlightEase, index == i ? 1.0f : 0.0f, Time.Delta * 8.0f);
 			Calc.Approach(ref it.SelectionEase, index == i && (state == States.Selected || state == States.Restarting) ? 1.0f : 0.0f, Time.Delta * 4.0f);
 
 			if (it.SelectionEase >= 0.50f && state == States.Selected)
@@ -212,8 +214,8 @@ public class Overworld : Scene
 
 		if (Game.Instance.IsMidTransition)
 			return;
-		
-		if (state == States.Selecting)
+
+		if (state == States.Selecting && !Paused)
 		{
 			var was = index;
 			if (Controls.Menu.Horizontal.Negative.Pressed)
@@ -247,6 +249,44 @@ public class Overworld : Scene
 					ToBlack = new AngledWipe(),
 					ToPause = true
 				});
+			}
+
+			if (Controls.Pause.ConsumePress())
+			{
+				Paused = !Paused;
+
+				if (Paused)
+				{
+					Menu optionsMenu = new Menu();
+					optionsMenu.Title = Loc.Str("OptionsTitle");
+					optionsMenu.Add(new Menu.Toggle(Loc.Str("OptionsFullscreen"), Save.Instance.ToggleFullscreen, () => Save.Instance.Fullscreen));
+					optionsMenu.Add(new Menu.Toggle(Loc.Str("OptionsZGuide"), Save.Instance.ToggleZGuide, () => Save.Instance.ZGuide));
+					optionsMenu.Add(new Menu.Toggle(Loc.Str("OptionsTimer"), Save.Instance.ToggleTimer, () => Save.Instance.SpeedrunTimer));
+					optionsMenu.Add(new Menu.MultiSelect<Save.InvertCameraOptions>(Loc.Str("OptionsInvertCamera"), Save.Instance.SetCameraInverted, () => Save.Instance.InvertCamera));
+					optionsMenu.Add(new Menu.Spacer());
+					optionsMenu.Add(new Menu.Slider(Loc.Str("OptionsBGM"), 0, 10, () => Save.Instance.MusicVolume, Save.Instance.SetMusicVolume));
+					optionsMenu.Add(new Menu.Slider(Loc.Str("OptionsSFX"), 0, 10, () => Save.Instance.SfxVolume, Save.Instance.SetSfxVolume));
+
+					pauseMenu = new();
+					pauseMenu.Title = Loc.Str("PauseOptions");
+
+					ModSelectionMenu modMenu = new ModSelectionMenu()
+					{
+						RootMenu = pauseMenu,
+						Title = "Mods Menu"
+					};
+
+					pauseMenu.Add(new Menu.Submenu(Loc.Str("PauseMods"), pauseMenu, modMenu));
+					pauseMenu.Add(new Menu.Submenu(Loc.Str("PauseOptions"), pauseMenu, optionsMenu));
+					pauseMenu.Add(new Menu.Option(Loc.Str("Exit"), () =>
+					{
+						if (Game.Instance.NeedsReload)
+						{
+							Game.Instance.ReloadAssets();
+						}
+						Paused = false;
+					}));
+				}
 			}
 		}
 		else if (state == States.Selected)
@@ -304,6 +344,17 @@ public class Overworld : Scene
 				entries[index].Level.Enter(new SlideWipe(), 1.5f);
 			}
 		}
+		else if (Paused)
+		{
+			if (Controls.Pause.ConsumePress())
+			{
+				if (Game.Instance.NeedsReload)
+				{
+					Game.Instance.ReloadAssets();
+				}
+				Paused = false;
+			}
+		}
 	}
 
 	public override void Render(Target target)
@@ -329,90 +380,108 @@ public class Overworld : Scene
 			FarPlane = 1000
 		};
 
-		for (int i = 0; i < entries.Count; i ++)
+		if (Paused)
 		{
-			var it = entries[i];
-			var shift = Ease.Cube.In(1.0f - it.HighlightEase) * 30 - Ease.Cube.In(it.SelectionEase) * 20;
-			if (i != index)
-				shift += Ease.Cube.InOut(selectedEase) * 50;
-			var position = new Vec3((i - slide) * 60, shift, 0);
-			var rotation = Ease.Cube.InOut(it.SelectionEase);
-			var matrix = 
-				Matrix.CreateScale(new Vec3(it.SelectionEase >= 0.50f ? -1 : 1, 1, 1)) *
-				Matrix.CreateRotationX(wobble.Y * it.HighlightEase) *
-				Matrix.CreateRotationZ(wobble.X * it.HighlightEase) *
-				Matrix.CreateRotationZ((state == States.Entering ? -1 : 1) * rotation * MathF.PI) *
-				Matrix.CreateTranslation(position);
+			pauseMenu.Update();
 
-            if (material.Shader?.Has("u_matrix") ?? false)
-			    material.Set("u_matrix", matrix * camera.ViewProjection);
-            if (material.Shader?.Has("u_near") ?? false)
-			    material.Set("u_near", camera.NearPlane);
-            if (material.Shader?.Has("u_far") ?? false)
-			    material.Set("u_far", camera.FarPlane);
-            if (material.Shader?.Has("u_texture") ?? false)
-			    material.Set("u_texture", it.Target);
-            if (material.Shader?.Has("u_texture_sampler") ?? false)
-			    material.Set("u_texture_sampler", new TextureSampler(TextureFilter.Linear, TextureWrap.ClampToEdge, TextureWrap.ClampToEdge));
-
-			var cmd = new DrawCommand(target, mesh, material)
-			{
-				DepthMask = true,
-				DepthCompare = DepthCompare.Less,
-				CullMode = CullMode.None
-			};
-			cmd.Submit();
-		}
-
-		// overlay
-		{
-			batch.SetSampler(new TextureSampler(TextureFilter.Linear, TextureWrap.ClampToEdge, TextureWrap.ClampToEdge));
 			var bounds = new Rect(0, 0, target.Width, target.Height);
-			var scroll = -new Vec2(1.25f, 0.9f) * (float)(Time.Duration.TotalSeconds) * 0.05f;
 
-			// confirmation
-			if (state == States.Restarting)
-			{
-				batch.Rect(bounds, Color.Black * 0.90f);
-				restartConfirmMenu.Render(batch, bounds.Center);
-			}
-
-			batch.PushBlend(BlendMode.Add);
-			batch.PushSampler(new TextureSampler(TextureFilter.Linear, TextureWrap.Repeat, TextureWrap.Repeat));
-			batch.Image(Assets.Textures["overworld/overlay"], 
-				bounds.TopLeft, bounds.TopRight, bounds.BottomRight, bounds.BottomLeft,
-				scroll + new Vec2(0, 0), scroll + new Vec2(1, 0), scroll + new Vec2(1, 1), scroll + new Vec2(0, 1),
-				Color.White * 0.10f);
-			batch.PopBlend();
-			batch.PopSampler();
-			batch.Image(Assets.Textures["overworld/vignette"], 
-				bounds.TopLeft, bounds.TopRight, bounds.BottomRight, bounds.BottomLeft,
-				new Vec2(0, 0), new Vec2(1, 0), new Vec2(1, 1), new Vec2(0, 1),
-				Color.White * 0.30f);
-
-			// button prompts
-			if (state != States.Entering)
-			{
-				var cancelPrompt = Loc.Str(state == States.Selecting ? "back" : "cancel");
-				var at = bounds.BottomRight + new Vec2(-16, -4) * Game.RelativeScale + new Vec2(0, -UI.PromptSize);
-				var width = 0.0f;
-				UI.Prompt(batch, Controls.Cancel, cancelPrompt, at, out width, 1.0f);
-				at.X -= width + 8 * Game.RelativeScale;
-				UI.Prompt(batch, Controls.Confirm, Loc.Str("confirm"), at, out _, 1.0f);
-
-				// show version number on Overworld as well
-                UI.Text(batch, Game.VersionString, bounds.BottomLeft + new Vec2(4, -4) * Game.RelativeScale, new Vec2(0, 1), Color.CornflowerBlue * 0.75f);
-				UI.Text(batch, Game.LoaderVersion, bounds.BottomLeft + new Vec2(4, -24) * Game.RelativeScale, new Vec2(0, 1), new Color(12326399) * 0.75f);
-            }
-
-			if (cameraCloseUpEase > 0)
-			{
-				batch.PushBlend(BlendMode.Subtract);
-				batch.Rect(bounds, Color.White * Ease.Cube.In(cameraCloseUpEase));
-				batch.PopBlend();
-			}
+			pauseMenu.Render(batch, bounds.Center);
 			batch.Render(target);
 			batch.Clear();
+		} else {
+			for (int i = 0; i < entries.Count; i ++)
+			{
+				var it = entries[i];
+				var shift = Ease.Cube.In(1.0f - it.HighlightEase) * 30 - Ease.Cube.In(it.SelectionEase) * 20;
+				if (i != index)
+					shift += Ease.Cube.InOut(selectedEase) * 50;
+				var position = new Vec3((i - slide) * 60, shift, 0);
+				var rotation = Ease.Cube.InOut(it.SelectionEase);
+				var matrix = 
+					Matrix.CreateScale(new Vec3(it.SelectionEase >= 0.50f ? -1 : 1, 1, 1)) *
+					Matrix.CreateRotationX(wobble.Y * it.HighlightEase) *
+					Matrix.CreateRotationZ(wobble.X * it.HighlightEase) *
+					Matrix.CreateRotationZ((state == States.Entering ? -1 : 1) * rotation * MathF.PI) *
+					Matrix.CreateTranslation(position);
+
+				if (material.Shader?.Has("u_matrix") ?? false)
+					material.Set("u_matrix", matrix * camera.ViewProjection);
+				if (material.Shader?.Has("u_near") ?? false)
+					material.Set("u_near", camera.NearPlane);
+				if (material.Shader?.Has("u_far") ?? false)
+					material.Set("u_far", camera.FarPlane);
+				if (material.Shader?.Has("u_texture") ?? false)
+					material.Set("u_texture", it.Target);
+				if (material.Shader?.Has("u_texture_sampler") ?? false)
+					material.Set("u_texture_sampler", new TextureSampler(TextureFilter.Linear, TextureWrap.ClampToEdge, TextureWrap.ClampToEdge));
+
+				var cmd = new DrawCommand(target, mesh, material)
+				{
+					DepthMask = true,
+					DepthCompare = DepthCompare.Less,
+					CullMode = CullMode.None
+				};
+				cmd.Submit();
+			}
+
+			// overlay
+			{
+				batch.SetSampler(new TextureSampler(TextureFilter.Linear, TextureWrap.ClampToEdge, TextureWrap.ClampToEdge));
+				var bounds = new Rect(0, 0, target.Width, target.Height);
+				var scroll = -new Vec2(1.25f, 0.9f) * (float)(Time.Duration.TotalSeconds) * 0.05f;
+
+				// confirmation
+				if (state == States.Restarting)
+				{
+					batch.Rect(bounds, Color.Black * 0.90f);
+					restartConfirmMenu.Render(batch, bounds.Center);
+				}
+
+				batch.PushBlend(BlendMode.Add);
+				batch.PushSampler(new TextureSampler(TextureFilter.Linear, TextureWrap.Repeat, TextureWrap.Repeat));
+				batch.Image(Assets.Textures["overworld/overlay"], 
+					bounds.TopLeft, bounds.TopRight, bounds.BottomRight, bounds.BottomLeft,
+					scroll + new Vec2(0, 0), scroll + new Vec2(1, 0), scroll + new Vec2(1, 1), scroll + new Vec2(0, 1),
+					Color.White * 0.10f);
+				batch.PopBlend();
+				batch.PopSampler();
+				batch.Image(Assets.Textures["overworld/vignette"], 
+					bounds.TopLeft, bounds.TopRight, bounds.BottomRight, bounds.BottomLeft,
+					new Vec2(0, 0), new Vec2(1, 0), new Vec2(1, 1), new Vec2(0, 1),
+					Color.White * 0.30f);
+
+				// button prompts
+				if (state != States.Entering)
+				{
+					var cancelPrompt = Loc.Str(state == States.Selecting ? "Back" : "Cancel");
+					var at = bounds.BottomRight + new Vec2(-16, -4) * Game.RelativeScale + new Vec2(0, -UI.PromptSize);
+					var width = 0.0f;
+					var width2 = 0.0f;
+					UI.Prompt(batch, Controls.Cancel, cancelPrompt, at, out width, 1.0f);
+					at.X -= width + 8 * Game.RelativeScale;
+					UI.Prompt(batch, Controls.Confirm, Loc.Str("Confirm"), at, out width2, 1.0f);
+
+					if(state == States.Selecting)
+					{
+						at.X -= width2 + 8 * Game.RelativeScale;
+						UI.Prompt(batch, Controls.Pause, Loc.Str("OptionsTitle"), at, out _, 1.0f);
+					}
+
+					// show version number on Overworld as well
+					UI.Text(batch, Game.VersionString, bounds.BottomLeft + new Vec2(4, -4) * Game.RelativeScale, new Vec2(0, 1), Color.CornflowerBlue * 0.75f);
+					UI.Text(batch, Game.LoaderVersion, bounds.BottomLeft + new Vec2(4, -24) * Game.RelativeScale, new Vec2(0, 1), new Color(12326399) * 0.75f);
+				}
+
+				if (cameraCloseUpEase > 0)
+				{
+					batch.PushBlend(BlendMode.Subtract);
+					batch.Rect(bounds, Color.White * Ease.Cube.In(cameraCloseUpEase));
+					batch.PopBlend();
+				}
+				batch.Render(target);
+				batch.Clear();
+			}
 		}
 	}
 }

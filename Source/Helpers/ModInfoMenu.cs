@@ -13,6 +13,8 @@ public class ModInfoMenu : Menu
 	internal GameMod? Mod;
 
 	public Menu? RootMenu;
+	public Menu? depWarningMenu;
+	public Menu? safeDisableErrorMenu;
 
 	internal ModInfoMenu()
 	{
@@ -30,16 +32,68 @@ public class ModInfoMenu : Menu
 
 					if (Save.Instance.GetOrMakeMod(Mod.ModInfo.Id).Enabled)
 					{
+						Mod.EnableDependencies(); // Also enable dependencies of the mod being enabled (if any).
+
 						Mod.OnModLoaded();
 					}
 					else
 					{
-						Mod.OnModUnloaded();
+						if (Mod.DisableSafe(true)) // If it is not safe to disable the mod
+						{
+							safeDisableErrorMenu = new Menu();
+
+							safeDisableErrorMenu.Title = Loc.Str("ModSafeDisableErrorMessage");
+
+							safeDisableErrorMenu.Add(new Menu.Option(Loc.Str("Exit"), () => {
+								Save.Instance.GetOrMakeMod(Mod.ModInfo.Id).Enabled = true; // Override the toggle if the operation can't be done.
+
+								RootMenu?.PopSubMenu();
+							}));
+
+							RootMenu?.PushSubMenu(safeDisableErrorMenu);
+
+							return;
+						}
+
+
+						if (Mod.GetDependents().Count > 0)
+						{
+							depWarningMenu = new Menu();
+
+							depWarningMenu.Title = $"Warning, this mod is depended on by {Mod.GetDependents().Count} other mod(s).\nIf you disable this mod, those mods will also be disabled.";
+							depWarningMenu.Add(new Menu.Option(Loc.Str("PauseModsConfirmDisable"), () => {
+								Mod.DisableSafe(false);
+
+								RootMenu?.PopSubMenu();
+							}));
+							depWarningMenu.Add(new Menu.Option(Loc.Str("Exit"), () => {
+								Save.Instance.GetOrMakeMod(Mod.ModInfo.Id).Enabled = true; // Override the toggle if the operation was cancelled.
+
+								RootMenu?.PopSubMenu();
+							}));
+
+							RootMenu?.PushSubMenu(depWarningMenu);
+						} else {
+							Mod.OnModUnloaded();
+						}
 					}
-					if (Game.Instance.World != null)
-					{
-						Game.Instance.World.NeedsReload = true;
-					}
+
+					Game.Instance.NeedsReload = true;
+				} else {
+					safeDisableErrorMenu = new Menu();
+
+					safeDisableErrorMenu.Title = Loc.Str("ModSafeDisableErrorMessage");
+
+					safeDisableErrorMenu.Add(new Menu.Option(Loc.Str("Exit"), () => {
+						if (Mod != null)
+						{
+							Save.Instance.GetOrMakeMod(Mod.ModInfo.Id).Enabled = true; // Override the toggle if the operation can't be done.
+						}
+
+						RootMenu?.PopSubMenu();
+					}));
+
+					RootMenu?.PushSubMenu(safeDisableErrorMenu);
 				}
 			},
 			() => Mod != null ? Save.Instance.GetOrMakeMod(Mod.ModInfo.Id).Enabled : false));
