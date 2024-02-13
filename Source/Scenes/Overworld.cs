@@ -228,6 +228,16 @@ public class Overworld : Scene
 				Controls.Menu.ConsumePress();
 				index++;
 			}
+			if (Controls.Menu.Vertical.Positive.Pressed)
+			{
+				Controls.Menu.ConsumePress();
+				index = entries.Count - 1;
+			}
+			if (Controls.Menu.Vertical.Negative.Pressed)
+			{
+				Controls.Menu.ConsumePress();
+				index = 0;
+			}
 			index = Calc.Clamp(index, 0, entries.Count - 1);
 
 			if (was != index)
