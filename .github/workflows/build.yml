@@ -63,6 +63,6 @@ jobs:
           # Requirements:
           
           - **Windows:** 10 or later, x64
-          - **Linux:** [Distro support list](https://github.com/dotnet/core/blob/main/release-notes/8.0/supported-os.md), x64, ARM64, and ARM32
+          - **Linux:** [Distro support list](https://github.com/dotnet/core/blob/main/release-notes/8.0/supported-os.md), GLIBC 2.35+ Distros x64, ARM64, and ARM32
           - **Mac:** Monterey or later, x64, and ARM64
         files: Celeste64-${{ github.ref_name }}-${{ runner.os }}-${{ matrix.arch }}.zip
