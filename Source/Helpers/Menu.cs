@@ -188,6 +188,16 @@ public class Menu
 			return GetDeepestActiveSubmenu(target.submenus.Peek());
 		}
 	}
+
+	public Menu GetSecondDeepestMenu(Menu target)
+	{
+		if (target.submenus.Peek() != null && target.submenus.Peek().submenus.Count <= 0)
+		{
+			return target;
+		} else {
+			return GetSecondDeepestMenu(target.submenus.Peek());
+		}
+	}
 	
 	public Vec2 Size
 	{
@@ -289,7 +299,7 @@ public class Menu
 	        if (!IsInMainMenu && Controls.Cancel.ConsumePress()) 
 			{
 				Audio.Play(Sfx.main_menu_toggle_off);
-				submenus.Pop();
+				GetSecondDeepestMenu(this).submenus.Pop();
 			}
 	    }
 	}
