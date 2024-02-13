@@ -12,6 +12,8 @@ public static class Controls
 	public static readonly VirtualButton Confirm = new("Confirm");
 	public static readonly VirtualButton Cancel = new("Cancel");
 	public static readonly VirtualButton Pause = new("Pause");
+	public static readonly VirtualButton CameraLeftStep = new("CameraLeftStep");
+	public static readonly VirtualButton CameraRightStep = new("CameraRightStep");
 
 	public static void Load(ControlsConfig? config = null)
 	{
@@ -51,13 +53,18 @@ public static class Controls
 			it.BindTo(Cancel);
 		foreach (var it in FindAction(config, "Pause"))
 			it.BindTo(Pause);
-
+		foreach (var it in FindAction(config, "CameraLeftStep"))
+			it.BindTo(CameraLeftStep);
+		foreach (var it in FindAction(config, "CameraRightStep"))
+			it.BindTo(CameraRightStep);
 	}
 
 	public static void Clear()
 	{
 		Move.Clear();
 		Camera.Clear();
+		CameraLeftStep.Clear();
+		CameraRightStep.Clear();
 		Jump.Clear();
 		Dash.Clear();
 		Climb.Clear();
@@ -72,6 +79,8 @@ public static class Controls
 		Move.Consume();
 		Menu.Consume();
 		Camera.Consume();
+		CameraLeftStep.Consume();
+		CameraRightStep.Consume();
 		Jump.Consume();
 		Dash.Consume();
 		Climb.Consume();
