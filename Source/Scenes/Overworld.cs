@@ -257,7 +257,7 @@ public class Overworld : Scene
 
 				if (Paused)
 				{
-					Menu optionsMenu = new GameOptionsMenu().RootMenu;
+					Menu optionsMenu = new GameOptionsMenu();
 
 					pauseMenu = new();
 					pauseMenu.Title = Loc.Str("PauseOptions");

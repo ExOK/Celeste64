@@ -82,7 +82,7 @@ public class World : Scene
 
 		// setup pause menu
 		{
-			Menu optionsMenu = new GameOptionsMenu().RootMenu;
+			Menu optionsMenu = new GameOptionsMenu();
 
 			ModSelectionMenu modMenu = new ModSelectionMenu()
 			{
