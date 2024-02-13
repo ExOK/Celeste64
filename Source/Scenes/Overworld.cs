@@ -6,7 +6,7 @@ public class Overworld : Scene
 	public const int CardWidth = (int)(480 * Game.RelativeScale);
 	public const int CardHeight = (int)(320 * Game.RelativeScale);
 	public bool Paused;
-	public Menu pauseMenu;
+	public Menu? pauseMenu;
 
 	public class Entry
 	{
@@ -380,7 +380,7 @@ public class Overworld : Scene
 			FarPlane = 1000
 		};
 
-		if (Paused)
+		if (Paused && pauseMenu != null)
 		{
 			pauseMenu.Update();
 
