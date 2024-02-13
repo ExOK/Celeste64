@@ -113,9 +113,11 @@ public class ControlsConfig
 				new(Axes.RightTrigger, 0.4f, false),
 			],
 			["CameraLeftStep"] = [
+				new(Keys.Q),
 				new(Buttons.LeftShoulder),
 			],
 			["CameraRightStep"] = [
+				new(Keys.E),
 				new(Buttons.RightShoulder),
 			],
 			["Confirm"] = [
