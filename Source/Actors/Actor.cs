@@ -5,7 +5,7 @@ public class Actor
 {
 	private World? world = null;
 	private Vec3 position;
-	private Vec2 facing = -Vec2.UnitY;
+	private Vec3 facing = -Vec3.UnitY;
 	private Vec3 forward;
 	private Matrix matrix;
 	private BoundingBox localBounds;
@@ -64,7 +64,7 @@ public class Actor
 		}
 	}
 
-	public Vec2 Facing
+	public Vec3 Facing
 	{
 		get => facing;
 		set
@@ -118,7 +118,8 @@ public class Actor
 		dirty = false;
 
 		matrix =
-			Matrix.CreateRotationZ(facing.Angle() + MathF.PI / 2) *
+			Matrix.CreateRotationZ(facing.XY().Angle() + MathF.PI / 2) *
+			Matrix.CreateRotationY(Facing.Z) *
 			Matrix.CreateTranslation(position);
 		worldBounds = BoundingBox.Transform(localBounds, matrix);
 		forward = Vec3.TransformNormal(-Vec3.UnitY, matrix);

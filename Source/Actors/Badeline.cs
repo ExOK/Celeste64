@@ -50,7 +50,7 @@ public class Badeline : NPC
 				if (it.Name == "Head")
 					hairMatrix = it.ModelMatrix * SkinnedModel.BaseTranslation * Model.Transform * Matrix;
 			hair.Flags = Model.Flags;
-			hair.Forward = -new Vec3(Facing, 0);
+			hair.Forward = -Facing;
 			hair.Materials[0].Effects = 0;
 			hair.Update(hairMatrix);
 		}

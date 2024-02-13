@@ -737,7 +737,7 @@ public class Player : Actor, IHaveModels, IHaveSprites, IRidePlatforms, ICastPoi
 			Calc.Approach(ref ModelScale.Y, 1, Time.Delta / .8f);
 			Calc.Approach(ref ModelScale.Z, 1, Time.Delta / .8f);
 
-			Facing = Calc.AngleToVector(Calc.AngleApproach(Facing.Angle(), targetFacing.Angle(), MathF.Tau * 2 * Time.Delta));
+			Facing = new(Calc.AngleToVector(Calc.AngleApproach(Facing.XY().Angle(), targetFacing.Angle(), MathF.Tau * 2 * Time.Delta)), Facing.Z);
 
 			Model.Update();
 			Model.Transform = Matrix.CreateScale(ModelScale * 3);
@@ -772,7 +772,7 @@ public class Player : Actor, IHaveModels, IHaveSprites, IRidePlatforms, ICastPoi
 			}
 
 			Hair.Flags = Model.Flags;
-			Hair.Forward = -new Vec3(Facing, 0);
+			Hair.Forward = -Facing;
 			Hair.Squish = ModelScale;
 			Hair.Materials[0].Effects = 0;
 			Hair.Grounded = onGround;
@@ -1350,7 +1350,8 @@ public class Player : Actor, IHaveModels, IHaveSprites, IRidePlatforms, ICastPoi
 				{
 					if (Vec2.Dot(input, velXY.Normalized()) <= SkidDotThreshold)
 					{
-						Facing = targetFacing = input;
+						targetFacing = input;
+						Facing = new(targetFacing, Facing.Z);
 						StateMachine.State = States.Skidding;
 						return;
 					}
@@ -1520,7 +1521,7 @@ public class Player : Actor, IHaveModels, IHaveSprites, IRidePlatforms, ICastPoi
 	{
 		if (RelativeMoveInput != Vec2.Zero)
 			targetFacing = RelativeMoveInput;
-		Facing = targetFacing;
+		Facing = new(targetFacing, Facing.Z);
 
 		lastDashHairColor = dashes <= 0 ? Skin.HairNoDash : Skin.HairNormal;
 		dashedOnGround = onGround;
@@ -1798,7 +1799,7 @@ public class Player : Actor, IHaveModels, IHaveSprites, IRidePlatforms, ICastPoi
 				{
 					if (Time.OnInterval(0.05f))
 					{
-						var at = Position + wallUp * 5 + new Vec3(Facing, 0) * 2;
+						var at = Position + wallUp * 5 + Facing * 2;
 						var vel = tPlatformVelocityStorage > 0 ? platformVelocity : Vec3.Zero;
 						World.Request<Dust>().Init(at, vel);
 					}
@@ -1952,7 +1953,8 @@ public class Player : Actor, IHaveModels, IHaveSprites, IRidePlatforms, ICastPoi
 
 	protected virtual void StStrawbGetUpdate()
 	{
-		Facing = targetFacing = Calc.AngleToVector(strawbGetForward.Angle() - MathF.PI / 7);
+		targetFacing = Calc.AngleToVector(strawbGetForward.Angle() - MathF.PI / 7);
+		Facing = new(targetFacing, Facing.Z);
 		cameraOverride = new CameraOverride(Position + new Vec3(strawbGetForward * 50, 40), Position + Vec3.UnitZ * 6);
 	}
 
