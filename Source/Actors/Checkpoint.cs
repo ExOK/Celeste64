@@ -7,7 +7,7 @@ public class Checkpoint : Actor, IHaveModels, IPickup, IHaveSprites
 	public SkinnedModel ModelOff;
 	public SkinnedModel ModelOn;
 
-	private float tWiggle = 0.0f;
+	public float TWiggle = 0.0f;
 
 	public Checkpoint(string name)
 	{
@@ -21,10 +21,10 @@ public class Checkpoint : Actor, IHaveModels, IPickup, IHaveSprites
 		ModelOn.Transform = Matrix.CreateScale(0.2f);
 	}
 
-	public float PickupRadius => 16;
+	public virtual float PickupRadius => 16;
 
-	public bool IsCurrent => World.Entry.CheckPoint == Name;
-	public SkinnedModel CurrentModel => (IsCurrent ? ModelOn : ModelOff);
+	public virtual bool IsCurrent => World.Entry.CheckPoint == Name;
+	public virtual SkinnedModel CurrentModel => (IsCurrent ? ModelOn : ModelOff);
 
 	public override void Added()
 	{
@@ -37,17 +37,17 @@ public class Checkpoint : Actor, IHaveModels, IPickup, IHaveSprites
 	{
 		if (IsCurrent)
 		{
-			Calc.Approach(ref tWiggle, 0, Time.Delta / 0.7f);
+			Calc.Approach(ref TWiggle, 0, Time.Delta / 0.7f);
 			CurrentModel.Update();
 		}
 	}
 
-	public void CollectModels(List<(Actor Actor, Model Model)> populate)
+	public virtual void CollectModels(List<(Actor Actor, Model Model)> populate)
 	{
 		populate.Add((this, CurrentModel));
 	}
 
-	public void Pickup(Player player)
+	public virtual void Pickup(Player player)
 	{
 		if (!IsCurrent)
 		{
@@ -57,20 +57,20 @@ public class Checkpoint : Actor, IHaveModels, IPickup, IHaveSprites
 			if (!World.Entry.Submap)
 				Save.CurrentRecord.Checkpoint = Name;
 
-			tWiggle = 1;
+			TWiggle = 1;
 		}
 	}
 
-	public void CollectSprites(List<Sprite> populate)
+	public virtual void CollectSprites(List<Sprite> populate)
 	{
 		var haloPos = Position + Vec3.UnitZ * 16;
 		var haloCol = new Color(IsCurrent ? 0x7fde46 : 0xdf5ab4) * .4f;
 		populate.Add(Sprite.CreateBillboard(World, haloPos, "gradient", 12, haloCol * 0.40f));
 
-		if (tWiggle > 0)
+		if (TWiggle > 0)
 		{
-			populate.Add(Sprite.CreateBillboard(World, haloPos, "ring", tWiggle * tWiggle * 40, haloCol) with { Post = true });
-			populate.Add(Sprite.CreateBillboard(World, haloPos, "ring", tWiggle * 50, haloCol) with { Post = true });
+			populate.Add(Sprite.CreateBillboard(World, haloPos, "ring", TWiggle * TWiggle * 40, haloCol) with { Post = true });
+			populate.Add(Sprite.CreateBillboard(World, haloPos, "ring", TWiggle * 50, haloCol) with { Post = true });
 		}
 	}
 }

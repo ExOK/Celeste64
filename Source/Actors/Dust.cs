@@ -3,7 +3,7 @@ namespace Celeste64;
 
 public class Dust : Actor, IHaveSprites, IRecycle
 {
-	private static readonly string[] images = ["dust_0", "dust_1", "dust_2", "dust_3", "dust_4"];
+	public static readonly string[] Images = ["dust_0", "dust_1", "dust_2", "dust_3", "dust_4"];
 
 	public Vec3 Velocity;
 	public Subtexture Image;
@@ -11,13 +11,13 @@ public class Dust : Actor, IHaveSprites, IRecycle
 	public float Percent;
 	public float Duration;
 
-	public void Init(Vec3 position, Vec3 velocity, Color? color = null)
+	public virtual void Init(Vec3 position, Vec3 velocity, Color? color = null)
 	{
 		Position = position;
 		Velocity = velocity;
 		Percent = 0.0f;
 		Color = color ?? new Color(0.7f, 0.75f, 0.8f, 1.0f);
-		Image = Assets.Subtextures[images[World.Rng.Int(images.Length)]];
+		Image = Assets.Subtextures[Images[World.Rng.Int(Images.Length)]];
 		Duration = World.Rng.Float(0.5f, 1.0f);
 		UpdateOffScreen = true;
 	}
@@ -36,7 +36,7 @@ public class Dust : Actor, IHaveSprites, IRecycle
 			World.Destroy(this);
 	}
 
-	public void CollectSprites(List<Sprite> populate)
+	public virtual void CollectSprites(List<Sprite> populate)
 	{
 		populate.Add(Sprite.CreateBillboard(World, Position, Image, 4 * (1.0f - Percent), Color));
 	}

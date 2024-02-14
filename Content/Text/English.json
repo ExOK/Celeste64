@@ -25,6 +25,8 @@
 		"OptionsSFX": "SFX",
 		"OptionsInvertCamera": "Inverted Camera",
 
+		"FujiOptions": "Fuji Options...",
+
 		"PauseMods": "Mods",
 		"PauseModEnabled": "Enabled",
 		"PauseModsConfirmDisable": "Continue & Disable Mod",

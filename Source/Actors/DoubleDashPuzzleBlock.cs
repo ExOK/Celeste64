@@ -3,20 +3,20 @@ namespace Celeste64;
 
 public class DoubleDashPuzzleBlock : Solid, IUnlockStrawberry, IHaveSprites
 {
-    public bool Satisfied { get; private set; }
+    public bool Satisfied { get; protected set; }
 
-	private bool ready = false;
-	private float pulse = 0;
-	private Color pulseColor;
+	public bool Ready = false;
+	public float Pulse = 0;
+	public Color PulseColor;
 
-    public void CollectSprites(List<Sprite> populate)
+    public virtual void CollectSprites(List<Sprite> populate)
     {
-		if (ready && !Satisfied && pulse > 0)
+		if (Ready && !Satisfied && Pulse > 0)
 		{
 			var haloPos = Position + Vec3.UnitZ * 2 + Vec3.Transform(Vec3.Zero, Model.Transform);
-			populate.Add(Sprite.CreateBillboard(World, haloPos, "gradient", 50 * pulse, pulseColor * 0.50f) with { Post = true });
-			populate.Add(Sprite.CreateBillboard(World, Position, "ring", pulse * pulse * 40, pulseColor * .4f) with { Post = true });
-			populate.Add(Sprite.CreateBillboard(World, Position, "ring", pulse * 50, pulseColor * .4f) with { Post = true });
+			populate.Add(Sprite.CreateBillboard(World, haloPos, "gradient", 50 * Pulse, PulseColor * 0.50f) with { Post = true });
+			populate.Add(Sprite.CreateBillboard(World, Position, "ring", Pulse * Pulse * 40, PulseColor * .4f) with { Post = true });
+			populate.Add(Sprite.CreateBillboard(World, Position, "ring", Pulse * 50, PulseColor * .4f) with { Post = true });
 		}
     }
 
@@ -24,19 +24,19 @@ public class DoubleDashPuzzleBlock : Solid, IUnlockStrawberry, IHaveSprites
     {
 		base.Update();
 
-		if (!Satisfied && !ready && World.Get<Player>() is {} player && player.Dashes >= 2 && HasPlayerRider())
+		if (!Satisfied && !Ready && World.Get<Player>() is {} player && player.Dashes >= 2 && HasPlayerRider())
 		{
-			pulseColor = player.Hair.Color;
-			ready = true;
-			pulse = 1;
+			PulseColor = player.Hair.Color;
+			Ready = true;
+			Pulse = 1;
 			TShake = 1.0f;
 			Audio.Play(Sfx.sfx_secret, Position);
 		}
 
-		if (ready && pulse > 0)
+		if (Ready && Pulse > 0)
 		{
-			pulse -= Time.Delta;
-			if (pulse <= 0)
+			Pulse -= Time.Delta;
+			if (Pulse <= 0)
 				Satisfied = true;
 		}
     }

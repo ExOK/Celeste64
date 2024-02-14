@@ -45,6 +45,7 @@ public sealed class ModManager
 	{
 		_modFilesystemCleanupTimerToken.Cancel();
 		_modFilesystemCleanupTimerToken = new();
+		HookManager.Instance.ClearHooks();
 
 		var modsCopy = Mods.ToList();
 		foreach (var mod in modsCopy)

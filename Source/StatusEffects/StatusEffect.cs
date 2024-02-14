@@ -2,14 +2,14 @@
 
 public abstract class StatusEffect
 {
-	public Player? Player { get; internal set; }
-	public World? World { get; internal set; }
+	public virtual Player? Player { get; set; }
+	public virtual World? World { get; set; }
 	public virtual bool RemoveOnReapply { get { return true; } }
 
-	public float Duration { get; set; } = 10;
+	public virtual float Duration { get; set; } = 10;
 	public bool RemoveAfterDuration = false;
 
-	protected StatusEffect() { }
+	public StatusEffect() { }
 
 	public virtual void OnStatusEffectAdded() { }
 	public virtual void OnStatusEffectRemoved() { }
@@ -18,8 +18,7 @@ public abstract class StatusEffect
 
 	public virtual void OnPlayerKilled() { }
 
-
-	internal void UpdateDuration(float deltaTime)
+	public void UpdateDuration(float deltaTime)
 	{
 		if(RemoveAfterDuration)
 		{

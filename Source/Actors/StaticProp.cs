@@ -8,8 +8,8 @@ public class StaticProp : Actor, IHaveModels, IHavePushout, IListenToAudioCallba
 	public float PushoutHeight { get; set; } = 10;
 	public float PushoutRadius { get; set; } = 6;
 
-	private float scale = 1.0f;
-	private float rotation = 0;
+	public float Scale = 1.0f;
+	public float Rotation = 0;
 
 	public StaticProp(SkinnedTemplate model, float radius, float height)
 	{
@@ -23,23 +23,23 @@ public class StaticProp : Actor, IHaveModels, IHavePushout, IListenToAudioCallba
 
     public override void Update()
     {	
-		Calc.Approach(ref scale, 1.0f, Time.Delta);
+		Calc.Approach(ref Scale, 1.0f, Time.Delta);
     }
 
-    public void CollectModels(List<(Actor Actor, Model Model)> populate)
+    public virtual void CollectModels(List<(Actor Actor, Model Model)> populate)
 	{
 		Model.Transform = 
-			Matrix.CreateRotationY(rotation) *
-			Matrix.CreateScale(0.2f * scale);
+			Matrix.CreateRotationY(Rotation) *
+			Matrix.CreateScale(0.2f * Scale);
 		populate.Add((this, Model));
 	}
 
-    public void AudioCallbackEvent(int index)
+    public virtual void AudioCallbackEvent(int index)
     {
 		if (World.Entry.Submap)
 		{
-			scale = 1.05f;
-			rotation = 0.05f * ((index % 2) == 0 ? -1 : 1);
+			Scale = 1.05f;
+			Rotation = 0.05f * ((index % 2) == 0 ? -1 : 1);
 		}
     }
 }

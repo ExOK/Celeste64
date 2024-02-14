@@ -177,7 +177,27 @@ public class Menu
 	public string DownSound = Sfx.ui_move;
 
 	public bool IsInMainMenu => submenus.Count <= 0;
-	protected Menu CurrentMenu => submenus.Count > 0 ? submenus.Peek() : this;
+	protected Menu CurrentMenu => GetDeepestActiveSubmenu(this);
+
+	public Menu GetDeepestActiveSubmenu(Menu target)
+	{
+		if (target.submenus.Count <= 0)
+		{
+			return target;
+		} else {
+			return GetDeepestActiveSubmenu(target.submenus.Peek());
+		}
+	}
+
+	public Menu GetSecondDeepestMenu(Menu target)
+	{
+		if (target.submenus.Peek() != null && target.submenus.Peek().submenus.Count <= 0)
+		{
+			return target;
+		} else {
+			return GetSecondDeepestMenu(target.submenus.Peek());
+		}
+	}
 	
 	public Vec2 Size
 	{
@@ -279,7 +299,7 @@ public class Menu
 	        if (!IsInMainMenu && Controls.Cancel.ConsumePress()) 
 			{
 				Audio.Play(Sfx.main_menu_toggle_off);
-				submenus.Pop();
+				GetSecondDeepestMenu(this).submenus.Pop();
 			}
 	    }
 	}
