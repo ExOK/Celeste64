@@ -1,5 +1,4 @@
-﻿using System.Collections.Frozen;
-using MonoMod.RuntimeDetour;
+﻿using MonoMod.RuntimeDetour;
 
 namespace Celeste64;
 

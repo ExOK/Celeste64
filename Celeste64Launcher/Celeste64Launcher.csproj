@@ -14,7 +14,7 @@
     <PackageReadmeFile>..\ReadMe.md</PackageReadmeFile>
     <StartupObject>Program</StartupObject>
     <SelfContained>false</SelfContained>
-    <PublishSingleFile>false</PublishSingleFile>
+		<PublishSingleFile>true</PublishSingleFile>
 		<DebugType>None</DebugType>
 		<DebugSymbols>false</DebugSymbols>
   </PropertyGroup>
@@ -62,9 +62,9 @@
 	<ItemGroup>
     <ProjectReference Include="..\Celeste64.csproj">
       <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-    </ProjectReference>
+			<CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+		</ProjectReference>
   </ItemGroup>
-
 
   <ItemGroup>
     <None Update="..\fuji.png">
