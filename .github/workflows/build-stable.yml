@@ -3,7 +3,7 @@ name: Build and publish stable branch
 on:
   workflow_dispatch:
   push:
-    branches: [ 'monomod' ]
+    branches: [ 'main' ]
     paths-ignore:
       - "README.md"
       - ".gitignore"
