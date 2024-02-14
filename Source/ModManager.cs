@@ -103,11 +103,9 @@ public sealed class ModManager
 			    (dir.StartsWith("Fonts") && extension is ".ttf" or ".otf") || // Fonts/**.ttf and Fonts/**.otf
 			    (dir.StartsWith("Sprites") && extension == ".png") || // Sprites/**.png
 			    (dir.StartsWith("Skins") && extension == ".json") || // Skins/**.json
-				(dir.StartsWith("DLLs") && extension is ".dll" or ".pdb") || // Skins/**.json
-			    filepath == "Levels.json" ||
-			    filepath == "Dialog.json" ||
-			    
-			    filepath.EndsWith("Fuji.json"))
+			    (dir.StartsWith("DLLs") && extension is ".dll") || // DLLs/**.dll
+			    filepath == "Levels.json" ||			    
+			    filepath == "Fuji.json"))
 			{
 				Log.Info($"File Changed: {filepath} (From mod {ctx.Mod.ModInfo.Name}). Reloading assets.");
 			} 
