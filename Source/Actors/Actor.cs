@@ -65,7 +65,6 @@ public class Actor
 	}
 
 	public virtual Vec3 Facing
-	public virtual Vec2 Facing
 	{
 		get => facing;
 		set
