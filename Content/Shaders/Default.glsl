@@ -67,8 +67,9 @@ void main(void)
 	vec4 src = texture(u_texture, v_tex) * u_color;
 
 	// only enable if you want ModelFlags.Cutout types to work, didn't end up using
-	//if (src.a < u_cutout)
-	//	discard;
+	// -Enabled by Fuji
+	if (src.a < u_cutout)
+		discard;
 
 	float depth = LinearizeDepth(gl_FragCoord.z, u_near, u_far);
 	float fall = Map(v_world.z, 50, 0, 0, 1);

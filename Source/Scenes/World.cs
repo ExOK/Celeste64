@@ -758,11 +758,11 @@ public class World : Scene
 		ApplyPostEffects();
 
 		// render alpha threshold transparent stuff
-		// {
-		// 	state.CutoutMode = true;
-		// 	RenderModels(ref state, models, ModelFlags.Cutout);
-		// 	state.CutoutMode = false;
-		// }
+		{
+			state.CutoutMode = true;
+			RenderModels(ref state, models, ModelFlags.Cutout);
+			state.CutoutMode = false;
+		}
 
 		// render 2d sprites
 		{
