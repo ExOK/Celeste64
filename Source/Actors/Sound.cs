@@ -6,14 +6,14 @@ public class Sound(Actor following, string sound) : Actor
 	public AudioHandle Handle;
 	public Actor? Following = following;
 
-	private readonly string sound = sound;
+	public readonly string SoundEvent = sound;
 
     public void Resume()
 	{
 		if (!Handle)
 		{
 			Handle.Stop();
-			Handle = Audio.Play(sound, Following?.Position);
+			Handle = Audio.Play(SoundEvent, Following?.Position);
 			UpdateOffScreen = true;
 		}
 	}

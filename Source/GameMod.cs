@@ -1,4 +1,6 @@
-﻿namespace Celeste64;
+﻿using MonoMod.RuntimeDetour;
+
+namespace Celeste64;
 
 public abstract class GameMod
 {
@@ -75,6 +77,82 @@ public abstract class GameMod
 
 
 	/// <summary>
+	/// Get all mods which depend on this mod.
+	/// </summary>
+	public List<GameMod> GetDependents()
+	{
+		List<GameMod> depMods = new List<GameMod>();
+
+		foreach (GameMod mod in ModManager.Instance.Mods)
+		{
+			if (mod.ModInfo.Dependencies != null && mod.ModInfo.Dependencies.ContainsKey(this.ModInfo.Id) && mod.Enabled)
+			{
+				depMods.Add(mod);
+			}
+		}
+
+		return depMods;
+	}
+
+	/// <summary>
+	/// Disables the mod "safely" (accounts for dependent mods, etc.)
+	/// If it returns true, this means it is not safe to disable the mod.
+	/// You should first simulate the operation with DisableSafe(true).
+	/// If it is not safe to disable the mod (if the function returns true), it's recommended that you don't go through with it.
+	/// </summary>
+	/// <param name="simulate"></param>
+	public bool DisableSafe(bool simulate)
+	{
+		bool shouldEvac = false;
+
+		foreach (GameMod dependent in this.GetDependents())
+		{
+			if (!simulate)
+			{
+				Save.Instance.GetOrMakeMod(dependent.ModInfo.Id).Enabled = false;
+				dependent.OnModUnloaded();
+			}
+
+			if (dependent == ModManager.Instance.CurrentLevelMod)
+			{
+				shouldEvac = true;
+			} // We'll want to adjust behaviour if the current level's parent mod must be disabled.
+		}
+
+		if (!simulate) { this.OnModUnloaded(); }
+
+		if (shouldEvac && !simulate)
+		{
+			Game.Instance.Goto(new Transition()
+			{
+				Mode = Transition.Modes.Replace,
+				Scene = () => new Titlescreen(),
+				ToPause = true,
+				ToBlack = new AngledWipe(),
+				PerformAssetReload = true
+			});
+		} // If necessary, evacuate to main menu!!
+
+		return shouldEvac;
+	}
+
+	/// <summary>
+	/// Enables the mod's dependencies.
+	/// </summary>
+	public void EnableDependencies()
+	{
+		if (ModInfo.Dependencies != null)
+		{
+			foreach (var dep in ModInfo.Dependencies.Keys.ToList())
+			{
+				Save.Instance.GetOrMakeMod(dep).Enabled = true;
+			}
+		}
+
+		return;
+	}
+
+	/// <summary>
 	/// This allows modders to add their own actors to the actor factory system.
 	/// This can also be used to replace existing actors, but be warned that only one mod can replace something at a time.
 	/// </summary>
@@ -92,6 +170,11 @@ public abstract class GameMod
 		}
 	}
 
+	// Passthrough functions to simplify adding stuff to the Hook Manager.
+	public static void RegisterHook(Hook hook) => HookManager.Instance.RegisterHook(hook);
+	public static void RegisterILHook(ILHook iLHook) => HookManager.Instance.RegisterILHook(iLHook);
+	public static void RemoveHook(Hook hook) => HookManager.Instance.RemoveHook(hook);
+	public static void RemoveILHook(ILHook iLHook) => HookManager.Instance.RemoveILHook(iLHook);
 	/// <summary>
 	/// Registers the provided custom player state,
 	/// and ensures it will be deregistered once the mod unloads.
@@ -100,17 +183,6 @@ public abstract class GameMod
 	{
 		CustomPlayerStateRegistry.Register<T>();
 		OnUnloadedCleanup += CustomPlayerStateRegistry.Deregister<T>;
-	}
-
-	/// <summary>
-	/// Saves data to the save file for this mod, that can be accessed with a given key.
-	/// </summary>
-	public void SaveData(string key, string data)
-	{
-		if (!string.IsNullOrEmpty(key) && !string.IsNullOrEmpty(data))
-		{
-			Save.Instance.GetOrMakeMod(ModInfo.Id).Settings.TryAdd(key, data);
-		}
 	}
 
 	// Game Event Functions. These are used to provide an "interface" of sorts that mods can easily override.

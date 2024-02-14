@@ -33,20 +33,20 @@ public class Solid : Actor, IHaveModels
 	public Vec3[] LocalVertices = [];
 	public Face[] LocalFaces = [];
 
-	public Vec3[] WorldVertices
+	public virtual Vec3[] WorldVertices
 	{
 		get
 		{
 			ValidateTransformations();
-			return worldVertices;
+			return WorldVerticesLocal;
 		}
 	}
-	public Face[] WorldFaces
+	public virtual Face[] WorldFaces
 	{
 		get
 		{
 			ValidateTransformations();
-			return worldFaces;
+			return WorldFacesLocal;
 		}
 	}
 
@@ -54,23 +54,23 @@ public class Solid : Actor, IHaveModels
 
 	public float TShake;
 
-	private bool initialized = false;
-	private Vec3[] worldVertices = [];
-	private Face[] worldFaces = [];
-	private BoundingBox lastWorldBounds;
+	public bool Initialized = false;
+	public Vec3[] WorldVerticesLocal = [];
+	public Face[] WorldFacesLocal = [];
+	public BoundingBox LastWorldBounds;
 
 	public override void Created()
 	{
-		worldVertices = new Vec3[LocalVertices.Length];
-		worldFaces = new Face[LocalFaces.Length];
-		lastWorldBounds = new();
-		initialized = true;
+		WorldVerticesLocal = new Vec3[LocalVertices.Length];
+		WorldFacesLocal = new Face[LocalFaces.Length];
+		LastWorldBounds = new();
+		Initialized = true;
 		Transformed();
 	}
 
     public override void Destroyed()
     {
-		World.SolidGrid.Remove(this, new Rect(lastWorldBounds.Min.XY(), lastWorldBounds.Max.XY()));
+		World.SolidGrid.Remove(this, new Rect(LastWorldBounds.Min.XY(), LastWorldBounds.Max.XY()));
     }
 
     public override void Update()
@@ -89,37 +89,37 @@ public class Solid : Actor, IHaveModels
 		}
 	}
 
-	protected override void Transformed()
+	public override void Transformed()
 	{
 		// realistically instead of transforming all the points, we could
 		// inverse the matrix and test against that instead ... but *shrug*
-		if (initialized)
+		if (Initialized)
 		{
 			var mat = Matrix;
 			for (int i = 0; i < LocalVertices.Length; i ++)
-				worldVertices[i] = Vec3.Transform(LocalVertices[i], mat);
+				WorldVerticesLocal[i] = Vec3.Transform(LocalVertices[i], mat);
 			
 			for (int i = 0; i < LocalFaces.Length; i ++)
 			{
-				worldFaces[i] = LocalFaces[i];
-				worldFaces[i].Plane = Plane.Transform(LocalFaces[i].Plane, mat);
+				WorldFacesLocal[i] = LocalFaces[i];
+				WorldFacesLocal[i].Plane = Plane.Transform(LocalFaces[i].Plane, mat);
 			}
 
 			if (Alive)
 			{
-				World.SolidGrid.Remove(this, new Rect(lastWorldBounds.Min.XY(), lastWorldBounds.Max.XY()));
+				World.SolidGrid.Remove(this, new Rect(LastWorldBounds.Min.XY(), LastWorldBounds.Max.XY()));
 				World.SolidGrid.Insert(this, new Rect(WorldBounds.Min.XY(), WorldBounds.Max.XY()));
-				lastWorldBounds = WorldBounds;
+				LastWorldBounds = WorldBounds;
 			}
 		}
 	}
 
-	public bool HasPlayerRider()
+	public virtual bool HasPlayerRider()
 	{
 		return World.Get<Player>()?.RidingPlatformCheck(this) ?? false;
 	}
 
-	public void MoveTo(Vec3 target)
+	public virtual void MoveTo(Vec3 target)
 	{
 		var delta = (target - Position);
 

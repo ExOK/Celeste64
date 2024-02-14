@@ -53,7 +53,6 @@ public class World : Scene
 			return player.IsAbleToPause;
 		}
 	}
-	internal bool NeedsReload = false;
 
 	private readonly Stopwatch debugUpdTimer = new();
 	private readonly Stopwatch debugRndTimer = new();
@@ -71,7 +70,6 @@ public class World : Scene
 		var stopwatch = Stopwatch.StartNew();
 		var map = Assets.Maps[entry.Map];
 		Map = map;
-		Map.ModActorFactories.Clear();
 
 		ModManager.Instance.CurrentLevelMod = ModManager.Instance.Mods.FirstOrDefault(mod => mod.Maps.ContainsKey(entry.Map));
 
@@ -84,15 +82,7 @@ public class World : Scene
 
 		// setup pause menu
 		{
-			Menu optionsMenu = new Menu();
-			optionsMenu.Title = Loc.Str("OptionsTitle");
-			optionsMenu.Add(new Menu.Toggle(Loc.Str("OptionsFullscreen"), Save.Instance.ToggleFullscreen, () => Save.Instance.Fullscreen));
-			optionsMenu.Add(new Menu.Toggle(Loc.Str("OptionsZGuide"), Save.Instance.ToggleZGuide, () => Save.Instance.ZGuide));
-			optionsMenu.Add(new Menu.Toggle(Loc.Str("OptionsTimer"), Save.Instance.ToggleTimer, () => Save.Instance.SpeedrunTimer));
-			optionsMenu.Add(new Menu.MultiSelect<Save.InvertCameraOptions>(Loc.Str("OptionsInvertCamera"), Save.Instance.SetCameraInverted, () => Save.Instance.InvertCamera));
-			optionsMenu.Add(new Menu.Spacer());
-			optionsMenu.Add(new Menu.Slider(Loc.Str("OptionsBGM"), 0, 10, () => Save.Instance.MusicVolume, Save.Instance.SetMusicVolume));
-			optionsMenu.Add(new Menu.Slider(Loc.Str("OptionsSFX"), 0, 10, () => Save.Instance.SfxVolume, Save.Instance.SetSfxVolume));
+			Menu optionsMenu = new GameOptionsMenu();
 
 			ModSelectionMenu modMenu = new ModSelectionMenu()
 			{
@@ -427,9 +417,9 @@ public class World : Scene
 	{
 		if(paused == false)
 		{
-			if(NeedsReload)
+			if(Game.Instance.NeedsReload)
 			{
-				NeedsReload = false;
+				Game.Instance.NeedsReload = false;
 				Game.Instance.ReloadAssets();
 			}
 

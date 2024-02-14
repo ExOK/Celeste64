@@ -6,7 +6,7 @@ public class Refill : Actor, IHaveSprites, IPickup, IHaveModels, ICastPointShado
 	public bool IsDouble;
 	public SkinnedModel Model;
 	public ParticleSystem Particles;
-	public float PointShadowAlpha { get; set; } = 1.0f;
+	public virtual float PointShadowAlpha { get; set; } = 1.0f;
 
 	public Refill(bool isDouble)
 	{
@@ -26,15 +26,15 @@ public class Refill : Actor, IHaveSprites, IPickup, IHaveModels, ICastPointShado
 
 	public float PickupRadius => 20;
 
-	private float tCooldown;
-	private float tCollect;
+	public float TCooldown;
+	public float TCollect;
 
-	public void CollectSprites(List<Sprite> populate)
+	public virtual void CollectSprites(List<Sprite> populate)
 	{
-		if (tCollect > 0)
+		if (TCollect > 0)
 		{
-			var size = (1.0f - Ease.Cube.In(tCollect)) * 50;
-			var alpha = tCollect;
+			var size = (1.0f - Ease.Cube.In(TCollect)) * 50;
+			var alpha = TCollect;
 
 			populate.Add(Sprite.CreateFlat(World, Position - Vec3.UnitZ * 3, "ring", size * 0.75f, Color.White * alpha * alpha));
 			populate.Add(Sprite.CreateFlat(World, Position - Vec3.UnitZ * 3, "ring", size, Color.White * alpha));
@@ -50,20 +50,20 @@ public class Refill : Actor, IHaveSprites, IPickup, IHaveModels, ICastPointShado
 
 	public override void Update()
 	{
-		if (tCooldown > 0)
+		if (TCooldown > 0)
 		{
-			tCooldown -= Time.Delta;
-			if (tCooldown <= 0.0f)
+			TCooldown -= Time.Delta;
+			if (TCooldown <= 0.0f)
 			{
 				UpdateOffScreen = false;
 				Audio.Play(IsDouble ? Sfx.sfx_dashcrystal_double_return : Sfx.sfx_dashcrystal_return, Position);
 			}
 		}
 
-		if (tCollect > 0)
-			tCollect -= Time.Delta * 3.0f;
+		if (TCollect > 0)
+			TCollect -= Time.Delta * 3.0f;
 
-		PointShadowAlpha = tCooldown <= 0 ? 1 : 0;
+		PointShadowAlpha = TCooldown <= 0 ? 1 : 0;
 
 		Particles.SpawnParticle(
 			Position + new Vec3(6 - World.Rng.Float() * 12, 6 - World.Rng.Float() * 12, 6 - World.Rng.Float() * 12),
@@ -71,23 +71,23 @@ public class Refill : Actor, IHaveSprites, IPickup, IHaveModels, ICastPointShado
 		Particles.Update(Time.Delta);
 	}
 
-	public void Pickup(Player player)
+	public virtual void Pickup(Player player)
 	{
 		int count = IsDouble ? 2 : 1;
-		if (tCooldown <= 0 && player.Dashes < count)
+		if (TCooldown <= 0 && player.Dashes < count)
 		{
 			UpdateOffScreen = true;
 			player.RefillDash(count);
-			tCooldown = 4;
-			tCollect = 1.0f;
+			TCooldown = 4;
+			TCollect = 1.0f;
 			World.HitStun = 0.05f;
 			Audio.Play(IsDouble ? Sfx.sfx_dashcrystal_double : Sfx.sfx_dashcrystal, Position);
 		}
 	}
 
-	public void CollectModels(List<(Actor Actor, Model Model)> populate)
+	public virtual void CollectModels(List<(Actor Actor, Model Model)> populate)
 	{
-		if (tCooldown <= 0)
+		if (TCooldown <= 0)
 		{
 			Model.Transform =
 				Matrix.CreateScale(2.0f) *

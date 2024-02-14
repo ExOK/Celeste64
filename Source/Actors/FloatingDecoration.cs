@@ -14,7 +14,7 @@ public class FloatingDecoration : Actor, IHaveModels
 		UpdateOffScreen = true;
     }
 
-    public void CollectModels(List<(Actor Actor, Model Model)> populate)
+    public virtual void CollectModels(List<(Actor Actor, Model Model)> populate)
 	{
 		var time = World.GeneralTimer * Rate * 0.25f + Offset;
 		Model.Transform = Matrix.CreateTranslation(0, 0, MathF.Sin(time) * 12);

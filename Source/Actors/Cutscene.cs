@@ -5,9 +5,9 @@ public class Cutscene : Actor, IHaveUI
 {
 	public readonly Func<Cutscene, CoEnumerator> Running;
 	public readonly Routine Routine;
-	private float ease = 0.0f;
+	public float Ease = 0.0f;
 
-	private struct Saying
+	public struct Saying
 	{
 		public string Face;
 		public string Text;
@@ -15,9 +15,9 @@ public class Cutscene : Actor, IHaveUI
 		public float Ease;
 		public bool Talking;
 	}
-	private Saying saying;
-	private AudioHandle dialogSnapshot;
-	private float timer = 0;
+	public Saying CurrentSaying;
+	public AudioHandle DialogSnapshot;
+	public float Timer = 0;
 
 	public bool FreezeGame = false;
 
@@ -32,10 +32,10 @@ public class Cutscene : Actor, IHaveUI
     public override void Destroyed()
     {
 		Audio.StopBus(Sfx.bus_dialog, false);
-		dialogSnapshot.Stop();
+		DialogSnapshot.Stop();
     }
 
-    public CoEnumerator Say(List<Language.Line> lines)
+    public virtual CoEnumerator Say(List<Language.Line> lines)
 	{
 		foreach (var line in lines)
 		{
@@ -45,15 +45,15 @@ public class Cutscene : Actor, IHaveUI
 		Audio.StopBus(Sfx.bus_dialog, false);
 	}
 
-	public CoEnumerator Say(string face, string line, string? voice = null)
+	public virtual CoEnumerator Say(string face, string line, string? voice = null)
 	{
-		saying = new Saying() { Face = $"faces/{face}", Text = line, Talking = false };
-		dialogSnapshot = Audio.Play(Sfx.snapshot_dialog);
+		CurrentSaying = new Saying() { Face = $"faces/{face}", Text = line, Talking = false };
+		DialogSnapshot = Audio.Play(Sfx.snapshot_dialog);
 
 		// ease in
-		while (saying.Ease < 1.0f)
+		while (CurrentSaying.Ease < 1.0f)
 		{
-			saying.Ease += Time.Delta * 10.0f;
+			CurrentSaying.Ease += Time.Delta * 10.0f;
 			yield return Co.SingleFrame;
 		}
 
@@ -62,20 +62,20 @@ public class Cutscene : Actor, IHaveUI
 			Audio.Play($"event:/sfx/ui/dialog/{voice}");
 
 		// print out dialog
-		saying.Talking = saying.Text.Length > 3;
+		CurrentSaying.Talking = CurrentSaying.Text.Length > 3;
 		var counter = 0.0f;
-		while (saying.Characters < saying.Text.Length)
+		while (CurrentSaying.Characters < CurrentSaying.Text.Length)
 		{
 			counter += 30 * Time.Delta;
 			while (counter >= 1)
 			{
-				saying.Characters++;
+				CurrentSaying.Characters++;
 				counter -= 1;
 			}
 
 			if (Controls.Confirm.Pressed || Controls.Cancel.Pressed)
 			{
-				saying.Characters = saying.Text.Length;
+				CurrentSaying.Characters = CurrentSaying.Text.Length;
 				yield return Co.SingleFrame;
 				break;
 			}
@@ -84,23 +84,23 @@ public class Cutscene : Actor, IHaveUI
 		}
 
 		// wait for confirm
-		saying.Talking = false;
+		CurrentSaying.Talking = false;
 		while (!Controls.Confirm.Pressed && !Controls.Cancel.Pressed)
 			yield return Co.SingleFrame;
 		Audio.Play(Sfx.ui_dialog_advance);
 
 		// ease out
-		while (saying.Ease > 0.0f)
+		while (CurrentSaying.Ease > 0.0f)
 		{
-			saying.Ease -= Time.Delta * 10.0f;
+			CurrentSaying.Ease -= Time.Delta * 10.0f;
 			yield return Co.SingleFrame;
 		}
 		
-		dialogSnapshot.Stop();
-		saying = new();
+		DialogSnapshot.Stop();
+		CurrentSaying = new();
 	}
 
-	public CoEnumerator MoveToDistance(Actor? actor, Vec2 position, float distance)
+	public virtual CoEnumerator MoveToDistance(Actor? actor, Vec2 position, float distance)
 	{
 		if (actor != null)
 		{
@@ -111,7 +111,7 @@ public class Cutscene : Actor, IHaveUI
 		yield return Co.Continue;
 	}
 
-	public CoEnumerator MoveTo(Actor? actor, Vec2 position)
+	public virtual CoEnumerator MoveTo(Actor? actor, Vec2 position)
 	{
 		if (actor != null)
 		{
@@ -136,12 +136,12 @@ public class Cutscene : Actor, IHaveUI
 		}
 	}
 
-	public CoEnumerator Face(Actor? actor, Vec3 target)
+	public virtual CoEnumerator Face(Actor? actor, Vec3 target)
 	{
 		if (actor != null)
 		{
 			var facing = (target - actor.Position).XY().Normalized();
-			var current = actor.Facing;
+			var current = actor.Facing.XY();
 
 			while (MathF.Abs(facing.Angle() - current.Angle()) > 0.05f)
 			{
@@ -149,7 +149,7 @@ public class Cutscene : Actor, IHaveUI
 				if (actor is Player player)
 					player.SetTargetFacing(current);
 				else
-					actor.Facing = current;
+					actor.Facing = new(current, actor.Facing.Z);
 				yield return Co.SingleFrame;
 			}
 		}
@@ -157,7 +157,7 @@ public class Cutscene : Actor, IHaveUI
 		yield return Co.Continue;
 	}
 
-	public CoEnumerator FaceEachOther(Actor? a0, Actor? a1)
+	public virtual CoEnumerator FaceEachOther(Actor? a0, Actor? a1)
 	{
 		if (a0 != null && a1 != null)
 		{
@@ -167,13 +167,13 @@ public class Cutscene : Actor, IHaveUI
 		yield return Co.Continue;
 	}
 
-	private CoEnumerator PerformCutscene()
+	public virtual CoEnumerator PerformCutscene()
 	{
 		Audio.Play(Sfx.sfx_readsign_in);
 
-		while (ease < 1.0f)
+		while (Ease < 1.0f)
 		{
-			Calc.Approach(ref ease, 1, Time.Delta * 10);
+			Calc.Approach(ref Ease, 1, Time.Delta * 10);
 			yield return Co.SingleFrame;
 		}
 
@@ -181,9 +181,9 @@ public class Cutscene : Actor, IHaveUI
 
 		Audio.Play(Sfx.sfx_readsign_out);
 
-		while (ease < 1.0f)
+		while (Ease < 1.0f)
 		{
-			Calc.Approach(ref ease, 0, Time.Delta * 10);
+			Calc.Approach(ref Ease, 0, Time.Delta * 10);
 			yield return Co.SingleFrame;
 		}
 	}
@@ -196,13 +196,13 @@ public class Cutscene : Actor, IHaveUI
 	public override void Update()
 	{
 		Routine.Update();
-		timer += Time.Delta;
+		Timer += Time.Delta;
 
 		if (!Routine.IsRunning)
 			World.Destroy(this);
 	}
 
-	public void RenderUI(Batcher batch, Rect bounds)
+	public virtual void RenderUI(Batcher batch, Rect bounds)
 	{
 		const float BarSize = 40 * Game.RelativeScale;
 		const float PortraitSize = 128 * Game.RelativeScale;
@@ -210,34 +210,34 @@ public class Cutscene : Actor, IHaveUI
 		const float EaseOffset = 32 * Game.RelativeScale;
 		const float Padding = 8 * Game.RelativeScale;
 
-		batch.Rect(new Rect(bounds.X, bounds.Y, bounds.Width, BarSize * ease), Color.Black);
-		batch.Rect(new Rect(bounds.X, bounds.Bottom - BarSize * ease, bounds.Width, BarSize * ease), Color.Black);
+		batch.Rect(new Rect(bounds.X, bounds.Y, bounds.Width, BarSize * Ease), Color.Black);
+		batch.Rect(new Rect(bounds.X, bounds.Bottom - BarSize * Ease, bounds.Width, BarSize * Ease), Color.Black);
 
-		if (saying.Ease > 0 && !string.IsNullOrEmpty(saying.Text) && !World.Paused)
+		if (CurrentSaying.Ease > 0 && !string.IsNullOrEmpty(CurrentSaying.Text) && !World.Paused)
 		{
-			var ease = Ease.Cube.Out(saying.Ease);
+			var ease = Foster.Framework.Ease.Cube.Out(CurrentSaying.Ease);
 			var font = Language.Current.SpriteFont;
-			var size = font.SizeOf(saying.Text);
+			var size = font.SizeOf(CurrentSaying.Text);
 			var pos = bounds.TopCenter + new Vec2(0, TopOffset) - size / 2 - Vec2.One * Padding + new Vec2(0, EaseOffset * (1 - ease));
 
 			Texture? face = null;
 
 			// try to find taling face
-			if (!string.IsNullOrEmpty(saying.Face))
+			if (!string.IsNullOrEmpty(CurrentSaying.Face))
 			{
-				var oddFrame = Time.BetweenInterval(timer, 0.3f, 0);
-				var src = saying.Face;
-				if (saying.Talking && Assets.Textures.ContainsKey($"{src}Talk00"))
+				var oddFrame = Time.BetweenInterval(Timer, 0.3f, 0);
+				var src = CurrentSaying.Face;
+				if (CurrentSaying.Talking && Assets.Textures.ContainsKey($"{src}Talk00"))
 				{
 					if (oddFrame && Assets.Textures.ContainsKey($"{src}Talk01"))
 						face = Assets.Textures[$"{src}Talk01"];
 					else
 						face = Assets.Textures[$"{src}Talk00"];
 				}
-				else if (!saying.Talking && Assets.Textures.ContainsKey($"{src}Idle00"))
+				else if (!CurrentSaying.Talking && Assets.Textures.ContainsKey($"{src}Idle00"))
 				{
 					// idle is blinking so hold on first frame for a long time, then 2nd frame for less time
-					oddFrame = (timer % 3) > 2.8f;
+					oddFrame = (Timer % 3) > 2.8f;
 					if (oddFrame && Assets.Textures.ContainsKey($"{src}Idle01"))
 						face = Assets.Textures[$"{src}Idle01"];
 					else
@@ -270,7 +270,7 @@ public class Cutscene : Actor, IHaveUI
 				batch.ImageFit(new Subtexture(face), faceBox, Vec2.One * 0.5f, Color.White, false, false);
 			}
 
-			batch.Text(font, saying.Text.AsSpan(0, saying.Characters), pos + new Vec2(Padding, Padding), Color.Black);
+			batch.Text(font, CurrentSaying.Text.AsSpan(0, CurrentSaying.Characters), pos + new Vec2(Padding, Padding), Color.Black);
 		}
 	}
 }

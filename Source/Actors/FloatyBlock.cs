@@ -3,49 +3,49 @@ namespace Celeste64;
 
 public sealed class FloatyBlock : Solid
 {
-	private Vec3 origin;
-	private Vec3 offset;
-	private float friction = 300;
-	private float frictionThreshold = 50;
-	private float frequency = 1.2f;
-	private float halflife = 3.0f;
-	private bool hasPlayerRider;
+	public Vec3 Origin;
+	public Vec3 Offset;
+	public float Friction = 300;
+	public float FrictionThreshold = 50;
+	public float Frequency = 1.2f;
+	public float Halflife = 3.0f;
+	public bool HasPlayerRiderLocal;
 
 	public override void Added()
 	{
 		base.Added();
-		origin = Position;
-		offset = Vec3.Zero;
+		Origin = Position;
+		Offset = Vec3.Zero;
 	}
 
 	public override void Update()
 	{
 		base.Update();
 
-		if (!hasPlayerRider && HasPlayerRider())
+		if (!HasPlayerRiderLocal && HasPlayerRider())
 		{
-			hasPlayerRider = true;
+			HasPlayerRiderLocal = true;
 			Velocity += World.Get<Player>()!.PreviousVelocity * .8f;
 		}
-		else if (hasPlayerRider && !HasPlayerRider())
+		else if (HasPlayerRiderLocal && !HasPlayerRider())
 		{
 			if (World.Get<Player>() is Player player)
 				Velocity -= player.Velocity * .8f;
-			hasPlayerRider = false;
+			HasPlayerRiderLocal = false;
 		}
 
 		// friction
-		friction = 200;
-		frictionThreshold = 1;
-		if (friction > 0 && Velocity.LengthSquared() > Calc.Squared(frictionThreshold))
-			Velocity = Utils.Approach(Velocity, Velocity.Normalized() * frictionThreshold, friction * Time.Delta);
+		Friction = 200;
+		FrictionThreshold = 1;
+		if (Friction > 0 && Velocity.LengthSquared() > Calc.Squared(FrictionThreshold))
+			Velocity = Utils.Approach(Velocity, Velocity.Normalized() * FrictionThreshold, Friction * Time.Delta);
 
 		// spring!
-		Vec3 diff = Position - (origin + offset);
+		Vec3 diff = Position - (Origin + Offset);
 		Vec3 normal = diff.Normalized();
 		float vel = Vec3.Dot(Velocity, normal);
 		float old_vel = vel;
-		vel = SpringPhysics.Calculate(diff.Length(), vel, 0, 0, frequency, halflife);
+		vel = SpringPhysics.Calculate(diff.Length(), vel, 0, 0, Frequency, Halflife);
 		Velocity += normal * (vel - old_vel);
 	}
 }

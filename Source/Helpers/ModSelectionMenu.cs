@@ -50,7 +50,7 @@ public class ModSelectionMenu : Menu
 		Subtexture image = mod.Subtextures.TryGetValue(mod.ModInfo.Icon ?? "", out Subtexture value) ? value : strawberryImage;
 		Vec2 imageSize = new Vec2(size.X / image.Width, size.Y / image.Height);
 		batch.Rect(pos - (size * imgScale) / 2, size * imgScale, Color.White);
-		batch.Image(image, pos - (size * imgScale) / 2, imageSize * imgScale, imageSize * imgScale, 0, Color.White);
+		batch.Image(image, pos - (size * imgScale) / 2, imageSize * imgScale, imageSize * imgScale, 0, mod.Enabled ? Color.White : Color.Gray);
 		batch.PushMatrix(Matrix3x2.CreateScale(.6f) * Matrix3x2.CreateTranslation(pos + new Vec2(0, size.Y * 0.4f)));
 		batch.Text(Language.Current.SpriteFont, GenerateModName(mod.ModInfo.Name ?? "", 16, 2), Vec2.Zero, new Vec2(0.5f, 0), Color.Black * 0.7f);
 		batch.PopMatrix();
@@ -62,9 +62,9 @@ public class ModSelectionMenu : Menu
 		Subtexture image = mod.Subtextures.TryGetValue(mod.ModInfo.Icon ?? "", out Subtexture value) ? value : strawberryImage;
 		Vec2 imageSize = new Vector2(size.X / image.Width, size.Y / image.Height);
 		batch.Rect(pos - (size * imgScale) / 2, size * imgScale, Color.LightGray);
-		batch.Image(image, pos - (size * imgScale) / 2, imageSize * imgScale, imageSize * imgScale, 0, Color.White);
+		batch.Image(image, pos - (size * imgScale) / 2, imageSize * imgScale, imageSize * imgScale, 0, mod.Enabled ? Color.White : Color.Gray);
 		batch.PushMatrix(Matrix3x2.CreateScale(.7f) * Matrix3x2.CreateTranslation(pos + new Vec2(0, size.Y * 0.4f)));
-		batch.Text(Language.Current.SpriteFont, GenerateModName(mod.ModInfo.Name ?? "", 16, 2), Vec2.Zero, new Vec2(0.5f, 0), Color.Black);
+		batch.Text(Language.Current.SpriteFont, GenerateModName(mod.ModInfo.Name ?? "", 16, 2), Vec2.Zero, new Vec2(0.5f, 0), mod.Enabled ? Color.Black : Color.Black * 0.7f);
 		batch.PopMatrix();
 	}
 
