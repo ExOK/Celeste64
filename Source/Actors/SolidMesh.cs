@@ -9,9 +9,11 @@ public class SolidMesh : Solid
 
 	public SolidMesh(SkinnedTemplate model, float scale)
 	{
-		Scale = scale;
+		Scale = scale * 0.2f;
 
 		ObjectModel = new(model);
+		ObjectModel.Flags = ModelFlags.Terrain;
+		ObjectModel.Transform = Matrix.CreateScale(0.2f);
 
 		// create solids out of mesh ....?
 		{
@@ -20,7 +22,7 @@ public class SolidMesh : Solid
 			var faces = new List<Face>();
 			var meshVertices = collider.Template.Vertices;
 			var meshIndices = collider.Template.Indices;
-			var mat = SkinnedModel.BaseTranslation * collider.Transform * Matrix.CreateScale(scale);
+			var mat = SkinnedModel.BaseTranslation * collider.Transform * Matrix.CreateScale(Scale);
 
 			for (int i = 0; i < collider.Instance.Count; i++)
 			{
