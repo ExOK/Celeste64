@@ -69,6 +69,8 @@ public static class Assets
 		var langs = new ConcurrentBag<(Language, GameMod)>();
 		var tasks = new List<Task>();
 
+		// NOTE: Make sure to update ModManager.OnModFileChanged() as well, for hot-reloading to work!
+		
 		var globalFs = ModManager.Instance.GlobalFilesystem;
 		foreach (var (file, mod) in globalFs.FindFilesInDirectoryRecursiveWithMod("Maps", "map"))
 		{
