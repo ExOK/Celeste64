@@ -50,12 +50,7 @@ public class Save
 		public Dictionary<string, string> StringData { get; set; } = [];
 		public Dictionary<string, int> IntData { get; set; } = [];
 		public Dictionary<string, float> FloatData { get; set; } = [];
-
-		public string GetSetting(string name, string defaultValue = "")
-			=> Settings.TryGetValue(name, out string? value) ? value : defaultValue;
-
-		public string SetSetting(string name, string value = "")
-			=> Settings[name] = value;
+		public Dictionary<string, bool> BoolData { get; set; } = [];
 
 		public string GetString(string name, string defaultValue = "")
 			=> StringData.TryGetValue(name, out string? value) ? value : defaultValue;
@@ -74,6 +69,12 @@ public class Save
 
 		public float SetFloat(string name, float value = 1)
 			=> FloatData[name] = value;
+
+		public bool GetBool(string name, bool defaultValue = false)
+			=> BoolData.TryGetValue(name, out bool value) ? value : defaultValue;
+
+		public bool SetBool(string name, bool value = false)
+			=> BoolData[name] = value;
 	}
 
 	public static Save Instance = new();
