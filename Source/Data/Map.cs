@@ -208,7 +208,12 @@ public class Map
 		// create materials for each texture type so they can be shared by each surface
 		currentMaterials.Clear();
 		foreach (var it in Assets.Textures)
-			currentMaterials.Add(it.Key, new DefaultMaterial(it.Value));
+		{
+			if (!currentMaterials.ContainsKey(it.Key))
+			{
+				currentMaterials.Add(it.Key, new DefaultMaterial(Assets.Textures[it.Key]));
+			}
+		}
 
 		// load all static solids
 		// group them in big chunks (this helps collision tests so we can cull entire objects based on their bounding box)
@@ -334,7 +339,10 @@ public class Map
 			it.GroupName = groupName;
 
 		if (entity.Properties.ContainsKey("angle"))
-			it.Facing = Calc.AngleToVector(entity.GetIntProperty("angle", 0) * Calc.DegToRad - MathF.PI / 2);
+			it.Facing = new(Calc.AngleToVector(entity.GetIntProperty("angle", 0) * Calc.DegToRad - MathF.PI / 2), it.Facing.Z);
+
+		if (entity.Properties.ContainsKey("tilt"))
+			it.Facing = new(it.Facing.XY(), entity.GetIntProperty("tilt", 0) * Calc.DegToRad);
 
 		if (factory?.UseSolidsAsBounds ?? false)
 		{

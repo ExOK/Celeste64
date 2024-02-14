@@ -8,8 +8,8 @@ public class Cassette : Actor, IHaveModels, IPickup, IHaveSprites, ICastPointSha
 	public SkinnedModel Model;
 	public float PointShadowAlpha { get; set; } = 1.0f;
 
-	private float tCooldown = 0.0f;
-	private float tWiggle = 0.0f;
+	public float TCooldown = 0.0f;
+	public float TWiggle = 0.0f;
 
 	public Cassette(string map)
 	{
@@ -22,9 +22,9 @@ public class Cassette : Actor, IHaveModels, IPickup, IHaveSprites, ICastPointSha
 			mat.Color = Color.White * 0.50f;
 	}
 
-	public float PickupRadius => 10;
+	public virtual float PickupRadius => 10;
 
-	public bool IsCollected => 
+	public virtual bool IsCollected => 
 		!string.IsNullOrEmpty(Map) && 
 		Save.CurrentRecord.CompletedSubMaps.Contains(Map);
 
@@ -32,24 +32,24 @@ public class Cassette : Actor, IHaveModels, IPickup, IHaveSprites, ICastPointSha
 	{
 		LocalBounds = new BoundingBox(Vec3.Zero, 8);
 		// in case you spawn on it
-		tCooldown = 1.0f;
+		TCooldown = 1.0f;
 	}
 
-	public void SetCooldown()
+	public virtual void SetCooldown()
 	{
-		tCooldown = 1.0f;
+		TCooldown = 1.0f;
 	}
 
 	public override void Update()
 	{
 		PointShadowAlpha = IsCollected ? 0.5f : 1.0f;
-		Calc.Approach(ref tCooldown, 0, Time.Delta);
-		Calc.Approach(ref tWiggle, 0, Time.Delta / 0.7f);
+		Calc.Approach(ref TCooldown, 0, Time.Delta);
+		Calc.Approach(ref TWiggle, 0, Time.Delta / 0.7f);
 	}
 
-	public void CollectModels(List<(Actor Actor, Model Model)> populate)
+	public virtual void CollectModels(List<(Actor Actor, Model Model)> populate)
 	{
-		var wiggle = 1 + MathF.Sin(tWiggle * MathF.Tau * 2) * .8f * tWiggle;
+		var wiggle = 1 + MathF.Sin(TWiggle * MathF.Tau * 2) * .8f * TWiggle;
 
 		Model.Transform = CollectedModel.Transform =
 			Matrix.CreateScale(Vec3.One * 2.5f * wiggle) *
@@ -59,27 +59,27 @@ public class Cassette : Actor, IHaveModels, IPickup, IHaveSprites, ICastPointSha
 		populate.Add((this, IsCollected? CollectedModel : Model));
 	}
 
-	public void Pickup(Player player)
+	public virtual void Pickup(Player player)
 	{
-		if (!IsCollected && tCooldown <= 0.0f && !Game.Instance.IsMidTransition)
+		if (!IsCollected && TCooldown <= 0.0f && !Game.Instance.IsMidTransition)
 		{
 			player.Stop();
 			player.EnterCassette(this);
-			tWiggle = 1.0f;
+			TWiggle = 1.0f;
 		}
 	}
 
-	public void PlayerExit()
+	public virtual void PlayerExit()
 	{
-		tWiggle = 1.0f;
+		TWiggle = 1.0f;
 	}
 
-	public void CollectSprites(List<Sprite> populate)
+	public virtual void CollectSprites(List<Sprite> populate)
 	{
-		if (tWiggle > 0)
+		if (TWiggle > 0)
 		{
-			populate.Add(Sprite.CreateBillboard(World, Position, "ring", tWiggle * tWiggle * 40, Color.White * .4f) with { Post = true });
-			populate.Add(Sprite.CreateBillboard(World, Position, "ring", tWiggle * 50, Color.White * .4f) with { Post = true });
+			populate.Add(Sprite.CreateBillboard(World, Position, "ring", TWiggle * TWiggle * 40, Color.White * .4f) with { Post = true });
+			populate.Add(Sprite.CreateBillboard(World, Position, "ring", TWiggle * 50, Color.White * .4f) with { Post = true });
 		}
 	}
 }

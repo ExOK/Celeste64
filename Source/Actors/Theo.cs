@@ -3,7 +3,7 @@ namespace Celeste64;
 
 public class Theo : NPC
 {
-	public const string TALK_FLAG = "THEO";
+	public virtual string TALK_FLAG => "THEO";
 
 	public Theo() : base(Assets.Models["theo"])
 	{
@@ -18,7 +18,7 @@ public class Theo : NPC
 		World.Add(new Cutscene(Conversation));
 	}
 
-	private CoEnumerator Conversation(Cutscene cs)
+	public virtual CoEnumerator Conversation(Cutscene cs)
 	{
 		yield return Co.Run(cs.MoveToDistance(World.Get<Player>(), Position.XY(), 16));
 		yield return Co.Run(cs.FaceEachOther(World.Get<Player>(), this));
@@ -29,7 +29,7 @@ public class Theo : NPC
 		CheckForDialog();
 	}
 
-	private void CheckForDialog()
+	public virtual void CheckForDialog()
 	{ 
 		InteractEnabled = Loc.HasLines($"Theo{Save.CurrentRecord.GetFlag(TALK_FLAG) + 1}");
 	}

@@ -18,7 +18,8 @@ public class Snow : Actor, IHaveSprites
 	{
 		LocalBounds = new BoundingBox(Vec3.Zero, 10000);
 	}
-	public void CollectSprites(List<Sprite> populate)
+
+	public virtual void CollectSprites(List<Sprite> populate)
 	{
 		var cameraPosition = World.Camera.Position;
 		var cameraFrustum = World.Camera.Frustum;
@@ -88,7 +89,7 @@ public class Snow : Actor, IHaveSprites
 	}
 
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	private static float Mod(float x, float m)
+	protected static float Mod(float x, float m)
 	{
 		return (x % m + m) % m;
 	}

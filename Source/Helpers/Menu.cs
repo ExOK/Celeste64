@@ -65,17 +65,17 @@ public class Menu
 	{
 		private readonly string label;
 		private readonly int min;
-		private readonly int max;
 		private readonly Func<string> get;
+		private readonly Func<int> getMax;
 		private readonly Func<List<string>> getLabels;
 		private readonly Action<string> set;
 
-		public OptionList(string label, Func<List<string>> getLabels, int min, int max, Func<string> get, Action<string> set)
+		public OptionList(string label, Func<List<string>> getLabels, int min, Func<int> getMax, Func<string> get, Action<string> set)
 		{
 			this.label = label;
 			this.getLabels = getLabels;
+			this.getMax = getMax;
 			this.min = min;
-			this.max = max;
 			this.get = get;
 			this.set = set;
 		}
@@ -85,7 +85,7 @@ public class Menu
 		{
 			if(getLabels().Count > 1)
 			{
-				set(getLabels()[(max + getId() + dir) % max]);
+				set(getLabels()[(getMax() + getId() + dir) % getMax()]);
 			}
 		}
 
@@ -177,7 +177,27 @@ public class Menu
 	public string DownSound = Sfx.ui_move;
 
 	public bool IsInMainMenu => submenus.Count <= 0;
-	protected Menu CurrentMenu => submenus.Count > 0 ? submenus.Peek() : this;
+	protected Menu CurrentMenu => GetDeepestActiveSubmenu(this);
+
+	public Menu GetDeepestActiveSubmenu(Menu target)
+	{
+		if (target.submenus.Count <= 0)
+		{
+			return target;
+		} else {
+			return GetDeepestActiveSubmenu(target.submenus.Peek());
+		}
+	}
+
+	public Menu GetSecondDeepestMenu(Menu target)
+	{
+		if (target.submenus.Peek() != null && target.submenus.Peek().submenus.Count <= 0)
+		{
+			return target;
+		} else {
+			return GetSecondDeepestMenu(target.submenus.Peek());
+		}
+	}
 	
 	public Vec2 Size
 	{
@@ -279,7 +299,7 @@ public class Menu
 	        if (!IsInMainMenu && Controls.Cancel.ConsumePress()) 
 			{
 				Audio.Play(Sfx.main_menu_toggle_off);
-				submenus.Pop();
+				GetSecondDeepestMenu(this).submenus.Pop();
 			}
 	    }
 	}

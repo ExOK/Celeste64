@@ -4,11 +4,11 @@ namespace Celeste64;
 
 public class FogRing : Actor, IHaveModels
 {
-	private readonly SimpleModel model = new();
-	private readonly float height;
-	private readonly float radius;
-	private readonly float speed;
-	private float offset;
+	public readonly SimpleModel Model = new();
+	public readonly float Height;
+	public readonly float Radius;
+	public readonly float Speed;
+	public float Offset;
 
 	public FogRing(Sledge.Formats.Map.Objects.Entity data)
 	{
@@ -17,9 +17,9 @@ public class FogRing : Actor, IHaveModels
 		var texture = data.GetStringProperty("texture", string.Empty);
 		var alpha = data.GetFloatProperty("alpha", 1.0f);
 		var color = Color.FromHexStringRGB(data.GetStringProperty("color", "ffffff"));
-		height = data.GetFloatProperty("height", 1.0f);
-		radius = data.GetFloatProperty("radius", 1.0f);
-		speed = data.GetFloatProperty("speed", 1.0f);
+		Height = data.GetFloatProperty("height", 1.0f);
+		Radius = data.GetFloatProperty("radius", 1.0f);
+		Speed = data.GetFloatProperty("speed", 1.0f);
 
 		for (int i = 0; i <= 32; i ++)
 		{
@@ -39,28 +39,28 @@ public class FogRing : Actor, IHaveModels
 		}
 
 
-		model.Mesh.SetVertices<Vertex>(CollectionsMarshal.AsSpan(vertices));
-		model.Mesh.SetIndices<int>(CollectionsMarshal.AsSpan(indices));
-		model.Materials.Add(new DefaultMaterial(Assets.Textures[texture]));
-		model.Parts.Add(new(0, 0, indices.Count));
-		model.CullMode = CullMode.None;
-		model.Materials[0].Color = color * alpha;
+		Model.Mesh.SetVertices<Vertex>(CollectionsMarshal.AsSpan(vertices));
+		Model.Mesh.SetIndices<int>(CollectionsMarshal.AsSpan(indices));
+		Model.Materials.Add(new DefaultMaterial(Assets.Textures[texture]));
+		Model.Parts.Add(new(0, 0, indices.Count));
+		Model.CullMode = CullMode.None;
+		Model.Materials[0].Color = color * alpha;
 
-		LocalBounds = new BoundingBox(-new Vec3(radius, radius, 0), new Vec3(radius, radius, height));
+		LocalBounds = new BoundingBox(-new Vec3(Radius, Radius, 0), new Vec3(Radius, Radius, Height));
 	}
 
     public override void Added()
     {
-		offset = World.Rng.Float() * MathF.Tau;
+		Offset = World.Rng.Float() * MathF.Tau;
     }
 
-    public void CollectModels(List<(Actor Actor, Model Model)> populate)
+    public virtual void CollectModels(List<(Actor Actor, Model Model)> populate)
     {
-		model.Flags = ModelFlags.Cutout;
-		model.CullMode = CullMode.None;
-		model.Transform = 
-			Matrix.CreateRotationZ(World.GeneralTimer * speed + offset) *
-			Matrix.CreateScale(radius, radius, height);
-		populate.Add((this, model));
+		Model.Flags = ModelFlags.Cutout;
+		Model.CullMode = CullMode.None;
+		Model.Transform = 
+			Matrix.CreateRotationZ(World.GeneralTimer * Speed + Offset) *
+			Matrix.CreateScale(Radius, Radius, Height);
+		populate.Add((this, Model));
     }
 }

@@ -7,7 +7,7 @@
     <Nullable>enable</Nullable>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <Version>1.1.1</Version>
-    <PublishSingleFile>true</PublishSingleFile>
+    <PublishSingleFile>false</PublishSingleFile>
     <PublishTrimmed>false</PublishTrimmed>
     <Platforms>x64</Platforms>
     <ApplicationIcon>fuji.ico</ApplicationIcon>
@@ -20,7 +20,9 @@
     <PackageReference Include="FosterFramework" Version="0.1.18-alpha" />
     <PackageReference Include="SharpGLTF.Runtime" Version="1.0.0-alpha0031" />
     <PackageReference Include="Sledge.Formats.Map" Version="1.1.5" />
-  </ItemGroup>
+
+		<PackageReference Include="MonoMod.RuntimeDetour" Version="25.1.0-prerelease.2" />
+	</ItemGroup>
 
   <PropertyGroup Condition="($(RuntimeIdentifier) == '' and $([MSBuild]::IsOSPlatform('Linux'))) or $(RuntimeIdentifier.StartsWith('linux'))">
     <IsLinux>true</IsLinux>
@@ -61,14 +63,13 @@
   </ItemGroup>
 
   <ItemGroup Condition="$(IsWindows) == 'true'">
-    <Content Include="Source/Audio/FMOD/libs/x64/**" CopyToOutputDirectory="PreserveNewest" Link="%(Filename)%(Extension)" />
-  </ItemGroup>
+		<Content Include="Source/Audio/FMOD/libs/x64/**" CopyToOutputDirectory="PreserveNewest" Link="%(Filename)%(Extension)" />
+	</ItemGroup>
 
   <ItemGroup Condition="$(IsMacOS) == 'true'">
     <Content Include="Source/Audio/FMOD/libs/osx/**" CopyToOutputDirectory="PreserveNewest" Link="%(Filename)%(Extension)" />
   </ItemGroup>
 	
-
   <ItemGroup>
     <Content Remove="build\**" />
     <Content Remove="Celeste64-Fuji\**" />

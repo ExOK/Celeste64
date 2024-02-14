@@ -59,7 +59,8 @@ public static class Assets
 		Fonts.Clear();
 		Languages.Clear();
 		Audio.Unload();
-		
+
+		Map.ModActorFactories.Clear();
 		ModLoader.RegisterAllMods();
 
 		var maps = new ConcurrentBag<(Map, GameMod)>();
@@ -68,6 +69,8 @@ public static class Assets
 		var langs = new ConcurrentBag<(Language, GameMod)>();
 		var tasks = new List<Task>();
 
+		// NOTE: Make sure to update ModManager.OnModFileChanged() as well, for hot-reloading to work!
+		
 		var globalFs = ModManager.Instance.GlobalFilesystem;
 		foreach (var (file, mod) in globalFs.FindFilesInDirectoryRecursiveWithMod("Maps", "map"))
 		{
@@ -207,7 +210,7 @@ public static class Assets
 			{
 				if (mod.Filesystem != null && mod.Filesystem.TryOpenFile(file, stream => new Image(stream), out var img))
 				{
-					packer.Add($"{mod.ModInfo?.Id}:{GetResourceNameFromVirt(file, "Sprites")}", img);
+					packer.Add($"{mod.ModInfo.Id}:{GetResourceNameFromVirt(file, "Sprites")}", img);
 				}
 			}
 
@@ -222,7 +225,7 @@ public static class Assets
 			foreach (var it in result.Entries)
 			{
 				string[] nameSplit = it.Name.Split(':');
-				GameMod? mod = ModManager.Instance.Mods.FirstOrDefault(mod => mod.ModInfo != null && mod.ModInfo.Id == nameSplit[0]) ?? ModManager.Instance.VanillaGameMod;
+				GameMod? mod = ModManager.Instance.Mods.FirstOrDefault(mod => mod.ModInfo.Id == nameSplit[0]) ?? ModManager.Instance.VanillaGameMod;
 				if(mod != null)
 				{
 					Subtextures.Add(nameSplit[1], new Subtexture(pages[it.Page], it.Source, it.Frame), mod);
@@ -277,7 +280,7 @@ public static class Assets
 			if (mod.Filesystem != null && mod.Filesystem.TryOpenFile(file,
 				    stream => JsonSerializer.Deserialize(stream, SkinInfoContext.Default.SkinInfo), out var skin) && skin.IsValid())
 			{
-				skin.ModId = mod.ModInfo?.Id ?? "";
+				skin.ModId = mod.ModInfo.Id;
 				Skins.Add(skin);
 			}
 			else

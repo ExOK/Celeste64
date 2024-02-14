@@ -53,7 +53,6 @@ public class World : Scene
 			return player.IsAbleToPause;
 		}
 	}
-	internal bool NeedsReload = false;
 
 	private readonly Stopwatch debugUpdTimer = new();
 	private readonly Stopwatch debugRndTimer = new();
@@ -62,13 +61,15 @@ public class World : Scene
 	private int debugUpdateCount;
 	public static bool DebugDraw { get; private set; } = false;
 
+	public Map Map {  get; private set; }
+
 	public World(EntryInfo entry)
 	{
 		Entry = entry;
 
 		var stopwatch = Stopwatch.StartNew();
 		var map = Assets.Maps[entry.Map];
-		Map.ModActorFactories.Clear();
+		Map = map;
 
 		ModManager.Instance.CurrentLevelMod = ModManager.Instance.Mods.FirstOrDefault(mod => mod.Maps.ContainsKey(entry.Map));
 
@@ -81,15 +82,7 @@ public class World : Scene
 
 		// setup pause menu
 		{
-			Menu optionsMenu = new Menu();
-			optionsMenu.Title = Loc.Str("OptionsTitle");
-			optionsMenu.Add(new Menu.Toggle(Loc.Str("OptionsFullscreen"), Save.Instance.ToggleFullscreen, () => Save.Instance.Fullscreen));
-			optionsMenu.Add(new Menu.Toggle(Loc.Str("OptionsZGuide"), Save.Instance.ToggleZGuide, () => Save.Instance.ZGuide));
-			optionsMenu.Add(new Menu.Toggle(Loc.Str("OptionsTimer"), Save.Instance.ToggleTimer, () => Save.Instance.SpeedrunTimer));
-			optionsMenu.Add(new Menu.MultiSelect<Save.InvertCameraOptions>(Loc.Str("OptionsInvertCamera"), Save.Instance.SetCameraInverted, () => Save.Instance.InvertCamera));
-			optionsMenu.Add(new Menu.Spacer());
-			optionsMenu.Add(new Menu.Slider(Loc.Str("OptionsBGM"), 0, 10, () => Save.Instance.MusicVolume, Save.Instance.SetMusicVolume));
-			optionsMenu.Add(new Menu.Slider(Loc.Str("OptionsSFX"), 0, 10, () => Save.Instance.SfxVolume, Save.Instance.SetSfxVolume));
+			Menu optionsMenu = new GameOptionsMenu();
 
 			ModSelectionMenu modMenu = new ModSelectionMenu()
 			{
@@ -113,8 +106,8 @@ public class World : Scene
 				pauseMenu.Add(new Menu.OptionList("Skin",
 					() => Assets.EnabledSkins.Select(x => x.Name).ToList(),
 					0,
-					Assets.EnabledSkins.Count,
-					() => Save.Instance.SkinName, Save.Instance.SetSkinName)
+					() => Assets.EnabledSkins.Count,
+					() => Save.Instance.GetSkin().Name, Save.Instance.SetSkinName)
 				);
 			}
 			pauseMenu.Add(new Menu.Submenu(Loc.Str("PauseOptions"), pauseMenu, optionsMenu));
@@ -424,9 +417,9 @@ public class World : Scene
 	{
 		if(paused == false)
 		{
-			if(NeedsReload)
+			if(Game.Instance.NeedsReload)
 			{
-				NeedsReload = false;
+				Game.Instance.NeedsReload = false;
 				Game.Instance.ReloadAssets();
 			}
 
@@ -765,11 +758,11 @@ public class World : Scene
 		ApplyPostEffects();
 
 		// render alpha threshold transparent stuff
-		// {
-		// 	state.CutoutMode = true;
-		// 	RenderModels(ref state, models, ModelFlags.Cutout);
-		// 	state.CutoutMode = false;
-		// }
+		{
+			state.CutoutMode = true;
+			RenderModels(ref state, models, ModelFlags.Cutout);
+			state.CutoutMode = false;
+		}
 
 		// render 2d sprites
 		{

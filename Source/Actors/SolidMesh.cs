@@ -3,15 +3,17 @@ namespace Celeste64;
 
 public class SolidMesh : Solid
 {
-	private readonly SkinnedModel model;
-	private readonly float scale = 6;
-	private Vec3 spawnPoint;
+	public readonly SkinnedModel ObjectModel;
+	public readonly float Scale = 6;
+	public Vec3 SpawnPoint;
 
 	public SolidMesh(SkinnedTemplate model, float scale)
 	{
-		this.scale = scale;
+		Scale = scale * 0.2f;
 
-		this.model = new(model);
+		ObjectModel = new(model);
+		ObjectModel.Flags = ModelFlags.Terrain;
+		ObjectModel.Transform = Matrix.CreateScale(0.2f);
 
 		// create solids out of mesh ....?
 		{
@@ -20,7 +22,7 @@ public class SolidMesh : Solid
 			var faces = new List<Face>();
 			var meshVertices = collider.Template.Vertices;
 			var meshIndices = collider.Template.Indices;
-			var mat = SkinnedModel.BaseTranslation * collider.Transform * Matrix.CreateScale(scale);
+			var mat = SkinnedModel.BaseTranslation * collider.Transform * Matrix.CreateScale(Scale);
 
 			for (int i = 0; i < collider.Instance.Count; i++)
 			{
@@ -63,7 +65,7 @@ public class SolidMesh : Solid
     {
         base.Added();
 		Position += -Vec3.UnitZ * 1.3f;
-		spawnPoint = Position;
+		SpawnPoint = Position;
     }
 
     public override void Update()
@@ -73,10 +75,8 @@ public class SolidMesh : Solid
 
     public override void CollectModels(List<(Actor Actor, Model Model)> populate)
     {
-		// hack: don't use actor translation for wheels....		
-		model.Transform = 
-			Matrix.CreateScale(scale);
+		ObjectModel.Transform = Matrix.CreateScale(Scale);
 
-		populate.Add((this, model));
+		populate.Add((this, ObjectModel));
     }
 }

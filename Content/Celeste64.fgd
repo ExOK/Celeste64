@@ -20,8 +20,9 @@
 @PointClass size(-16 -16 0, 16 16 16) model({ "path": model }) = StaticProp : "Static Prop" 
 [
     model(String) : "Model file path" : : "Set this to a 3D model file."
-	radius(integer) : "Radius" : 6 : "Pushout Radius"
-	height(integer) : "Height" : 12 : "Pushout Height"
+    radius(integer) : "Radius" : 6 : "Pushout Radius"
+    height(integer) : "Height" : 12 : "Pushout Height"
+    angle(integer) : "Prop Rotation"
 ]
 
 @PointClass size(-16 -16 0, 16 16 32) = PlayerSpawn : "Player start position" 
@@ -51,7 +52,7 @@
 @PointClass model({ "path": "Models/sign.glb", "scale": 12 }) = SignPost : "Says some stuff" 
 [
     dialog(string) : "Dialog Entry"
-	angle(integer) : "Sign Rotation"
+    angle(integer) : "Sign Rotation"
 ]
 
 @PointClass size(-8 -8 -8, 8 8 8) = Node : "Moving entity path node"
@@ -155,5 +156,6 @@
 @PointClass model({ "path": model, "scale": scale} ) = SolidMesh : "Solid Mesh" 
 [
     model(String) : "Model file path" : : "Set this to a 3D model file."
-	scale(float) : "Scale"
+    scale(float) : "Scale"
+    angle(integer) : "Object Rotation"
 ]
