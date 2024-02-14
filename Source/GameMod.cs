@@ -272,6 +272,13 @@ public abstract class GameMod
 	public virtual void OnPlayerLanded(Player player) {}
 
 	/// <summary>
+	/// Called whenever a player jumps.
+	/// </summary>
+	/// <param name="player">A reference to the player</param>
+	public virtual void OnPlayerJumped(Player player, Player.JumpType jumpType) { }
+
+
+	/// <summary>
 	/// Called whenever the player's state changes
 	/// </summary>
 	/// <param name="player">A reference to the player</param>

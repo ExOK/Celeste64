@@ -231,6 +231,7 @@ public class Player : Actor, IHaveModels, IHaveSprites, IRidePlatforms, ICastPoi
 
 	public enum States { Normal, Dashing, Skidding, Climbing, StrawbGet, FeatherStart, Feather, Respawn, Dead, StrawbReveal, Cutscene, Bubble, Cassette };
 	public enum Events { Land };
+	public enum JumpType { Jumped, WallJumped, SkidJumped, DashJumped };
 
 	public bool Dead = false;
 
@@ -1032,6 +1033,7 @@ public class Player : Actor, IHaveModels, IHaveSprites, IRidePlatforms, ICastPoi
 
 		ModelScale = new(.6f, .6f, 1.4f);
 		Audio.Play(Sfx.sfx_jump, Position);
+		ModManager.Instance.OnPlayerJumped(this, JumpType.Jumped);
 	}
 
 	public virtual void WallJump()
@@ -1048,6 +1050,7 @@ public class Player : Actor, IHaveModels, IHaveSprites, IRidePlatforms, ICastPoi
 
 		ModelScale = new(.6f, .6f, 1.4f);
 		Audio.Play(Sfx.sfx_jump_wall, Position);
+		ModManager.Instance.OnPlayerJumped(this, JumpType.WallJumped);
 	}
 
 	public virtual void SkidJump()
@@ -1072,6 +1075,7 @@ public class Player : Actor, IHaveModels, IHaveSprites, IRidePlatforms, ICastPoi
 		ModelScale = new(.6f, .6f, 1.4f);
 		Audio.Play(Sfx.sfx_jump, Position);
 		Audio.Play(Sfx.sfx_jump_skid, Position);
+		ModManager.Instance.OnPlayerJumped(this, JumpType.SkidJumped);
 	}
 
 	public virtual void DashJump()
@@ -1101,6 +1105,7 @@ public class Player : Actor, IHaveModels, IHaveSprites, IRidePlatforms, ICastPoi
 		ModelScale = new(.6f, .6f, 1.4f);
 		Audio.Play(Sfx.sfx_jump, Position);
 		Audio.Play(Sfx.sfx_jump_superslide, Position);
+		ModManager.Instance.OnPlayerJumped(this, JumpType.DashJumped);
 	}
 
 	public virtual void AddPlatformVelocity(bool playSound)

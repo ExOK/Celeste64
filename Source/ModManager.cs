@@ -220,6 +220,14 @@ public sealed class ModManager
 		}
 	}
 
+	internal void OnPlayerJumped(Player player, Player.JumpType jumpType)
+	{
+		foreach (var mod in EnabledMods)
+		{
+			mod.OnPlayerJumped(player, jumpType);
+		}
+	}
+
 	internal void OnPlayerSkinChange(Player player, SkinInfo skin)
 	{
 		foreach (var mod in EnabledMods)
