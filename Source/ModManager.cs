@@ -105,7 +105,7 @@ public sealed class ModManager
 			    (dir.StartsWith("Skins") && extension == ".json") || // Skins/**.json
 			    (dir.StartsWith("DLLs") && extension is ".dll") || // DLLs/**.dll
 			    filepath == "Levels.json" ||			    
-			    filepath == "Fuji.json"))
+			    filepath == "Fuji.json")
 			{
 				Log.Info($"File Changed: {filepath} (From mod {ctx.Mod.ModInfo.Name}). Reloading assets.");
 			} 
