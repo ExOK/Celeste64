@@ -14,8 +14,6 @@
     <PackageIcon>fuji.png</PackageIcon>
     <PackageReadmeFile>ReadMe.md</PackageReadmeFile>
     <SelfContained>false</SelfContained>
-		<DebugType>None</DebugType>
-		<DebugSymbols>false</DebugSymbols>
   </PropertyGroup>
 
   <ItemGroup>
