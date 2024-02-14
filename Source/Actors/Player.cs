@@ -1957,7 +1957,7 @@ public class Player : Actor, IHaveModels, IHaveSprites, IRidePlatforms, ICastPoi
 	{
 		TargetFacing = Calc.AngleToVector(StrawbGetForward.Angle() - MathF.PI / 7);
 		Facing = new(TargetFacing, Facing.Z);
-		CameraOverride = new CameraOverride(Position + new Vec3(StrawbGetForward * 50, 40), Position + Vec3.UnitZ * 6);
+		CameraOverride = new CameraOverrideStruct(Position + new Vec3(StrawbGetForward * 50, 40), Position + Vec3.UnitZ * 6);
 	}
 
 	public virtual CoEnumerator StStrawbGetRoutine()
