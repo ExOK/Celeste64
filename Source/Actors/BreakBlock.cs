@@ -3,17 +3,16 @@ namespace Celeste64;
 
 public class BreakBlock : Solid, IDashTrigger
 {
-	private static readonly string[] glassShards = ["shard_0", "shard_1", "shard_2"];
-	private static readonly string[] woodShards = ["wood_shard_0", "wood_shard_1", "wood_shard_2"];
+	public static readonly string[] GlassShards = ["shard_0", "shard_1", "shard_2"];
+	public static readonly string[] WoodShards = ["wood_shard_0", "wood_shard_1", "wood_shard_2"];
 
 	public readonly bool Secret;
 
-    public bool BouncesPlayer => bouncesPlayer;
-    private readonly bool bouncesPlayer;
+	public virtual bool BouncesPlayer { get; set; }
 
 	public BreakBlock(bool bouncesPlayer_, bool transparent, bool secret)
 	{
-		bouncesPlayer = bouncesPlayer_;
+		BouncesPlayer = bouncesPlayer_;
 		Transparent = transparent;
 		Secret = secret;
 
@@ -21,11 +20,11 @@ public class BreakBlock : Solid, IDashTrigger
 			Model.Flags = ModelFlags.Transparent;
 	}
 
-    public void HandleDash(Vec3 velocity)
+    public virtual void HandleDash(Vec3 velocity)
 	{
 		var size = LocalBounds.Size;
 		var amount = (size.X * size.Y * size.Z) / 200;
-		var options = (Transparent ? glassShards : woodShards);
+		var options = (Transparent ? GlassShards : WoodShards);
 
 		if (Secret)
 			Audio.Play(Sfx.sfx_secret, Position);

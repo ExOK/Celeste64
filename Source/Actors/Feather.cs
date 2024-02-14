@@ -5,10 +5,10 @@ public class Feather : Actor, IHaveModels, IHaveSprites, IPickup, ICastPointShad
 {
 	public SkinnedModel Model;
 	public ParticleSystem Particles;
-	public float PointShadowAlpha { get; set; } = 1.0f;
-	public float PickupRadius => 16;
+	public virtual float PointShadowAlpha { get; set; } = 1.0f;
+	public virtual float PickupRadius => 16;
 
-	private float tCooldown;
+	public float TCooldown;
 
 	public Feather()
 	{
@@ -24,9 +24,9 @@ public class Feather : Actor, IHaveModels, IHaveSprites, IPickup, ICastPointShad
 		});
 	}
 
-	public void CollectSprites(List<Sprite> populate)
+	public virtual void CollectSprites(List<Sprite> populate)
 	{
-		if (tCooldown <= 0)
+		if (TCooldown <= 0)
 		{
 			Particles.CollectSprites(Position, World, populate);
 			var haloPos = Position + Vec3.UnitZ * 2 + Vec3.Transform(Vec3.Zero, Model.Transform);
@@ -41,17 +41,17 @@ public class Feather : Actor, IHaveModels, IHaveSprites, IPickup, ICastPointShad
 
 	public override void Update()
 	{
-		if (tCooldown > 0)
+		if (TCooldown > 0)
 		{
-			tCooldown -= Time.Delta;
-			if (tCooldown <= 0)
+			TCooldown -= Time.Delta;
+			if (TCooldown <= 0)
 			{
 				UpdateOffScreen = false;
 				Audio.Play(Sfx.sfx_feather_reappear, Position);
 			}
 		}
 		
-		PointShadowAlpha = tCooldown <= 0 ? 1 : 0;
+		PointShadowAlpha = TCooldown <= 0 ? 1 : 0;
 		
 		Particles.SpawnParticle(
 			Position + new Vec3(6 - World.Rng.Float() * 12, 6 - World.Rng.Float() * 12, 6 - World.Rng.Float() * 12),
@@ -59,19 +59,19 @@ public class Feather : Actor, IHaveModels, IHaveSprites, IPickup, ICastPointShad
 		Particles.Update(Time.Delta);
 	}
 
-	public void Pickup(Player player)
+	public virtual void Pickup(Player player)
 	{
-		if (tCooldown <= 0)
+		if (TCooldown <= 0)
 		{
-			tCooldown = 1.5f;
+			TCooldown = 1.5f;
 			player.FeatherGet(this);
 			UpdateOffScreen = true;
 		}
 	}
 
-	public void CollectModels(List<(Actor Actor, Model Model)> populate)
+	public virtual void CollectModels(List<(Actor Actor, Model Model)> populate)
 	{
-		if (tCooldown <= 0)
+		if (TCooldown <= 0)
 		{
 			Model.Transform =
 				Matrix.CreateScale(2.0f) *

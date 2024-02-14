@@ -7,7 +7,7 @@ public class Debris : Actor, IRecycle, IHaveSprites
 	public Subtexture Image;
 	public float Timer;
 
-	public void Init(Vec3 position, Vec3 velocity, string image)
+	public virtual void Init(Vec3 position, Vec3 velocity, string image)
 	{
 		Position = position;
 		Velocity = velocity;
@@ -30,7 +30,7 @@ public class Debris : Actor, IRecycle, IHaveSprites
 			World.Destroy(this);
 	}
 
-	public void CollectSprites(List<Sprite> populate)
+	public virtual void CollectSprites(List<Sprite> populate)
 	{
 		populate.Add(Sprite.CreateBillboard(World, Position, Image, 2, Color.White));
 	}

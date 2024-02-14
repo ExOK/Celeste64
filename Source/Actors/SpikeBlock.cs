@@ -83,7 +83,7 @@ public class SpikeBlock : Attacher, IHaveModels
 		base.Added();
 	}
 
-	public void CollectModels(List<(Actor Actor, Model Model)> populate)
+	public virtual void CollectModels(List<(Actor Actor, Model Model)> populate)
 	{
 		if (Model != null)
 			populate.Add((this, Model));

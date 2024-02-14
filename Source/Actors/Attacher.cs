@@ -20,9 +20,9 @@ public abstract class Attacher : Actor, IRidePlatforms
 		}
 	}
 
-	public bool RidingPlatformCheck(Actor platform) => AttachedTo == platform;
+	public virtual bool RidingPlatformCheck(Actor platform) => AttachedTo == platform;
 
-	public void RidingPlatformSetVelocity(in Vec3 value) { }
+	public virtual void RidingPlatformSetVelocity(in Vec3 value) { }
 
-	public void RidingPlatformMoved(in Vec3 delta) { Position += delta; }
+	public virtual void RidingPlatformMoved(in Vec3 delta) { Position += delta; }
 }
