@@ -87,6 +87,7 @@ public class Map
 				entity.GetIntProperty("secret", 0) != 0);
 		}) { IsSolidGeometry = true },
 		["CassetteBlock"] = new((map, entity) => new CassetteBlock(entity.GetIntProperty("startOn", 1) != 0)) { IsSolidGeometry = true },
+		["NonClimbableBlock"] = new((map, entity) => new NonClimbableBlock()) { IsSolidGeometry = true },
 		["DoubleDashPuzzleBlock"] = new((map, entity) => new DoubleDashPuzzleBlock()) { IsSolidGeometry = true },
 		["EndingArea"] = new((map, entity) => new EndingArea()) { UseSolidsAsBounds = true },
 		["Fog"] = new((map, entity) => new FogRing(entity)),
@@ -324,12 +325,18 @@ public class Map
 	
 	public void HandleActorCreation(World world, SledgeEntity entity, Actor it, ActorFactory? factory)
 	{
-		if ((factory?.IsSolidGeometry ?? false) && it is Solid solid)
+		if(it is Solid solid)
 		{
-			List<SledgeSolid> collection = [];
-			CollectSolids(entity, collection);
-			GenerateSolid(solid, collection);
+			if ((factory?.IsSolidGeometry ?? false))
+			{
+				List<SledgeSolid> collection = [];
+				CollectSolids(entity, collection);
+				GenerateSolid(solid, collection);
+			}
+			if (entity.Properties.ContainsKey("climbable"))
+				solid.Climbable = entity.GetStringProperty("climbable", "true") != "false";
 		}
+
 
 		if (entity.Properties.ContainsKey("origin"))
 			it.Position = Vec3.Transform(entity.GetVectorProperty("origin", Vec3.Zero), baseTransform);

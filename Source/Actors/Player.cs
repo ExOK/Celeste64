@@ -1146,7 +1146,9 @@ public class Player : Actor, IHaveModels, IHaveSprites, IRidePlatforms, ICastPoi
 	{
 		if (World.SolidWallCheckClosestToNormal(SolidWaistTestPos + offset, ClimbCheckDist, -new Vec3(TargetFacing, 0), out hit)
 		&& (RelativeMoveInput == Vec2.Zero || Vec2.Dot(hit.Normal.XY().Normalized(), RelativeMoveInput) <= -0.5f)
-		&& ClimbNormalCheck(hit.Normal))
+		&& (hit.Actor is not Solid || (hit.Actor is Solid solid && solid.IsClimbable)) && ClimbNormalCheck(hit.Normal)
+		&& World.SolidRayCast(SolidWaistTestPos, -hit.Normal, ClimbCheckDist + 2, out RayHit rayHit) && ClimbNormalCheck(rayHit.Normal)
+		&& (rayHit.Actor is not Solid || (rayHit.Actor is Solid secondSolid && secondSolid.IsClimbable)))
 			return true;
 		return false;
 	}
@@ -1901,6 +1903,12 @@ public class Player : Actor, IHaveModels, IHaveSprites, IRidePlatforms, ICastPoi
 		}
 		// fall off
 		else if (!TryClimb())
+		{
+			StateMachine.State = States.Normal;
+			return;
+		}
+
+		if (ClimbingWallActor is Solid solid && !solid.IsClimbable)
 		{
 			StateMachine.State = States.Normal;
 			return;
