@@ -13,8 +13,6 @@
     <PackageIcon>fuji.png</PackageIcon>
     <PackageReadmeFile>ReadMe.md</PackageReadmeFile>
     <SelfContained>false</SelfContained>
-    <DebugType>None</DebugType>
-    <DebugSymbols>false</DebugSymbols>
   </PropertyGroup>
 
   <ItemGroup>
@@ -71,7 +69,6 @@
   <ItemGroup Condition="$(IsMacOS) == 'true'">
     <Content Include="Source/Audio/FMOD/libs/osx/**" CopyToOutputDirectory="PreserveNewest" Link="%(Filename)%(Extension)" />
   </ItemGroup>
-
 
   <ItemGroup>
     <Content Remove="build\**" />

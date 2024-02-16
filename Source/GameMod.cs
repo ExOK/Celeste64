@@ -1,4 +1,4 @@
-﻿using MonoMod.RuntimeDetour;
+using MonoMod.RuntimeDetour;
 
 namespace Celeste64;
 
@@ -72,6 +72,14 @@ public abstract class GameMod
 	public float GetFloat(string key)
 	{
 		return ModSaveData.GetFloat(key);
+	}
+	public bool SaveBool(string key, bool value)
+	{
+		return ModSaveData.SetBool(key, value);
+	}
+	public bool GetBool(string key)
+	{
+		return ModSaveData.GetBool(key);
 	}
 	#endregion
 
@@ -270,6 +278,13 @@ public abstract class GameMod
 	/// </summary>
 	/// <param name="player">A reference to the player</param>
 	public virtual void OnPlayerLanded(Player player) {}
+
+	/// <summary>
+	/// Called whenever a player jumps.
+	/// </summary>
+	/// <param name="player">A reference to the player</param>
+	public virtual void OnPlayerJumped(Player player, Player.JumpType jumpType) { }
+
 
 	/// <summary>
 	/// Called whenever the player's state changes
