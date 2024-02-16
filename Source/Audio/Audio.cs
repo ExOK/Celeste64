@@ -75,7 +75,7 @@ public static class Audio
 				if (OperatingSystem.IsWindows())
 					name = $"{name}.dll";
 				else if (OperatingSystem.IsLinux())
-					name = $"lib{name}L.so";
+					name = $"lib{name}.so";
 				else if (OperatingSystem.IsMacOS())
 					name = $"lib{name}.dylib";
 				else
