@@ -31,25 +31,23 @@ public static class ModLoader
 
 	internal static void RegisterAllMods()
 	{
-		// Mod Infos are required now, so make a dummy mod info for the vanilla game too. This shouldn't really be used for anything.
-		ModInfo vanillaModInfo = new ModInfo()
+		ModManager.VanillaGameMod = new VanillaGameMod
 		{
-			Id = "Celeste64Vanilla",
-			Name = "Celeste 64: Fragments of the Mountains",
-			Version = "1.1.1"
-		};
-		VanillaGameMod vanillaMod = new VanillaGameMod()
-		{
-			ModInfo = vanillaModInfo,
+			// Mod Infos are required now, so make a dummy mod info for the vanilla game too. This shouldn't really be used for anything.
+			ModInfo = new ModInfo
+			{
+				Id = "Celeste64Vanilla",
+				Name = "Celeste 64: Fragments of the Mountains",
+				Version = "1.1.1"
+			},
 			Filesystem = new FolderModFilesystem(Assets.ContentPath)
 		};
 
-		List<GameMod> mods =
+		List<(ModInfo, IModFilesystem)> modInfos =
 		[
 			// Load vanilla as a mod, to unify all asset loading code
-			vanillaMod
+			(ModManager.VanillaGameMod.ModInfo, ModManager.VanillaGameMod.Filesystem),
 		];
-		ModManager.VanillaGameMod = vanillaMod;
 
 		// Find all mods in directories:
 		foreach (var modDir in Directory.EnumerateDirectories(ModFolderPath))
@@ -57,7 +55,7 @@ public static class ModLoader
 			var modName = Path.GetFileNameWithoutExtension(modDir)!; // Todo: read from some metadata file
 			var fs = new FolderModFilesystem(modDir);
 
-			mods.Add(LoadGameMod(modName, fs));
+			modInfos.Add((LoadModInfo(modName, fs), fs));
 			Log.Info($"Loaded mod from directory: {modName}");
 		}
 
@@ -67,58 +65,111 @@ public static class ModLoader
 			var modName = Path.GetFileNameWithoutExtension(modZip)!; // Todo: read from some metadata file
 			var fs = new ZipModFilesystem(modZip);
 
-			mods.Add(LoadGameMod(modName, fs));
+			modInfos.Add((LoadModInfo(modName, fs), fs));
 			Log.Info($"Loaded mod from zip: {modName}");
 		}
-
+		
 		ModManager.Unload();
-		// We've collected all the mods now, time to initialize them
-		foreach (var mod in mods)
+		
+		// We use an slightly silly approach to load all dependencies first:
+		// Load all mods which have their dependencies met and repeat until we're done.
+		bool loadedModInIteration = false;
+		HashSet<ModInfo> loaded = [];
+		
+		while (modInfos.Count > 0)
 		{
-			mod.Filesystem?.AssociateWithMod(mod);
-			ModManager.RegisterMod(mod);
+			for (int i = modInfos.Count - 1; i >= 0; i--)
+			{
+				var (info, fs) = modInfos[i];
+				
+				bool dependenciesSatisfied = true;
+				if (info.Dependencies is { } deps)
+				{
+					foreach (var (modID, version) in deps)
+					{
+						if (loaded.FirstOrDefault(loadedInfo => loadedInfo.Id == modID) is { } dep) continue; // TODO: Check dependency version
+
+						dependenciesSatisfied = false;
+						break;
+					}	
+				}
+
+				if (!dependenciesSatisfied) continue;
+
+				var mod = LoadGameMod(info, fs);
+				mod.Filesystem?.AssociateWithMod(mod);
+				ModManager.RegisterMod(mod);		
+
+				modInfos.RemoveAt(i);
+				loaded.Add(info);
+				loadedModInIteration = true;
+			}
+			
+			if (!loadedModInIteration)
+			{
+				// This means that all infos left infos don't have their dependencies met
+				// TODO: Gracefully handle this case
+				foreach (var (info, _) in modInfos)
+				{
+					Log.Error($"Mod '{info.Id} is missing following dependencies:");
+
+					var missingDependencies = info.Dependencies!.Where(dep =>
+					{
+						var (modID, version) = dep;
+						return loaded.FirstOrDefault(loadedInfo => loadedInfo.Id == modID) == null;
+					});
+					foreach (var (modID, version) in missingDependencies)
+					{
+						Log.Error($" - ModID: '{modID}' Version: '{version}' ");
+					}
+				}
+			}
 		}
 
 		ModManager.InitializeFilesystemBackgroundCleanup();
 	}
-
-	private static GameMod LoadGameMod(string modFolder, IModFilesystem fs)
+	
+	private static ModInfo LoadModInfo(string modFolder, IModFilesystem fs)
 	{
+		if (!fs.TryOpenFile("Fuji.json", stream => JsonSerializer.Deserialize(stream, ModInfoContext.Default.ModInfo), out var info))
+			throw new Exception($"Fuji Exception: Tried to load mod {modFolder} but could not find a valid Fuji.json file");
+		if (!info.IsValid())
+			throw new Exception($"Fuji Exception: Invalid Fuji.json file for {modFolder}/Fuji.json");
+
+		return info;
+	}
+
+	private static GameMod LoadGameMod(ModInfo info, IModFilesystem fs)
+	{
+		// If the mod is not enabled, don't load the assemblies
+		if (!Save.Instance.GetOrMakeMod(info.Id).Enabled)
+		{
+			return new DummyGameMod
+			{
+				ModInfo = info,
+				Filesystem = fs
+			};
+		}
+		
 		GameMod? loadedMod = null;
 		var anyDllFile = false;
-
-		ModInfo modInfo;
-		if (fs.TryOpenFile("Fuji.json",
-			    stream => JsonSerializer.Deserialize(stream, ModInfoContext.Default.ModInfo),
-			    out var info))
+		foreach (var assemblyPath in fs.FindFilesInDirectoryRecursive("DLLs", "dll"))
 		{
-			modInfo = info;
-			if (!modInfo.IsValid())
-			{
-				throw new Exception($"Fuji Exception: Invalid Fuji.json file for {modFolder}/Fuji.json");
-			}
-		}
-		else
-		{
-			throw new Exception($"Fuji Exception: Tried to load mod {modFolder} but could not find a valid Fuji.json file");
-		}
+			var symbolPath = Path.ChangeExtension(assemblyPath, ".pdb");
 
-		foreach (var dllFile in fs.FindFilesInDirectoryRecursive("DLLs", "dll"))
-		{
-			if (!fs.TryOpenFile(dllFile, stream => Assembly.Load(stream.ReadAllToByteArray()), out var asm))
-			{
-				continue;
-			}
-				
-			Log.Info($"Loaded mod .dll file: {dllFile}");
-
+			using var assemblyStream = fs.OpenFile(assemblyPath);
+			using var symbolStream = fs.FileExists(symbolPath) ? fs.OpenFile(symbolPath) : null;
+			
+			var assembly = Assembly.Load(assemblyStream.ReadAllToByteArray(), symbolStream?.ReadAllToByteArray());
+			
+			Log.Info($"Loaded assembly file '{assemblyPath}' for mod {info.Id}");
 			anyDllFile = true;
 				
-			foreach (var type in asm.GetExportedTypes())
+			foreach (var type in assembly.GetExportedTypes())
 			{
 				if (type.BaseType != typeof(GameMod))
 					continue;
-
+			
 				if (loadedMod is { })
 				{
 					Log.Error($"Mod at {fs.Root} contains multiple classes extending from {typeof(GameMod)} " +
@@ -128,10 +179,10 @@ public static class ModLoader
 					
 				if (Activator.CreateInstance(type) is not GameMod instance)
 					continue;
-
+			
 				loadedMod = instance;
 				instance.Filesystem = fs;
-				instance.ModInfo = modInfo;
+				instance.ModInfo = info;
 			}
 		}
 
@@ -143,9 +194,9 @@ public static class ModLoader
 			}
 			
 			// No GameMod, create a dummy one
-			loadedMod = new DummyGameMod()
+			loadedMod = new DummyGameMod
 			{
-				ModInfo = modInfo,
+				ModInfo = info,
 				Filesystem = fs
 			};
 		}
