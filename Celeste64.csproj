@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <OutputType>WinExe</OutputType>
+    <OutputType>Library</OutputType>
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
@@ -81,7 +81,6 @@
     <Compile Remove="Celeste64-Fuji\**" />
     <Compile Remove="Celeste64Launcher\**" />
     <Compile Remove="Mods\**" />
-    <Compile Remove="Mods_dis\**" />
     <EmbeddedResource Remove="build\**" />
     <EmbeddedResource Remove="Celeste64-Fuji\**" />
     <EmbeddedResource Remove="Celeste64Launcher\**" />
