@@ -43,11 +43,7 @@ public static class ModLoader
 			Filesystem = new FolderModFilesystem(Assets.ContentPath)
 		};
 
-		List<(ModInfo, IModFilesystem)> modInfos =
-		[
-			// Load vanilla as a mod, to unify all asset loading code
-			(ModManager.VanillaGameMod.ModInfo, ModManager.VanillaGameMod.Filesystem),
-		];
+		List<(ModInfo, IModFilesystem)> modInfos = [];
 
 		// Find all mods in directories:
 		foreach (var modDir in Directory.EnumerateDirectories(ModFolderPath))
@@ -70,6 +66,9 @@ public static class ModLoader
 		}
 		
 		ModManager.Unload();
+		
+		// Load vanilla as a mod, to unify all asset loading code
+		ModManager.RegisterMod(ModManager.VanillaGameMod);
 		
 		// We use an slightly silly approach to load all dependencies first:
 		// Load all mods which have their dependencies met and repeat until we're done.
@@ -131,10 +130,10 @@ public static class ModLoader
 	
 	private static ModInfo LoadModInfo(string modFolder, IModFilesystem fs)
 	{
-		if (!fs.TryOpenFile("Fuji.json", stream => JsonSerializer.Deserialize(stream, ModInfoContext.Default.ModInfo), out var info))
-			throw new Exception($"Fuji Exception: Tried to load mod {modFolder} but could not find a valid Fuji.json file");
+		if (!fs.TryOpenFile(Assets.FujiJSON, stream => JsonSerializer.Deserialize(stream, ModInfoContext.Default.ModInfo), out var info))
+			throw new Exception($"Fuji Exception: Tried to load mod {modFolder} but could not find a valid {Assets.FujiJSON} file");
 		if (!info.IsValid())
-			throw new Exception($"Fuji Exception: Invalid Fuji.json file for {modFolder}/Fuji.json");
+			throw new Exception($"Fuji Exception: Invalid Fuji.json file for {modFolder}/{Assets.FujiJSON}");
 
 		return info;
 	}
@@ -153,16 +152,11 @@ public static class ModLoader
 		
 		GameMod? loadedMod = null;
 		var anyDllFile = false;
-		foreach (var assemblyPath in fs.FindFilesInDirectoryRecursive(Assets.LibraryFolder, Assets.LibraryExtension))
+		
+		var assemblyContext = new ModAssemblyLoadContext(info, fs);
+		foreach (var assembly in assemblyContext.Assemblies)
 		{
-			var symbolPath = Path.ChangeExtension(assemblyPath, $".{Assets.LibrarySymbolExtension}");
-
-			using var assemblyStream = fs.OpenFile(assemblyPath);
-			using var symbolStream = fs.FileExists(symbolPath) ? fs.OpenFile(symbolPath) : null;
-			
-			var assembly = Assembly.Load(assemblyStream.ReadAllToByteArray(), symbolStream?.ReadAllToByteArray());
-			
-			Log.Info($"Loaded assembly file '{assemblyPath}' for mod {info.Id}");
+			Log.Info($"Loaded assembly file '{assembly}' for mod {info.Id}");
 			anyDllFile = true;
 				
 			foreach (var type in assembly.GetExportedTypes())
@@ -190,7 +184,7 @@ public static class ModLoader
 		{
 			if (anyDllFile)
 			{
-				Log.Warning($"Mod at {fs.Root} has dll files, but none of them contain a type extending from {typeof(GameMod)}.");
+				Log.Warning($"Mod at {fs.Root} has assemblies, but none of them contain a public type extending from {typeof(GameMod)}.");
 			}
 			
 			// No GameMod, create a dummy one

@@ -54,6 +54,24 @@ public sealed class LayeredFilesystem : IModFilesystem {
         return mods.FirstOrDefault(m => m.Filesystem != null && m.Filesystem.FileExists(filepath));
     }
 
+    public Stream OpenFile(string path)
+    {
+	    foreach (var mod in mods) {
+		    if (mod.Filesystem == null) continue;
+			
+		    try
+		    {
+			    return mod.Filesystem.OpenFile(path);
+		    } 
+		    catch (FileNotFoundException)
+		    {
+			    // ignored
+		    }
+	    }
+	    
+	    throw new FileNotFoundException("Couldn't find file in layered filesystem", path);
+    }
+	
     public bool TryOpenFile<T>(string path, Func<Stream, T> callback, [NotNullWhen(true)] out T? value) {
         foreach (var mod in mods) {
             if (mod.Filesystem != null && mod.Filesystem.TryOpenFile(path, callback, out value))

@@ -18,6 +18,9 @@ public class ModInfo
 	public Dictionary<string, string>? Dependencies { get; set; }
 	public Dictionary<string, string>? AssetReplaceItems { get; set; }
 
+	[JsonIgnore]
+	internal ModAssemblyLoadContext? AssemblyContext = null;
+	
 	public bool IsValid()
 	{
 		return !string.IsNullOrEmpty(Id) && !string.IsNullOrEmpty(Name) && !string.IsNullOrEmpty(Version);

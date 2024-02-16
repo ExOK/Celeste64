@@ -22,6 +22,11 @@ public interface IModFilesystem : IDisposable
     public bool FileExists(string path);
 
     /// <summary>
+    /// Opens a stream for the file at the given path.
+    /// </summary>
+    public Stream OpenFile(string path);
+    
+    /// <summary>
     /// Tries to open a file at a given virtual path, which includes the file extension.
     /// If the file was found, calls <paramref name="callback"/> with the stream for that file, then returns true and <paramref name="value"/> gets set to the return value of the callback.
     /// If not, the function returns false.
