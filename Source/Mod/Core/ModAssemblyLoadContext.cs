@@ -1,5 +1,4 @@
 using System.Collections.Concurrent;
-using System.Diagnostics;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Runtime.Loader;
@@ -15,7 +14,7 @@ internal sealed class ModAssemblyLoadContext : AssemblyLoadContext
 	/// <summary>
 	/// A list of assembly names which must not be loaded by a mod. The list will be initialized upon first access (which is before any mods will have loaded).
 	/// </summary>
-	internal static string[] AssemblyLoadBlackList => _assemblyLoadBlackList ??= AssemblyLoadContext.Default.Assemblies.Select(asm => asm.GetName().Name)
+	private static string[] AssemblyLoadBlackList => _assemblyLoadBlackList ??= AssemblyLoadContext.Default.Assemblies.Select(asm => asm.GetName().Name)
 		.Append("Mono.Cecil.Pdb").Append("Mono.Cecil.Mdb") // These two aren't picked up by default for some reason
 		.ToArray()!;
 	private static string[]? _assemblyLoadBlackList = null;
@@ -23,7 +22,7 @@ internal sealed class ModAssemblyLoadContext : AssemblyLoadContext
 	/// <summary>
 	/// The folder name where mod unmanaged assemblies will be loaded from.
 	/// </summary>
-	internal static string UnmanagedLibraryFolder => _unmanagedLibraryFolder ??= (
+	private static string UnmanagedLibraryFolder => _unmanagedLibraryFolder ??= (
 			RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "lib-win-x64" :
 			RuntimeInformation.IsOSPlatform(OSPlatform.Linux) ? RuntimeInformation.OSArchitecture switch
 			{
@@ -70,7 +69,7 @@ internal sealed class ModAssemblyLoadContext : AssemblyLoadContext
 		// Resolve dependencies
 		if (info.Dependencies is { } deps)
 		{
-			foreach (var (modId, version) in deps)
+			foreach (var (modId, _) in deps)
 			{
 				if (_contextsByModID.TryGetValue(modId, out var alc))
 					_dependencyContexts.Add(alc);
@@ -229,7 +228,10 @@ internal sealed class ModAssemblyLoadContext : AssemblyLoadContext
 	        {
 		        // We can load the library directly in this case
 		        if (NativeLibrary.TryLoad(Path.Combine(folderFs.Root, libraryPath), out handle))
+		        {
+			        _localUnmanagedLoadCache.TryAdd(name, handle);
 			        return handle;
+		        }
 	        }
 	        
 	        // Otherwise, we need to extract the library into a temporary file
@@ -251,7 +253,10 @@ internal sealed class ModAssemblyLoadContext : AssemblyLoadContext
 
             // Try to load the native library from the temporary file
             if (NativeLibrary.TryLoad(tempFilePath, out handle))
+            {
+	            _localUnmanagedLoadCache.TryAdd(name, handle);
                 return handle;
+            }
         }
 		
 		return null;
