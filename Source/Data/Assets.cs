@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.Text;
 using System.Text.Json;
+using Celeste64.Mod;
 
 namespace Celeste64;
 

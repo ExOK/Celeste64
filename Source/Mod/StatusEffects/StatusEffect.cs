@@ -1,4 +1,4 @@
-﻿﻿namespace Celeste64;
+﻿namespace Celeste64.Mod;
 
 public abstract class StatusEffect
 {

@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <OutputType>Library</OutputType>
+    <OutputType>WinExe</OutputType>
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
@@ -20,9 +20,8 @@
     <PackageReference Include="FosterFramework" Version="0.1.18-alpha" />
     <PackageReference Include="SharpGLTF.Runtime" Version="1.0.0-alpha0031" />
     <PackageReference Include="Sledge.Formats.Map" Version="1.1.5" />
-
-		<PackageReference Include="MonoMod.RuntimeDetour" Version="25.1.0-prerelease.2" />
-	</ItemGroup>
+    <PackageReference Include="MonoMod.RuntimeDetour" Version="25.1.0-prerelease.2" />
+  </ItemGroup>
 
   <PropertyGroup Condition="($(RuntimeIdentifier) == '' and $([MSBuild]::IsOSPlatform('Linux'))) or $(RuntimeIdentifier.StartsWith('linux'))">
     <IsLinux>true</IsLinux>
@@ -82,6 +81,7 @@
     <Compile Remove="Celeste64-Fuji\**" />
     <Compile Remove="Celeste64Launcher\**" />
     <Compile Remove="Mods\**" />
+    <Compile Remove="Mods_dis\**" />
     <EmbeddedResource Remove="build\**" />
     <EmbeddedResource Remove="Celeste64-Fuji\**" />
     <EmbeddedResource Remove="Celeste64Launcher\**" />

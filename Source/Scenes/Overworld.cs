@@ -1,3 +1,4 @@
+using Celeste64.Mod;
 
 namespace Celeste64;
 

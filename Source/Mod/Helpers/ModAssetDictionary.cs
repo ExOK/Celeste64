@@ -3,7 +3,8 @@ using System.Collections;
 using System.Diagnostics.CodeAnalysis;
 using Path = System.IO.Path;
 
-namespace Celeste64;
+namespace Celeste64.Mod;
+
 public class ModAssetDictionary<V> : IEnumerable<KeyValuePair<string, V>>
 {
 	public delegate Dictionary<string, V> GetDictionary(GameMod mod);

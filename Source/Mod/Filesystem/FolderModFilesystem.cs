@@ -1,7 +1,7 @@
 ﻿using System.Collections.Concurrent;
 using System.Diagnostics.CodeAnalysis;
 
-namespace Celeste64;
+namespace Celeste64.Mod;
 
 public sealed class FolderModFilesystem : IModFilesystem {
     public event Action<ModFileChangedCtx>? OnFileChanged;

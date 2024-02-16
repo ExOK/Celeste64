@@ -49,7 +49,7 @@ public static class Audio
 
 		// Initialize FMOD
 		Check(system.initialize(1024, studioFlags, flags, IntPtr.Zero));
-
+		
 		App.Register<Module>();
 	}
 
@@ -69,11 +69,13 @@ public static class Audio
 			(name, assembly, dllImportSearchPath) =>
 			{
 				name = Path.GetFileNameWithoutExtension(name);
+				
+				//Log.Info($"Loading FMOD from {name} @ {path}");
 
 				if (OperatingSystem.IsWindows())
 					name = $"{name}.dll";
 				else if (OperatingSystem.IsLinux())
-					name = $"lib{name}.so";
+					name = $"lib{name}L.so";
 				else if (OperatingSystem.IsMacOS())
 					name = $"lib{name}.dylib";
 				else

@@ -1,19 +1,15 @@
-using MonoMod.RuntimeDetour;
+﻿using MonoMod.RuntimeDetour;
 
-namespace Celeste64;
+namespace Celeste64.Mod;
 
 public abstract class GameMod
 {
 	#region Internally Used Data
 	internal Save.ModRecord ModSaveData { get { return Save.Instance.GetOrMakeMod(ModInfo.Id); } }
 
-	// These surpress the not-null warning, because they get set as part of the Mod Loading step, not the constructor.
-	// Otherwise, this would require extra null checks whenever we use them, even though they should never be null, or it would require every
-	// gamemod to declare its own constructor, which we don't want either.
-#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
-	internal IModFilesystem Filesystem { get; set; }
-	internal ModInfo ModInfo { get; set; }
-#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
+	// They get set as part of the Mod Loading step, not the constructor.
+	internal IModFilesystem Filesystem { get; set; } = null!;
+	internal ModInfo ModInfo { get; set; } = null!;
 
 	// Used for storing the assets loaded for this mod specifically.
 	internal readonly Dictionary<string, Map> Maps = new(StringComparer.OrdinalIgnoreCase);

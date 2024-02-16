@@ -1,6 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 
-namespace Celeste64;
+namespace Celeste64.Mod;
 
 public record struct ModFileChangedCtx(GameMod Mod, string? Path);
 

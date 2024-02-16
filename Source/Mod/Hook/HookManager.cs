@@ -1,6 +1,6 @@
 ﻿using MonoMod.RuntimeDetour;
 
-namespace Celeste64;
+namespace Celeste64.Mod;
 
 public sealed class HookManager
 {

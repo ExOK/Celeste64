@@ -1,6 +1,6 @@
 ﻿using System.Collections.Frozen;
 
-namespace Celeste64;
+namespace Celeste64.Mod;
 
 public sealed class ModManager
 {

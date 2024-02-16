@@ -1,6 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 
-namespace Celeste64;
+namespace Celeste64.Mod;
 
 /// <summary>
 /// Represents a list of IModFilesystem.

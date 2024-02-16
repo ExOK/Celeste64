@@ -1,7 +1,7 @@
 
 using System.Text.Json.Serialization;
 
-namespace Celeste64;
+namespace Celeste64.Mod;
 
 /// <summary>
 /// Stores Meta-Info about a specific Mod

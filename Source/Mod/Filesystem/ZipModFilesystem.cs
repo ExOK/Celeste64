@@ -2,7 +2,7 @@
 using System.Diagnostics.CodeAnalysis;
 using System.IO.Compression;
 
-namespace Celeste64;
+namespace Celeste64.Mod;
 
 public sealed class ZipModFilesystem : IModFilesystem {
     public event Action<ModFileChangedCtx>? OnFileChanged;

@@ -1,6 +1,7 @@
 using System.Text;
 using System.Text.Json.Serialization;
 using System.Text.Unicode;
+using Celeste64.Mod;
 
 namespace Celeste64;
 
