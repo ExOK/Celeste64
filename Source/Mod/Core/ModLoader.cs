@@ -153,9 +153,9 @@ public static class ModLoader
 		
 		GameMod? loadedMod = null;
 		var anyDllFile = false;
-		foreach (var assemblyPath in fs.FindFilesInDirectoryRecursive("DLLs", "dll"))
+		foreach (var assemblyPath in fs.FindFilesInDirectoryRecursive(Assets.LibraryFolder, Assets.LibraryExtension))
 		{
-			var symbolPath = Path.ChangeExtension(assemblyPath, ".pdb");
+			var symbolPath = Path.ChangeExtension(assemblyPath, $".{Assets.LibrarySymbolExtension}");
 
 			using var assemblyStream = fs.OpenFile(assemblyPath);
 			using var symbolStream = fs.FileExists(symbolPath) ? fs.OpenFile(symbolPath) : null;
