@@ -4,13 +4,6 @@ namespace Celeste64.Mod;
 
 public class ImGuiManager
 {
-    private readonly ImGuiRenderer renderer;
-
-    /// <summary>
-    /// List of currently used <see cref="ImGuiHandler"/>s.
-    /// </summary>
-    public static List<ImGuiHandler> Handlers { get; } = [];
-
     /// <summary>
     /// Whether the keyboard input was consumed by Dear ImGui. 
     /// </summary>
@@ -20,6 +13,9 @@ public class ImGuiManager
     /// Whether the mouse input  was consumed by Dear ImGui. 
     /// </summary>
     public static bool WantCaptureMouse { get; private set; }
+    
+    private readonly ImGuiRenderer renderer;
+    private static IEnumerable<ImGuiHandler> Handlers => ModManager.Instance.EnabledMods.SelectMany(mod => mod.ImGuiHandlers);
 
     internal ImGuiManager()
     {
@@ -27,7 +23,7 @@ public class ImGuiManager
         renderer.RebuildFontAtlas();
     }
 
-    public void UpdateHandlers()
+    internal void UpdateHandlers()
     {
         renderer.Update();
         
@@ -37,7 +33,7 @@ public class ImGuiManager
         }
     }
 
-    public void RenderHandlers()
+    internal void RenderHandlers()
     {
         renderer.BeforeRender();
         foreach (var handler in Handlers)
@@ -51,7 +47,7 @@ public class ImGuiManager
         WantCaptureMouse = io.WantCaptureMouse;
     }
 
-    public void RenderTexture(Batcher batch)
+    internal void RenderTexture(Batcher batch)
     {
         if (renderer.target == null) return;
         batch.Image(renderer.target, Vec2.Zero, Color.White);
