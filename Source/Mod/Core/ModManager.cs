@@ -1,37 +1,23 @@
 ﻿using System.Collections.Frozen;
+using System.Collections.ObjectModel;
 
 namespace Celeste64.Mod;
 
-public sealed class ModManager
+public static class ModManager
 {
-	private ModManager() { }
-
-	private static ModManager? instance = null;
-	public static ModManager Instance
-	{
-		get
-		{
-			if (instance == null)
-			{
-				instance = new ModManager();
-			}
-			return instance;
-		}
-	}
-
-	public LayeredFilesystem GlobalFilesystem { get; } = new();
+	public static LayeredFilesystem GlobalFilesystem { get; } = new();
 		
-	private CancellationTokenSource _modFilesystemCleanupTimerToken = new();
+	private static CancellationTokenSource _modFilesystemCleanupTimerToken = new();
 	
-	internal List<GameMod> Mods = [];
+	internal static List<GameMod> Mods = [];
 
-	internal IEnumerable<GameMod> EnabledMods { get {  return Mods.Where(mod => mod.Enabled); } }
+	internal static IEnumerable<GameMod> EnabledMods { get {  return Mods.Where(mod => mod.Enabled); } }
 
-	internal VanillaGameMod? VanillaGameMod { get; set; }
+	internal static VanillaGameMod? VanillaGameMod { get; set; }
 
-	internal GameMod? CurrentLevelMod { get; set; }
+	internal static GameMod? CurrentLevelMod { get; set; }
 
-	internal void Unload()
+	internal static void Unload()
 	{
 		_modFilesystemCleanupTimerToken.Cancel();
 		_modFilesystemCleanupTimerToken = new();
@@ -44,7 +30,7 @@ public sealed class ModManager
 		}
 	}
 	
-	internal void InitializeFilesystemBackgroundCleanup()
+	internal static void InitializeFilesystemBackgroundCleanup()
 	{
 		// Initialize background mod filesystem cleanup task
 		var timer = new PeriodicTimer(TimeSpan.FromSeconds(5));
@@ -58,7 +44,7 @@ public sealed class ModManager
 		}, _modFilesystemCleanupTimerToken.Token);
 	}
 	
-	internal void RegisterMod(GameMod mod)
+	internal static void RegisterMod(GameMod mod)
 	{
 		Mods.Add(mod);
 		GlobalFilesystem.Add(mod);
@@ -71,7 +57,7 @@ public sealed class ModManager
 		}
 	}
 
-	internal void DeregisterMod(GameMod mod)
+	internal static void DeregisterMod(GameMod mod)
 	{
 		Mods.Remove(mod);
 		GlobalFilesystem.Remove(mod);
@@ -85,7 +71,7 @@ public sealed class ModManager
 		mod.OnUnloadedCleanup?.Invoke();
 	}
 
-	internal void OnModFileChanged(ModFileChangedCtx ctx)
+	internal static void OnModFileChanged(ModFileChangedCtx ctx)
 	{
 		if (ctx.Path is { } filepath)
 		{
@@ -104,7 +90,7 @@ public sealed class ModManager
 			    (dir.StartsWith("Fonts") && extension is ".ttf" or ".otf") || // Fonts/**.ttf and Fonts/**.otf
 			    (dir.StartsWith("Sprites") && extension == ".png") || // Sprites/**.png
 			    (dir.StartsWith("Skins") && extension == ".json") || // Skins/**.json
-			    (dir.StartsWith("DLLs") && extension is ".dll") || // DLLs/**.dll
+			    (dir.StartsWith("DLLs") && extension == ".dll") || // DLLs/**.dll
 			    filepath == "Levels.json" ||			    
 			    filepath == "Fuji.json")
 			{
@@ -121,18 +107,19 @@ public sealed class ModManager
 			Log.Info($"Mod archive for mod {ctx.Mod.ModInfo.Name} changed. Reloading assets.");
 		}
 		
+		// TODO: Only reload what actually changed
 		Game.Instance.ReloadAssets();
 	}
 
-	internal void Update(float deltaTime)
+	internal static void Update(float deltaTime)
 	{
 		foreach (var mod in EnabledMods)
 		{
 			mod.Update(deltaTime);
 		}
 	}
-
-	internal void OnAssetsLoaded()
+	
+	internal static void OnAssetsLoaded()
 	{
 		foreach (var mod in EnabledMods)
 		{
@@ -140,7 +127,7 @@ public sealed class ModManager
 		}
 	}
 
-	internal void OnSceneEntered(Scene scene)
+	internal static void OnSceneEntered(Scene scene)
 	{
 		foreach (var mod in EnabledMods)
 		{
@@ -148,7 +135,7 @@ public sealed class ModManager
 		}
 	}
 
-	internal void OnGameLoaded(Game game)
+	internal static void OnGameLoaded(Game game)
 	{
 		foreach (var mod in EnabledMods)
 		{
@@ -156,7 +143,7 @@ public sealed class ModManager
 		}
 	}
 
-	internal void OnPreMapLoaded(World world, Map map)
+	internal static void OnPreMapLoaded(World world, Map map)
 	{
 		foreach (var mod in EnabledMods)
 		{
@@ -164,7 +151,7 @@ public sealed class ModManager
 		}
 	}
 
-	internal void OnMapLoaded(Map map)
+	internal static void OnMapLoaded(Map map)
 	{
 		foreach (var mod in EnabledMods)
 		{
@@ -172,7 +159,7 @@ public sealed class ModManager
 		}
 	}
 
-	internal void OnWorldLoaded(World world)
+	internal static void OnWorldLoaded(World world)
 	{
 		foreach (var mod in EnabledMods)
 		{
@@ -180,7 +167,7 @@ public sealed class ModManager
 		}
 	}
 
-	internal void OnActorCreated(Actor actor)
+	internal static void OnActorCreated(Actor actor)
 	{ 
 		foreach (var mod in EnabledMods)
 		{
@@ -188,7 +175,7 @@ public sealed class ModManager
 		}
 	}
 
-	internal void OnActorAdded(Actor actor)
+	internal static void OnActorAdded(Actor actor)
 	{
 		foreach (var mod in EnabledMods)
 		{
@@ -196,7 +183,7 @@ public sealed class ModManager
 		}
 	}
 
-	internal void OnActorDestroyed(Actor actor)
+	internal static void OnActorDestroyed(Actor actor)
 	{
 		foreach (var mod in EnabledMods)
 		{
@@ -204,7 +191,7 @@ public sealed class ModManager
 		}
 	}
 
-	internal void OnPlayerKill(Player player)
+	internal static void OnPlayerKill(Player player)
 	{
 		foreach (var mod in EnabledMods)
 		{
@@ -212,7 +199,7 @@ public sealed class ModManager
 		}
 	}
 
-	internal void OnPlayerLanded(Player player)
+	internal static void OnPlayerLanded(Player player)
 	{
 		foreach (var mod in EnabledMods)
 		{
@@ -220,7 +207,7 @@ public sealed class ModManager
 		}
 	}
 
-	internal void OnPlayerJumped(Player player, Player.JumpType jumpType)
+	internal static void OnPlayerJumped(Player player, Player.JumpType jumpType)
 	{
 		foreach (var mod in EnabledMods)
 		{
@@ -228,7 +215,7 @@ public sealed class ModManager
 		}
 	}
 
-	internal void OnPlayerSkinChange(Player player, SkinInfo skin)
+	internal static void OnPlayerSkinChange(Player player, SkinInfo skin)
 	{
 		foreach (var mod in EnabledMods)
 		{
@@ -236,7 +223,7 @@ public sealed class ModManager
 		}
 	}
 
-	internal void OnItemPickup(Player player, IPickup item)
+	internal static void OnItemPickup(Player player, IPickup item)
 	{
 		foreach (var mod in EnabledMods)
 		{
@@ -245,7 +232,7 @@ public sealed class ModManager
 	}
 
 
-	internal void OnPlayerStateChanged(Player player, Player.States? state)
+	internal static void OnPlayerStateChanged(Player player, Player.States? state)
 	{
 		foreach (var mod in EnabledMods)
 		{

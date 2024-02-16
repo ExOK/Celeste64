@@ -72,7 +72,7 @@ public static class Assets
 
 		// NOTE: Make sure to update ModManager.OnModFileChanged() as well, for hot-reloading to work!
 		
-		var globalFs = ModManager.Instance.GlobalFilesystem;
+		var globalFs = ModManager.GlobalFilesystem;
 		foreach (var (file, mod) in globalFs.FindFilesInDirectoryRecursiveWithMod("Maps", "map"))
 		{
 			// Skip the "autosave" folder
@@ -157,7 +157,7 @@ public static class Assets
 		}
 
 		// load level, dialog jsons
-		foreach (var mod in ModManager.Instance.Mods)
+		foreach (var mod in ModManager.Mods)
 		{
 			mod.Levels.Clear();
 			if (mod.Filesystem != null && mod.Filesystem.TryOpenFile("Levels.json", 
@@ -226,7 +226,7 @@ public static class Assets
 			foreach (var it in result.Entries)
 			{
 				string[] nameSplit = it.Name.Split(':');
-				GameMod? mod = ModManager.Instance.Mods.FirstOrDefault(mod => mod.ModInfo.Id == nameSplit[0]) ?? ModManager.Instance.VanillaGameMod;
+				GameMod? mod = ModManager.Mods.FirstOrDefault(mod => mod.ModInfo.Id == nameSplit[0]) ?? ModManager.VanillaGameMod;
 				if(mod != null)
 				{
 					Subtextures.Add(nameSplit[1], new Subtexture(pages[it.Page], it.Source, it.Frame), mod);
@@ -293,7 +293,7 @@ public static class Assets
 		// make sure the active language is ready for use
 		Language.Current.Use();
 
-		ModManager.Instance.OnAssetsLoaded();
+		ModManager.OnAssetsLoaded();
 
 		Log.Info($"Loaded Assets in {timer.ElapsedMilliseconds}ms");
 	}
@@ -326,7 +326,7 @@ public static class Assets
 			{
 				var path = $"{Path.GetDirectoryName(virtPath)}/{line[9..]}";
 
-				if (ModManager.Instance.GlobalFilesystem.TryLoadText(path, out var include))
+				if (ModManager.GlobalFilesystem.TryLoadText(path, out var include))
 					target?.Append(include);
 				else
 					throw new Exception($"Unable to find shader include: '{path}'");

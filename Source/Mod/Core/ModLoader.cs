@@ -31,12 +31,12 @@ public static class ModLoader
 
 	internal static void RegisterAllMods()
 	{
-		// Mod Infos are required now, so make a dummy mod info for the valilla game too. This shouldn't really be used for anything.
+		// Mod Infos are required now, so make a dummy mod info for the vanilla game too. This shouldn't really be used for anything.
 		ModInfo vanillaModInfo = new ModInfo()
 		{
 			Id = "Celeste64Vanilla",
-			Name = "Celese 64: Fragments of the Mountains",
-			Version = "1.0.0"
+			Name = "Celeste 64: Fragments of the Mountains",
+			Version = "1.1.1"
 		};
 		VanillaGameMod vanillaMod = new VanillaGameMod()
 		{
@@ -49,7 +49,7 @@ public static class ModLoader
 			// Load vanilla as a mod, to unify all asset loading code
 			vanillaMod
 		];
-		ModManager.Instance.VanillaGameMod = vanillaMod;
+		ModManager.VanillaGameMod = vanillaMod;
 
 		// Find all mods in directories:
 		foreach (var modDir in Directory.EnumerateDirectories(ModFolderPath))
@@ -71,15 +71,15 @@ public static class ModLoader
 			Log.Info($"Loaded mod from zip: {modName}");
 		}
 
-		ModManager.Instance.Unload();
+		ModManager.Unload();
 		// We've collected all the mods now, time to initialize them
 		foreach (var mod in mods)
 		{
 			mod.Filesystem?.AssociateWithMod(mod);
-			ModManager.Instance.RegisterMod(mod);
+			ModManager.RegisterMod(mod);
 		}
 
-		ModManager.Instance.InitializeFilesystemBackgroundCleanup();
+		ModManager.InitializeFilesystemBackgroundCleanup();
 	}
 
 	private static GameMod LoadGameMod(string modFolder, IModFilesystem fs)

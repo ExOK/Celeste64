@@ -86,7 +86,7 @@ public class Game : Module
 		Audio.Init();
 
 		scenes.Push(new Startup());
-		ModManager.Instance.OnGameLoaded(this);
+		ModManager.OnGameLoaded(this);
 	}
 
 	public override void Shutdown()
@@ -204,7 +204,7 @@ public class Game : Module
 			if (scenes.TryPeek(out var nextScene))
 			{
 				nextScene.Entered();
-				ModManager.Instance.OnSceneEntered(nextScene);
+				ModManager.OnSceneEntered(nextScene);
 				nextScene.Update();
 			}
 
@@ -277,7 +277,7 @@ public class Game : Module
 				ReloadAssets();
 			}
 		}
-		ModManager.Instance.Update(Time.Delta);
+		ModManager.Update(Time.Delta);
 	}
 
 	internal void ReloadAssets()

@@ -28,7 +28,7 @@ public class ModSelectionMenu : Menu
 		postcardImage = new(Assets.Textures["postcards/back-empty"]);
 		strawberryImage = Assets.Subtextures["icon_strawberry"];
 		Target = new Target(CardWidth, CardHeight);
-		mods = ModManager.Instance.Mods.Where(mod => mod is not VanillaGameMod).ToArray();
+		mods = ModManager.Mods.Where(mod => mod is not VanillaGameMod).ToArray();
 		modInfoMenu = new ModInfoMenu();
 	}
 

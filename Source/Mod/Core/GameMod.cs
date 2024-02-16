@@ -87,7 +87,7 @@ public abstract class GameMod
 	{
 		List<GameMod> depMods = new List<GameMod>();
 
-		foreach (GameMod mod in ModManager.Instance.Mods)
+		foreach (GameMod mod in ModManager.Mods)
 		{
 			if (mod.ModInfo.Dependencies != null && mod.ModInfo.Dependencies.ContainsKey(this.ModInfo.Id) && mod.Enabled)
 			{
@@ -117,7 +117,7 @@ public abstract class GameMod
 				dependent.OnModUnloaded();
 			}
 
-			if (dependent == ModManager.Instance.CurrentLevelMod)
+			if (dependent == ModManager.CurrentLevelMod)
 			{
 				shouldEvac = true;
 			} // We'll want to adjust behaviour if the current level's parent mod must be disabled.

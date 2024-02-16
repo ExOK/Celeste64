@@ -72,7 +72,7 @@ public class World : Scene
 		var map = Assets.Maps[entry.Map];
 		Map = map;
 
-		ModManager.Instance.CurrentLevelMod = ModManager.Instance.Mods.FirstOrDefault(mod => mod.Maps.ContainsKey(entry.Map));
+		ModManager.CurrentLevelMod = ModManager.Mods.FirstOrDefault(mod => mod.Maps.ContainsKey(entry.Map));
 
 		Camera.NearPlane = 20;
 		Camera.FarPlane = 800;
@@ -148,12 +148,12 @@ public class World : Scene
 			Ambience = $"event:/sfx/ambience/{map.Ambience}";
 		}
 
-		ModManager.Instance.OnPreMapLoaded(this, map);
+		ModManager.OnPreMapLoaded(this, map);
 
 		// load content
 		map.Load(this);
 
-		ModManager.Instance.OnWorldLoaded(this);
+		ModManager.OnWorldLoaded(this);
 
 		Log.Info($"Loaded Map '{Entry.Map}' in {stopwatch.ElapsedMilliseconds}ms");
 	}
@@ -171,7 +171,7 @@ public class World : Scene
 
 		postTarget?.Dispose();
 		postTarget = null;
-		ModManager.Instance.CurrentLevelMod = null;
+		ModManager.CurrentLevelMod = null;
 	}
 
 	public T Request<T>() where T : Actor, IRecycle, new()
@@ -192,7 +192,7 @@ public class World : Scene
 		instance.Destroying = false;
 		instance.SetWorld(this);
 		instance.Created();
-		ModManager.Instance.OnActorCreated(instance);
+		ModManager.OnActorCreated(instance);
 		return instance;
 	}
 
@@ -264,7 +264,7 @@ public class World : Scene
 			for (int i = 0; i < addCount; i ++)
 			{
 				adding[i].Added();
-				ModManager.Instance.OnActorAdded(adding[i]);
+				ModManager.OnActorAdded(adding[i]);
 			}
 			adding.RemoveRange(0, addCount);
 
@@ -272,7 +272,7 @@ public class World : Scene
 			{
 				var it = destroying[i];
 				it.Destroyed();
-				ModManager.Instance.OnActorDestroyed(it);
+				ModManager.OnActorDestroyed(it);
 
 				// remove from buckets
 				var type = it.GetType();
@@ -430,7 +430,7 @@ public class World : Scene
 				if (ply.Skin != Save.Instance.GetSkin())
 				{
 					ply.SetSkin(Save.Instance.GetSkin());
-					ModManager.Instance.OnPlayerSkinChange(ply, Save.Instance.GetSkin());
+					ModManager.OnPlayerSkinChange(ply, Save.Instance.GetSkin());
 				}
 			}
 		}

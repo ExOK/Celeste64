@@ -157,7 +157,7 @@ public class Overworld : Scene
 		
 		foreach (var level in Assets.Levels)
 		{
-			GameMod? mod = ModManager.Instance.Mods.FirstOrDefault(mod => mod.Levels.Contains(level));
+			GameMod? mod = ModManager.Mods.FirstOrDefault(mod => mod.Levels.Contains(level));
 			if (mod != null && mod.Enabled)
 			{
 				entries.Add(new(level, mod));
