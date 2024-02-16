@@ -67,13 +67,10 @@ internal sealed class ModAssemblyLoadContext : AssemblyLoadContext
 		_fs = fs;
 		
 		// Resolve dependencies
-		if (info.Dependencies is { } deps)
+		foreach (var (modId, _) in info.Dependencies)
 		{
-			foreach (var (modId, _) in deps)
-			{
-				if (_contextsByModID.TryGetValue(modId, out var alc))
-					_dependencyContexts.Add(alc);
-			}
+			if (_contextsByModID.TryGetValue(modId, out var alc))
+				_dependencyContexts.Add(alc);
 		}
 		_contextsByModID.TryAdd(info.Id, this);
 		

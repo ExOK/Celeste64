@@ -89,7 +89,7 @@ public abstract class GameMod
 
 		foreach (GameMod mod in ModManager.Mods)
 		{
-			if (mod.ModInfo.Dependencies != null && mod.ModInfo.Dependencies.ContainsKey(this.ModInfo.Id) && mod.Enabled)
+			if (mod.ModInfo.Dependencies.ContainsKey(ModInfo.Id) && mod.Enabled)
 			{
 				depMods.Add(mod);
 			}
@@ -145,15 +145,10 @@ public abstract class GameMod
 	/// </summary>
 	public void EnableDependencies()
 	{
-		if (ModInfo.Dependencies != null)
+		foreach (var dep in ModInfo.Dependencies.Keys.ToList())
 		{
-			foreach (var dep in ModInfo.Dependencies.Keys.ToList())
-			{
-				Save.Instance.GetOrMakeMod(dep).Enabled = true;
-			}
+			Save.Instance.GetOrMakeMod(dep).Enabled = true;
 		}
-
-		return;
 	}
 
 	/// <summary>

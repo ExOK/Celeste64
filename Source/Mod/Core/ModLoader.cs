@@ -37,7 +37,7 @@ public static class ModLoader
 			{
 				Id = "Celeste64Vanilla",
 				Name = "Celeste 64: Fragments of the Mountains",
-				Version = "1.1.1"
+				VersionString = "1.1.1",
 			},
 			Filesystem = new FolderModFilesystem(Assets.ContentPath)
 		};
@@ -63,46 +63,51 @@ public static class ModLoader
 			modInfos.Add((LoadModInfo(modName, fs), fs));
 			Log.Info($"Loaded mod from zip: {modName}");
 		}
-		
+
 		ModManager.Unload();
-		
+
 		// Load vanilla as a mod, to unify all asset loading code
 		ModManager.RegisterMod(ModManager.VanillaGameMod);
-		
+
 		// We use an slightly silly approach to load all dependencies first:
 		// Load all mods which have their dependencies met and repeat until we're done.
 		bool loadedModInIteration = false;
 		HashSet<ModInfo> loaded = [];
-		
+
 		while (modInfos.Count > 0)
 		{
 			for (int i = modInfos.Count - 1; i >= 0; i--)
 			{
 				var (info, fs) = modInfos[i];
-				
-				bool dependenciesSatisfied = true;
-				if (info.Dependencies is { } deps)
-				{
-					foreach (var (modID, version) in deps)
-					{
-						if (loaded.FirstOrDefault(loadedInfo => loadedInfo.Id == modID) is { } dep) continue; // TODO: Check dependency version
 
-						dependenciesSatisfied = false;
-						break;
-					}	
+				bool dependenciesSatisfied = true;
+				foreach (var (modID, versionString) in info.Dependencies)
+				{
+					var version = new Version(versionString);
+
+					if (loaded.FirstOrDefault(loadedInfo => loadedInfo.Id == modID) is { } dep &&
+					    dep.Version.Major == version.Major &&
+					    (dep.Version.Minor > version.Minor ||
+					     dep.Version.Minor == version.Minor && dep.Version.Build >= version.Build))
+					{
+						continue;
+					}
+
+					dependenciesSatisfied = false;
+					break;
 				}
 
 				if (!dependenciesSatisfied) continue;
 
 				var mod = LoadGameMod(info, fs);
 				mod.Filesystem?.AssociateWithMod(mod);
-				ModManager.RegisterMod(mod);		
+				ModManager.RegisterMod(mod);
 
 				modInfos.RemoveAt(i);
 				loaded.Add(info);
 				loadedModInIteration = true;
 			}
-			
+
 			if (!loadedModInIteration)
 			{
 				// This means that all infos left infos don't have their dependencies met
@@ -111,7 +116,7 @@ public static class ModLoader
 				{
 					Log.Error($"Mod '{info.Id} is missing following dependencies:");
 
-					var missingDependencies = info.Dependencies!.Where(dep =>
+					var missingDependencies = info.Dependencies.Where(dep =>
 					{
 						var (modID, version) = dep;
 						return loaded.FirstOrDefault(loadedInfo => loadedInfo.Id == modID) == null;
@@ -126,7 +131,7 @@ public static class ModLoader
 
 		ModManager.InitializeFilesystemBackgroundCleanup();
 	}
-	
+
 	private static ModInfo LoadModInfo(string modFolder, IModFilesystem fs)
 	{
 		if (!fs.TryOpenFile(Assets.FujiJSON, stream => JsonSerializer.Deserialize(stream, ModInfoContext.Default.ModInfo), out var info))
@@ -148,31 +153,31 @@ public static class ModLoader
 				Filesystem = fs
 			};
 		}
-		
+
 		GameMod? loadedMod = null;
 		var anyDllFile = false;
-		
+
 		var assemblyContext = new ModAssemblyLoadContext(info, fs);
 		foreach (var assembly in assemblyContext.Assemblies)
 		{
 			Log.Info($"Loaded assembly file '{assembly}' for mod {info.Id}");
 			anyDllFile = true;
-				
+
 			foreach (var type in assembly.GetExportedTypes())
 			{
 				if (type.BaseType != typeof(GameMod))
 					continue;
-			
+
 				if (loadedMod is { })
 				{
 					Log.Error($"Mod at {fs.Root} contains multiple classes extending from {typeof(GameMod)} " +
 					          $"[{loadedMod.GetType().FullName} vs {type.FullName}]! Only the first one will be used!");
 					continue;
 				}
-					
+
 				if (Activator.CreateInstance(type) is not GameMod instance)
 					continue;
-			
+
 				loadedMod = instance;
 				instance.Filesystem = fs;
 				instance.ModInfo = info;
@@ -185,7 +190,7 @@ public static class ModLoader
 			{
 				Log.Warning($"Mod at {fs.Root} has assemblies, but none of them contain a public type extending from {typeof(GameMod)}.");
 			}
-			
+
 			// No GameMod, create a dummy one
 			loadedMod = new DummyGameMod
 			{
@@ -193,7 +198,7 @@ public static class ModLoader
 				Filesystem = fs
 			};
 		}
-			
+
 		return loadedMod;
 	}
 }
