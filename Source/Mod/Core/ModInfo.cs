@@ -1,5 +1,6 @@
 
 using System.Text.Json.Serialization;
+using System.Text.RegularExpressions;
 
 namespace Celeste64.Mod;
 
@@ -77,9 +78,12 @@ public class ModInfo
 	[JsonIgnore]
 	internal ModAssemblyLoadContext? AssemblyContext = null;
 	
+	private static readonly Regex IdRegex = new("[a-zA-z0-9_]", RegexOptions.Compiled);
+	
 	public bool IsValid()
 	{
-		return !string.IsNullOrEmpty(Id) && !string.IsNullOrEmpty(Name) && !string.IsNullOrEmpty(VersionString);
+		return !string.IsNullOrEmpty(Id) && !string.IsNullOrEmpty(Name) && !string.IsNullOrEmpty(VersionString) && 
+		       IdRegex.IsMatch(Id) && Id != "_";
 	}
 }
 
