@@ -1,5 +1,7 @@
 using System.Collections.Concurrent;
+using System.Diagnostics;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Runtime.Loader;
 using Mono.Cecil;
 
@@ -16,7 +18,24 @@ internal sealed class ModAssemblyLoadContext : AssemblyLoadContext
 	internal static string[] AssemblyLoadBlackList => _assemblyLoadBlackList ??= AssemblyLoadContext.Default.Assemblies.Select(asm => asm.GetName().Name)
 		.Append("Mono.Cecil.Pdb").Append("Mono.Cecil.Mdb") // These two aren't picked up by default for some reason
 		.ToArray()!;
-	private static string[]? _assemblyLoadBlackList;
+	private static string[]? _assemblyLoadBlackList = null;
+	
+	/// <summary>
+	/// The folder name where mod unmanaged assemblies will be loaded from.
+	/// </summary>
+	internal static string UnmanagedLibraryFolder => _unmanagedLibraryFolder ??= (
+			RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "lib-win-x64" :
+			RuntimeInformation.IsOSPlatform(OSPlatform.Linux) ? RuntimeInformation.OSArchitecture switch
+			{
+				Architecture.X64 => "lib-linux-x64",
+				Architecture.Arm => "lib-linux-arm",
+				Architecture.Arm64 => "lib-linux-arm64",
+				_ => throw new PlatformNotSupportedException(),
+			} :
+			RuntimeInformation.IsOSPlatform(OSPlatform.OSX) ? "lib-osx-x64" :
+			throw new PlatformNotSupportedException());
+	private static string? _unmanagedLibraryFolder = null;
+
 	
 	private static readonly ReaderWriterLockSlim _allContextsLock = new();
 	private static readonly LinkedList<ModAssemblyLoadContext> _allContexts = [];
@@ -118,16 +137,17 @@ internal sealed class ModAssemblyLoadContext : AssemblyLoadContext
 		if (_assemblyUnmanagedLoadCache.TryGetValue(name, out var cachedHandle))
 			return cachedHandle;
 		
-		// Try to load the assembly (from this or dependency ALCs or game assemblies)
-		if (LoadUnmanaged(name) is { } handle)
+		// Try to load the unmanaged assembly locally (from this or dependency ALCs)
+		// If that fails, don't fallback to loading it globally - unmanaged dependencies have to be explicitly specified
+		var handle = LoadUnmanaged(name);
+		if (handle.HasValue && handle.Value != IntPtr.Zero)
 		{
-			_assemblyUnmanagedLoadCache.TryAdd(name, handle);
-			return handle;
+			_assemblyUnmanagedLoadCache.TryAdd(name, handle.Value);
+			return handle.Value;
 		}
 
 		Log.Warning($"Failed to load native library '{name}' for mod '{_info.Id}'");
 		return IntPtr.Zero;
-
 	}
 	
 	private Assembly? LoadManagedLocal(AssemblyName asmName)
@@ -185,7 +205,7 @@ internal sealed class ModAssemblyLoadContext : AssemblyLoadContext
 			return asm;
 		
 		// Try to load the assembly from the same library directory
-		return LoadAssemblyFromModPath(Path.Combine(Assets.LibraryExtension, $"asm.{Assets.LibraryExtension}"));
+		return LoadAssemblyFromModPath(Path.Combine(Assets.LibraryFolder, $"{asmName.Name!}.{Assets.LibraryExtension}"));
 	}
 	
 	private IntPtr? LoadUnmanagedFromThisMod(string name)
@@ -194,7 +214,47 @@ internal sealed class ModAssemblyLoadContext : AssemblyLoadContext
 		if (_localUnmanagedLoadCache.TryGetValue(name, out var handle))
 			return handle;
 		
-		return IntPtr.Zero;
+		// Determine the OS-specific name of the assembly
+		string osName =
+			RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? $"{name}.dll" :
+			RuntimeInformation.IsOSPlatform(OSPlatform.Linux) ? $"lib{name}.so" :
+			RuntimeInformation.IsOSPlatform(OSPlatform.OSX) ? $"lib{name}.dylib" :
+			name;
+
+		// Try multiple paths to load the library from
+        foreach (string libName in new[] { name, osName }) {
+	        string libraryPath = Path.Combine(Assets.LibraryFolder, UnmanagedLibraryFolder, libName);
+	        
+	        if (_fs is FolderModFilesystem folderFs)
+	        {
+		        // We can load the library directly in this case
+		        if (NativeLibrary.TryLoad(Path.Combine(folderFs.Root, libraryPath), out handle))
+			        return handle;
+	        }
+	        
+	        // Otherwise, we need to extract the library into a temporary file
+	        // TODO: Store this in a consistent cache file inside the install?
+	        var tempFilePath = Path.GetTempFileName();
+	        using (var tempFile = File.OpenWrite(tempFilePath))
+	        {
+		        try
+		        {
+					using var libraryStream = _fs.OpenFile(libraryPath);
+					libraryStream.CopyTo(tempFile);
+		        } 
+		        catch
+		        {
+			        // Not found
+			        continue;
+		        }
+	        }
+
+            // Try to load the native library from the temporary file
+            if (NativeLibrary.TryLoad(tempFilePath, out handle))
+                return handle;
+        }
+		
+		return null;
 	}
 	
 	private Assembly? LoadAssemblyFromModPath(string assemblyPath)
