@@ -75,7 +75,7 @@ internal sealed class ModAssemblyLoadContext : AssemblyLoadContext
 		_contextsByModID.TryAdd(info.Id, this);
 		
 		// Load all assemblies
-		foreach (var assemblyPath in fs.FindFilesInDirectoryRecursive(Assets.LibraryFolder, Assets.LibraryExtension))
+		foreach (var assemblyPath in fs.FindFilesInDirectoryRecursive(Assets.LibrariesFolder, Assets.LibrariesExtensionAssembly))
 		{
 			LoadAssemblyFromModPath(assemblyPath);
 		}
@@ -201,7 +201,7 @@ internal sealed class ModAssemblyLoadContext : AssemblyLoadContext
 			return asm;
 		
 		// Try to load the assembly from the same library directory
-		return LoadAssemblyFromModPath(Path.Combine(Assets.LibraryFolder, $"{asmName.Name!}.{Assets.LibraryExtension}"));
+		return LoadAssemblyFromModPath(Path.Combine(Assets.LibrariesFolder, $"{asmName.Name!}.{Assets.LibrariesExtensionAssembly}"));
 	}
 	
 	private IntPtr? LoadUnmanagedFromThisMod(string name)
@@ -219,7 +219,7 @@ internal sealed class ModAssemblyLoadContext : AssemblyLoadContext
 
 		// Try multiple paths to load the library from
         foreach (string libName in new[] { name, osName }) {
-	        string libraryPath = Path.Combine(Assets.LibraryFolder, UnmanagedLibraryFolder, libName);
+	        string libraryPath = Path.Combine(Assets.LibrariesFolder, UnmanagedLibraryFolder, libName);
 	        
 	        if (_fs is FolderModFilesystem folderFs)
 	        {
@@ -263,7 +263,7 @@ internal sealed class ModAssemblyLoadContext : AssemblyLoadContext
 	{
 		try
 		{
-			var symbolPath = Path.ChangeExtension(assemblyPath, $".{Assets.LibrarySymbolExtension}");
+			var symbolPath = Path.ChangeExtension(assemblyPath, $".{Assets.LibrariesExtensionSymbol}");
 
 			using var assemblyStream = _fs.OpenFile(assemblyPath);
 			using var symbolStream = _fs.FileExists(symbolPath) ? _fs.OpenFile(symbolPath) : null;

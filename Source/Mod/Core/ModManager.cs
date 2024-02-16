@@ -97,7 +97,7 @@ public static class ModManager
 			    (dir.StartsWith(Assets.FontsFolder) && extension is $".{Assets.FontsExtensionTTF}" or $".{Assets.FontsExtensionOTF}") ||
 			    (dir.StartsWith(Assets.SpritesFolder) && extension == $".{Assets.SpritesExtension}") ||
 			    (dir.StartsWith(Assets.SkinsFolder) && extension == $".{Assets.SkinsExtension}") ||
-			    (dir.StartsWith(Assets.LibraryFolder) && extension == $".{Assets.LibraryExtension}") ||
+			    (dir.StartsWith(Assets.LibrariesFolder) && extension == $".{Assets.LibrariesExtensionAssembly}") ||
 			    filepath == Assets.LevelsJSON ||			    
 			    filepath == Assets.FujiJSON)
 			{

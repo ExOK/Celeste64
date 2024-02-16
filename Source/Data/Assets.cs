@@ -42,9 +42,9 @@ public static class Assets
 	public const string SkinsFolder = "Skins";
 	public const string SkinsExtension = "json";
 	
-	public const string LibraryFolder = "DLLs";
-	public const string LibraryExtension = "dll";
-	public const string LibrarySymbolExtension = "pdb";
+	public const string LibrariesFolder = "Libraries";
+	public const string LibrariesExtensionAssembly = "dll";
+	public const string LibrariesExtensionSymbol = "pdb";
 	
 	public const string FujiJSON = "Fuji.json";
 	public const string LevelsJSON = "Levels.json";
