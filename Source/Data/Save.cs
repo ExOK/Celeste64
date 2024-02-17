@@ -266,6 +266,9 @@ public class Save
 		App.Fullscreen = Fullscreen;
 		Audio.SetVCAVolume("vca:/music", Calc.Clamp(MusicVolume / 10.0f, 0, 1));
 		Audio.SetVCAVolume("vca:/sfx", Calc.Clamp(SfxVolume / 10.0f, 0, 1));
+
+		Audio.MusicGroup.setVolume(Calc.Clamp(MusicVolume / 10.0f, 0, 1));
+		Audio.SoundEffectGroup.setVolume(Calc.Clamp(SfxVolume / 10.0f, 0, 1));
 	}
 
 	public void SaveToFile()

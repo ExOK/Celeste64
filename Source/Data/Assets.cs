@@ -38,6 +38,8 @@ public static class Assets
 	public static readonly ModAssetDictionary<SkinnedTemplate> Models = new(gameMod => gameMod.Models);
 	public static readonly ModAssetDictionary<Subtexture> Subtextures = new(gameMod => gameMod.Subtextures);
 	public static readonly ModAssetDictionary<Font> Fonts = new(gameMod => gameMod.Fonts);
+	public static readonly ModAssetDictionary<FMOD.Sound> Sounds = new(gameMod => gameMod.Sounds);
+	public static readonly ModAssetDictionary<FMOD.Sound> Music = new(gameMod => gameMod.Music);
 	public static readonly Dictionary<string, Language> Languages = new(StringComparer.OrdinalIgnoreCase);
 
 	public static List<SkinInfo> Skins { get; private set; } = [];
@@ -58,6 +60,8 @@ public static class Assets
 		Models.Clear();
 		Fonts.Clear();
 		Languages.Clear();
+		Sounds.Clear();
+		Music.Clear();
 		Audio.Unload();
 
 		Map.ModActorFactories.Clear();
@@ -66,6 +70,8 @@ public static class Assets
 		var maps = new ConcurrentBag<(Map, GameMod)>();
 		var images = new ConcurrentBag<(string, Image, GameMod)>();
 		var models = new ConcurrentBag<(string, SkinnedTemplate, GameMod)>();
+		var sounds = new ConcurrentBag<(string, FMOD.Sound, GameMod)>();
+		var music = new ConcurrentBag<(string, FMOD.Sound, GameMod)>();
 		var langs = new ConcurrentBag<(Language, GameMod)>();
 		var tasks = new List<Task>();
 
@@ -153,6 +159,36 @@ public static class Assets
 		{
 			if (mod.Filesystem != null && file.EndsWith(".bank") && !file.EndsWith(".strings.bank"))
 				mod.Filesystem.TryOpenFile(file, Audio.LoadBankFromStream);
+		}
+
+		foreach (var (file, mod) in globalFs.FindFilesInDirectoryRecursiveWithMod("Sounds", "wav"))
+		{
+			tasks.Add(Task.Run(() =>
+			{
+				if (mod.Filesystem != null && mod.Filesystem.TryOpenFile(file, stream => Audio.LoadWavFromStream(stream),
+						out FMOD.Sound? sound))
+				{
+					if(sound != null)
+					{
+						sounds.Add((GetResourceNameFromVirt(file, "Sounds"), sound.Value, mod));
+					}
+				}
+			}));
+		}
+
+		foreach (var (file, mod) in globalFs.FindFilesInDirectoryRecursiveWithMod("Music", "wav"))
+		{
+			tasks.Add(Task.Run(() =>
+			{
+				if (mod.Filesystem != null && mod.Filesystem.TryOpenFile(file, stream => Audio.LoadWavFromStream(stream),
+						out FMOD.Sound? song))
+				{
+					if (song != null)
+					{
+						music.Add((GetResourceNameFromVirt(file, "Music"), song.Value, mod));
+					}
+				}
+			}));
 		}
 
 		// load level, dialog jsons
@@ -243,6 +279,10 @@ public static class Assets
 				Textures.Add(name, new Texture(img) { Name = name }, mod);
 			foreach (var (map, mod) in maps)
 				Maps.Add(map.Name, map, mod);
+			foreach (var (name, sound, mod) in sounds)
+				Sounds.Add(name, sound, mod);
+			foreach (var (name, song, mod) in music)
+				Music.Add(name, song, mod);
 			foreach (var (name, model, mod) in models)
 			{
 				model.ConstructResources();

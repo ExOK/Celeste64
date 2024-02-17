@@ -1,5 +1,4 @@
 ﻿using System.Diagnostics;
-using System.Text.Json;
 using Celeste64.Mod;
 using Celeste64.Mod.Patches;
 
@@ -67,6 +66,9 @@ public class Game : Module
 
 	public AudioHandle Ambience;
 	public AudioHandle Music;
+
+	public SoundHandle? AmbienceWav;
+	public SoundHandle? MusicWav;
 
 	public Scene? Scene { get { return scenes.TryPeek(out Scene? scene) ? scene : null; } }
 	public World? World { get { return Scene is World world ? world : null; } }
@@ -232,6 +234,14 @@ public class Game : Module
 					if (Music)
 						Music.SetCallback(audioEventCallback);
 				}
+
+				string lastWav = MusicWav != null && MusicWav.Value.IsPlaying && lastScene != null ? lastScene.MusicWav : string.Empty;
+				string nextWav = nextScene?.MusicWav ?? string.Empty;
+				if (lastWav != nextWav)
+				{
+					MusicWav?.Stop();
+					MusicWav = Audio.PlayMusic(nextWav);
+				}
 			}
 
 			// switch ambience
@@ -242,6 +252,14 @@ public class Game : Module
 				{
 					Ambience.Stop();
 					Ambience = Audio.Play(next);
+				}
+
+				string lastWav = AmbienceWav != null && AmbienceWav.Value.IsPlaying && lastScene != null ? lastScene.AmbienceWav : string.Empty;
+				string nextWav = nextScene?.AmbienceWav ?? string.Empty;
+				if (lastWav != nextWav)
+				{
+					AmbienceWav?.Stop();
+					AmbienceWav = Audio.PlayMusic(nextWav);
 				}
 			}
 

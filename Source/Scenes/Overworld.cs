@@ -305,6 +305,7 @@ public class Overworld : Scene
 				{
 					Audio.Play(Sfx.main_menu_start_game);
 					Game.Instance.Music.Stop();
+					Game.Instance.MusicWav?.Stop();
 					state = States.Entering;
 				}
 			}
@@ -324,6 +325,7 @@ public class Overworld : Scene
 				{
 					Audio.Play(Sfx.main_menu_start_game);
 					Game.Instance.Music.Stop();
+					Game.Instance.MusicWav?.Stop();
 					Save.Instance.EraseRecord(entries[index].Level.ID);
 					state = States.Entering;
 				}

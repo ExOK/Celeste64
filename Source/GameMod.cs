@@ -1,4 +1,4 @@
-﻿using Celeste64.Mod;
+using Celeste64.Mod;
 using MonoMod.RuntimeDetour;
 
 namespace Celeste64;
@@ -23,6 +23,8 @@ public abstract class GameMod
 	internal readonly Dictionary<string, Subtexture> Subtextures = new(StringComparer.OrdinalIgnoreCase);
 	internal readonly Dictionary<string, SkinnedTemplate> Models = new(StringComparer.OrdinalIgnoreCase);
 	internal readonly Dictionary<string, Font> Fonts = new(StringComparer.OrdinalIgnoreCase);
+	internal readonly Dictionary<string, FMOD.Sound> Sounds = new(StringComparer.OrdinalIgnoreCase);
+	internal readonly Dictionary<string, FMOD.Sound> Music = new(StringComparer.OrdinalIgnoreCase);
 	internal readonly Dictionary<string, Dictionary<string, string>> Strings = new(StringComparer.OrdinalIgnoreCase);
 	internal readonly Dictionary<string, Dictionary<string, List<Language.Line>>> DialogLines = new(StringComparer.OrdinalIgnoreCase);
 	internal readonly List<LevelInfo> Levels = new();
