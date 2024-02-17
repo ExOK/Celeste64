@@ -1,5 +1,7 @@
 ﻿using System.Diagnostics;
 using System.Text.Json;
+using Celeste64.Mod;
+using Celeste64.Mod.Patches;
 
 namespace Celeste64;
 
@@ -60,6 +62,8 @@ public class Game : Module
 	private readonly FMOD.Studio.EVENT_CALLBACK audioEventCallback;
 	private int audioBeatCounter;
 	private bool audioBeatCounterEvent;
+    
+    private ImGuiManager imGuiManager;
 
 	public AudioHandle Ambience;
 	public AudioHandle Music;
@@ -78,11 +82,16 @@ public class Game : Module
 	public override void Startup()
 	{
 		instance = this;
+        
+        // Fuji: apply patches
+        Patches.Load();
 		
 		Time.FixedStep = true;
 		App.VSync = true;
 		App.Title = GameTitle;
 		Audio.Init();
+        
+        imGuiManager = new ImGuiManager();
 
 		scenes.Push(new Startup());
 		ModManager.Instance.OnGameLoaded(this);
@@ -99,6 +108,9 @@ public class Game : Module
 			it.Disposed();
 		}
 		
+        // Fuji: remove patches
+        Patches.Unload();
+        
 		scenes.Clear();
 		instance = null;
 	}
@@ -120,6 +132,8 @@ public class Game : Module
 
 	public override void Update()
 	{
+        imGuiManager.UpdateHandlers();
+        
 		// update top scene
 		if (scenes.TryPeek(out var scene))
 		{
@@ -314,6 +328,8 @@ public class Game : Module
 	public override void Render()
 	{
 		Graphics.Clear(Color.Black);
+        
+        imGuiManager.RenderHandlers();
 
 		if (transitionStep != TransitionStep.Perform && transitionStep != TransitionStep.Hold)
 		{
@@ -334,6 +350,7 @@ public class Game : Module
 				var scale = Math.Min(App.WidthInPixels / (float)target.Width, App.HeightInPixels / (float)target.Height);
 				batcher.SetSampler(new(TextureFilter.Nearest, TextureWrap.ClampToEdge, TextureWrap.ClampToEdge));
 				batcher.Image(target, App.SizeInPixels / 2, target.Bounds.Size / 2, Vec2.One * scale, 0, Color.White);
+                imGuiManager.RenderTexture(batcher);
 				batcher.Render();
 				batcher.Clear();
 			}

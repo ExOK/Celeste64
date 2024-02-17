@@ -1,3 +1,4 @@
+﻿using Celeste64.Mod;
 using MonoMod.RuntimeDetour;
 
 namespace Celeste64;
@@ -44,6 +45,11 @@ public abstract class GameMod
 	// Common Metadata about this mod.
 	public bool Enabled { get { return this is VanillaGameMod || ModSaveData.Enabled; } }
 
+	/// <summary>
+	/// List of currently used <see cref="ImGuiHandler"/>s by this mod.
+	/// </summary>
+	public List<ImGuiHandler> ImGuiHandlers = [];
+	
 	#region Save Functions
 	// These functions allow modders to save data and get save data from the save file.
 	// These are done as wrapper functions mostly to make it harder to accidentally mess up the save data in an unexpected way
