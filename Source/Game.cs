@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.Text;
 using Celeste64.Mod;
 using Celeste64.Mod.Patches;
 
@@ -115,6 +116,9 @@ public class Game : Module
         
 		scenes.Clear();
 		instance = null;
+
+		Log.Info("Shutting down...");
+		WriteToLog();
 	}
 
 	public bool IsMidTransition => transitionStep != TransitionStep.None;
@@ -240,7 +244,10 @@ public class Game : Module
 				if (lastWav != nextWav)
 				{
 					MusicWav?.Stop();
-					MusicWav = Audio.PlayMusic(nextWav);
+					if (string.IsNullOrEmpty(nextWav))
+					{
+						MusicWav = Audio.PlayMusic(nextWav);
+					}
 				}
 			}
 
@@ -251,7 +258,10 @@ public class Game : Module
 				if (next != last)
 				{
 					Ambience.Stop();
-					Ambience = Audio.Play(next);
+					if (string.IsNullOrEmpty(next))
+					{
+						Ambience = Audio.Play(next);
+					}
 				}
 
 				string lastWav = AmbienceWav != null && AmbienceWav.Value.IsPlaying && lastScene != null ? lastScene.AmbienceWav : string.Empty;
@@ -259,13 +269,18 @@ public class Game : Module
 				if (lastWav != nextWav)
 				{
 					AmbienceWav?.Stop();
-					AmbienceWav = Audio.PlayMusic(nextWav);
+					if (string.IsNullOrEmpty(nextWav))
+					{
+						AmbienceWav = Audio.PlayMusic(nextWav);
+					}
 				}
 			}
 
 			// in case new music was played
 			Save.Instance.SyncSettings();
 			transitionStep = TransitionStep.FadeIn;
+
+			WriteToLog();
 		}
 		else if (transitionStep == TransitionStep.FadeIn)
 		{
@@ -372,6 +387,39 @@ public class Game : Module
 				batcher.Render();
 				batcher.Clear();
 			}
+		}
+	}
+
+	// Fuji Custom
+	public static void WriteToLog()
+	{
+		if (!Save.Instance.WriteLog)
+		{
+			return;
+		}
+
+		// construct a log message
+		const string LogFileName = "Log.txt";
+		StringBuilder log = new();
+		lock (Log.Logs)
+			log.AppendLine(Log.Logs.ToString());
+
+		// write to file
+		string path = LogFileName;
+		{
+			if (App.Running)
+			{
+				try
+				{
+					path = Path.Join(App.UserPath, LogFileName);
+				}
+				catch
+				{
+					path = LogFileName;
+				}
+			}
+
+			File.WriteAllText(path, log.ToString());
 		}
 	}
 

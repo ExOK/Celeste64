@@ -2,8 +2,7 @@
 	"ID": "english",
 	"Label": "English",
 	"Font": "Renogare",
-	"Strings":
-	{
+	"Strings": {
 		"Confirm": "Confirm",
 		"Cancel": "Cancel",
 		"Back": "Back",
@@ -26,7 +25,7 @@
 		"OptionsInvertCamera": "Inverted Camera",
 
 		"FujiOptions": "Fuji Options...",
-
+		"FujiWriteLog": "Write Log File",
 		"PauseMods": "Mods",
 		"PauseModEnabled": "Enabled",
 		"PauseModsConfirmDisable": "Continue & Disable Mod",

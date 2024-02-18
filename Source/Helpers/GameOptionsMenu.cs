@@ -10,7 +10,8 @@ public class GameOptionsMenu : Menu
         FujiOptionsMenu = new Menu();
 
         FujiOptionsMenu.Title = Loc.Str("FujiOptions");
-        FujiOptionsMenu.Add(new Menu.Option(Loc.Str("Exit"), () => {
+		FujiOptionsMenu.Add(new Menu.Toggle(Loc.Str("FujiWriteLog"), Save.Instance.ToggleWriteLog, () => Save.Instance.WriteLog));
+		FujiOptionsMenu.Add(new Menu.Option(Loc.Str("Exit"), () => {
             this.PopSubMenu();
         }));
         
