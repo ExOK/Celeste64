@@ -1,7 +1,6 @@
 
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using static Celeste64.Assets;
 
 namespace Celeste64;
 
@@ -38,6 +37,44 @@ public class Save
 
 		public int IncFlag(string name) 
 			=> Flags[name] = GetFlag(name) + 1;
+	}
+
+	/// <summary>
+	/// Stored data associated with a mod
+	/// </summary>
+	public class ModRecord
+	{
+		public string ID { get; set; } = string.Empty;
+		public bool Enabled { get; set; } = true;
+		public Dictionary<string, string> Settings { get; set; } = [];
+		public Dictionary<string, string> StringData { get; set; } = [];
+		public Dictionary<string, int> IntData { get; set; } = [];
+		public Dictionary<string, float> FloatData { get; set; } = [];
+		public Dictionary<string, bool> BoolData { get; set; } = [];
+
+		public string GetString(string name, string defaultValue = "")
+			=> StringData.TryGetValue(name, out string? value) ? value : defaultValue;
+
+		public string SetString(string name, string value = "")
+			=> StringData[name] = value;
+
+		public int GetInt(string name, int defaultValue = 0)
+			=> IntData.TryGetValue(name, out int value) ? value : defaultValue;
+
+		public int SetInt(string name, int value = 1)
+			=> IntData[name] = value;
+
+		public float GetFloat(string name, float defaultValue = 0)
+			=> FloatData.TryGetValue(name, out float value) ? value : defaultValue;
+
+		public float SetFloat(string name, float value = 1)
+			=> FloatData[name] = value;
+
+		public bool GetBool(string name, bool defaultValue = false)
+			=> BoolData.TryGetValue(name, out bool value) ? value : defaultValue;
+
+		public bool SetBool(string name, bool value = false)
+			=> BoolData[name] = value;
 	}
 
 	public static Save Instance = new();
@@ -80,21 +117,27 @@ public class Save
 	/// <summary>
 	/// SkinName
 	/// </summary>
-	public string SkinName { get; set; } = "Default";
+	public string SkinName { get; set; } = "Madeline";
 
 	/// <summary>
 	/// Invert the camera in given directions
 	/// </summary>
 	public InvertCameraOptions InvertCamera { get; set; } = InvertCameraOptions.None;
 
+	/// <summary>
 	/// Current Language ID
 	/// </summary>
-	public string Language = "english";
+	public string Language { get; set; } = "english";
 
 	/// <summary>
 	/// Records for each level
 	/// </summary>
 	public List<LevelRecord> Records { get; set; } = [];
+
+	/// <summary>
+	/// Records for each level
+	/// </summary>
+	public List<ModRecord> ModRecords { get; set; } = [];
 
 	/// <summary>
 	/// Finds the record associated with a specific level, or adds it if not found
@@ -128,6 +171,45 @@ public class Save
 		for (int i = 0; i < Records.Count; i ++)
 		{
 			if (Records[i].ID == levelID)
+			{
+				Records.RemoveAt(i);
+				break;
+			}
+		}
+	}
+
+	/// <summary>
+	/// Finds the record associated with a specific mod, or adds it if not found
+	/// </summary>
+	public ModRecord GetOrMakeMod(string modID)
+	{
+		if (TryGetMod(modID) is { } record)
+			return record;
+
+		record = new ModRecord() { ID = modID, Enabled = true };
+		ModRecords.Add(record);
+		return record;
+	}
+
+	/// <summary>
+	/// Tries to get a Mod Record, returns null if not found
+	/// </summary>
+	public ModRecord? TryGetMod(string modID)
+	{
+		foreach (var record in ModRecords)
+			if (record.ID == modID)
+				return record;
+		return null;
+	}
+
+	/// <summary>
+	/// Erases a Mod Record
+	/// </summary>
+	public void EraseModRecord(string modID)
+	{
+		for (int i = 0; i < Records.Count; i++)
+		{
+			if (ModRecords[i].ID == modID)
 			{
 				Records.RemoveAt(i);
 				break;
@@ -176,7 +258,7 @@ public class Save
 
 	public SkinInfo GetSkin()
 	{ 
-		return Assets.Skins.FirstOrDefault(s => s.Name == SkinName, Assets.Skins.First());
+		return Assets.EnabledSkins.FirstOrDefault(s => s.Name == SkinName, Assets.Skins.First());
 	}
 
 	public void SyncSettings()
@@ -184,6 +266,9 @@ public class Save
 		App.Fullscreen = Fullscreen;
 		Audio.SetVCAVolume("vca:/music", Calc.Clamp(MusicVolume / 10.0f, 0, 1));
 		Audio.SetVCAVolume("vca:/sfx", Calc.Clamp(SfxVolume / 10.0f, 0, 1));
+
+		Audio.MusicGroup.setVolume(Calc.Clamp(MusicVolume / 10.0f, 0, 1));
+		Audio.SoundEffectGroup.setVolume(Calc.Clamp(SfxVolume / 10.0f, 0, 1));
 	}
 
 	public void SaveToFile()

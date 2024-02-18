@@ -4,16 +4,6 @@ namespace Celeste64;
 
 public sealed class ModManager
 {
-	// File extensions for which we shouldn't hot reload
-	private static readonly FrozenSet<string> HotReloadIgnoredExtensions = ((string[])[
-		".cs", ".csproj", ".sln", ".pdb", ".user" // C#/Rider related extensions
-	]).ToFrozenSet();
-	
-	// Top-level mod directories for which we shouldn't hot reload
-	private static readonly FrozenSet<string> HotReloadIgnoredFolders = ((string[])[
-		".idea", "bin", "obj", // C#/Rider related folders
-	]).ToFrozenSet();
-	
 	private ModManager() { }
 
 	private static ModManager? instance = null;
@@ -45,6 +35,7 @@ public sealed class ModManager
 	{
 		_modFilesystemCleanupTimerToken.Cancel();
 		_modFilesystemCleanupTimerToken = new();
+		HookManager.Instance.ClearHooks();
 
 		var modsCopy = Mods.ToList();
 		foreach (var mod in modsCopy)
@@ -73,7 +64,11 @@ public sealed class ModManager
 		GlobalFilesystem.Add(mod);
 		if(mod.Filesystem != null)
 			mod.Filesystem.OnFileChanged += OnModFileChanged;
-		mod.OnModLoaded();
+
+		if(mod.Enabled)
+		{
+			mod.OnModLoaded();
+		}
 	}
 
 	internal void DeregisterMod(GameMod mod)
@@ -83,7 +78,10 @@ public sealed class ModManager
 		mod.Filesystem?.Dispose();
 		if(mod.Filesystem != null)
 			mod.Filesystem.OnFileChanged -= OnModFileChanged;
-		mod.OnModUnloaded();
+		if (!mod.Enabled)
+		{
+			mod.OnModUnloaded();
+		}
 		mod.OnUnloadedCleanup?.Invoke();
 	}
 
@@ -91,45 +89,36 @@ public sealed class ModManager
 	{
 		if (ctx.Path is { } filepath)
 		{
-			// Filter out paths that we should not reload assets for
-			// Sometimes, the asset watcher returns just the directory name instead of filename, so we have to handle that.
-			if (HotReloadIgnoredExtensions.Contains(Path.GetExtension(filepath)))
-			{
-				return;
-			}
-			
+			var extension = Path.GetExtension(filepath);
 			var dir = Path.GetDirectoryName(filepath) ?? "";
 			
-			// Filter out top-level directories we don't want
-			if (HotReloadIgnoredFolders.Contains(filepath))
+			// Important assets taken from Assets.Load()
+			// TODO: Support non-toplevel mods?
+			if ((dir.StartsWith("Maps") && extension == ".map" && !dir.StartsWith("Maps/autosave")) || // Maps/**.map except Maps/autosave/** 
+			    (dir.StartsWith("Textures") && extension == ".png") || // Textures/**.png
+			    (dir.StartsWith("Faces") && extension == ".png") || // Faces/**.png
+			    (dir.StartsWith("Models") && extension == ".glb") || // Models/**.glb
+			    (dir.StartsWith("Text") && extension == ".json") || // Text/**.json
+			    (dir.StartsWith("Audio") && extension == ".bank") || // Audio/**.bank
+			    (dir.StartsWith("Shaders") && extension == ".glsl") || // Shaders/**.glsl
+			    (dir.StartsWith("Fonts") && extension is ".ttf" or ".otf") || // Fonts/**.ttf and Fonts/**.otf
+			    (dir.StartsWith("Sprites") && extension == ".png") || // Sprites/**.png
+			    (dir.StartsWith("Skins") && extension == ".json") || // Skins/**.json
+			    (dir.StartsWith("DLLs") && extension is ".dll") || // DLLs/**.dll
+			    filepath == "Levels.json" ||			    
+			    filepath == "Fuji.json")
 			{
+				Log.Info($"File Changed: {filepath} (From mod {ctx.Mod.ModInfo.Name}). Reloading assets.");
+			} 
+			else
+			{
+				// Unimportant file
 				return;
 			}
-			var firstSepIndex = filepath.IndexOfAny(['/', '\\']);
-			if (firstSepIndex != -1)
-			{
-				var topLevelFolder = dir[..firstSepIndex];
-				if (HotReloadIgnoredFolders.Contains(topLevelFolder))
-				{
-					return;
-				}
-			}
-
-			if (filepath.StartsWith("Maps", StringComparison.Ordinal))
-			{
-				// Ignore the autosave folder
-				if (dir.EndsWith("autosave", StringComparison.Ordinal)
-				    || filepath.EndsWith("autosave", StringComparison.Ordinal))
-				{
-					return;
-				}
-			}
-
-			Log.Info($"File Changed: {filepath} (From mod {ctx.Mod.ModInfo?.Name}). Reloading assets.");
 		}
 		else
 		{
-			Log.Info($"Mod archive for mod {ctx.Mod.ModInfo?.Name} changed. Reloading assets.");
+			Log.Info($"Mod archive for mod {ctx.Mod.ModInfo.Name} changed. Reloading assets.");
 		}
 		
 		Game.Instance.ReloadAssets();
@@ -137,42 +126,63 @@ public sealed class ModManager
 
 	internal void Update(float deltaTime)
 	{
-		foreach (var mod in Mods)
+		foreach (var mod in EnabledMods)
 		{
 			mod.Update(deltaTime);
 		}
 	}
 
-	internal void OnGameLoad(Game game)
+	internal void OnAssetsLoaded()
 	{
-		foreach (var mod in Mods)
+		foreach (var mod in EnabledMods)
 		{
-			mod.game = game;
+			mod.OnAssetsLoaded();
+		}
+	}
+
+	internal void OnSceneEntered(Scene scene)
+	{
+		foreach (var mod in EnabledMods)
+		{
+			mod.OnSceneEntered(scene);
+		}
+	}
+
+	internal void OnGameLoaded(Game game)
+	{
+		foreach (var mod in EnabledMods)
+		{
 			mod.OnGameLoaded(game);
+		}
+	}
+
+	internal void OnPreMapLoaded(World world, Map map)
+	{
+		foreach (var mod in EnabledMods)
+		{
+			mod.OnPreMapLoaded(world, map);
 		}
 	}
 
 	internal void OnMapLoaded(Map map)
 	{
-		foreach (var mod in Mods)
+		foreach (var mod in EnabledMods)
 		{
-			mod.map = map;
 			mod.OnMapLoaded(map);
 		}
 	}
 
 	internal void OnWorldLoaded(World world)
 	{
-		foreach (var mod in Mods)
+		foreach (var mod in EnabledMods)
 		{
-			mod.world = world;
 			mod.OnWorldLoaded(world);
 		}
 	}
 
 	internal void OnActorCreated(Actor actor)
 	{ 
-		foreach (var mod in Mods)
+		foreach (var mod in EnabledMods)
 		{
 			mod.OnActorCreated(actor);
 		}
@@ -180,7 +190,7 @@ public sealed class ModManager
 
 	internal void OnActorAdded(Actor actor)
 	{
-		foreach (var mod in Mods)
+		foreach (var mod in EnabledMods)
 		{
 			mod.OnActorAdded(actor);
 		}
@@ -188,7 +198,7 @@ public sealed class ModManager
 
 	internal void OnActorDestroyed(Actor actor)
 	{
-		foreach (var mod in Mods)
+		foreach (var mod in EnabledMods)
 		{
 			mod.OnActorDestroyed(actor);
 		}
@@ -196,7 +206,7 @@ public sealed class ModManager
 
 	internal void OnPlayerKill(Player player)
 	{
-		foreach (var mod in Mods)
+		foreach (var mod in EnabledMods)
 		{
 			mod.OnPlayerKilled(player);
 		}
@@ -204,15 +214,23 @@ public sealed class ModManager
 
 	internal void OnPlayerLanded(Player player)
 	{
-		foreach (var mod in Mods)
+		foreach (var mod in EnabledMods)
 		{
 			mod.OnPlayerLanded(player);
 		}
 	}
 
+	internal void OnPlayerJumped(Player player, Player.JumpType jumpType)
+	{
+		foreach (var mod in EnabledMods)
+		{
+			mod.OnPlayerJumped(player, jumpType);
+		}
+	}
+
 	internal void OnPlayerSkinChange(Player player, SkinInfo skin)
 	{
-		foreach (var mod in Mods)
+		foreach (var mod in EnabledMods)
 		{
 			mod.OnPlayerSkinChange(player, skin);
 		}
@@ -220,7 +238,7 @@ public sealed class ModManager
 
 	internal void OnItemPickup(Player player, IPickup item)
 	{
-		foreach (var mod in Mods)
+		foreach (var mod in EnabledMods)
 		{
 			mod.OnItemPickup(player, item);
 		}
@@ -229,7 +247,7 @@ public sealed class ModManager
 
 	internal void OnPlayerStateChanged(Player player, Player.States? state)
 	{
-		foreach (var mod in Mods)
+		foreach (var mod in EnabledMods)
 		{
 			mod.OnPlayerStateChanged(player, state);
 		}

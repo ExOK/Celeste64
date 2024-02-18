@@ -1,10 +1,7 @@
-﻿using Foster.Framework;
-using System.Collections.Concurrent;
+﻿using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Text;
 using System.Text.Json;
-using System.Text.Json.Serialization;
-using System.Xml.Linq;
 
 namespace Celeste64;
 
@@ -41,9 +38,13 @@ public static class Assets
 	public static readonly ModAssetDictionary<SkinnedTemplate> Models = new(gameMod => gameMod.Models);
 	public static readonly ModAssetDictionary<Subtexture> Subtextures = new(gameMod => gameMod.Subtextures);
 	public static readonly ModAssetDictionary<Font> Fonts = new(gameMod => gameMod.Fonts);
+	public static readonly ModAssetDictionary<FMOD.Sound> Sounds = new(gameMod => gameMod.Sounds);
+	public static readonly ModAssetDictionary<FMOD.Sound> Music = new(gameMod => gameMod.Music);
 	public static readonly Dictionary<string, Language> Languages = new(StringComparer.OrdinalIgnoreCase);
 
 	public static List<SkinInfo> Skins { get; private set; } = [];
+
+	public static List<SkinInfo> EnabledSkins { get { return Skins.Where(skin => skin.IsEnabled()).ToList(); } }
 
 	public static List<LevelInfo> Levels { get; private set; } = [];
 
@@ -59,16 +60,23 @@ public static class Assets
 		Models.Clear();
 		Fonts.Clear();
 		Languages.Clear();
+		Sounds.Clear();
+		Music.Clear();
 		Audio.Unload();
-		
+
+		Map.ModActorFactories.Clear();
 		ModLoader.RegisterAllMods();
 
 		var maps = new ConcurrentBag<(Map, GameMod)>();
 		var images = new ConcurrentBag<(string, Image, GameMod)>();
 		var models = new ConcurrentBag<(string, SkinnedTemplate, GameMod)>();
+		var sounds = new ConcurrentBag<(string, FMOD.Sound, GameMod)>();
+		var music = new ConcurrentBag<(string, FMOD.Sound, GameMod)>();
 		var langs = new ConcurrentBag<(Language, GameMod)>();
 		var tasks = new List<Task>();
 
+		// NOTE: Make sure to update ModManager.OnModFileChanged() as well, for hot-reloading to work!
+		
 		var globalFs = ModManager.Instance.GlobalFilesystem;
 		foreach (var (file, mod) in globalFs.FindFilesInDirectoryRecursiveWithMod("Maps", "map"))
 		{
@@ -153,6 +161,36 @@ public static class Assets
 				mod.Filesystem.TryOpenFile(file, Audio.LoadBankFromStream);
 		}
 
+		foreach (var (file, mod) in globalFs.FindFilesInDirectoryRecursiveWithMod("Sounds", "wav"))
+		{
+			tasks.Add(Task.Run(() =>
+			{
+				if (mod.Filesystem != null && mod.Filesystem.TryOpenFile(file, stream => Audio.LoadWavFromStream(stream),
+						out FMOD.Sound? sound))
+				{
+					if(sound != null)
+					{
+						sounds.Add((GetResourceNameFromVirt(file, "Sounds"), sound.Value, mod));
+					}
+				}
+			}));
+		}
+
+		foreach (var (file, mod) in globalFs.FindFilesInDirectoryRecursiveWithMod("Music", "wav"))
+		{
+			tasks.Add(Task.Run(() =>
+			{
+				if (mod.Filesystem != null && mod.Filesystem.TryOpenFile(file, stream => Audio.LoadWavFromStream(stream),
+						out FMOD.Sound? song))
+				{
+					if (song != null)
+					{
+						music.Add((GetResourceNameFromVirt(file, "Music"), song.Value, mod));
+					}
+				}
+			}));
+		}
+
 		// load level, dialog jsons
 		foreach (var mod in ModManager.Instance.Mods)
 		{
@@ -198,41 +236,36 @@ public static class Assets
 
 		// pack sprites into single texture
 		{
-			var packers = new Dictionary<GameMod, Packer>();
-
+			Packer packer = new Packer
+			{
+				Trim = false,
+				CombineDuplicates = false,
+				Padding = 1
+			};
 			foreach (var (file, mod) in globalFs.FindFilesInDirectoryRecursiveWithMod("Sprites", "png"))
 			{
 				if (mod.Filesystem != null && mod.Filesystem.TryOpenFile(file, stream => new Image(stream), out var img))
 				{
-					if (packers.ContainsKey(mod))
-					{
-						packers[mod].Add(GetResourceNameFromVirt(file, "Sprites"), img);
-					}
-					else
-					{
-						packers[mod] = new Packer
-						{
-							Trim = false,
-							CombineDuplicates = false,
-							Padding = 1
-						};
-						packers[mod].Add(GetResourceNameFromVirt(file, "Sprites"), img);
-					}
+					packer.Add($"{mod.ModInfo.Id}:{GetResourceNameFromVirt(file, "Sprites")}", img);
 				}
 			}
 
-			foreach(var modpacker in packers)
+			var result = packer.Pack();
+			var pages = new List<Texture>();
+			foreach (var it in result.Pages)
 			{
-				var result = modpacker.Value.Pack();
-				var pages = new List<Texture>();
-				foreach (var it in result.Pages)
-				{
-					it.Premultiply();
-					pages.Add(new Texture(it));
-				}
+				it.Premultiply();
+				pages.Add(new Texture(it));
+			}
 
-				foreach (var it in result.Entries)
-					Subtextures.Add(it.Name, new Subtexture(pages[it.Page], it.Source, it.Frame), modpacker.Key);
+			foreach (var it in result.Entries)
+			{
+				string[] nameSplit = it.Name.Split(':');
+				GameMod? mod = ModManager.Instance.Mods.FirstOrDefault(mod => mod.ModInfo.Id == nameSplit[0]) ?? ModManager.Instance.VanillaGameMod;
+				if(mod != null)
+				{
+					Subtextures.Add(nameSplit[1], new Subtexture(pages[it.Page], it.Source, it.Frame), mod);
+				}
 			}
 		}
 
@@ -246,6 +279,10 @@ public static class Assets
 				Textures.Add(name, new Texture(img) { Name = name }, mod);
 			foreach (var (map, mod) in maps)
 				Maps.Add(map.Name, map, mod);
+			foreach (var (name, sound, mod) in sounds)
+				Sounds.Add(name, sound, mod);
+			foreach (var (name, song, mod) in music)
+				Music.Add(name, song, mod);
 			foreach (var (name, model, mod) in models)
 			{
 				model.ConstructResources();
@@ -254,7 +291,9 @@ public static class Assets
 			foreach (var (lang, mod) in langs)
 			{
 				if (Languages.TryGetValue(lang.ID, out var existing))
+				{
 					existing.Absorb(lang, mod);
+				}
 				else
 				{
 					lang.OnCreate(mod);
@@ -281,6 +320,7 @@ public static class Assets
 			if (mod.Filesystem != null && mod.Filesystem.TryOpenFile(file,
 				    stream => JsonSerializer.Deserialize(stream, SkinInfoContext.Default.SkinInfo), out var skin) && skin.IsValid())
 			{
+				skin.ModId = mod.ModInfo.Id;
 				Skins.Add(skin);
 			}
 			else
@@ -291,6 +331,8 @@ public static class Assets
 
 		// make sure the active language is ready for use
 		Language.Current.Use();
+
+		ModManager.Instance.OnAssetsLoaded();
 
 		Log.Info($"Loaded Assets in {timer.ElapsedMilliseconds}ms");
 	}

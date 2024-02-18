@@ -1,49 +1,49 @@
 ﻿
 namespace Celeste64;
 
-public sealed class FallingBlock : Solid, IUnlockStrawberry
+public class FallingBlock : Solid, IUnlockStrawberry
 {
-	private const float MaxFallSpeed = -160;
-	private const float Gravity = 600;
+	public virtual float MaxFallSpeed => -160;
+	public virtual float Gravity => 600;
 
-	private enum States { Wait, Shake, Fall, Landed, Respawn }
+	public enum States { Wait, Shake, Fall, Landed, Respawn }
 
 	public Vec3? EndPosition;
 	public bool Secret = false;
 
-	private States state = States.Wait;
-	private Vec3 startPosition;
-	private bool triggered;
-	private float respawnDelay;
+	public States State = States.Wait;
+	public Vec3 StartPosition;
+	public bool Triggered;
+	public float RespawnDelay;
 
-	public bool Satisfied => state == States.Landed;
+	public virtual bool Satisfied => State == States.Landed;
 
 	public override void Added()
 	{
 		base.Added();
 
-		startPosition = Position;
+		StartPosition = Position;
 		if (World.SolidRayCast(WorldBounds.Center, -Vec3.UnitZ, 200, out var hit)
 		&& hit.Actor is not FallingBlock)
 			EndPosition = hit.Point - Vec3.UnitZ * LocalBounds.Min.Z;
 	}
 
-	public void Trigger()
+	public virtual void Trigger()
 	{
 		UpdateOffScreen = true;
-		triggered = true;
+		Triggered = true;
 	}
 
 	public override void Update()
 	{
 		base.Update();
 
-		if (state == States.Wait)
+		if (State == States.Wait)
 		{
-			if (triggered || HasPlayerRider())
+			if (Triggered || HasPlayerRider())
 			{
 				Audio.Play(Sfx.sfx_fallingblock_shake, Position);
-				state = States.Shake;
+				State = States.Shake;
 				TShake = .4f;
 				UpdateOffScreen = true;
 
@@ -51,15 +51,15 @@ public sealed class FallingBlock : Solid, IUnlockStrawberry
 					Audio.Play(Sfx.sfx_secret, Position);
 			}
 		}
-		else if (state == States.Shake)
+		else if (State == States.Shake)
 		{
 			if (TShake <= 0)
 			{
 				Audio.Play(Sfx.sfx_fallingblock_fall, Position);
-				state = States.Fall;
+				State = States.Fall;
 			}
 		}
-		else if (state == States.Fall)
+		else if (State == States.Fall)
 		{
 			Calc.Approach(ref Velocity.Z, MaxFallSpeed, Gravity * Time.Delta);
 
@@ -68,7 +68,7 @@ public sealed class FallingBlock : Solid, IUnlockStrawberry
 				if (Position.Z <= EndPosition.Value.Z)
 				{
 					Audio.Play(Sfx.sfx_fallingblock_land, Position);
-					state = States.Landed;
+					State = States.Landed;
 					TShake = .2f;
 					Velocity = Vec3.Zero;
 					MoveTo(EndPosition.Value);
@@ -82,31 +82,31 @@ public sealed class FallingBlock : Solid, IUnlockStrawberry
 				}
 				else
 				{
-					respawnDelay = 5.0f;
+					RespawnDelay = 5.0f;
 					Velocity = Vec3.Zero;
-					state = States.Respawn;
+					State = States.Respawn;
 				}
 			}
 		}
-		else if (state == States.Landed)
+		else if (State == States.Landed)
 		{
 			UpdateOffScreen = false;
 		}
-		else if (state == States.Respawn)
+		else if (State == States.Respawn)
 		{
-			respawnDelay -= Time.Delta;
-			if (respawnDelay <= 0)
+			RespawnDelay -= Time.Delta;
+			if (RespawnDelay <= 0)
 			{
-				MoveTo(startPosition);
+				MoveTo(StartPosition);
 				TShake = 0.2f;
-				triggered = false;
-				state = States.Wait;
+				Triggered = false;
+				State = States.Wait;
 				UpdateOffScreen = false;
 			}
 		}
 	}
 
-	private void Destroy()
+	public virtual void Destroy()
 	{
 		foreach (var att in Attachers)
 			World.Destroy(att);
@@ -115,7 +115,7 @@ public sealed class FallingBlock : Solid, IUnlockStrawberry
 
     public override void CollectModels(List<(Actor Actor, Model Model)> populate)
     {
-		if (state != States.Respawn)
+		if (State != States.Respawn)
         	base.CollectModels(populate);
     }
 }

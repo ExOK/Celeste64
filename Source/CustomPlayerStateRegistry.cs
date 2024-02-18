@@ -1,6 +1,6 @@
 ﻿namespace Celeste64;
 
-internal static class CustomPlayerStateRegistry
+public static class CustomPlayerStateRegistry
 {
     private static readonly List<CustomPlayerState> _customStates = [];
 
@@ -11,14 +11,14 @@ internal static class CustomPlayerStateRegistry
     /// <summary>
     /// Id of the first custom state.
     /// </summary>
-    internal static Player.States BaseId { get; } = (Player.States)(Enum.GetValues<Player.States>().Length);
+    public static Player.States BaseId { get; } = (Player.States)(Enum.GetValues<Player.States>().Length);
     
     /// <summary>
     /// Registers the provided type.
     /// Should not be called while there is a <see cref="Player"/> instance.
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    internal static void Register<T>() where T : CustomPlayerState, new()
+    public static void Register<T>() where T : CustomPlayerState, new()
     {
         var state = new T();
 
@@ -30,7 +30,7 @@ internal static class CustomPlayerStateRegistry
     /// Deregisters the provided type.
     /// Should not be called while there is a <see cref="Player"/> instance.
     /// </summary>
-    internal static void Deregister<T>() where T : CustomPlayerState, new()
+    public static void Deregister<T>() where T : CustomPlayerState, new()
     {
         if (RegisteredStates.OfType<T>().FirstOrDefault() is not { } registered)
             throw new UnregisteredStateUseException(typeof(T));
@@ -43,7 +43,7 @@ internal static class CustomPlayerStateRegistry
     /// Gets the custom state definition tied to the specified id.
     /// Returns null if the id is not associated with a custom state.
     /// </summary>
-    internal static CustomPlayerState? GetById(Player.States state)
+    public static CustomPlayerState? GetById(Player.States state)
     {
         var index = state - BaseId;
         if (index < 0 || index >= _customStates.Count)
@@ -56,7 +56,7 @@ internal static class CustomPlayerStateRegistry
     /// Gets the id of the specified custom state.
     /// Throws if the state is not registered.
     /// </summary>
-    internal static Player.States GetId<T>() where T : CustomPlayerState
+    public static Player.States GetId<T>() where T : CustomPlayerState
     {
         if (_stateTypesToId.TryGetValue(typeof(T), out var id))
         {

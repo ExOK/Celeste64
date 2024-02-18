@@ -1,6 +1,4 @@
 
-using System.Reflection.Emit;
-
 namespace Celeste64;
 
 public class Menu
@@ -28,6 +26,7 @@ public class Menu
 				Audio.Play(Sfx.ui_select);
 				submenu.Index = 0;
 				rootMenu?.PushSubMenu(submenu);
+				submenu.Initialized();
 				return true;
 			}
 			
@@ -62,31 +61,37 @@ public class Menu
         public override void Slide(int dir) => set(Calc.Clamp(get() + dir, min, max));
     }
 
-    public class OptionList : Item
-    {
+	public class OptionList : Item
+	{
 		private readonly string label;
-        private readonly List<string> labels = [];
-        private readonly int min;
-        private readonly int max;
-        private readonly Func<string> get;
-        private readonly Action<string> set;
+		private readonly int min;
+		private readonly Func<string> get;
+		private readonly Func<int> getMax;
+		private readonly Func<List<string>> getLabels;
+		private readonly Action<string> set;
 
-        public OptionList(string label, List<string> labels, int min, int max, Func<string> get, Action<string> set)
-        {
+		public OptionList(string label, Func<List<string>> getLabels, int min, Func<int> getMax, Func<string> get, Action<string> set)
+		{
 			this.label = label;
-            this.labels = labels;
-            this.min = min;
-            this.max = max;
-            this.get = get;
-            this.set = set;
-        }
+			this.getLabels = getLabels;
+			this.getMax = getMax;
+			this.min = min;
+			this.get = get;
+			this.set = set;
+		}
 
-        public override string Label => $"{label} : {labels[getId() - min]}";
-        public override void Slide(int dir) => set(labels[(max + getId() + dir) % max]);
+		public override string Label => $"{label} : {getLabels()[getId() - min]}";
+		public override void Slide(int dir) 
+		{
+			if(getLabels().Count > 1)
+			{
+				set(getLabels()[(getMax() + getId() + dir) % getMax()]);
+			}
+		}
 
 		private int getId()
 		{
-			int id = labels.IndexOf(get());
+			int id = getLabels().IndexOf(get());
 			return id > -1 ? id : 0;
 		}
     }
@@ -165,14 +170,34 @@ public class Menu
 	public string Title = string.Empty;
 	public bool Focused = true;
 
-	private readonly List<Item> items = [];
-	private readonly Stack<Menu> submenus = [];
+	protected readonly List<Item> items = [];
+	protected readonly Stack<Menu> submenus = [];
 
 	public string UpSound = Sfx.ui_move;
 	public string DownSound = Sfx.ui_move;
 
 	public bool IsInMainMenu => submenus.Count <= 0;
-	private Menu CurrentMenu => submenus.Count > 0 ? submenus.Peek() : this;
+	protected Menu CurrentMenu => GetDeepestActiveSubmenu(this);
+
+	public Menu GetDeepestActiveSubmenu(Menu target)
+	{
+		if (target.submenus.Count <= 0)
+		{
+			return target;
+		} else {
+			return GetDeepestActiveSubmenu(target.submenus.Peek());
+		}
+	}
+
+	public Menu GetSecondDeepestMenu(Menu target)
+	{
+		if (target.submenus.Peek() != null && target.submenus.Peek().submenus.Count <= 0)
+		{
+			return target;
+		} else {
+			return GetSecondDeepestMenu(target.submenus.Peek());
+		}
+	}
 	
 	public Vec2 Size
 	{
@@ -208,6 +233,11 @@ public class Menu
 			return size;
 		}
 	}
+
+	public virtual void Initialized()
+	{
+
+	}
 	
 	public Menu Add(Item item)
 	{
@@ -215,17 +245,22 @@ public class Menu
 		return this;
 	}
 	
-	protected void PushSubMenu(Menu menu) 
+	internal void PushSubMenu(Menu menu) 
 	{
 		submenus.Push(menu);
 	}
-	
+
+	internal void PopSubMenu()
+	{
+		submenus.Pop();
+	}
+
 	public void CloseSubMenus() 
 	{
 		submenus.Clear();
 	}
 
-	private void HandleInput()
+	protected virtual void HandleInput()
 	{
 		if (items.Count > 0)
 		{
@@ -261,31 +296,30 @@ public class Menu
 		{
 			CurrentMenu.HandleInput();
 
-	        if (Controls.Cancel.ConsumePress() && !IsInMainMenu) 
+	        if (!IsInMainMenu && Controls.Cancel.ConsumePress()) 
 			{
 				Audio.Play(Sfx.main_menu_toggle_off);
-				submenus.Pop();
+				GetSecondDeepestMenu(this).submenus.Pop();
 			}
 	    }
 	}
 
-	private void RenderItems(Batcher batch)
+	protected virtual void RenderItems(Batcher batch)
 	{
 		var font = Language.Current.SpriteFont;
 		var size = Size;
 		var position = Vec2.Zero;
-		batch.PushMatrix(-size / 2);
+		batch.PushMatrix(new Vec2(0, -size.Y / 2));
 	
 		if(!string.IsNullOrEmpty(Title)) 
 		{
-			var at = position + new Vec2(size.X / 2, 0);
 			var text = Title;
 			var justify = new Vec2(0.5f, 0);
 			var color = new Color(8421504);
 
 			batch.PushMatrix(
 				Matrix3x2.CreateScale(TitleScale) * 
-				Matrix3x2.CreateTranslation(at));
+				Matrix3x2.CreateTranslation(position));
 			UI.Text(batch, text, Vec2.Zero, justify, color);
 			batch.PopMatrix();
 
@@ -301,12 +335,11 @@ public class Menu
 				continue;
 			}
 	
-			var at = position + new Vec2(size.X / 2, 0);
 			var text = items[i].Label;
 			var justify = new Vec2(0.5f, 0);
 			var color = Index == i && Focused ? (Time.BetweenInterval(0.1f) ? 0x84FF54 : 0xFCFF59) : Color.White;
 			
-			UI.Text(batch, text, at, justify, color);
+			UI.Text(batch, text, position, justify, color);
 	
 			position.Y += font.LineHeight;
 			position.Y += Spacing;    
@@ -314,7 +347,7 @@ public class Menu
 		batch.PopMatrix();
 	}
 	
-	public void Render(Batcher batch, Vec2 position)
+	public virtual void Render(Batcher batch, Vec2 position)
 	{
 		batch.PushMatrix(position);
 		CurrentMenu.RenderItems(batch);

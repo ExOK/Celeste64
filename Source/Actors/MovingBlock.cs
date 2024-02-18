@@ -1,18 +1,17 @@
-﻿
-namespace Celeste64;
+﻿namespace Celeste64;
 
 public class MovingBlock : Solid
 {
 	public Vec3 Start;
 	public Vec3 End;
 
-	private float lerp;
-	private float target = 1;
-	private bool goSlow;
+	public float Lerp;
+	public float Target = 1;
+	public bool GoSlow;
 
 	public MovingBlock(bool goSlow, Vec3 end)
 	{
-		this.goSlow = goSlow;
+		this.GoSlow = goSlow;
 		UpdateOffScreen = true;
 		End = end;
 	}
@@ -27,10 +26,10 @@ public class MovingBlock : Solid
 	{
 		base.Update();
 
-		Calc.Approach(ref lerp, target, Time.Delta / (goSlow ? 2 : 1));
-		if (lerp == target)
-			target = 1 + -(int)target;
+		Calc.Approach(ref Lerp, Target, Time.Delta / (GoSlow ? 2 : 1));
+		if (Lerp == Target)
+			Target = 1 + -(int)Target;
 
-		MoveTo(Vec3.Lerp(Start, End, Utils.SineInOut(lerp)));
+		MoveTo(Vec3.Lerp(Start, End, Utils.SineInOut(Lerp)));
 	}
 }

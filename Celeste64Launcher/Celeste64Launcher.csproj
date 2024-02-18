@@ -6,19 +6,19 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <Version>0.3.1</Version>
+    <Version>0.4.0</Version>
     <PublishTrimmed>false</PublishTrimmed>
     <Platforms>x64</Platforms>
     <ApplicationIcon>..\fuji.ico</ApplicationIcon>
     <PackageIcon>..\fuji.png</PackageIcon>
     <PackageReadmeFile>..\ReadMe.md</PackageReadmeFile>
     <StartupObject>Program</StartupObject>
-    <SelfContained>true</SelfContained>
-    <PublishSingleFile>true</PublishSingleFile>
+    <SelfContained>false</SelfContained>
+		<PublishSingleFile>true</PublishSingleFile>
   </PropertyGroup>
 
   <ItemGroup>
-		<PackageReference Include="FosterFramework" Version="0.1.17-alpha" />
+		<PackageReference Include="FosterFramework" Version="0.1.18-alpha" />
 		<PackageReference Include="SharpGLTF.Runtime" Version="1.0.0-alpha0031" />
     <PackageReference Include="Sledge.Formats.Map" Version="1.1.5" />
 
@@ -60,9 +60,9 @@
 	<ItemGroup>
     <ProjectReference Include="..\Celeste64.csproj">
       <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-    </ProjectReference>
+			<CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+		</ProjectReference>
   </ItemGroup>
-
 
   <ItemGroup>
     <None Update="..\fuji.png">

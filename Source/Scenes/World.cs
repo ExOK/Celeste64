@@ -61,12 +61,16 @@ public class World : Scene
 	private int debugUpdateCount;
 	public static bool DebugDraw { get; private set; } = false;
 
+	public Map Map {  get; private set; }
+
 	public World(EntryInfo entry)
 	{
 		Entry = entry;
 
 		var stopwatch = Stopwatch.StartNew();
 		var map = Assets.Maps[entry.Map];
+		Map = map;
+
 		ModManager.Instance.CurrentLevelMod = ModManager.Instance.Mods.FirstOrDefault(mod => mod.Maps.ContainsKey(entry.Map));
 
 		Camera.NearPlane = 20;
@@ -78,30 +82,36 @@ public class World : Scene
 
 		// setup pause menu
 		{
-			Menu optionsMenu = new Menu();
-			optionsMenu.Title = Loc.Str("OptionsTitle");
-			optionsMenu.Add(new Menu.Toggle(Loc.Str("OptionsFullscreen"), Save.Instance.ToggleFullscreen, () => Save.Instance.Fullscreen));
-			optionsMenu.Add(new Menu.Toggle(Loc.Str("OptionsZGuide"), Save.Instance.ToggleZGuide, () => Save.Instance.ZGuide));
-			optionsMenu.Add(new Menu.Toggle(Loc.Str("OptionsTimer"), Save.Instance.ToggleTimer, () => Save.Instance.SpeedrunTimer));
-			optionsMenu.Add(new Menu.MultiSelect<Save.InvertCameraOptions>(Loc.Str("OptionsInvertCamera"), Save.Instance.SetCameraInverted, () => Save.Instance.InvertCamera));
-			optionsMenu.Add(new Menu.Spacer());
-			optionsMenu.Add(new Menu.Slider(Loc.Str("OptionsBGM"), 0, 10, () => Save.Instance.MusicVolume, Save.Instance.SetMusicVolume));
-			optionsMenu.Add(new Menu.Slider(Loc.Str("OptionsSFX"), 0, 10, () => Save.Instance.SfxVolume, Save.Instance.SetSfxVolume));
+			Menu optionsMenu = new GameOptionsMenu();
+
+			ModSelectionMenu modMenu = new ModSelectionMenu()
+			{
+				RootMenu = pauseMenu,
+				Title = "Mods Menu"
+			};
 
 			pauseMenu.Title = Loc.Str("PauseTitle");
-            pauseMenu.Add(new Menu.Option(Loc.Str("PauseResume"), () => SetPaused(false)));
+            pauseMenu.Add(new Menu.Option(Loc.Str("PauseResume"), () =>
+			{
+				SetPaused(false);
+			}));
 			pauseMenu.Add(new Menu.Option(Loc.Str("PauseRetry"), () =>
 			{
 				SetPaused(false);
 				Audio.StopBus(Sfx.bus_dialog, false);
 				Get<Player>()?.Kill();
 			}));
-			if (Assets.Skins.Count > 0)
+			if (Assets.EnabledSkins.Count > 1)
 			{
-				List<string> labels = Assets.Skins.Select(x => x.Name).ToList();
-				pauseMenu.Add(new Menu.OptionList("Skin", labels, 0, Assets.Skins.Count, () => Save.Instance.SkinName, Save.Instance.SetSkinName));
+				pauseMenu.Add(new Menu.OptionList("Skin",
+					() => Assets.EnabledSkins.Select(x => x.Name).ToList(),
+					0,
+					() => Assets.EnabledSkins.Count,
+					() => Save.Instance.GetSkin().Name, Save.Instance.SetSkinName)
+				);
 			}
 			pauseMenu.Add(new Menu.Submenu(Loc.Str("PauseOptions"), pauseMenu, optionsMenu));
+			pauseMenu.Add(new Menu.Submenu(Loc.Str("PauseMods"), pauseMenu, modMenu));
 			pauseMenu.Add(new Menu.Option(Loc.Str("PauseSaveQuit"), () => Game.Instance.Goto(new Transition()
 			{
 				Mode = Transition.Modes.Replace,
@@ -133,9 +143,32 @@ public class World : Scene
 				}
 			}
 
-			Music = $"event:/music/{map.Music}";
-			Ambience = $"event:/sfx/ambience/{map.Ambience}";
+			// Fuji Custom: Allows playing music and ambience from wav files if available.
+			// Otherwise, uses fmod events like normal.
+			if (Assets.Music.ContainsKey(map.Music))
+			{
+				MusicWav = map.Music;
+				Music = $"event:/music/";
+			}
+			else
+			{
+				MusicWav = "";
+				Music = $"event:/music/{map.Music}";
+			}
+
+			if (Assets.Music.ContainsKey(map.Ambience))
+			{
+				AmbienceWav = map.Ambience;
+				Ambience = $"event:/sfx/ambience/";
+			}
+			else
+			{
+				AmbienceWav = "";
+				Ambience = $"event:/sfx/ambience/{map.Ambience}";
+			}
 		}
+
+		ModManager.Instance.OnPreMapLoaded(this, map);
 
 		// load content
 		map.Load(this);
@@ -391,7 +424,6 @@ public class World : Scene
 				pauseMenu.CloseSubMenus();
 				SetPaused(false);
 				Audio.Play(Sfx.ui_unpause);
-				Get<Player>()?.SetSkin(Save.Instance.GetSkin());
 			}
 			else
 			{
@@ -404,6 +436,24 @@ public class World : Scene
 
 	public void SetPaused(bool paused)
 	{
+		if(paused == false)
+		{
+			if(Game.Instance.NeedsReload)
+			{
+				Game.Instance.NeedsReload = false;
+				Game.Instance.ReloadAssets();
+			}
+
+			Player? ply = Get<Player>();
+			if (ply != null)
+			{
+				if (ply.Skin != Save.Instance.GetSkin())
+				{
+					ply.SetSkin(Save.Instance.GetSkin());
+					ModManager.Instance.OnPlayerSkinChange(ply, Save.Instance.GetSkin());
+				}
+			}
+		}
 		if (paused != Paused)
 		{
 			Audio.SetBusPaused(Sfx.bus_gameplay, paused);
@@ -461,12 +511,12 @@ public class World : Scene
 					continue;
 
 				// check against each triangle in the face
-				for (int i = 0; i < face.Indices.Count - 2; i ++)
+				for (int i = 0; i < face.VertexCount - 2; i ++)
 				{
 					if (Utils.RayIntersectsTriangle(point, direction, 
-						verts[face.Indices[0]], 
-						verts[face.Indices[i + 1]],
-						verts[face.Indices[i + 2]], out float dist))
+						verts[face.VertexStart + 0],
+						verts[face.VertexStart + i + 1],
+						verts[face.VertexStart + i + 2], out float dist))
 					{
 						// too far away
 						if (dist > distance)
@@ -528,10 +578,10 @@ public class World : Scene
 
 				WallHit? closestTriangleOnPlane = null;
 
-				for (int i = 0; i < face.Indices.Count - 2; i++)
+				for (int i = 0; i < face.VertexCount - 2; i++)
 				{
 					if (Utils.PlaneTriangleIntersection(flatPlane,
-						verts[face.Indices[0]], verts[face.Indices[i + 1]], verts[face.Indices[i + 2]],
+						verts[face.VertexStart + 0], verts[face.VertexStart + i + 1], verts[face.VertexStart + i + 2],
 						out var line0, out var line1))
 					{
 						var next = new Vec3(new Line(line0.XY(), line1.XY()).ClosestPoint(flatPoint), point.Z);
@@ -729,11 +779,11 @@ public class World : Scene
 		ApplyPostEffects();
 
 		// render alpha threshold transparent stuff
-		// {
-		// 	state.CutoutMode = true;
-		// 	RenderModels(ref state, models, ModelFlags.Cutout);
-		// 	state.CutoutMode = false;
-		// }
+		{
+			state.CutoutMode = true;
+			RenderModels(ref state, models, ModelFlags.Cutout);
+			state.CutoutMode = false;
+		}
 
 		// render 2d sprites
 		{

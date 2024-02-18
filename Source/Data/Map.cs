@@ -6,6 +6,7 @@ using SledgeEntity = Sledge.Formats.Map.Objects.Entity;
 using SledgeFace = Sledge.Formats.Map.Objects.Face;
 using SledgeMap = Sledge.Formats.Map.Objects.MapFile;
 using System.Runtime.CompilerServices;
+using System.Globalization;
 
 namespace Celeste64;
 
@@ -87,6 +88,7 @@ public class Map
 				entity.GetIntProperty("secret", 0) != 0);
 		}) { IsSolidGeometry = true },
 		["CassetteBlock"] = new((map, entity) => new CassetteBlock(entity.GetIntProperty("startOn", 1) != 0)) { IsSolidGeometry = true },
+		["NonClimbableBlock"] = new((map, entity) => new NonClimbableBlock()) { IsSolidGeometry = true },
 		["DoubleDashPuzzleBlock"] = new((map, entity) => new DoubleDashPuzzleBlock()) { IsSolidGeometry = true },
 		["EndingArea"] = new((map, entity) => new EndingArea()) { UseSolidsAsBounds = true },
 		["Fog"] = new((map, entity) => new FogRing(entity)),
@@ -109,7 +111,7 @@ public class Map
 	private readonly List<SledgeEntity> staticDecorations = [];
 	private readonly List<SledgeEntity> floatingDecorations = [];
 	private readonly List<SledgeEntity> entities = [];
-	private readonly HashSet<string> checkpoints = [];
+	public readonly HashSet<string> Checkpoints = [];
 	private readonly BoundingBox localStaticSolidsBounds;
 	private readonly Matrix baseTransform = Matrix.CreateScale(0.2f);
 
@@ -153,7 +155,7 @@ public class Map
 					}
 					else if (entity.ClassName == "PlayerSpawn")
 					{
-						checkpoints.Add(entity.GetStringProperty("name", StartCheckpoint));
+						Checkpoints.Add(entity.GetStringProperty("name", StartCheckpoint));
 						entities.Add(entity);
 					}
 					else
@@ -208,7 +210,12 @@ public class Map
 		// create materials for each texture type so they can be shared by each surface
 		currentMaterials.Clear();
 		foreach (var it in Assets.Textures)
-			currentMaterials.Add(it.Key, new DefaultMaterial(it.Value));
+		{
+			if (!currentMaterials.ContainsKey(it.Key))
+			{
+				currentMaterials.Add(it.Key, new DefaultMaterial(Assets.Textures[it.Key]));
+			}
+		}
 
 		// load all static solids
 		// group them in big chunks (this helps collision tests so we can cull entire objects based on their bounding box)
@@ -284,41 +291,13 @@ public class Map
 
 	private void LoadActor(World world, SledgeEntity entity)
 	{
-		void HandleActorCreation(World world, SledgeEntity entity, Actor it, ActorFactory? factory)
+		if (ModActorFactories.TryGetValue(entity.ClassName, out var modfactory))
 		{
-			if ((factory?.IsSolidGeometry ?? false) && it is Solid solid)
-			{
-				List<SledgeSolid> collection = [];
-				CollectSolids(entity, collection);
-				GenerateSolid(solid, collection);
-			}
-
-			if (entity.Properties.ContainsKey("origin"))
-				it.Position = Vec3.Transform(entity.GetVectorProperty("origin", Vec3.Zero), baseTransform);
-
-			if (entity.Properties.ContainsKey("_tb_group") && 
-				groupNames.TryGetValue(entity.GetIntProperty("_tb_group", -1), out var groupName))
-				it.GroupName = groupName;
-
-			if (entity.Properties.ContainsKey("angle"))
-				it.Facing = Calc.AngleToVector(entity.GetIntProperty("angle", 0) * Calc.DegToRad - MathF.PI / 2);
-
-			if (factory?.UseSolidsAsBounds ?? false)
-			{
-				BoundingBox bounds = new();
-				if (entity.Children.FirstOrDefault() is SledgeSolid sol)
-					bounds = CalculateSolidBounds(sol, baseTransform);
-
-				it.Position = bounds.Center;
-				bounds.Min -= it.Position;
-				bounds.Max -= it.Position;
-				it.LocalBounds = bounds;
-			}
-			
-			world.Add(it);
+			var it = modfactory.Create(this, entity);
+			if (it != null)
+				HandleActorCreation(world, entity, it, modfactory);
 		}
-
-		if (entity.ClassName == "PlayerSpawn")
+		else if (entity.ClassName == "PlayerSpawn")
 		{
 			var name = entity.GetStringProperty("name", StartCheckpoint);
 
@@ -328,7 +307,7 @@ public class Map
 			var spawnsPlayer = 
 				(world.Entry.CheckPoint == name) ||
 				(string.IsNullOrEmpty(world.Entry.CheckPoint) && name == StartCheckpoint) ||
-				(!checkpoints.Contains(world.Entry.CheckPoint) && name == StartCheckpoint);
+				(!Checkpoints.Contains(world.Entry.CheckPoint) && name == StartCheckpoint);
 
 			if (spawnsPlayer)
 				HandleActorCreation(world, entity, new Player(), null);
@@ -343,12 +322,73 @@ public class Map
 			if (it != null)
 				HandleActorCreation(world, entity, it, factory);
 		}
-		else if (ModActorFactories.TryGetValue(entity.ClassName, out var modfactory))
+	}
+	
+	public void HandleActorCreation(World world, SledgeEntity entity, Actor it, ActorFactory? factory)
+	{
+		if(it is Solid solid)
 		{
-			var it = modfactory.Create(this, entity);
-			if (it != null)
-				HandleActorCreation(world, entity, it, modfactory);
+			if ((factory?.IsSolidGeometry ?? false))
+			{
+				List<SledgeSolid> collection = [];
+				CollectSolids(entity, collection);
+				GenerateSolid(solid, collection);
+			}
+			if (entity.Properties.ContainsKey("climbable"))
+				solid.Climbable = entity.GetStringProperty("climbable", "true") != "false";
 		}
+
+
+		if (entity.Properties.ContainsKey("origin"))
+			it.Position = Vec3.Transform(entity.GetVectorProperty("origin", Vec3.Zero), baseTransform);
+
+		if (entity.Properties.ContainsKey("_tb_group") && 
+		    groupNames.TryGetValue(entity.GetIntProperty("_tb_group", -1), out var groupName))
+			it.GroupName = groupName;
+
+
+		// Fuji Custom - Allows for rotation in maps using either a vec3 rotation property
+		// Or 3 different Angle properties. This is to support compatibility with existing vanilla actors who only use 1 angle property 
+		Vec3 rotationXYZ = new(0, 0, -MathF.PI / 2);
+		if (entity.Properties.ContainsKey("rotation") && entity.Properties["rotation"].Split(' ').Length == 3)
+		{
+			var value = entity.Properties["rotation"];
+			var spl = value.Split(' ');
+			if (spl.Length == 3)
+			{
+				if (float.TryParse(spl[0], NumberStyles.Float, CultureInfo.InvariantCulture, out var x))
+					rotationXYZ.X = x * Calc.DegToRad;
+				if (float.TryParse(spl[1], NumberStyles.Float, CultureInfo.InvariantCulture, out var y))
+					rotationXYZ.Y = y * Calc.DegToRad;
+				if (float.TryParse(spl[2], NumberStyles.Float, CultureInfo.InvariantCulture, out var z))
+					rotationXYZ.Z = z * Calc.DegToRad - MathF.PI / 2;
+			}
+		}
+		else
+		{
+			if (entity.Properties.ContainsKey("anglepitch"))
+				rotationXYZ.X = entity.GetIntProperty("anglepitch", 0) * Calc.DegToRad;
+			if (entity.Properties.ContainsKey("angleroll"))
+				rotationXYZ.Y = entity.GetIntProperty("angleroll", 0) * Calc.DegToRad;
+			if (entity.Properties.ContainsKey("angle"))
+				rotationXYZ.Z = entity.GetIntProperty("angle", 0) * Calc.DegToRad - MathF.PI / 2;
+		}
+		it.RotationXYZ = rotationXYZ;
+
+
+		if (factory?.UseSolidsAsBounds ?? false)
+		{
+			BoundingBox bounds = new();
+			if (entity.Children.FirstOrDefault() is SledgeSolid sol)
+				bounds = CalculateSolidBounds(sol, baseTransform);
+
+			it.Position = bounds.Center;
+			bounds.Min -= it.Position;
+			bounds.Max -= it.Position;
+			it.LocalBounds = bounds;
+		}
+			
+		world.Add(it);
 	}
 
 	private SledgeEntity? FindTargetEntity(SledgeMapObject obj, string targetName)
@@ -540,19 +580,25 @@ public class Map
 
 			// add collider vertices
 			var vertexIndex = colliderVertices.Count;
+			var last = Vec3.Zero;
 			for (int i = 0; i < face.Vertices.Count; i++)
-				colliderVertices.Add(Vec3.Transform(face.Vertices[i], transform));
-
-			// add collider face
-			var plane = Plane.Normalize(Plane.Transform(face.Plane, transform));
-			var colliderFace = new Solid.Face { Plane = plane };
-			for (int i = 0; i < face.Vertices.Count; i ++)
 			{
 				// skip collider vertices that are too close together ...
-				if (i == 0 || (colliderVertices[vertexIndex + i - 1] - colliderVertices[vertexIndex + i]).LengthSquared() > 1)
-					colliderFace.Indices.Add(vertexIndex + i);
+				var it = Vec3.Transform(face.Vertices[i], transform);
+				if (i == 0 || (last - it).LengthSquared() > 1)
+					colliderVertices.Add(last = it);
 			}
-			colliderFaces.Add(colliderFace);
+
+			// add collider face
+			if (colliderVertices.Count > vertexIndex)
+			{
+				colliderFaces.Add(new ()
+				{
+					Plane = Plane.Normalize(Plane.Transform(face.Plane, transform)),
+					VertexStart = vertexIndex,
+					VertexCount = colliderVertices.Count - vertexIndex
+				});
+			}
 		}
 
 		// set up values

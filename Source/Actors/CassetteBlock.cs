@@ -10,7 +10,7 @@ public class CassetteBlock : Solid, IListenToAudioCallback
 		SetOn(startOn);
 	}
 
-	public void SetOn(bool enabled)
+	public virtual void SetOn(bool enabled)
 	{
 		Collidable = enabled;
 		Model.Flags = enabled ? ModelFlags.Terrain : ModelFlags.Transparent;
@@ -19,7 +19,7 @@ public class CassetteBlock : Solid, IListenToAudioCallback
 			mat.Color = enabled ? Color.White : Color.White * 0.30f;
 	}
 
-	public void AudioCallbackEvent(int index)
+	public virtual void AudioCallbackEvent(int index)
 	{
 		if (index % 2 == 0)
 			SetOn(!Collidable);

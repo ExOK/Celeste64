@@ -20,8 +20,9 @@
 @PointClass size(-16 -16 0, 16 16 16) model({ "path": model }) = StaticProp : "Static Prop" 
 [
     model(String) : "Model file path" : : "Set this to a 3D model file."
-	radius(integer) : "Radius" : 6 : "Pushout Radius"
-	height(integer) : "Height" : 12 : "Pushout Height"
+    radius(integer) : "Radius" : 6 : "Pushout Radius"
+    height(integer) : "Height" : 12 : "Pushout Height"
+    angle(integer) : "Prop Rotation"
 ]
 
 @PointClass size(-16 -16 0, 16 16 32) = PlayerSpawn : "Player start position" 
@@ -51,7 +52,7 @@
 @PointClass model({ "path": "Models/sign.glb", "scale": 12 }) = SignPost : "Says some stuff" 
 [
     dialog(string) : "Dialog Entry"
-	angle(integer) : "Sign Rotation"
+    angle(integer) : "Sign Rotation"
 ]
 
 @PointClass size(-8 -8 -8, 8 8 8) = Node : "Moving entity path node"
@@ -91,27 +92,30 @@
 @SolidClass = TrafficBlock : "Moves to the node when the player is riding it"
 [
     target(string) : "Target Node"
+    climbable(string)  : "Is this climbable"
 ]
 
 @SolidClass = FallingBlock : "Falls when player rides it"
 [
-   
+    climbable(string)  : "Is this climbable"
 ]
 
 @SolidClass = FloatyBlock : "Moves when player lands on it"
 [
-   
+   climbable(string)  : "Is this climbable"
 ]
 
 @SolidClass = GateBlock : "Opens when the player gets all the switches"
 [
    target(string) : "Target Node"
+   climbable(string)  : "Is this climbable"
 ]
 
 @SolidClass = MovingBlock : "Moves back and forth constantly"
 [
    target(string) : "Target Node"
    slow(integer) : "Go Slower"
+   climbable(string)  : "Is this climbable"
 ]
 
 @SolidClass = DoubleDashPuzzleBlock : "Stand on with 2 dashes to solve puzzle"
@@ -130,11 +134,18 @@
 [
 	bounces(integer) : "Bounces" : : "If this block Bounces the player when broken"
 	transparent(integer) : "Transparent" : : "Has transparent elements"
+	climbable(string)  : "Is this climbable"
 ]
 
 @SolidClass = CassetteBlock : "Toggles to the Music"
 [
 	startOn(integer) : "Start On" : : "If this block should start toggled on"
+	climbable(string)  : "Is this climbable"
+]
+
+@SolidClass = NonClimbableBlock : "Used for blocks that should never be climbable"
+[
+
 ]
 
 @SolidClass = EndingArea : "Where the game ends"
@@ -155,5 +166,7 @@
 @PointClass model({ "path": model, "scale": scale} ) = SolidMesh : "Solid Mesh" 
 [
     model(String) : "Model file path" : : "Set this to a 3D model file."
-	scale(float) : "Scale"
+    scale(float) : "Scale"
+    angle(integer) : "Object Rotation"
+    climbable(string)  : "Is this climbable"
 ]

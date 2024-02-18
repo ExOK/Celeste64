@@ -112,8 +112,10 @@ public static class Controls
 		// texture based on that! no time tho
 		if (button == Confirm)
 			return GetPromptLocation("confirm");
-		else
+		else if (button == Cancel)
 			return GetPromptLocation("cancel");
+		else
+			return GetPromptLocation("pause");
 	}
 
 	public static Subtexture GetPrompt(VirtualButton button)
