@@ -33,4 +33,10 @@ public class Granny : NPC
 	{ 
 		InteractEnabled = Loc.HasLines($"Granny{Save.CurrentRecord.GetFlag(TALK_FLAG) + 1}");
 	}
+
+	public override void Update()
+	{
+		base.Update();
+		RotationXYZ += new Vec3(0, 0,0);
+	}
 }

@@ -6,6 +6,7 @@ using SledgeEntity = Sledge.Formats.Map.Objects.Entity;
 using SledgeFace = Sledge.Formats.Map.Objects.Face;
 using SledgeMap = Sledge.Formats.Map.Objects.MapFile;
 using System.Runtime.CompilerServices;
+using System.Globalization;
 
 namespace Celeste64;
 
@@ -345,11 +346,35 @@ public class Map
 		    groupNames.TryGetValue(entity.GetIntProperty("_tb_group", -1), out var groupName))
 			it.GroupName = groupName;
 
-		if (entity.Properties.ContainsKey("angle"))
-			it.Facing = new(Calc.AngleToVector(entity.GetIntProperty("angle", 0) * Calc.DegToRad - MathF.PI / 2), it.Facing.Z);
 
-		if (entity.Properties.ContainsKey("tilt"))
-			it.Facing = new(it.Facing.XY(), entity.GetIntProperty("tilt", 0) * Calc.DegToRad);
+		// Fuji Custom - Allows for rotation in maps using either a vec3 rotation property
+		// Or 3 different Angle properties. This is to support compatibility with existing vanilla actors who only use 1 angle property 
+		Vec3 rotationXYZ = new(0, 0, -MathF.PI / 2);
+		if (entity.Properties.ContainsKey("rotation") && entity.Properties["rotation"].Split(' ').Length == 3)
+		{
+			var value = entity.Properties["rotation"];
+			var spl = value.Split(' ');
+			if (spl.Length == 3)
+			{
+				if (float.TryParse(spl[0], NumberStyles.Float, CultureInfo.InvariantCulture, out var x))
+					rotationXYZ.X = x * Calc.DegToRad;
+				if (float.TryParse(spl[1], NumberStyles.Float, CultureInfo.InvariantCulture, out var y))
+					rotationXYZ.Y = y * Calc.DegToRad;
+				if (float.TryParse(spl[2], NumberStyles.Float, CultureInfo.InvariantCulture, out var z))
+					rotationXYZ.Z = z * Calc.DegToRad - MathF.PI / 2;
+			}
+		}
+		else
+		{
+			if (entity.Properties.ContainsKey("anglepitch"))
+				rotationXYZ.X = entity.GetIntProperty("anglepitch", 0) * Calc.DegToRad;
+			if (entity.Properties.ContainsKey("angleroll"))
+				rotationXYZ.Y = entity.GetIntProperty("angleroll", 0) * Calc.DegToRad;
+			if (entity.Properties.ContainsKey("angle"))
+				rotationXYZ.Z = entity.GetIntProperty("angle", 0) * Calc.DegToRad - MathF.PI / 2;
+		}
+		it.RotationXYZ = rotationXYZ;
+
 
 		if (factory?.UseSolidsAsBounds ?? false)
 		{
