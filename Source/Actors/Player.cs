@@ -419,7 +419,7 @@ public class Player : Actor, IHaveModels, IHaveSprites, IRidePlatforms, ICastPoi
 
 	protected virtual void HandleStateChange(States? state)
 	{
-		ModManager.OnPlayerStateChanged(this, state);
+		ModManager.Instance.OnPlayerStateChanged(this, state);
 	}
 
 	public StatusEffect AddStatusEffect<T>(bool RemoveAfterDuration = false, float DurationOverride = 10) where T : StatusEffect, new()
@@ -631,7 +631,7 @@ public class Player : Actor, IHaveModels, IHaveSprites, IRidePlatforms, ICastPoi
 					if ((SolidWaistTestPos - actor.Position).LengthSquared() < pickup.PickupRadius * pickup.PickupRadius)
 					{
 						pickup.Pickup(this);
-						ModManager.OnItemPickup(this, pickup);
+						ModManager.Instance.OnItemPickup(this, pickup);
 					}
 				}
 			}
@@ -674,7 +674,7 @@ public class Player : Actor, IHaveModels, IHaveSprites, IRidePlatforms, ICastPoi
 				float t = Calc.ClampedMap(PreviousVelocity.Z, 0, MaxFall);
 				ModelScale = Vec3.Lerp(Vec3.One, new(1.4f, 1.4f, .6f), t);
 				StateMachine.CallEvent(Events.Land);
-				ModManager.OnPlayerLanded(this);
+				ModManager.Instance.OnPlayerLanded(this);
 
 				if (!Game.Instance.IsMidTransition && !InBubble)
 				{
@@ -1032,7 +1032,7 @@ public class Player : Actor, IHaveModels, IHaveSprites, IRidePlatforms, ICastPoi
 
 		ModelScale = new(.6f, .6f, 1.4f);
 		Audio.Play(Sfx.sfx_jump, Position);
-		ModManager.OnPlayerJumped(this, JumpType.Jumped);
+		ModManager.Instance.OnPlayerJumped(this, JumpType.Jumped);
 	}
 
 	public virtual void WallJump()
@@ -1049,7 +1049,7 @@ public class Player : Actor, IHaveModels, IHaveSprites, IRidePlatforms, ICastPoi
 
 		ModelScale = new(.6f, .6f, 1.4f);
 		Audio.Play(Sfx.sfx_jump_wall, Position);
-		ModManager.OnPlayerJumped(this, JumpType.WallJumped);
+		ModManager.Instance.OnPlayerJumped(this, JumpType.WallJumped);
 	}
 
 	public virtual void SkidJump()
@@ -1074,7 +1074,7 @@ public class Player : Actor, IHaveModels, IHaveSprites, IRidePlatforms, ICastPoi
 		ModelScale = new(.6f, .6f, 1.4f);
 		Audio.Play(Sfx.sfx_jump, Position);
 		Audio.Play(Sfx.sfx_jump_skid, Position);
-		ModManager.OnPlayerJumped(this, JumpType.SkidJumped);
+		ModManager.Instance.OnPlayerJumped(this, JumpType.SkidJumped);
 	}
 
 	public virtual void DashJump()
@@ -1104,7 +1104,7 @@ public class Player : Actor, IHaveModels, IHaveSprites, IRidePlatforms, ICastPoi
 		ModelScale = new(.6f, .6f, 1.4f);
 		Audio.Play(Sfx.sfx_jump, Position);
 		Audio.Play(Sfx.sfx_jump_superslide, Position);
-		ModManager.OnPlayerJumped(this, JumpType.DashJumped);
+		ModManager.Instance.OnPlayerJumped(this, JumpType.DashJumped);
 	}
 
 	public virtual void AddPlatformVelocity(bool playSound)
@@ -1133,7 +1133,7 @@ public class Player : Actor, IHaveModels, IHaveSprites, IRidePlatforms, ICastPoi
 		StoredCameraDistance = CameraTargetDistance;
 		Save.CurrentRecord.Deaths++;
 		Dead = true;
-		ModManager.OnPlayerKill(this);
+		ModManager.Instance.OnPlayerKill(this);
 		foreach (var statusEffect in statusEffects.ToList())
 		{
 			statusEffect.Update(Time.Delta);

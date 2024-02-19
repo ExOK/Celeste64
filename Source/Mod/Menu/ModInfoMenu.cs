@@ -26,7 +26,7 @@ public class ModInfoMenu : Menu
 		Add(new Toggle(Loc.Str("PauseModEnabled"),
 			() => {
 				//If we are trying to disable the current mod, don't
-				if (Mod != null && Mod != ModManager.CurrentLevelMod)
+				if (Mod != null && Mod != ModManager.Instance.CurrentLevelMod)
 				{
 					Save.Instance.GetOrMakeMod(Mod.ModInfo.Id).Enabled = !Save.Instance.GetOrMakeMod(Mod.ModInfo.Id).Enabled;
 

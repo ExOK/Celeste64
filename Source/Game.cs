@@ -2,7 +2,6 @@
 using System.Text;
 using Celeste64.Mod;
 using Celeste64.Mod.Patches;
-using Celeste64.Mod;
 
 namespace Celeste64;
 
@@ -81,6 +80,7 @@ public class Game : Module
 	{
 		// If this isn't stored, the delegate will get GC'd and everything will crash :)
 		audioEventCallback = MusicTimelineCallback;
+		imGuiManager = new ImGuiManager();
 	}
 
 	public override void Startup()
@@ -95,10 +95,8 @@ public class Game : Module
 		App.Title = GameTitle;
 		Audio.Init();
         
-        imGuiManager = new ImGuiManager();
-
 		scenes.Push(new Startup());
-		ModManager.OnGameLoaded(this);
+		ModManager.Instance.OnGameLoaded(this);
 	}
 
 	public override void Shutdown()
@@ -224,7 +222,7 @@ public class Game : Module
 			if (scenes.TryPeek(out var nextScene))
 			{
 				nextScene.Entered();
-				ModManager.OnSceneEntered(nextScene);
+				ModManager.Instance.OnSceneEntered(nextScene);
 				nextScene.Update();
 			}
 
@@ -324,7 +322,7 @@ public class Game : Module
 				ReloadAssets();
 			}
 		}
-		ModManager.Update(Time.Delta);
+		ModManager.Instance.Update(Time.Delta);
 	}
 
 	internal void ReloadAssets()

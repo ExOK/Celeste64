@@ -15,7 +15,7 @@ public class ImGuiManager
     public static bool WantCaptureMouse { get; private set; }
     
     private readonly ImGuiRenderer renderer;
-    private static IEnumerable<ImGuiHandler> Handlers => ModManager.EnabledMods.SelectMany(mod => mod.ImGuiHandlers);
+    private static IEnumerable<ImGuiHandler> Handlers => ModManager.Instance.EnabledMods.SelectMany(mod => mod.ImGuiHandlers);
 
     internal ImGuiManager()
     {

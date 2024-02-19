@@ -287,7 +287,7 @@ public class Map
 		LoadStrawberryCounter = 0;
 		LoadWorld = null;
 
-		ModManager.OnMapLoaded(this);
+		ModManager.Instance.OnMapLoaded(this);
 	}
 
 	private void LoadActor(World world, SledgeEntity entity)
