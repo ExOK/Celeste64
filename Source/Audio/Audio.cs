@@ -75,8 +75,6 @@ public static class Audio
 			(name, assembly, dllImportSearchPath) =>
 			{
 				name = Path.GetFileNameWithoutExtension(name);
-				
-				//Log.Info($"Loading FMOD from {name} @ {path}");
 
 				if (OperatingSystem.IsWindows())
 					name = $"{name}.dll";
