@@ -268,7 +268,7 @@ public class Save
 
 	public SkinInfo GetSkin()
 	{ 
-		return Assets.EnabledSkins.FirstOrDefault(s => s.Name == SkinName, Assets.Skins.First());
+		return Assets.EnabledSkins.First(s => s.Name == SkinName);
 	}
 
 	public void SyncSettings()

@@ -8,27 +8,24 @@ namespace Celeste64;
 /// </summary>
 public class SkinInfo
 {
-	public string Name { get; set; } = "";
-	public string Model { get; set; } = "";
-	public bool HideHair { get; set; } = false;
-	public string CollectableId { get; set; } = "";
-	public int HairNormal { get; set; } = 0;
-	public int HairNoDash { get; set; } = 0;
-	public int HairTwoDash { get; set; } = 0;
-	public int HairRefillFlash { get; set; } = 0;
-	public int HairFeather { get; set; } = 0;
-
-	[JsonIgnore]
-	public string ModId = "";
+	public virtual string Name { get; set; } = "";
+	public virtual string Model { get; set; } = "";
+	public virtual bool HideHair { get; set; } = false;
+	public virtual string CollectableId { get; set; } = "";
+	public virtual int HairNormal { get; set; } = 0;
+	public virtual int HairNoDash { get; set; } = 0;
+	public virtual int HairTwoDash { get; set; } = 0;
+	public virtual int HairRefillFlash { get; set; } = 0;
+	public virtual int HairFeather { get; set; } = 0;
 
 	public bool IsValid()
 	{
 		return !string.IsNullOrEmpty(Name) && !string.IsNullOrEmpty(Model);
 	}
 
-	public bool IsEnabled()
+	public virtual bool IsUnlocked()
 	{
-		return Save.Instance.GetOrMakeMod(ModId).Enabled;
+		return true;
 	}
 }
 

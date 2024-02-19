@@ -81,9 +81,14 @@ public static class Assets
 	public static readonly ModAssetDictionary<FMOD.Sound> Music = new(gameMod => gameMod.Music);
 	public static readonly Dictionary<string, Language> Languages = new(StringComparer.OrdinalIgnoreCase);
 
-	public static List<SkinInfo> Skins { get; private set; } = [];
-
-	public static List<SkinInfo> EnabledSkins { get { return Skins.Where(skin => skin.IsEnabled()).ToList(); } }
+	public static List<SkinInfo> EnabledSkins { 
+		get { 
+			return ModManager.Instance.EnabledMods
+				.SelectMany(mod => mod.Skins)
+				.Where(skin => skin.IsUnlocked())
+				.ToList();
+		}
+	}
 
 	public static List<LevelInfo> Levels { get; private set; } = [];
 
@@ -342,25 +347,29 @@ public static class Assets
 		}
 
 		// Load Skins
-		Skins = [
-			new SkinInfo{
-				Name = "Madeline",
-				Model = "player",
-				HideHair = false,
-				HairNormal = 0xdb2c00,
-				HairNoDash = 0x6ec0ff,
-				HairTwoDash = 0xfa91ff,
-				HairRefillFlash = 0xffffff,
-				HairFeather = 0xf2d450
-			}
-		];
+		if (ModManager.Instance.VanillaGameMod != null)
+		{
+			ModManager.Instance.VanillaGameMod.Skins.Add(
+				new SkinInfo
+				{
+					Name = "Madeline",
+					Model = "player",
+					HideHair = false,
+					HairNormal = 0xdb2c00,
+					HairNoDash = 0x6ec0ff,
+					HairTwoDash = 0xfa91ff,
+					HairRefillFlash = 0xffffff,
+					HairFeather = 0xf2d450
+				}
+			);
+		}
+
 		foreach (var (file, mod) in globalFs.FindFilesInDirectoryRecursiveWithMod(SkinsFolder, SkinsExtension))
 		{
 			if (mod.Filesystem != null && mod.Filesystem.TryOpenFile(file,
 				    stream => JsonSerializer.Deserialize(stream, SkinInfoContext.Default.SkinInfo), out var skin) && skin.IsValid())
 			{
-				skin.ModId = mod.ModInfo.Id;
-				Skins.Add(skin);
+				mod.Skins.Add(skin);
 			}
 			else
 			{

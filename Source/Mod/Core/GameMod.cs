@@ -47,7 +47,12 @@ public abstract class GameMod
 	/// List of currently used <see cref="ImGuiHandler"/>s by this mod.
 	/// </summary>
 	public List<ImGuiHandler> ImGuiHandlers = [];
-	
+
+	/// <summary>
+	/// List of skins added by this mod.
+	/// </summary>
+	public readonly List<SkinInfo> Skins = [];
+
 	#region Save Functions
 	// These functions allow modders to save data and get save data from the save file.
 	// These are done as wrapper functions mostly to make it harder to accidentally mess up the save data in an unexpected way
