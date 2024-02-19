@@ -50,8 +50,19 @@ public static class ModLoader
 			var modName = Path.GetFileNameWithoutExtension(modDir)!; // Todo: read from some metadata file
 			var fs = new FolderModFilesystem(modDir);
 
-			modInfos.Add((LoadModInfo(modName, fs), fs));
-			Log.Info($"Loaded mod from directory: {modName}");
+			ModInfo? info = LoadModInfo(modName, fs);
+			if(info != null)
+			{
+				if(info.Id == "Celeste64Vanilla" || modInfos.Any(data => data.Item1.Id == info.Id))
+				{
+					Log.Error($"Fuji Error: Could not load mod from directory: {modName}, because a mod with that id already exists");
+				}
+				else
+				{
+					modInfos.Add((info, fs));
+					Log.Info($"Loaded mod from directory: {modName}");
+				}
+			}
 		}
 
 		// Find all mods in zips:
@@ -60,8 +71,19 @@ public static class ModLoader
 			var modName = Path.GetFileNameWithoutExtension(modZip)!; // Todo: read from some metadata file
 			var fs = new ZipModFilesystem(modZip);
 
-			modInfos.Add((LoadModInfo(modName, fs), fs));
-			Log.Info($"Loaded mod from zip: {modName}");
+			ModInfo? info = LoadModInfo(modName, fs);
+			if (info != null)
+			{
+				if (info.Id == "Celeste64Vanilla" || modInfos.Any(data => data.Item1.Id == info.Id))
+				{
+					Log.Error($"Fuji Error: Could not load mod from zip: {modName}, because a mod with that id already exists");
+				}
+				else
+				{
+					modInfos.Add((info, fs));
+					Log.Info($"Loaded mod from zip: {modName}");
+				}
+			}
 		}
 
 		ModManager.Instance.Unload();
@@ -132,12 +154,18 @@ public static class ModLoader
 		ModManager.Instance.InitializeFilesystemBackgroundCleanup();
 	}
 
-	private static ModInfo LoadModInfo(string modFolder, IModFilesystem fs)
+	private static ModInfo? LoadModInfo(string modFolder, IModFilesystem fs)
 	{
 		if (!fs.TryOpenFile(Assets.FujiJSON, stream => JsonSerializer.Deserialize(stream, ModInfoContext.Default.ModInfo), out var info))
-			throw new Exception($"Fuji Exception: Tried to load mod {modFolder} but could not find a valid {Assets.FujiJSON} file");
-		if (!info.IsValid())
-			throw new Exception($"Fuji Exception: Invalid Fuji.json file for {modFolder}/{Assets.FujiJSON}");
+		{
+			Log.Error($"Fuji Error: Tried to load mod from {modFolder} but could not find a {Assets.FujiJSON} file");
+			return null;
+		}
+		if (info != null && !info.IsValid())
+		{
+			Log.Error($"Fuji Error: Invalid Fuji.json file for {Assets.FujiJSON} in {modFolder}");
+			return null;
+		}
 
 		return info;
 	}
