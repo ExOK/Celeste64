@@ -5,7 +5,8 @@ public class Actor
 {
 	protected World? world = null;
 	protected Vec3 position;
-	protected Vec3 facing = -Vec3.UnitY;
+	protected Vec2 facing = -Vec2.UnitY;
+	protected Vec2 tilt = Vec2.Zero; 
 	protected Vec3 forward;
 	protected Matrix matrix;
 	protected BoundingBox localBounds;
@@ -64,7 +65,7 @@ public class Actor
 		}
 	}
 
-	public virtual Vec3 Facing
+	public virtual Vec2 Facing
 	{
 		get => facing;
 		set
@@ -72,6 +73,34 @@ public class Actor
 			if (facing != value)
 			{
 				facing = value;
+				dirty = true;
+			}
+		}
+	}
+
+	public virtual Vec3 RotationXYZ
+	{
+		get => new Vec3(tilt.X, tilt.Y, facing.Angle());
+		set
+		{
+			if(RotationXYZ != value)
+			{
+				tilt.X = value.X;
+				tilt.Y = value.Y;
+				facing = Calc.AngleToVector(value.Z);
+				dirty = true;
+			}
+		}
+	}
+
+	public virtual Vec2 Tilt
+	{
+		get => tilt;
+		set
+		{
+			if (tilt != value)
+			{
+				tilt = value;
 				dirty = true;
 			}
 		}
@@ -118,8 +147,9 @@ public class Actor
 		dirty = false;
 
 		matrix =
-			Matrix.CreateRotationZ(facing.XY().Angle() + MathF.PI / 2) *
-			Matrix.CreateRotationY(Facing.Z) *
+			Matrix.CreateRotationY(tilt.Y) *
+			Matrix.CreateRotationX(tilt.X) *
+			Matrix.CreateRotationZ(facing.Angle() + MathF.PI/2) *
 			Matrix.CreateTranslation(position);
 		worldBounds = BoundingBox.Transform(localBounds, matrix);
 		forward = Vec3.TransformNormal(-Vec3.UnitY, matrix);

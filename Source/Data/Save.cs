@@ -115,11 +115,6 @@ public class Save
 	public int SfxVolume { get; set; } = 10;
 
 	/// <summary>
-	/// SkinName
-	/// </summary>
-	public string SkinName { get; set; } = "Madeline";
-
-	/// <summary>
 	/// Invert the camera in given directions
 	/// </summary>
 	public InvertCameraOptions InvertCamera { get; set; } = InvertCameraOptions.None;
@@ -135,7 +130,17 @@ public class Save
 	public List<LevelRecord> Records { get; set; } = [];
 
 	/// <summary>
-	/// Records for each level
+	/// Fuji Custom - Currently equipped skin name
+	/// </summary>
+	public string SkinName { get; set; } = "Madeline";
+
+	/// <summary>
+	/// Fuji Custom - Whether we should write to the log file or not.
+	/// </summary>
+	public bool WriteLog { get; set; } = true;
+
+	/// <summary>
+	/// Fuji Custom - Records for each mod
 	/// </summary>
 	public List<ModRecord> ModRecords { get; set; } = [];
 
@@ -223,6 +228,11 @@ public class Save
 		SyncSettings();
 	}
 
+	public void ToggleWriteLog()
+	{
+		WriteLog = !WriteLog;
+	}
+
 	public void ToggleZGuide()
 	{
 		ZGuide = !ZGuide;
@@ -266,6 +276,9 @@ public class Save
 		App.Fullscreen = Fullscreen;
 		Audio.SetVCAVolume("vca:/music", Calc.Clamp(MusicVolume / 10.0f, 0, 1));
 		Audio.SetVCAVolume("vca:/sfx", Calc.Clamp(SfxVolume / 10.0f, 0, 1));
+
+		Audio.MusicGroup.setVolume(Calc.Clamp(MusicVolume / 10.0f, 0, 1));
+		Audio.SoundEffectGroup.setVolume(Calc.Clamp(SfxVolume / 10.0f, 0, 1));
 	}
 
 	public void SaveToFile()

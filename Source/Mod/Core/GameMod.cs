@@ -1,4 +1,5 @@
-﻿using MonoMod.RuntimeDetour;
+﻿using Celeste64.Mod;
+using MonoMod.RuntimeDetour;
 
 namespace Celeste64.Mod;
 
@@ -18,6 +19,8 @@ public abstract class GameMod
 	internal readonly Dictionary<string, Subtexture> Subtextures = new(StringComparer.OrdinalIgnoreCase);
 	internal readonly Dictionary<string, SkinnedTemplate> Models = new(StringComparer.OrdinalIgnoreCase);
 	internal readonly Dictionary<string, Font> Fonts = new(StringComparer.OrdinalIgnoreCase);
+	internal readonly Dictionary<string, FMOD.Sound> Sounds = new(StringComparer.OrdinalIgnoreCase);
+	internal readonly Dictionary<string, FMOD.Sound> Music = new(StringComparer.OrdinalIgnoreCase);
 	internal readonly Dictionary<string, Dictionary<string, string>> Strings = new(StringComparer.OrdinalIgnoreCase);
 	internal readonly Dictionary<string, Dictionary<string, List<Language.Line>>> DialogLines = new(StringComparer.OrdinalIgnoreCase);
 	internal readonly List<LevelInfo> Levels = new();
@@ -40,6 +43,11 @@ public abstract class GameMod
 	// Common Metadata about this mod.
 	public bool Enabled { get { return this is VanillaGameMod || ModSaveData.Enabled; } }
 
+	/// <summary>
+	/// List of currently used <see cref="ImGuiHandler"/>s by this mod.
+	/// </summary>
+	public List<ImGuiHandler> ImGuiHandlers = [];
+	
 	#region Save Functions
 	// These functions allow modders to save data and get save data from the save file.
 	// These are done as wrapper functions mostly to make it harder to accidentally mess up the save data in an unexpected way
