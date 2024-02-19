@@ -7,7 +7,8 @@ using Mono.Cecil;
 namespace Celeste64.Mod;
 
 /// <summary>
-/// A mod's assembly context, which handles resolving/loading mod assemblies
+/// A mod's assembly context, which handles resolving/loading mod assemblies.
+/// Heavily inspired by Everest: https://github.com/EverestAPI/Everest/blob/dev/Celeste.Mod.mm/Mod/Module/EverestModuleAssemblyContext.cs
 /// </summary>
 internal sealed class ModAssemblyLoadContext : AssemblyLoadContext
 {
