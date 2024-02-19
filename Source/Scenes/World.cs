@@ -317,6 +317,14 @@ public class World : Scene
 		}
 	}
 
+	public override void Entered()
+	{
+		if(Get<Player>() is Player player)
+		{
+			player.SetSkin(Save.Instance.GetSkin());
+		}
+	}
+
 	public override void Update()
 	{
 		debugUpdTimer.Restart();
