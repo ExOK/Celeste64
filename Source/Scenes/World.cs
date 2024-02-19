@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using ModelEntry = (Celeste64.Actor Actor, Celeste64.Model Model);
+using Celeste64.Mod;
 
 namespace Celeste64;
 

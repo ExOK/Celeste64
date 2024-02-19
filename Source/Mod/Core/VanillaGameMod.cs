@@ -1,6 +1,6 @@
-﻿namespace Celeste64;
+﻿namespace Celeste64.Mod;
 
 /// <summary>
 /// A dummy GameMod, used for registering vanilla assets
 /// </summary>
-public sealed class VanillaGameMod : GameMod;
+internal sealed class VanillaGameMod : GameMod;

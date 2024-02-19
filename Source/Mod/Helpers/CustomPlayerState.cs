@@ -1,4 +1,4 @@
-﻿namespace Celeste64;
+﻿namespace Celeste64.Mod;
 
 /// <summary>
 /// Defines a custom player state. Treated as a singleton.

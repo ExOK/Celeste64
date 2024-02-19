@@ -3,7 +3,8 @@ using System.Collections;
 using System.Diagnostics.CodeAnalysis;
 using Path = System.IO.Path;
 
-namespace Celeste64;
+namespace Celeste64.Mod;
+
 public class ModAssetDictionary<V> : IEnumerable<KeyValuePair<string, V>>
 {
 	public delegate Dictionary<string, V> GetDictionary(GameMod mod);
@@ -171,7 +172,7 @@ public class ModAssetDictionary<V> : IEnumerable<KeyValuePair<string, V>>
 	/// </summary>
 	private bool TryGetAssetReplaceForKeyInMod(string key, GameMod? mod, [MaybeNullWhen(false)] out V asset)
 	{
-		if (mod != null && mod.ModInfo != null && mod.ModInfo.AssetReplaceItems != null
+		if (mod != null && mod.ModInfo != null
 			&& mod.ModInfo.AssetReplaceItems.TryGetValue(key, out string? modKey)
 			&& modKey != null
 		)

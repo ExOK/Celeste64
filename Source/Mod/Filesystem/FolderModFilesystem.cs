@@ -1,7 +1,7 @@
 ﻿using System.Collections.Concurrent;
 using System.Diagnostics.CodeAnalysis;
 
-namespace Celeste64;
+namespace Celeste64.Mod;
 
 public sealed class FolderModFilesystem : IModFilesystem {
     public event Action<ModFileChangedCtx>? OnFileChanged;
@@ -55,26 +55,23 @@ public sealed class FolderModFilesystem : IModFilesystem {
         return exists;
     }
 
-    public Stream? OpenFile(string path) {
+    public Stream OpenFile(string path) {
         var realPath = VirtToRealPath(path);
-        
-        try
-        {
-            return File.OpenRead(realPath);
-        }
-        catch (Exception)
-        {
-            return null;
-        }
+        return File.OpenRead(realPath);
     }
 
     public bool TryOpenFile<T>(string path, Func<Stream, T> callback, [NotNullWhen(true)] out T? value) {
         ArgumentNullException.ThrowIfNull(callback);
 
-        using var stream = OpenFile(path);
-        if (stream is { }) {
-            value = callback(stream)!;
-            return true;
+        try
+        {
+	        using var stream = OpenFile(path);
+	        value = callback(stream)!;
+	        return true;
+        }
+        catch (Exception)
+        {
+	        // ignored
         }
 
         value = default;

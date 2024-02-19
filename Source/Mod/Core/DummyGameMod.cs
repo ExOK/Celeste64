@@ -1,6 +1,6 @@
-﻿namespace Celeste64;
+﻿namespace Celeste64.Mod;
 
 /// <summary>
 /// A dummy GameMod, used for mods which do not ship their own DLL file.
 /// </summary>
-public sealed class DummyGameMod : GameMod;
+internal sealed class DummyGameMod : GameMod;

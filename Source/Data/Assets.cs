@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.Text;
 using System.Text.Json;
+using Celeste64.Mod;
 
 namespace Celeste64;
 
@@ -9,6 +10,44 @@ public static class Assets
 {
 	public const float FontSize = Game.RelativeScale * 16;
 	public const string AssetFolder = "Content";
+	
+	public const string MapsFolder = "Maps";
+	public const string MapsExtension = "map";
+	
+	public const string TexturesFolder = "Textures";
+	public const string TexturesExtension = "png";
+	
+	public const string FacesFolder = "Faces";
+	public const string FacesExtension = "png";
+	
+	public const string ModelsFolder = "Models";
+	public const string ModelsExtension = "glb";
+
+	public const string TextFolder = "Text";
+	public const string TextExtension = "json";
+	
+	public const string AudioFolder = "Audio";
+	public const string AudioExtension = "bank";
+
+	public const string ShadersFolder = "Shaders";
+	public const string ShadersExtension = "glsl";
+	
+	public const string FontsFolder = "Fonts";
+	public const string FontsExtensionTTF = "ttf";
+	public const string FontsExtensionOTF = "otf";
+	
+	public const string SpritesFolder = "Sprites";
+	public const string SpritesExtension = "png";
+	
+	public const string SkinsFolder = "Skins";
+	public const string SkinsExtension = "json";
+	
+	public const string LibrariesFolder = "Libraries";
+	public const string LibrariesExtensionAssembly = "dll";
+	public const string LibrariesExtensionSymbol = "pdb";
+	
+	public const string FujiJSON = "Fuji.json";
+	public const string LevelsJSON = "Levels.json";
 
 	private static string? contentPath = null;
 
@@ -78,16 +117,16 @@ public static class Assets
 		// NOTE: Make sure to update ModManager.OnModFileChanged() as well, for hot-reloading to work!
 		
 		var globalFs = ModManager.Instance.GlobalFilesystem;
-		foreach (var (file, mod) in globalFs.FindFilesInDirectoryRecursiveWithMod("Maps", "map"))
+		foreach (var (file, mod) in globalFs.FindFilesInDirectoryRecursiveWithMod(MapsFolder, MapsExtension))
 		{
 			// Skip the "autosave" folder
-			if (file.StartsWith("Maps/autosave", StringComparison.OrdinalIgnoreCase))
+			if (file.StartsWith($"{MapsFolder}/autosave", StringComparison.OrdinalIgnoreCase))
 				continue;
 
 			tasks.Add(Task.Run(() =>
 			{
 				if (mod.Filesystem != null && mod.Filesystem.TryOpenFile(file, 
-					    stream => new Map(GetResourceNameFromVirt(file, "Maps"), file, stream), out var map))
+					    stream => new Map(GetResourceNameFromVirt(file, MapsFolder), file, stream), out var map))
 				{
 					maps.Add((map, mod));
 				}
@@ -95,23 +134,23 @@ public static class Assets
 		}
 
 		// load texture pngs
-		foreach (var (file, mod) in globalFs.FindFilesInDirectoryRecursiveWithMod("Textures", "png"))
+		foreach (var (file, mod) in globalFs.FindFilesInDirectoryRecursiveWithMod(TexturesFolder, TexturesExtension))
 		{
 			tasks.Add(Task.Run(() =>
 			{
 				if (mod.Filesystem != null && mod.Filesystem.TryLoadImage(file, out var image))
 				{
-					images.Add((GetResourceNameFromVirt(file, "Textures"), image, mod));
+					images.Add((GetResourceNameFromVirt(file, TexturesFolder), image, mod));
 				}
 			}));
 		}
 
 		// load faces
-		foreach (var (file, mod) in globalFs.FindFilesInDirectoryRecursiveWithMod("Faces", "png"))
+		foreach (var (file, mod) in globalFs.FindFilesInDirectoryRecursiveWithMod(FacesFolder, FacesExtension))
 		{
 			tasks.Add(Task.Run(() =>
 			{
-				var name = $"faces/{GetResourceNameFromVirt(file, "Faces")}";
+				var name = $"faces/{GetResourceNameFromVirt(file, FacesFolder)}";
 				if (mod.Filesystem != null && mod.Filesystem.TryLoadImage(file, out var image))
 				{
 					images.Add((name, image, mod));
@@ -120,7 +159,7 @@ public static class Assets
 		}
 
 		// load glb models
-		foreach (var (file, mod) in globalFs.FindFilesInDirectoryRecursiveWithMod("Models", "glb"))
+		foreach (var (file, mod) in globalFs.FindFilesInDirectoryRecursiveWithMod(ModelsFolder, ModelsExtension))
 		{
 			tasks.Add(Task.Run(() =>
 			{
@@ -128,13 +167,13 @@ public static class Assets
 						out var input))
 				{
 					var model = new SkinnedTemplate(input);
-					models.Add((GetResourceNameFromVirt(file, "Models"), model, mod));
+					models.Add((GetResourceNameFromVirt(file, ModelsFolder), model, mod));
 				}
 			}));
 		}
 		
 		// load languages
-		foreach (var (file, mod) in globalFs.FindFilesInDirectoryRecursiveWithMod("Text", "json"))
+		foreach (var (file, mod) in globalFs.FindFilesInDirectoryRecursiveWithMod(TextFolder, TextExtension))
 		{
 			tasks.Add(Task.Run(() =>
 			{
@@ -147,17 +186,17 @@ public static class Assets
 		}
 
 		// load audio
-		var allBankFiles = globalFs.FindFilesInDirectoryRecursiveWithMod("Audio", "bank").ToList();
+		var allBankFiles = globalFs.FindFilesInDirectoryRecursiveWithMod(AudioFolder, AudioExtension).ToList();
 		// load strings first
 		foreach (var (file, mod) in allBankFiles)
 		{
-			if (mod.Filesystem != null && file.EndsWith(".strings.bank"))
+			if (mod.Filesystem != null && file.EndsWith($".strings.{AudioExtension}"))
 				mod.Filesystem.TryOpenFile(file, Audio.LoadBankFromStream);
 		}
 		// load banks second
 		foreach (var (file, mod) in allBankFiles)
 		{
-			if (mod.Filesystem != null && file.EndsWith(".bank") && !file.EndsWith(".strings.bank"))
+			if (mod.Filesystem != null && file.EndsWith($".{AudioExtension}") && !file.EndsWith($".strings.{AudioExtension}"))
 				mod.Filesystem.TryOpenFile(file, Audio.LoadBankFromStream);
 		}
 
@@ -195,7 +234,7 @@ public static class Assets
 		foreach (var mod in ModManager.Instance.Mods)
 		{
 			mod.Levels.Clear();
-			if (mod.Filesystem != null && mod.Filesystem.TryOpenFile("Levels.json", 
+			if (mod.Filesystem != null && mod.Filesystem.TryOpenFile(LevelsJSON, 
 				    stream => JsonSerializer.Deserialize(stream, LevelInfoListContext.Default.ListLevelInfo) ?? [], 
 				    out var levels))
 			{
@@ -215,22 +254,22 @@ public static class Assets
 		}
 
 		// load glsl shaders
-		foreach (var (file, mod) in globalFs.FindFilesInDirectoryRecursiveWithMod("Shaders", "glsl"))
+		foreach (var (file, mod) in globalFs.FindFilesInDirectoryRecursiveWithMod(ShadersFolder, ShadersExtension))
 		{
 			if (mod.Filesystem != null && mod.Filesystem.TryOpenFile(file, stream => LoadShader(file, stream), out var shader))
 			{
-				shader.Name = GetResourceNameFromVirt(file, "Shaders");
+				shader.Name = GetResourceNameFromVirt(file, ShadersFolder);
 				Shaders.Add(shader.Name, shader, mod);
 			}
 		}
 
 		// load font files
-		foreach (var (file, mod) in globalFs.FindFilesInDirectoryRecursiveWithMod("Fonts", ""))
+		foreach (var (file, mod) in globalFs.FindFilesInDirectoryRecursiveWithMod(FontsFolder, ""))
 		{
-			if (file.EndsWith(".ttf") || file.EndsWith(".otf"))
+			if (file.EndsWith($".{FontsExtensionTTF}") || file.EndsWith($".{FontsExtensionOTF}"))
 			{
 				if (mod.Filesystem != null && mod.Filesystem.TryOpenFile(file, stream => new Font(stream), out var font))
-					Fonts.Add(GetResourceNameFromVirt(file, "Fonts"), font, mod);
+					Fonts.Add(GetResourceNameFromVirt(file, FontsFolder), font, mod);
 			}
 		}
 
@@ -242,11 +281,11 @@ public static class Assets
 				CombineDuplicates = false,
 				Padding = 1
 			};
-			foreach (var (file, mod) in globalFs.FindFilesInDirectoryRecursiveWithMod("Sprites", "png"))
+			foreach (var (file, mod) in globalFs.FindFilesInDirectoryRecursiveWithMod(SpritesFolder, SpritesExtension))
 			{
 				if (mod.Filesystem != null && mod.Filesystem.TryOpenFile(file, stream => new Image(stream), out var img))
 				{
-					packer.Add($"{mod.ModInfo.Id}:{GetResourceNameFromVirt(file, "Sprites")}", img);
+					packer.Add($"{mod.ModInfo.Id}:{GetResourceNameFromVirt(file, SpritesFolder)}", img);
 				}
 			}
 
@@ -315,7 +354,7 @@ public static class Assets
 				HairFeather = 0xf2d450
 			}
 		];
-		foreach (var (file, mod) in globalFs.FindFilesInDirectoryRecursiveWithMod("Skins", "json"))
+		foreach (var (file, mod) in globalFs.FindFilesInDirectoryRecursiveWithMod(SkinsFolder, SkinsExtension))
 		{
 			if (mod.Filesystem != null && mod.Filesystem.TryOpenFile(file,
 				    stream => JsonSerializer.Deserialize(stream, SkinInfoContext.Default.SkinInfo), out var skin) && skin.IsValid())

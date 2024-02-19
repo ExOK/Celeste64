@@ -80,6 +80,7 @@ public class Game : Module
 	{
 		// If this isn't stored, the delegate will get GC'd and everything will crash :)
 		audioEventCallback = MusicTimelineCallback;
+		imGuiManager = new ImGuiManager();
 	}
 
 	public override void Startup()
@@ -94,8 +95,6 @@ public class Game : Module
 		App.Title = GameTitle;
 		Audio.Init();
         
-        imGuiManager = new ImGuiManager();
-
 		scenes.Push(new Startup());
 		ModManager.Instance.OnGameLoaded(this);
 	}

@@ -52,12 +52,10 @@ public static class Audio
 
 		// Initialize FMOD
 		Check(system.initialize(1024, studioFlags, flags, IntPtr.Zero));
-
 		Check(core.createChannelGroup("SoundEffects", out FMOD.ChannelGroup soundGroup));
 		SoundEffectGroup = soundGroup;
 		Check(core.createChannelGroup("Music", out FMOD.ChannelGroup musicGroup));
 		MusicGroup = musicGroup;
-
 		App.Register<Module>();
 	}
 

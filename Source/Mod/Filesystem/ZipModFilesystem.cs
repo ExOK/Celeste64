@@ -2,7 +2,7 @@
 using System.Diagnostics.CodeAnalysis;
 using System.IO.Compression;
 
-namespace Celeste64;
+namespace Celeste64.Mod;
 
 public sealed class ZipModFilesystem : IModFilesystem {
     public event Action<ModFileChangedCtx>? OnFileChanged;
@@ -60,6 +60,15 @@ public sealed class ZipModFilesystem : IModFilesystem {
     
     private ZipArchive OpenZipIfNeeded() {
         return currentZip ??= ZipFile.OpenRead(Root);
+    }
+    
+    public Stream OpenFile(string path)
+    {
+	    var zip = OpenZipIfNeeded();
+	    var entry = zip.GetEntry(path) ?? throw new FileNotFoundException($"Couldn't find zip entry for mod '{Mod?.ModInfo.Id}'", path);
+	    var stream = entry.Open();
+	    openedFiles.Add(stream);
+	    return stream;
     }
     
     private Stream? OpenFile(string path, ZipArchive zip) {

@@ -1,23 +1,13 @@
 ﻿using System.Collections.Frozen;
 
-namespace Celeste64;
+namespace Celeste64.Mod;
 
 public sealed class ModManager
 {
 	private ModManager() { }
 
 	private static ModManager? instance = null;
-	public static ModManager Instance
-	{
-		get
-		{
-			if (instance == null)
-			{
-				instance = new ModManager();
-			}
-			return instance;
-		}
-	}
+	public static ModManager Instance => instance ??= new ModManager();
 
 	public LayeredFilesystem GlobalFilesystem { get; } = new();
 		
@@ -75,13 +65,20 @@ public sealed class ModManager
 	{
 		Mods.Remove(mod);
 		GlobalFilesystem.Remove(mod);
-		mod.Filesystem?.Dispose();
-		if(mod.Filesystem != null)
-			mod.Filesystem.OnFileChanged -= OnModFileChanged;
+
+		if (mod.Filesystem is { } fs)
+		{
+			fs.OnFileChanged -= OnModFileChanged;
+			fs.Dispose();
+		}
+
+		mod.ModInfo.AssemblyContext?.Dispose(); 
+		
 		if (!mod.Enabled)
 		{
 			mod.OnModUnloaded();
 		}
+
 		mod.OnUnloadedCleanup?.Invoke();
 	}
 
@@ -94,19 +91,19 @@ public sealed class ModManager
 			
 			// Important assets taken from Assets.Load()
 			// TODO: Support non-toplevel mods?
-			if ((dir.StartsWith("Maps") && extension == ".map" && !dir.StartsWith("Maps/autosave")) || // Maps/**.map except Maps/autosave/** 
-			    (dir.StartsWith("Textures") && extension == ".png") || // Textures/**.png
-			    (dir.StartsWith("Faces") && extension == ".png") || // Faces/**.png
-			    (dir.StartsWith("Models") && extension == ".glb") || // Models/**.glb
-			    (dir.StartsWith("Text") && extension == ".json") || // Text/**.json
-			    (dir.StartsWith("Audio") && extension == ".bank") || // Audio/**.bank
-			    (dir.StartsWith("Shaders") && extension == ".glsl") || // Shaders/**.glsl
-			    (dir.StartsWith("Fonts") && extension is ".ttf" or ".otf") || // Fonts/**.ttf and Fonts/**.otf
-			    (dir.StartsWith("Sprites") && extension == ".png") || // Sprites/**.png
-			    (dir.StartsWith("Skins") && extension == ".json") || // Skins/**.json
-			    (dir.StartsWith("DLLs") && extension is ".dll") || // DLLs/**.dll
-			    filepath == "Levels.json" ||			    
-			    filepath == "Fuji.json")
+			if ((dir.StartsWith(Assets.MapsFolder) && extension == $".{Assets.MapsExtension}" && !dir.StartsWith($"{Assets.MapsFolder}/autosave")) || 
+			    (dir.StartsWith(Assets.TexturesFolder) && extension == $".{Assets.TexturesExtension}") ||
+			    (dir.StartsWith(Assets.FacesFolder) && extension == $".{Assets.FacesExtension}") ||
+			    (dir.StartsWith(Assets.ModelsFolder) && extension == $".{Assets.ModelsExtension}") ||
+			    (dir.StartsWith(Assets.TextFolder) && extension == $".{Assets.TextExtension}") ||
+			    (dir.StartsWith(Assets.AudioFolder) && extension == $".{Assets.AudioExtension}") ||
+			    (dir.StartsWith(Assets.ShadersFolder) && extension == $".{Assets.ShadersExtension}") ||
+			    (dir.StartsWith(Assets.FontsFolder) && extension is $".{Assets.FontsExtensionTTF}" or $".{Assets.FontsExtensionOTF}") ||
+			    (dir.StartsWith(Assets.SpritesFolder) && extension == $".{Assets.SpritesExtension}") ||
+			    (dir.StartsWith(Assets.SkinsFolder) && extension == $".{Assets.SkinsExtension}") ||
+			    (dir.StartsWith(Assets.LibrariesFolder) && extension == $".{Assets.LibrariesExtensionAssembly}") ||
+			    filepath == Assets.LevelsJSON ||			    
+			    filepath == Assets.FujiJSON)
 			{
 				Log.Info($"File Changed: {filepath} (From mod {ctx.Mod.ModInfo.Name}). Reloading assets.");
 			} 

@@ -6,6 +6,7 @@ using SledgeEntity = Sledge.Formats.Map.Objects.Entity;
 using SledgeFace = Sledge.Formats.Map.Objects.Face;
 using SledgeMap = Sledge.Formats.Map.Objects.MapFile;
 using System.Runtime.CompilerServices;
+using Celeste64.Mod;
 using System.Globalization;
 
 namespace Celeste64;
