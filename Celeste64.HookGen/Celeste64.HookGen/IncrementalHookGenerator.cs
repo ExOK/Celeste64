@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
@@ -10,8 +11,13 @@ namespace Celeste64.HookGen;
 [Generator]
 public class IncrementalHookGenerator : IIncrementalGenerator
 {
+	private const string Indent = "    ";
+	
 	private const string OrigNamespace = "Celeste64";
 	private const string OnNamespace = $"On.{OrigNamespace}";
+	
+	private const string OnHookAttribute = "global::Celeste64.HookGen.OnHookGenAttribute";
+	private const string ILHookAttribute = "global::Celeste64.HookGen.ILHookGenAttribute";
 	
 	public void Initialize(IncrementalGeneratorInitializationContext context)
 	{
@@ -98,19 +104,27 @@ public class IncrementalHookGenerator : IIncrementalGenerator
 							.Replace("?", "_nullable") // Use 'intNullable' instead of 'int?'
 							.Replace("<", "_").Replace(">", "")))}"; // Use 'List_int' instead of 'List<int>'
 				
-				if (method.IsStatic)
-					code.AppendLine($"    public delegate {returnType} orig_{methodName}({string.Join(", ", parameters)});");
-				else if (parameters.Length == 0)
-					code.AppendLine($"    public delegate {returnType} orig_{methodName}({classSymbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)} self);");
-				else
-					code.AppendLine($"    public delegate {returnType} orig_{methodName}({classSymbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)} self, {string.Join(", ", parameters)});");
-				
 				// NOTE: Only public methods can be hooked anyway
 				var bindingFlags = method.IsStatic 
 					? "System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.Public" 
 					: "System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public";
 				
-				code.AppendLine($"""    private static readonly System.Reflection.MethodInfo info_{methodName} = typeof({classSymbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)}).GetMethod("{method.Name}", {bindingFlags});""");
+				// Hook attribute
+				code.AppendLine($"{Indent}[System.AttributeUsage(System.AttributeTargets.Method)]");
+				code.AppendLine($"{Indent}public sealed class {methodName}Attribute : {OnHookAttribute}");
+				code.AppendLine($"{Indent}{{");
+				// MethodInfo
+				code.AppendLine($"{Indent}{Indent}private static readonly System.Reflection.MethodInfo info_{methodName} = typeof({classSymbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)}).GetMethod(\"{method.Name}\", {bindingFlags});");
+				code.AppendLine($"{Indent}}}");
+				
+				// orig_ delegate
+				if (method.IsStatic)
+					code.AppendLine($"{Indent}public delegate {returnType} orig_{methodName}({string.Join(", ", parameters)});");
+				else if (parameters.Length == 0)
+					code.AppendLine($"{Indent}public delegate {returnType} orig_{methodName}({classSymbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)} self);");
+				else
+					code.AppendLine($"{Indent}public delegate {returnType} orig_{methodName}({classSymbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)} self, {string.Join(", ", parameters)});");
+				
 				code.AppendLine();
 			}
 			
