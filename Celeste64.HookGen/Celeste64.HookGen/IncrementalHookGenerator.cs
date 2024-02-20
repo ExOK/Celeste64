@@ -70,16 +70,17 @@ public class IncrementalHookGenerator : IIncrementalGenerator
 				.OfType<IMethodSymbol>();
 			foreach (var method in methods)
 			{
+				var returnType = method.ReturnType.ToDisplayString();
 				var parameters = method.Parameters
 					.Select(param => $"{param.Type} {param.Name}")
 					.ToArray();
 				
 				if (method.IsStatic)
-					code.AppendLine($"    public delegate {method.ReturnType.Name} orig_{method.Name}({string.Join(", ", parameters)})");
+					code.AppendLine($"    public delegate {returnType} orig_{method.Name}({string.Join(", ", parameters)})");
 				else if (parameters.Length == 0)
-					code.AppendLine($"    public delegate {method.ReturnType.Name} orig_{method.Name}({className} self)");
+					code.AppendLine($"    public delegate {returnType} orig_{method.Name}({className} self)");
 				else
-					code.AppendLine($"    public delegate {method.ReturnType.Name} orig_{method.Name}({className} self, {string.Join(", ", parameters)})");
+					code.AppendLine($"    public delegate {returnType} orig_{method.Name}({className} self, {string.Join(", ", parameters)})");
 			}
 				
 			

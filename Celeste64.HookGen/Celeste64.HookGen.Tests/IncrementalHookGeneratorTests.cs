@@ -44,7 +44,7 @@ namespace Celeste64
 	    public float Y {{ get; set; }}
 	    public float Z {{ get; set; }}
 
-		public int Spawn(float timer,int frames)
+		public int? Spawn(float timer,int frames)
 		{
 			Console.WriteLine(""Spawn"");	
 		}
