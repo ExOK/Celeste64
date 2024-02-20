@@ -340,6 +340,8 @@ public class Player : Actor, IHaveModels, IHaveSprites, IRidePlatforms, ICastPoi
 			}
 		}
 
+		Skin.OnEquipped(this, Model);
+
 		StateMachine = new(additionalStateCount: CustomPlayerStateRegistry.RegisteredStates.Count);
 		StateMachine.InitState(States.Normal, StNormalUpdate, StNormalEnter, StNormalExit);
 		StateMachine.InitState(States.Dashing, StDashingUpdate, StDashingEnter, StDashingExit);
@@ -849,6 +851,7 @@ public class Player : Actor, IHaveModels, IHaveSprites, IRidePlatforms, ICastPoi
 	{
 		if(this.Skin != skin)
 		{
+			this.Skin.OnRemoved(this, Model);
 			this.Skin = skin;
 
 			Model = new(Assets.Models[this.Skin.Model]);
@@ -869,6 +872,8 @@ public class Player : Actor, IHaveModels, IHaveSprites, IRidePlatforms, ICastPoi
 
 			Trails.Clear();
 			DashTrailsCreated = 0;
+
+			skin.OnEquipped(this, Model);
 		}
 	}
 

@@ -27,6 +27,9 @@ public class SkinInfo
 	{
 		return true;
 	}
+
+	public virtual void OnEquipped(Player player, Model m) { }
+	public virtual void OnRemoved(Player player, Model m) { }
 }
 
 [JsonSourceGenerationOptions(WriteIndented = true)]
