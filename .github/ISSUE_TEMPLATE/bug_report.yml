@@ -11,6 +11,8 @@ body:
           required: true
         - label: I have confirmed that this issue is not caused by a faulty mod
           required: true
+        - label: I have searched and confirmed that this issue is not a duplicate
+          required: true
   - type: textarea
     id: repro
     attributes:
