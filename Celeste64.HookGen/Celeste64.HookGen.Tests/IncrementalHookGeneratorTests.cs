@@ -49,6 +49,14 @@ namespace Celeste64
 			Console.WriteLine(""Spawn"");	
 		}
 	}
+
+	public static class Test
+	{
+		static Test() 
+		{
+			Console.WriteLine(""static"");
+		}
+	}
 }
 ";
 
