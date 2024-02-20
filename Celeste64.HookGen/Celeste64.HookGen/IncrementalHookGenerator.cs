@@ -1,10 +1,6 @@
-using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Diagnostics;
-using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Text;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -53,11 +49,12 @@ public class IncrementalHookGenerator : IIncrementalGenerator
 		foreach (var classDecl in classDeclarations)
 		{
 			var semanticModel = compilation.GetSemanticModel(classDecl.SyntaxTree);
-			if (semanticModel.GetDeclaredSymbol(classDecl) is not INamedTypeSymbol classSymbol)
+			if (ModelExtensions.GetDeclaredSymbol(semanticModel, classDecl) is not INamedTypeSymbol classSymbol)
 				continue;
 			
 			// We can't hook generic types
-			if (classSymbol.IsGenericType)
+			// We don't want to hook non-public types
+			if (classSymbol.IsGenericType || classSymbol.DeclaredAccessibility != Accessibility.Public)
 				continue;
 			
 			var className = classDecl.Identifier.Text;
@@ -70,12 +67,22 @@ public class IncrementalHookGenerator : IIncrementalGenerator
 				.OfType<IMethodSymbol>()
 				.Concat(classSymbol.StaticConstructors)
 				.ToArray();
+			
+			List<(string Name, ImmutableArray<IParameterSymbol> Params)> emittedSymbols = [];
 				
 			foreach (var method in methods)
 			{
-				// We can't hook generic methods
-				if (method.IsGenericMethod)
+				if (
+					// We can't hook generic methods
+					method.IsGenericMethod ||
+					// We don't want to hook non-public methods
+					method.DeclaredAccessibility != Accessibility.Public ||
+					// There are some duplicates for, so check if this exact signature was already generated
+					emittedSymbols.Contains((method.Name, method.Parameters)))
+				{
 					continue;
+				}
+				emittedSymbols.Add((method.Name, method.Parameters));
 				
 				var returnType = method.ReturnType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
 				var parameters = method.Parameters
@@ -89,7 +96,8 @@ public class IncrementalHookGenerator : IIncrementalGenerator
 				};
 				
 				// Generate signature with parameters, if the method is overloaded
-				if (methods.Count(m => m.Name == method.Name) > 1)
+				// NOTE: If they have the same parameters, they are a duplicate and not an overload.
+				if (methods.Count(m => m.Name == method.Name && !m.Parameters.SequenceEqual(method.Parameters)) >= 1)
 					methodName += $"__{string.Join('_', method.Parameters.Select(param => param.Type.Name))}";
 				
 				if (method.IsStatic)
