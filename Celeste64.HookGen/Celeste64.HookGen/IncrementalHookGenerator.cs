@@ -17,14 +17,8 @@ public class IncrementalHookGenerator : IIncrementalGenerator
 	{
 		var provider = context.SyntaxProvider
 			.CreateSyntaxProvider(
-				static (node, _) =>
-				{
-					return node is ClassDeclarationSyntax;
-				}, 
-				static (ctx, _) =>
-				{
-					return (ClassDeclarationSyntax)ctx.Node;
-				})
+				static (node, _) => node is ClassDeclarationSyntax, 
+				static (ctx, _) => (ClassDeclarationSyntax)ctx.Node)
 			.Where(static type =>
 			{
 				if (type.Parent is not BaseNamespaceDeclarationSyntax ns)
@@ -49,7 +43,7 @@ public class IncrementalHookGenerator : IIncrementalGenerator
 		foreach (var classDecl in classDeclarations)
 		{
 			var semanticModel = compilation.GetSemanticModel(classDecl.SyntaxTree);
-			if (ModelExtensions.GetDeclaredSymbol(semanticModel, classDecl) is not INamedTypeSymbol classSymbol)
+			if (semanticModel.GetDeclaredSymbol(classDecl) is not INamedTypeSymbol classSymbol)
 				continue;
 			
 			// We can't hook generic types
@@ -97,8 +91,12 @@ public class IncrementalHookGenerator : IIncrementalGenerator
 				
 				// Generate signature with parameters, if the method is overloaded
 				// NOTE: If they have the same parameters, they are a duplicate and not an overload.
-				if (methods.Count(m => m.Name == method.Name && !m.Parameters.SequenceEqual(method.Parameters)) >= 1)
-					methodName += $"__{string.Join('_', method.Parameters.Select(param => param.Type.Name))}";
+				if (methods.Any(m => m.Name == method.Name && !m.Parameters.SequenceEqual(method.Parameters)))
+					methodName += $"__{string.Join("__", method.Parameters.Select(param =>
+						param.Type
+							.ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat)
+							.Replace("?", "_nullable") // Use 'intNullable' instead of 'int?'
+							.Replace("<", "_").Replace(">", "")))}"; // Use 'List_int' instead of 'List<int>'
 				
 				if (method.IsStatic)
 					code.AppendLine($"    public delegate {returnType} orig_{methodName}({string.Join(", ", parameters)})");
