@@ -99,11 +99,19 @@ public class IncrementalHookGenerator : IIncrementalGenerator
 							.Replace("<", "_").Replace(">", "")))}"; // Use 'List_int' instead of 'List<int>'
 				
 				if (method.IsStatic)
-					code.AppendLine($"    public delegate {returnType} orig_{methodName}({string.Join(", ", parameters)})");
+					code.AppendLine($"    public delegate {returnType} orig_{methodName}({string.Join(", ", parameters)});");
 				else if (parameters.Length == 0)
-					code.AppendLine($"    public delegate {returnType} orig_{methodName}({classSymbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)} self)");
+					code.AppendLine($"    public delegate {returnType} orig_{methodName}({classSymbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)} self);");
 				else
-					code.AppendLine($"    public delegate {returnType} orig_{methodName}({classSymbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)} self, {string.Join(", ", parameters)})");
+					code.AppendLine($"    public delegate {returnType} orig_{methodName}({classSymbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)} self, {string.Join(", ", parameters)});");
+				
+				// NOTE: Only public methods can be hooked anyway
+				var bindingFlags = method.IsStatic 
+					? "System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.Public" 
+					: "System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public";
+				
+				code.AppendLine($"""    private static readonly System.Reflection.MethodInfo info_{methodName} = typeof({classSymbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)}).GetMethod("{method.Name}", {bindingFlags});""");
+				code.AppendLine();
 			}
 			
 			code.AppendLine("}");
