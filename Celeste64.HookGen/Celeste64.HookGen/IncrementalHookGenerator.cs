@@ -56,6 +56,10 @@ public class IncrementalHookGenerator : IIncrementalGenerator
 			if (semanticModel.GetDeclaredSymbol(classDecl) is not INamedTypeSymbol classSymbol)
 				continue;
 			
+			// We can't hook generic types
+			if (classSymbol.IsGenericType)
+				continue;
+			
 			var className = classDecl.Identifier.Text;
 			
 			code.AppendLine($"public static class {className}");
@@ -64,9 +68,15 @@ public class IncrementalHookGenerator : IIncrementalGenerator
 			var methods = classSymbol
 				.GetMembers()
 				.OfType<IMethodSymbol>()
-				.Concat(classSymbol.StaticConstructors);
+				.Concat(classSymbol.StaticConstructors)
+				.ToArray();
+				
 			foreach (var method in methods)
 			{
+				// We can't hook generic methods
+				if (method.IsGenericMethod)
+					continue;
+				
 				var returnType = method.ReturnType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
 				var parameters = method.Parameters
 					.Select(param => $"{param.Type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)} {param.Name}")
@@ -77,6 +87,10 @@ public class IncrementalHookGenerator : IIncrementalGenerator
 					".cctor" => "cctor",
 					_ => method.Name,
 				};
+				
+				// Generate signature with parameters, if the method is overloaded
+				if (methods.Count(m => m.Name == method.Name) > 1)
+					methodName += $"__{string.Join('_', method.Parameters.Select(param => param.Type.Name))}";
 				
 				if (method.IsStatic)
 					code.AppendLine($"    public delegate {returnType} orig_{methodName}({string.Join(", ", parameters)})");
