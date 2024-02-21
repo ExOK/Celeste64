@@ -18,7 +18,7 @@ internal static class Hooks
 	
 	public static void Load()
 	{
-		// Using MonoMod to defeat MonoMod.
+		// Using MonoMod to hook MonoMod :)
 		hook_Hook_ctor = new ILHook(typeof(Hook).GetConstructor(BindingFlags.Public | BindingFlags.Instance, [typeof(MethodBase), typeof(MethodInfo), typeof(object), typeof(IDetourFactory), typeof(DetourConfig), typeof(bool)])!, IL_CheckHook, applyByDefault: false);
 		hook_ILHook_ctor = new ILHook(typeof(ILHook).GetConstructor(BindingFlags.Public | BindingFlags.Instance, [typeof(MethodBase), typeof(ILContext.Manipulator), typeof(IDetourFactory), typeof(DetourConfig), typeof(bool)])!, IL_CheckHook, applyByDefault: false);
 	}
@@ -68,10 +68,14 @@ internal static class Hooks
 				return;
 		}
 		
-		if (method.DeclaringType != null && method.DeclaringType.Namespace != "Celeste64" && method.DeclaringType.Namespace != "Foster.Framework")
-			throw new InvalidOperationException("Hooking methods outside of the 'Celeste64' / 'Foster.Framework' namespace is not allowed! " +
+		if (method.DeclaringType != null && method.DeclaringType.Namespace != "Celeste64" && method.DeclaringType.Namespace != "Foster.Framework" ||
+		    method.HasAttr<DisallowHooksAttribute>())
+		{
+			throw new InvalidOperationException($"Tried to hook the method '{method}'. " +
+												"Hooking methods outside of the 'Celeste64' / 'Foster.Framework' namespace is not allowed! " +
 			                                    "Those methods might change their implementation, causing the hook to break!" +
-			                                    "Please consider reaching out to the authors first, before trying to avoid this protection." +
-			                                    "If you are aware of the risks but need to do it anyway, you can enable the 'PreventHookProtectionYesIKnowThisIsDangerousAndCanBreak' property inside your 'GameMod'.");
+			                                    "Please consider reaching out to the authors first, before trying to avoid this protection. " +
+			                                    "If you are aware of the risks but need to do it anyway, you can enable the required namespace in 'PreventHookProtectionYesIKnowThisIsDangerousAndCanBreak' list inside your 'GameMod'.");
+		}
 	}
 }
