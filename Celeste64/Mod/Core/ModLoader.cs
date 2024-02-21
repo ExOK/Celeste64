@@ -247,12 +247,8 @@ public static class ModLoader
 
 		foreach (var (info, attr) in hookMethods)
 		{
-			Log.Info($"Registering hook on method '{attr.TargetMemberName}' in class '{attr.TargetType}' for hook method '{info}'");
-			var target = typeof(Game).Assembly.GetType(attr.TargetType)?.GetMethod(attr.TargetMemberName, BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public);
-			if (target == null)
-				throw new MissingMethodException($"Couldn't hook method '{attr.TargetMemberName}' in class '{attr.TargetType}'");
-
-			HookManager.Instance.RegisterHook(new Hook(target, info));
+			Log.Info($"Registering hook on method '{attr.Target}' for hook method '{info}'");
+			HookManager.Instance.RegisterHook(new Hook(attr.Target, info));
 		}
 	}
 }

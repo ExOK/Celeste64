@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -108,11 +109,6 @@ public class IncrementalHookGenerator : IIncrementalGenerator
 							.Replace("?", "_nullable") // Use 'int_nullable' instead of 'int?'
 							.Replace("<", "_").Replace(">", "")))}"; // Use 'List_int' instead of 'List<int>'
 
-				// NOTE: Only public methods can be hooked anyway
-				var bindingFlags = method.IsStatic
-					? "System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.Public"
-					: "System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public";
-
 				// orig_ delegate
 				if (method.IsStatic)
 					code.AppendLine($"{Indent}public delegate {returnType} orig_{methodName}({string.Join(", ", parameters)});");
@@ -123,21 +119,36 @@ public class IncrementalHookGenerator : IIncrementalGenerator
 					code.AppendLine(
 						$"{Indent}public delegate {returnType} orig_{methodName}({classSymbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)} self, {string.Join(", ", parameters)});");
 
+				// m_ MethodInfo
+				// NOTE: Only public methods can be hooked anyway
+				var bindingFlags = method.IsStatic
+					? "System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.Public"
+					: "System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public";
+				var methodInfo = isOverloaded
+					? $"typeof({classSymbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)}).GetMethod(\"{method.Name}\", {bindingFlags}, [{
+						string.Join(", ", method.Parameters.Select(param => $"typeof({param.Type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)})"))}])"
+					: $"typeof({classSymbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)}).GetMethod(\"{method.Name}\", {bindingFlags})";
+				code.AppendLine($"{Indent}public static readonly System.Reflection.MethodInfo m_{methodName} = {methodInfo};");
+				
 				// Hook attribute
-				code.AppendLine(
-					$"{Indent}public sealed class {methodName}Attribute : {HookGenTargetAttribute}");
+				// code.AppendLine($"{Indent}public sealed class {methodName}Attribute : {HookGenTargetAttribute}");
+				// code.AppendLine($"{Indent}{{");
+				// code.AppendLine($"{Indent}{Indent}public {methodName}Attribute()");
+				// code.AppendLine($"{Indent}{Indent}{{");
+				// code.AppendLine($"{Indent}{Indent}{Indent}TargetType = \"{classSymbol.ToTypeString()}\";");
+				// code.AppendLine($"{Indent}{Indent}{Indent}TargetMemberName = \"{method.Name}\";");
+				// if (isOverloaded)
+				// {
+				// 	var paramsString = string.Join(", ", method.Parameters.Select(param =>
+				// 		$"\"{param.Type.ToTypeString()}\""));
+				// 	code.AppendLine($"{Indent}{Indent}{Indent}TargetParameters = [{paramsString}];");
+				// }
+				
+				code.AppendLine($"{Indent}public sealed class {methodName}Attribute : {HookGenTargetAttribute}");
 				code.AppendLine($"{Indent}{{");
 				code.AppendLine($"{Indent}{Indent}public {methodName}Attribute()");
 				code.AppendLine($"{Indent}{Indent}{{");
-				code.AppendLine($"{Indent}{Indent}{Indent}TargetType = \"{classSymbol.ToTypeString()}\";");
-				code.AppendLine($"{Indent}{Indent}{Indent}TargetMemberName = \"{method.Name}\";");
-				if (isOverloaded)
-				{
-					var paramsString = string.Join(", ", method.Parameters.Select(param =>
-						$"\"{param.Type.ToTypeString()}\""));
-					code.AppendLine($"{Indent}{Indent}{Indent}TargetParameters = [{paramsString}];");
-				}
-
+				code.AppendLine($"{Indent}{Indent}{Indent}Target = m_{methodName};");
 				code.AppendLine($"{Indent}{Indent}}}");
 				code.AppendLine($"{Indent}}}");
 
