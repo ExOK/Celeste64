@@ -1,12 +1,9 @@
-using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
-using System.Reflection;
 using System.Text;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Microsoft.CodeAnalysis.Text;
 
 namespace Celeste64.HookGen;
 
@@ -19,6 +16,7 @@ public class IncrementalHookGenerator : IIncrementalGenerator
 	private const string OnNamespace = $"On.{OrigNamespace}";
 
 	private const string HookGenTargetAttribute = "global::Celeste64.Mod.InternalHookGenTargetAttribute";
+	private const string DisallowHooksAttribute = "Celeste64.Mod.DisallowHooksAttribute";
 
 	public void Initialize(IncrementalGeneratorInitializationContext context)
 	{
@@ -41,6 +39,8 @@ public class IncrementalHookGenerator : IIncrementalGenerator
 			static (ctx, t) => GenerateCode(ctx, t.Left, t.Right));
 	}
 
+	private static readonly SymbolDisplayFormat namespaceAndTypeFormat = new(typeQualificationStyle: SymbolDisplayTypeQualificationStyle.NameAndContainingTypesAndNamespaces);
+	
 	private static void GenerateCode(SourceProductionContext context, Compilation compilation,
 		ImmutableArray<ClassDeclarationSyntax> classDeclarations)
 	{
@@ -55,10 +55,16 @@ public class IncrementalHookGenerator : IIncrementalGenerator
 			if (semanticModel.GetDeclaredSymbol(classDecl) is not INamedTypeSymbol classSymbol)
 				continue;
 
-			// We can't hook generic types
-			// We don't want to hook non-public types
-			if (classSymbol.IsGenericType || classSymbol.DeclaredAccessibility != Accessibility.Public)
+			if (
+				// We can't hook generic types
+				classSymbol.IsGenericType ||
+				// We don't want to hook non-public types
+				classSymbol.DeclaredAccessibility != Accessibility.Public ||
+				// We don't want to hook disallowed types
+			    classSymbol.GetAttributes().Any(attr => attr.AttributeClass is { } attrType && attrType.ToDisplayString(namespaceAndTypeFormat) == DisallowHooksAttribute))
+			{
 				continue;
+			}
 
 			var className = classDecl.Identifier.Text;
 
@@ -72,7 +78,6 @@ public class IncrementalHookGenerator : IIncrementalGenerator
 				.ToArray();
 
 			List<(string Name, ImmutableArray<IParameterSymbol> Params)> emittedSymbols = [];
-
 			foreach (var method in methods)
 			{
 				if (
@@ -80,12 +85,13 @@ public class IncrementalHookGenerator : IIncrementalGenerator
 					method.IsGenericMethod ||
 					// We don't want to hook non-public methods
 					method.DeclaredAccessibility != Accessibility.Public ||
+					// We don't want to hook disallowed methods
+					method.GetAttributes().Any(attr => attr.AttributeClass is { } attrType && attrType.ToDisplayString(namespaceAndTypeFormat) == DisallowHooksAttribute) ||
 					// There are some duplicates for, so check if this exact signature was already generated
 					emittedSymbols.Contains((method.Name, method.Parameters)))
 				{
 					continue;
 				}
-
 				emittedSymbols.Add((method.Name, method.Parameters));
 
 				var returnType = method.ReturnType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
@@ -131,19 +137,6 @@ public class IncrementalHookGenerator : IIncrementalGenerator
 				code.AppendLine($"{Indent}public static readonly System.Reflection.MethodInfo m_{methodName} = {methodInfo};");
 				
 				// Hook attribute
-				// code.AppendLine($"{Indent}public sealed class {methodName}Attribute : {HookGenTargetAttribute}");
-				// code.AppendLine($"{Indent}{{");
-				// code.AppendLine($"{Indent}{Indent}public {methodName}Attribute()");
-				// code.AppendLine($"{Indent}{Indent}{{");
-				// code.AppendLine($"{Indent}{Indent}{Indent}TargetType = \"{classSymbol.ToTypeString()}\";");
-				// code.AppendLine($"{Indent}{Indent}{Indent}TargetMemberName = \"{method.Name}\";");
-				// if (isOverloaded)
-				// {
-				// 	var paramsString = string.Join(", ", method.Parameters.Select(param =>
-				// 		$"\"{param.Type.ToTypeString()}\""));
-				// 	code.AppendLine($"{Indent}{Indent}{Indent}TargetParameters = [{paramsString}];");
-				// }
-				
 				code.AppendLine($"{Indent}public sealed class {methodName}Attribute : {HookGenTargetAttribute}");
 				code.AppendLine($"{Indent}{{");
 				code.AppendLine($"{Indent}{Indent}public {methodName}Attribute()");

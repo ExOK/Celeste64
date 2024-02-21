@@ -384,6 +384,7 @@ public class Player : Actor, IHaveModels, IHaveSprites, IRidePlatforms, ICastPoi
 	/// If the player is in a custom state, returns its definition.
 	/// Otherwise, returns null.
 	/// </summary>
+	[DisallowHooks]
 	public virtual CustomPlayerState? GetCurrentCustomState()
 	{
 		if (StateMachine.State is not { } state)
@@ -397,6 +398,7 @@ public class Player : Actor, IHaveModels, IHaveSprites, IRidePlatforms, ICastPoi
 	/// <summary>
 	/// Checks whether the player is currently in the provided custom state.
 	/// </summary>
+	[DisallowHooks]
 	public virtual bool IsInState<T>() where T : CustomPlayerState
 	{
 		var stateDef = GetCurrentCustomState();
@@ -407,6 +409,7 @@ public class Player : Actor, IHaveModels, IHaveSprites, IRidePlatforms, ICastPoi
 	/// <summary>
 	/// Sets the player's state to the provided custom state.
 	/// </summary>
+	[DisallowHooks]
 	public virtual void SetState<T>() where T : CustomPlayerState
 	{
 		var id = CustomPlayerStateRegistry.GetId<T>();
@@ -417,16 +420,19 @@ public class Player : Actor, IHaveModels, IHaveSprites, IRidePlatforms, ICastPoi
 	/// <summary>
 	/// Sets the player's state to the provided vanilla state.
 	/// </summary>
+	[DisallowHooks]
 	public virtual void SetState(States state)
 	{
 		StateMachine.State = state;
 	}
 
+	[DisallowHooks]
 	protected virtual void HandleStateChange(States? state)
 	{
 		ModManager.Instance.OnPlayerStateChanged(this, state);
 	}
 
+	[DisallowHooks]
 	public StatusEffect AddStatusEffect<T>(bool RemoveAfterDuration = false, float DurationOverride = 10) where T : StatusEffect, new()
 	{
 		StatusEffect? existingEffect = GetStatusEffect<T>();
@@ -450,6 +456,7 @@ public class Player : Actor, IHaveModels, IHaveSprites, IRidePlatforms, ICastPoi
 		return newEffect;
 	}
 
+	[DisallowHooks]
 	public void RemoveStatusEffect<T>() where T : StatusEffect
 	{
 		StatusEffect? existingEffect = GetStatusEffect<T>();
@@ -461,17 +468,20 @@ public class Player : Actor, IHaveModels, IHaveSprites, IRidePlatforms, ICastPoi
 		}
 	}
 
+	[DisallowHooks]
 	public void RemoveStatusEffect(StatusEffect effect)
 	{
 		effect.OnStatusEffectRemoved();
 		statusEffects.Remove(effect);
 	}
 
+	[DisallowHooks]
 	public bool HasStatusEffect<T>() where T : StatusEffect
 	{
 		return statusEffects.Any(effect => effect.GetType() == typeof(T));
 	}
 
+	[DisallowHooks]
 	public StatusEffect? GetStatusEffect<T>() where T : StatusEffect
 	{
 		return statusEffects.FirstOrDefault(effect => effect.GetType() == typeof(T));
