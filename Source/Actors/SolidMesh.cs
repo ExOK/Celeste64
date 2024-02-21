@@ -57,8 +57,6 @@ public class SolidMesh : Solid
 				vertices.Aggregate(Vec3.Max)
 			);
 		}
-
-		Transparent = true;
 	}
 
     public override void Added()
