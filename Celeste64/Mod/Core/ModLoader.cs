@@ -127,6 +127,12 @@ public static class ModLoader
 				mod.Filesystem?.AssociateWithMod(mod);
 				ModManager.Instance.RegisterMod(mod);
 
+				// Load hooks after the mod has been registered
+				foreach (var type in mod.GetType().Assembly.GetTypes())
+				{
+					FindAndRegisterHooks(type);
+				}
+				
 				modInfos.RemoveAt(i);
 				loaded.Add(info);
 				loadedModInIteration = true;
@@ -229,12 +235,6 @@ public static class ModLoader
 			};
 		}
 		
-		// Load hooks
-		foreach (var type in loadedMod.GetType().Assembly.GetTypes())
-		{
-			FindAndRegisterHooks(type);
-		}
-
 		return loadedMod;
 	}
 	
