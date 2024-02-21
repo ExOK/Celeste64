@@ -3,7 +3,7 @@
     "profiles": {
         "Generators": {
             "commandName": "DebugRoslynComponent",
-            "targetProject": "../../Celeste64/Celeste64.csproj"
+            "targetProject": "../Celeste64/Celeste64.csproj"
         }
     }
 }
