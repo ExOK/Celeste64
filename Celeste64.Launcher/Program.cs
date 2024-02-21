@@ -1,9 +1,9 @@
 using System.Diagnostics;
 using System.Globalization;
 using System.Text;
-using Celeste64;
-using Celeste64.Launcher;
 using Foster.Framework;
+
+namespace Celeste64.Launcher;
 
 public class Program
 {
