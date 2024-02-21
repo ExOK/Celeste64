@@ -10,6 +10,10 @@ class Program
 	// Copied from Celeste64 project
 	public static void Main(string[] args)
 	{
+		if (args.Contains("--console"))
+		{
+			ConsoleHelper.CreateConsole();
+		}
 		Version loaderVersion = typeof(Program).Assembly.GetName().Version!;
 		Game.LoaderVersion = $"Fuji: v.{loaderVersion.Major}.{loaderVersion.Minor}.{loaderVersion.Build}";
 		if (!string.IsNullOrEmpty(BuildProperties.ModVersion()))
