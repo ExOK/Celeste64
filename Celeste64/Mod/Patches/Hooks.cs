@@ -64,7 +64,7 @@ internal static class Hooks
 			if (gameMod == null)
 				Log.Warning($"Registering hook from non-mod assembly '{asm}'");
 			// Mods can opt-out of this, but then they are on their own.
-			else if (gameMod.PreventHookProtectionYesIKnowThisIsDangerousAndCanBreak)
+			else if (method.DeclaringType?.Namespace is { } ns && gameMod.PreventHookProtectionYesIKnowThisIsDangerousAndCanBreak.Contains(ns))
 				return;
 		}
 		
