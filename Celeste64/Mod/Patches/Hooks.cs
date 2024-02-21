@@ -9,7 +9,7 @@ using MonoMod.RuntimeDetour;
 namespace Celeste64.Mod.Patches;
 
 /// <summary>
-/// <li>Prevent <see cref="Hook"/>s / <see cref="ILHook"/>s on types outside of the "Celeste64" namespace.</li>
+/// <li>Prevent <see cref="Hook"/>s / <see cref="ILHook"/>s on types outside of the "Celeste64" / "Foster.Framework" namespace.</li>
 /// </summary>
 internal static class Hooks
 {
