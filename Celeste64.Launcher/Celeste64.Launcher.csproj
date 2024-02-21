@@ -8,7 +8,6 @@
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
         <Version>0.4.0</Version>
         <PublishTrimmed>false</PublishTrimmed>
-        <Platforms>x64</Platforms>
         <ApplicationIcon>..\fuji.ico</ApplicationIcon>
         <PackageIcon>..\fuji.png</PackageIcon>
         <PackageReadmeFile>..\ReadMe.md</PackageReadmeFile>

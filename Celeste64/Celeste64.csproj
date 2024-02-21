@@ -8,7 +8,6 @@
         <Version>1.1.1</Version>
         <PublishSingleFile>true</PublishSingleFile>
         <PublishTrimmed>false</PublishTrimmed>
-        <Platforms>x64</Platforms>
         <ApplicationIcon>..\fuji.ico</ApplicationIcon>
         <PackageIcon>..\fuji.png</PackageIcon>
         <PackageReadmeFile>..\ReadMe.md</PackageReadmeFile>
@@ -38,7 +37,7 @@
     <PropertyGroup Condition="($(RuntimeIdentifier) == '' and $([MSBuild]::IsOSPlatform('OSX'))) or $(RuntimeIdentifier.StartsWith('osx'))">
         <IsMacOS>true</IsMacOS>
     </PropertyGroup>
-
+    
     <PropertyGroup Condition="($(RuntimeIdentifier) == '' and $([System.Runtime.InteropServices.RuntimeInformation]::OSArchitecture) == 'x64') or $(RuntimeIdentifier.EndsWith('x64'))">
         <PlatformTarget>x64</PlatformTarget>
     </PropertyGroup>
