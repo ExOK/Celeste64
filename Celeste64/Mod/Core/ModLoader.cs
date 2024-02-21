@@ -240,14 +240,27 @@ public static class ModLoader
 	
 	private static void FindAndRegisterHooks(Type type)
 	{
-		var hookMethods = type.GetMethods(BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic)
-			.Select(m => (m, m.GetCustomAttribute<InternalHookGenTargetAttribute>()))
+		// On. hooks
+		var onHookMethods = type.GetMethods(BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic)
+			.Select(m => (m, m.GetCustomAttribute<InternalOnHookGenTargetAttribute>()))
 			.Where(t => t.Item2 != null)
-			.Cast<(MethodInfo, InternalHookGenTargetAttribute)>();
+			.Cast<(MethodInfo, InternalOnHookGenTargetAttribute)>();
 
-		foreach (var (info, attr) in hookMethods)
+		foreach (var (info, attr) in onHookMethods)
 		{
-			Log.Info($"Registering hook on method '{attr.Target}' for hook method '{info}'");
+			Log.Info($"Registering On-hook for method '{attr.Target}' in type '{attr.Target.DeclaringType}' with hook method '{info}'");
+			HookManager.Instance.RegisterHook(new Hook(attr.Target, info));
+		}
+		
+		// IL. hooks
+		var ilHookMethods = type.GetMethods(BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic)
+			.Select(m => (m, m.GetCustomAttribute<InternalILHookGenTargetAttribute>()))
+			.Where(t => t.Item2 != null)
+			.Cast<(MethodInfo, InternalILHookGenTargetAttribute)>();
+
+		foreach (var (info, attr) in ilHookMethods)
+		{
+			Log.Info($"Registering IL-hook for method '{attr.Target}' in type '{attr.Target.DeclaringType}' with hook method '{info}'");
 			HookManager.Instance.RegisterHook(new Hook(attr.Target, info));
 		}
 	}
