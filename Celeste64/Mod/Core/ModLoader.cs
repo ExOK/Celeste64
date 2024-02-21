@@ -1,4 +1,6 @@
-﻿using System.Text.Json;
+﻿using System.Reflection;
+using System.Text.Json;
+using MonoMod.RuntimeDetour;
 
 namespace Celeste64.Mod;
 
@@ -212,7 +214,7 @@ public static class ModLoader
 			}
 		}
 
-		if (loadedMod is not { })
+		if (loadedMod is null)
 		{
 			if (anyDllFile)
 			{
@@ -220,13 +222,37 @@ public static class ModLoader
 			}
 
 			// No GameMod, create a dummy one
-			loadedMod = new DummyGameMod
+			return new DummyGameMod
 			{
 				ModInfo = info,
 				Filesystem = fs
 			};
 		}
+		
+		// Load hooks
+		foreach (var type in loadedMod.GetType().Assembly.GetTypes())
+		{
+			FindAndRegisterHooks(type);
+		}
 
 		return loadedMod;
+	}
+	
+	private static void FindAndRegisterHooks(Type type)
+	{
+		var hookMethods = type.GetMethods(BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic)
+			.Select(m => (m, m.GetCustomAttribute<InternalHookGenTargetAttribute>()))
+			.Where(t => t.Item2 != null)
+			.Cast<(MethodInfo, InternalHookGenTargetAttribute)>();
+
+		foreach (var (info, attr) in hookMethods)
+		{
+			Log.Info($"Registering hook on method '{attr.TargetMemberName}' in class '{attr.TargetType}' for hook method '{info}'");
+			var target = typeof(Game).Assembly.GetType(attr.TargetType)?.GetMethod(attr.TargetMemberName, BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public);
+			if (target == null)
+				throw new MissingMethodException($"Couldn't hook method '{attr.TargetMemberName}' in class '{attr.TargetType}'");
+
+			HookManager.Instance.RegisterHook(new Hook(target, info));
+		}
 	}
 }
