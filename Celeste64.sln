@@ -7,9 +7,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Celeste64", "Celeste64\Cele
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Celeste64.Launcher", "Celeste64.Launcher\Celeste64.Launcher.csproj", "{284463DD-FAD6-4946-8C87-615E7339A610}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Celeste64.HookGen", "Celeste64.HookGen\Celeste64.HookGen\Celeste64.HookGen.csproj", "{202740F9-9673-4C8D-8B9E-DD6BC90F069E}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Celeste64.HookGen.Tests", "Celeste64.HookGen\Celeste64.HookGen.Tests\Celeste64.HookGen.Tests.csproj", "{E1773968-0DCB-474C-8EA0-B8E6C3743A55}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Celeste64.HookGen", "Celeste64.HookGen\Celeste64.HookGen.csproj", "{202740F9-9673-4C8D-8B9E-DD6BC90F069E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -43,14 +41,6 @@ Global
 		{202740F9-9673-4C8D-8B9E-DD6BC90F069E}.Release|Any CPU.Build.0 = Release|Any CPU
 		{202740F9-9673-4C8D-8B9E-DD6BC90F069E}.Release|x64.ActiveCfg = Release|Any CPU
 		{202740F9-9673-4C8D-8B9E-DD6BC90F069E}.Release|x64.Build.0 = Release|Any CPU
-		{E1773968-0DCB-474C-8EA0-B8E6C3743A55}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{E1773968-0DCB-474C-8EA0-B8E6C3743A55}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{E1773968-0DCB-474C-8EA0-B8E6C3743A55}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{E1773968-0DCB-474C-8EA0-B8E6C3743A55}.Debug|x64.Build.0 = Debug|Any CPU
-		{E1773968-0DCB-474C-8EA0-B8E6C3743A55}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{E1773968-0DCB-474C-8EA0-B8E6C3743A55}.Release|Any CPU.Build.0 = Release|Any CPU
-		{E1773968-0DCB-474C-8EA0-B8E6C3743A55}.Release|x64.ActiveCfg = Release|Any CPU
-		{E1773968-0DCB-474C-8EA0-B8E6C3743A55}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -19,5 +19,7 @@
         </PackageReference>
         <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.3.0"/>
         <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="4.3.0"/>
+
+        <PackageReference Include="MonoMod.RuntimeDetour" Version="25.1.0-prerelease.2"/>
     </ItemGroup>
 </Project>

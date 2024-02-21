@@ -24,7 +24,7 @@
         <PackageReference Include="MonoMod.RuntimeDetour" Version="25.1.0-prerelease.2"/>
         <PackageReference Include="ImGui.NET" Version="1.90.1.1"/>
 
-        <ProjectReference Include="..\Celeste64.HookGen\Celeste64.HookGen\Celeste64.HookGen.csproj" OutputItemType="Analyzer" />
+        <ProjectReference Include="..\Celeste64.HookGen\Celeste64.HookGen.csproj" OutputItemType="Analyzer" />
     </ItemGroup>
 
     <PropertyGroup Condition="($(RuntimeIdentifier) == '' and $([MSBuild]::IsOSPlatform('Linux'))) or $(RuntimeIdentifier.StartsWith('linux'))">
