@@ -57,7 +57,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\Celeste64\Celeste64.csproj">
+        <ProjectReference Include="..\Source\Celeste64.csproj">
             <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
             <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
         </ProjectReference>
