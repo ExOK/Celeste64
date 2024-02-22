@@ -22,6 +22,8 @@ public class ModSelectionMenu : Menu
 	private GameMod[] mods;
 	private ModInfoMenu modInfoMenu;
 	public Menu? RootMenu;
+	public Menu FailedToLoadModsMenu;
+	public bool HandledFailedMods;
 
 	internal ModSelectionMenu()
 	{
@@ -30,6 +32,21 @@ public class ModSelectionMenu : Menu
 		Target = new Target(CardWidth, CardHeight);
 		mods = ModManager.Instance.Mods.Where(mod => mod is not VanillaGameMod).ToArray();
 		modInfoMenu = new ModInfoMenu();
+
+		FailedToLoadModsMenu = new Menu();
+		string unloadedMods = string.Join("\n", ModLoader.FailedToLoadMods);
+		FailedToLoadModsMenu.Title = Loc.Str("FujiFailedToLoad") + "\n" + unloadedMods;
+		FailedToLoadModsMenu.Add(new Option(Loc.Str("Continue"), () => {
+			HandledFailedMods = true;
+			if(RootMenu != null)
+			{
+				RootMenu.PopSubMenu();
+			}
+		}));
+		FailedToLoadModsMenu.Add(new Option(Loc.Str("FujiOpenLogFile"), () => {
+			Game.WriteToLog();
+			Game.OpenLog();
+		}));
 	}
 
 	public override void Initialized()
@@ -42,6 +59,11 @@ public class ModSelectionMenu : Menu
 		{
 			RootMenu = RootMenu
 		};
+
+		if (!HandledFailedMods && RootMenu != null && ModLoader.FailedToLoadMods.Any())
+		{
+			RootMenu.PushSubMenu(FailedToLoadModsMenu);
+		}
 	}
 
 	private void RenderMod(Batcher batch, GameMod mod, Vec2 pos, Vec2 size)

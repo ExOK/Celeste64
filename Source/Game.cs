@@ -422,6 +422,27 @@ public class Game : Module
 		}
 	}
 
+	internal static void OpenLog()
+	{
+		const string LogFileName = "Log.txt";
+		string path = "";
+		if (App.Running)
+		{
+			try
+			{
+				path = Path.Join(App.UserPath, LogFileName);
+			}
+			catch
+			{
+				path = LogFileName;
+			}
+		}
+		if (File.Exists(path))
+		{
+			new Process { StartInfo = new ProcessStartInfo(path) { UseShellExecute = true } }.Start();
+		}
+	}
+
 	private FMOD.RESULT MusicTimelineCallback(FMOD.Studio.EVENT_CALLBACK_TYPE type, IntPtr _event, IntPtr parameters)
 	{
 		// notify that an audio event happened (but handle it on the main thread)

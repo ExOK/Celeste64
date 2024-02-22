@@ -476,6 +476,10 @@ public class Overworld : Scene
 					// show version number on Overworld as well
 					UI.Text(batch, Game.VersionString, bounds.BottomLeft + new Vec2(4, -4) * Game.RelativeScale, new Vec2(0, 1), Color.CornflowerBlue * 0.75f);
 					UI.Text(batch, Game.LoaderVersion, bounds.BottomLeft + new Vec2(4, -24) * Game.RelativeScale, new Vec2(0, 1), new Color(12326399) * 0.75f);
+					if(ModLoader.FailedToLoadMods.Any())
+					{
+						UI.Text(batch, string.Format(Loc.Str("FailedToLoadMods"), ModLoader.FailedToLoadMods.Count), bounds.BottomLeft + new Vec2(4, -44) * Game.RelativeScale, new Vec2(0, 1), Color.Red * 0.75f);
+					}
 				}
 
 				if (cameraCloseUpEase > 0)

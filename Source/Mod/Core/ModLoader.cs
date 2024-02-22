@@ -8,6 +8,8 @@ public static class ModLoader
 
 	private static string? modsFolderPath = null;
 
+	internal static List<string> FailedToLoadMods = [];
+
 	public static string ModFolderPath
 	{
 		get
@@ -30,6 +32,7 @@ public static class ModLoader
 
 	internal static void RegisterAllMods()
 	{
+		FailedToLoadMods.Clear();
 		ModManager.Instance.VanillaGameMod = new VanillaGameMod
 		{
 			// Mod Infos are required now, so make a dummy mod info for the valilla game too. This shouldn't really be used for anything.
@@ -55,6 +58,7 @@ public static class ModLoader
 			{
 				if(info.Id == "Celeste64Vanilla" || modInfos.Any(data => data.Item1.Id == info.Id))
 				{
+					FailedToLoadMods.Add(modName);
 					Log.Error($"Fuji Error: Could not load mod from directory: {modName}, because a mod with that id already exists");
 				}
 				else
@@ -76,6 +80,7 @@ public static class ModLoader
 			{
 				if (info.Id == "Celeste64Vanilla" || modInfos.Any(data => data.Item1.Id == info.Id))
 				{
+					FailedToLoadMods.Add(modName);
 					Log.Error($"Fuji Error: Could not load mod from zip: {modName}, because a mod with that id already exists");
 				}
 				else
@@ -158,11 +163,13 @@ public static class ModLoader
 	{
 		if (!fs.TryOpenFile(Assets.FujiJSON, stream => JsonSerializer.Deserialize(stream, ModInfoContext.Default.ModInfo), out var info))
 		{
+			FailedToLoadMods.Add(modFolder);
 			Log.Error($"Fuji Error: Tried to load mod from {modFolder} but could not find a {Assets.FujiJSON} file");
 			return null;
 		}
 		if (info != null && !info.IsValid())
 		{
+			FailedToLoadMods.Add(modFolder);
 			Log.Error($"Fuji Error: Invalid Fuji.json file for {Assets.FujiJSON} in {modFolder}");
 			return null;
 		}

@@ -209,7 +209,7 @@ public class Menu
 			if (!string.IsNullOrEmpty(Title))
 			{
 				size.X = font.WidthOf(Title) * TitleScale;
-				size.Y += font.LineHeight * TitleScale;
+				size.Y += font.HeightOf(Title) * TitleScale;
 				size.Y += SpacerHeight + Spacing;
 			}
 	
@@ -323,7 +323,7 @@ public class Menu
 			UI.Text(batch, text, Vec2.Zero, justify, color);
 			batch.PopMatrix();
 
-			position.Y += font.LineHeight * TitleScale;
+			position.Y += font.HeightOf(Title) * TitleScale;
 			position.Y += SpacerHeight + Spacing;
 		}
 	

@@ -26,6 +26,9 @@
 
 		"FujiOptions": "Fuji Options...",
 		"FujiWriteLog": "Write Log File",
+		"FujiFailedToLoad": "Failed to load the following mods:",
+		"FujiOpenLogFile": "Open Log File",
+		"FailedToLoadMods": "Failed to load {0} mods. Check Mods Menu for details.",
 		"PauseMods": "Mods",
 		"PauseModEnabled": "Enabled",
 		"PauseModsConfirmDisable": "Continue & Disable Mod",
