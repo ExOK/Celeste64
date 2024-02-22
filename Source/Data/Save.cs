@@ -140,6 +140,11 @@ public class Save
 	public bool WriteLog { get; set; } = true;
 
 	/// <summary>
+	/// Fuji Custom - Whether The debug menu should be enabled
+	/// </summary>
+	public bool EnableDebugMenu { get; set; } = false;
+
+	/// <summary>
 	/// Fuji Custom - Records for each mod
 	/// </summary>
 	public List<ModRecord> ModRecords { get; set; } = [];
@@ -231,6 +236,11 @@ public class Save
 	public void ToggleWriteLog()
 	{
 		WriteLog = !WriteLog;
+	}
+
+	public void ToggleEnableDebugMenu()
+	{
+		EnableDebugMenu = !EnableDebugMenu;
 	}
 
 	public void ToggleZGuide()
