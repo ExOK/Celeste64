@@ -1,11 +1,11 @@
 ## Welcome to Celeste 64 Modding! - How to setup and get Fuji running on your system.
 #### Note: Fuji is still in its early phases and things are changing rapidly
 
-Fuji is the modding tool used for Celeste 64 modding, you can find it [here](https://github.com/FujiAPI/Fuji). Instead of using the original Celeste 64 files downloaded from Itch or Github, Fuji is a drop-in replacement for Celeste64.
+Fuji is an unnoficial mod-loader used for Celeste 64 modding, you can find it [here](https://github.com/FujiAPI/Fuji). Instead of using the original Celeste 64 files downloaded from Itch or Github, Fuji is a drop-in replacement for Celeste64.
 
-Currently only Windows builds are provided on the [releases page](https://github.com/FujiAPI/Fuji/releases).
+Builds are provided on the [releases page](https://github.com/FujiAPI/Fuji/releases).
 
-We do not currently officially support Linux or MacOS as we are focusing on the Windows version for now, but if you'd still like to use it on one of those platforms, you can try building it yourself. The steps are as follows:
+We do not currently officially support Linux or MacOS as we are focusing on the Windows version for now, however we will try to release builds for them. But if you'd still like to build it on one of those platforms, you can try the following steps:
 
 Prerequisites: You must have [.NET 8.0](https://dotnet.microsoft.com/en-us/download/dotnet/8.0)
 
@@ -20,7 +20,7 @@ Prerequisites: You must have [.NET 8.0](https://dotnet.microsoft.com/en-us/downl
 - Run `dotnet restore && dotnet publish Celeste64.Launcher/Celeste64.Launcher.csproj -c Release -r RID -o build && cp -r Content Mods build`
     - Replace the underlined section with your system's RID.
 
-- In the generated build folder run the `Celeste64.Launcher` executable and have fun!
+- In the generated build folder run the `Celeste64-Fuji` executable and have fun!
 Note: you may rename and move the `build` folder to wherever you like.
 
 ### Installing and Using Mods:

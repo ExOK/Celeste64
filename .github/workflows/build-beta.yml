@@ -86,7 +86,7 @@ jobs:
           # Instructions:
 
           - Download and extract the zip file below according to your computer
-          - Run the Celeste64 application from the extracted files
+          - Run the Celeste64-Fuji application from the extracted files
 
           # Requirements:
 
@@ -109,7 +109,7 @@ jobs:
           # Instructions:
 
           - Download and extract the zip file below according to your computer
-          - Run the Celeste64 application from the extracted files
+          - Run the Celeste64-Fuji application from the extracted files
 
           # Requirements:
 
