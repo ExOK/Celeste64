@@ -1,5 +1,7 @@
 ﻿using System.Runtime.InteropServices;
 
+namespace Celeste64.Launcher;
+
 public static class ConsoleHelper
 {
 	// P/Invoke required:

@@ -1,5 +1,4 @@
-﻿using Celeste64.Mod;
-using MonoMod.RuntimeDetour;
+﻿using MonoMod.RuntimeDetour;
 
 namespace Celeste64.Mod;
 
@@ -52,6 +51,14 @@ public abstract class GameMod
 	/// List of skins added by this mod.
 	/// </summary>
 	public readonly List<SkinInfo> Skins = [];
+	
+	/// <summary>
+	/// List of namespaces for which hook protections should be disabled.
+	/// Hooking Fuji or other mods can break and cause issues when they update.
+	/// Please consider reaching out to the authors first, so they can provide a stable public API.
+	/// By enabling this property, you understand those risks and are aware that your mod might break. 
+	/// </summary>
+	public readonly List<string> PreventHookProtectionYesIKnowThisIsDangerousAndCanBreak = [];
 
 	#region Save Functions
 	// These functions allow modders to save data and get save data from the save file.

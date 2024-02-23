@@ -1,6 +1,6 @@
-﻿namespace Celeste64;
+﻿using EmbeddedBuildProperty;
 
-using EmbeddedBuildProperty;
+namespace Celeste64.Launcher;
 
 public partial class BuildProperties
 {

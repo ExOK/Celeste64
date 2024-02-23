@@ -1,11 +1,11 @@
 using System.Diagnostics;
 using System.Globalization;
 using System.Text;
-
-using Celeste64;
 using Foster.Framework;
 
-class Program
+namespace Celeste64.Launcher;
+
+public class Program
 {
 	// Copied from Celeste64 project
 	public static void Main(string[] args)

@@ -1,4 +1,6 @@
-﻿using System.Text.Json;
+﻿using System.Reflection;
+using System.Text.Json;
+using MonoMod.RuntimeDetour;
 
 namespace Celeste64.Mod;
 
@@ -130,6 +132,12 @@ public static class ModLoader
 				mod.Filesystem?.AssociateWithMod(mod);
 				ModManager.Instance.RegisterMod(mod);
 
+				// Load hooks after the mod has been registered
+				foreach (var type in mod.GetType().Assembly.GetTypes())
+				{
+					FindAndRegisterHooks(type);
+				}
+				
 				modInfos.RemoveAt(i);
 				loaded.Add(info);
 				loadedModInIteration = true;
@@ -219,7 +227,7 @@ public static class ModLoader
 			}
 		}
 
-		if (loadedMod is not { })
+		if (loadedMod is null)
 		{
 			if (anyDllFile)
 			{
@@ -227,13 +235,40 @@ public static class ModLoader
 			}
 
 			// No GameMod, create a dummy one
-			loadedMod = new DummyGameMod
+			return new DummyGameMod
 			{
 				ModInfo = info,
 				Filesystem = fs
 			};
 		}
-
+		
 		return loadedMod;
+	}
+	
+	private static void FindAndRegisterHooks(Type type)
+	{
+		// On. hooks
+		var onHookMethods = type.GetMethods(BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic)
+			.Select(m => (m, m.GetCustomAttribute<InternalOnHookGenTargetAttribute>()))
+			.Where(t => t.Item2 != null)
+			.Cast<(MethodInfo, InternalOnHookGenTargetAttribute)>();
+
+		foreach (var (info, attr) in onHookMethods)
+		{
+			Log.Info($"Registering On-hook for method '{attr.Target}' in type '{attr.Target.DeclaringType}' with hook method '{info}'");
+			HookManager.Instance.RegisterHook(new Hook(attr.Target, info));
+		}
+		
+		// IL. hooks
+		var ilHookMethods = type.GetMethods(BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic)
+			.Select(m => (m, m.GetCustomAttribute<InternalILHookGenTargetAttribute>()))
+			.Where(t => t.Item2 != null)
+			.Cast<(MethodInfo, InternalILHookGenTargetAttribute)>();
+
+		foreach (var (info, attr) in ilHookMethods)
+		{
+			Log.Info($"Registering IL-hook for method '{attr.Target}' in type '{attr.Target.DeclaringType}' with hook method '{info}'");
+			HookManager.Instance.RegisterHook(new Hook(attr.Target, info));
+		}
 	}
 }
