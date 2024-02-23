@@ -1,4 +1,5 @@
 
+using Celeste64.Mod;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -278,8 +279,20 @@ public class Save
 
 	public SkinInfo GetSkin()
 	{ 
-		return Assets.EnabledSkins.First(s => s.Name == SkinName);
-	}
+		return Assets.EnabledSkins.FirstOrDefault(s => s.Name == SkinName) ??
+			ModManager.Instance.VanillaGameMod?.Skins.FirstOrDefault() ??
+			new SkinInfo
+			{
+				Name = "Madeline",
+				Model = "player",
+				HideHair = false,
+				HairNormal = 0xdb2c00,
+				HairNoDash = 0x6ec0ff,
+				HairTwoDash = 0xfa91ff,
+				HairRefillFlash = 0xffffff,
+				HairFeather = 0xf2d450
+			};
+}
 
 	public void SyncSettings()
 	{

@@ -174,7 +174,7 @@ internal class ImGuiRenderer
                     throw new InvalidOperationException($"Could not find a texture with id '{drawCmd.TextureId}', please check your bindings");
                 }
 
-                if (spriteMaterial.Shader?.Has("u_texture") ?? false)
+                if (spriteMaterial != null && (spriteMaterial.Shader?.Has("u_texture") ?? false))
                     spriteMaterial.Set("u_texture", loadedTextures[drawCmd.TextureId]);
 
                 DrawCommand cmd = new(target, mesh, spriteMaterial!)
