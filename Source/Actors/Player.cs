@@ -229,7 +229,7 @@ public class Player : Actor, IHaveModels, IHaveSprites, IRidePlatforms, ICastPoi
 	public static Vec3 StoredCameraForward;
 	public static float StoredCameraDistance;
 
-	public enum States { Normal, Dashing, Skidding, Climbing, StrawbGet, FeatherStart, Feather, Respawn, Dead, StrawbReveal, Cutscene, Bubble, Cassette };
+	public enum States { Normal, Dashing, Skidding, Climbing, StrawbGet, FeatherStart, Feather, Respawn, Dead, StrawbReveal, Cutscene, Bubble, Cassette, DebugFly };
 	public enum Events { Land };
 	public enum JumpType { Jumped, WallJumped, SkidJumped, DashJumped };
 
@@ -359,6 +359,7 @@ public class Player : Actor, IHaveModels, IHaveSprites, IRidePlatforms, ICastPoi
 		StateMachine.InitState(States.Dead, StDeadUpdate, StDeadEnter);
 		StateMachine.InitState(States.Bubble, null, null, StBubbleExit, StBubbleRoutine);
 		StateMachine.InitState(States.Cassette, null, null, StCassetteExit, StCassetteRoutine);
+		StateMachine.InitState(States.DebugFly, StDebugFlyUpdate, StDebugFlyEnter, StDebugFlyExit);
 		// Register custom player states
 		var nextId = CustomPlayerStateRegistry.BaseId;
 		foreach (var customState in CustomPlayerStateRegistry.RegisteredStates)
@@ -384,7 +385,7 @@ public class Player : Actor, IHaveModels, IHaveSprites, IRidePlatforms, ICastPoi
 	/// If the player is in a custom state, returns its definition.
 	/// Otherwise, returns null.
 	/// </summary>
-	[DisallowHooks]
+  [DisallowHooks]
 	public virtual CustomPlayerState? GetCurrentCustomState()
 	{
 		if (StateMachine.State is not { } state)
@@ -398,7 +399,7 @@ public class Player : Actor, IHaveModels, IHaveSprites, IRidePlatforms, ICastPoi
 	/// <summary>
 	/// Checks whether the player is currently in the provided custom state.
 	/// </summary>
-	[DisallowHooks]
+  [DisallowHooks]
 	public virtual bool IsInState<T>() where T : CustomPlayerState
 	{
 		var stateDef = GetCurrentCustomState();
@@ -409,7 +410,7 @@ public class Player : Actor, IHaveModels, IHaveSprites, IRidePlatforms, ICastPoi
 	/// <summary>
 	/// Sets the player's state to the provided custom state.
 	/// </summary>
-	[DisallowHooks]
+  [DisallowHooks]
 	public virtual void SetState<T>() where T : CustomPlayerState
 	{
 		var id = CustomPlayerStateRegistry.GetId<T>();
@@ -420,13 +421,13 @@ public class Player : Actor, IHaveModels, IHaveSprites, IRidePlatforms, ICastPoi
 	/// <summary>
 	/// Sets the player's state to the provided vanilla state.
 	/// </summary>
-	[DisallowHooks]
+  [DisallowHooks]
 	public virtual void SetState(States state)
 	{
 		StateMachine.State = state;
 	}
 
-	[DisallowHooks]
+  [DisallowHooks]
 	protected virtual void HandleStateChange(States? state)
 	{
 		ModManager.Instance.OnPlayerStateChanged(this, state);
@@ -562,7 +563,7 @@ public class Player : Actor, IHaveModels, IHaveSprites, IRidePlatforms, ICastPoi
 		}
 
 		// death plane
-		if (!InBubble)
+		if (!InBubble && StateMachine.State != States.DebugFly)
 		{
 			if (Position.Z < World.DeathPlane ||
 				World.Overlaps<DeathBlock>(SolidWaistTestPos) ||
@@ -603,7 +604,7 @@ public class Player : Actor, IHaveModels, IHaveSprites, IRidePlatforms, ICastPoi
 		StateMachine.Update();
 
 		// move and pop out
-		if (!InBubble)
+		if (!InBubble && StateMachine.State != States.DebugFly)
 		{
 			// push out of NPCs
 			foreach (var actor in World.All<IHavePushout>())
@@ -656,6 +657,7 @@ public class Player : Actor, IHaveModels, IHaveSprites, IRidePlatforms, ICastPoi
 	public override void LateUpdate()
 	{
 		// ground checks
+		if(StateMachine.State != States.DebugFly)
 		{
 			bool prevOnGround = OnGround;
 			OnGround = GroundCheck(out var pushout, out var normal, out _);
@@ -2450,6 +2452,76 @@ public class Player : Actor, IHaveModels, IHaveSprites, IRidePlatforms, ICastPoi
 		DrawModel = DrawHair = true;
 		CameraOverride = null;
 		PointShadowAlpha = 1;
+	}
+
+	#endregion
+
+	#region Normal State
+
+	public virtual void StDebugFlyEnter()
+	{
+		THoldJump = 0;
+		TFootstep = FootstepInterval;
+	}
+
+	public virtual void StDebugFlyExit()
+	{
+		THoldJump = 0;
+		TNoMove = 0;
+		AutoJump = false;
+		Model.Rate = 1;
+	}
+
+	public virtual void StDebugFlyUpdate()
+	{
+		// movement
+		{
+			var velXY = Velocity.XY();
+			if (Controls.Move.Value == Vec2.Zero || TNoMove > 0)
+			{
+				// friction
+				Calc.Approach(ref velXY, Vec2.Zero, Friction * Time.Delta);
+			}
+			else
+			{
+				float accel;
+				if (velXY.LengthSquared() >= MaxSpeed * MaxSpeed && Vec2.Dot(RelativeMoveInput.Normalized(), velXY.Normalized()) >= .7f)
+				{
+					accel = PastMaxDeccel;
+
+					var dot = Vec2.Dot(RelativeMoveInput.Normalized(), TargetFacing);
+					accel *= Calc.ClampedMap(dot, -1, 1, AirAccelMultMax, AirAccelMultMin);
+				}
+				else
+				{
+					accel = Acceleration;
+
+					var dot = Vec2.Dot(RelativeMoveInput.Normalized(), TargetFacing);
+					accel *= Calc.ClampedMap(dot, -1, 1, AirAccelMultMin, AirAccelMultMax);
+				}
+
+				Calc.Approach(ref velXY, RelativeMoveInput * MaxSpeed, accel * Time.Delta);
+			}
+
+			Velocity = Velocity.WithXY(velXY);
+		}
+
+		if (Controls.Jump.Down)
+		{
+			Position = new Vector3(Position.X, Position.Y, Position.Z + 1);
+		}
+		if (Controls.Dash.Down)
+		{
+			Position = new Vector3(Position.X, Position.Y, Position.Z - 1);
+		}
+
+		if (Controls.Move.Value != Vec2.Zero && TNoMove <= 0)
+		{
+			TargetFacing = Calc.RotateToward(TargetFacing, RelativeMoveInput, RotateSpeed * Time.Delta, 0);
+			Facing = Calc.AngleToVector(Calc.AngleApproach(Facing.Angle(), TargetFacing.Angle(), MathF.Tau * 2 * Time.Delta));
+		}
+
+		Position += velocity * Time.Delta;
 	}
 
 	#endregion

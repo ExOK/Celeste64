@@ -15,6 +15,7 @@ public class ImGuiManager
     public static bool WantCaptureMouse { get; private set; }
     
     private readonly ImGuiRenderer renderer;
+    private static FujiDebugMenu debugMenu = new FujiDebugMenu();
     private static IEnumerable<ImGuiHandler> Handlers => ModManager.Instance.EnabledMods.SelectMany(mod => mod.ImGuiHandlers);
 
     internal ImGuiManager()
@@ -26,8 +27,11 @@ public class ImGuiManager
     internal void UpdateHandlers()
     {
         renderer.Update();
-        
-        foreach (var handler in Handlers)
+
+        if(debugMenu.Active)
+    		debugMenu.Update();
+
+		foreach (var handler in Handlers)
         {
             if (handler.Active) handler.Update();
         }
@@ -36,7 +40,9 @@ public class ImGuiManager
     internal void RenderHandlers()
     {
         renderer.BeforeRender();
-        foreach (var handler in Handlers)
+		if (debugMenu.Visible)
+			debugMenu.Render();
+		foreach (var handler in Handlers)
         {
             if (handler.Visible) handler.Render();
         }
