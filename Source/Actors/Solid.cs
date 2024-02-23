@@ -14,6 +14,11 @@ public class Solid : Actor, IHaveModels
 	public bool Transparent = false;
 
 	/// <summary>
+	/// If we're currently climbable
+	/// </summary>
+	public bool Climbable = true;
+
+	/// <summary>
 	/// Visual Model to Draw
 	/// </summary>
 	public readonly SimpleModel Model = new() { Flags = ModelFlags.Terrain };
@@ -47,6 +52,14 @@ public class Solid : Actor, IHaveModels
 		{
 			ValidateTransformations();
 			return WorldFacesLocal;
+		}
+	}
+
+	public virtual bool IsClimbable
+	{
+		get
+		{
+			return Climbable;
 		}
 	}
 

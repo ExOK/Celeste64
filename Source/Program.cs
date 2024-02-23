@@ -6,5 +6,5 @@ namespace Celeste64;
 
 class Program
 {
-    // Moved to Celeste64Launcher project
+    // Moved to Celeste64.Launcher project
 }

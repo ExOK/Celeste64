@@ -17,10 +17,10 @@ Prerequisites: You must have [.NET 8.0](https://dotnet.microsoft.com/en-us/downl
     1. M series Macs - `osx-arm64`
     2. Most Linux systems - `linux-x64`
 
-- Run `dotnet restore && dotnet publish Celeste64Launcher/Celeste64Launcher.csproj -c Release -r RID -o build && cp -r Content Mods build`
+- Run `dotnet restore && dotnet publish Celeste64.Launcher/Celeste64.Launcher.csproj -c Release -r RID -o build && cp -r Content Mods build`
     - Replace the underlined section with your system's RID.
 
-- In the generated build folder run the `Celeste64Launcher` executable and have fun!
+- In the generated build folder run the `Celeste64.Launcher` executable and have fun!
 Note: you may rename and move the `build` folder to wherever you like.
 
 ### Installing and Using Mods:

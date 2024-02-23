@@ -3,7 +3,7 @@ namespace Celeste64;
 
 public class Checkpoint : Actor, IHaveModels, IPickup, IHaveSprites
 {
-	public readonly string Name;
+	public readonly string CheckpointName;
 	public SkinnedModel ModelOff;
 	public SkinnedModel ModelOn;
 
@@ -11,7 +11,7 @@ public class Checkpoint : Actor, IHaveModels, IPickup, IHaveSprites
 
 	public Checkpoint(string name)
 	{
-		Name = name;
+		CheckpointName = name;
 		LocalBounds = new BoundingBox(Vec3.Zero, 8);
 		ModelOff = new(Assets.Models["flag_off"]);
 		ModelOff.Play("Idle");
@@ -23,7 +23,7 @@ public class Checkpoint : Actor, IHaveModels, IPickup, IHaveSprites
 
 	public virtual float PickupRadius => 16;
 
-	public virtual bool IsCurrent => World.Entry.CheckPoint == Name;
+	public virtual bool IsCurrent => World.Entry.CheckPoint == CheckpointName;
 	public virtual SkinnedModel CurrentModel => (IsCurrent ? ModelOn : ModelOff);
 
 	public override void Added()
@@ -53,9 +53,9 @@ public class Checkpoint : Actor, IHaveModels, IPickup, IHaveSprites
 		{
 			Audio.Play(Sfx.sfx_checkpoint, Position);
 
-			World.Entry = World.Entry with { CheckPoint = Name };
+			World.Entry = World.Entry with { CheckPoint = CheckpointName };
 			if (!World.Entry.Submap)
-				Save.CurrentRecord.Checkpoint = Name;
+				Save.CurrentRecord.Checkpoint = CheckpointName;
 
 			TWiggle = 1;
 		}

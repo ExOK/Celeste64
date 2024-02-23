@@ -6,6 +6,8 @@ using SledgeEntity = Sledge.Formats.Map.Objects.Entity;
 using SledgeFace = Sledge.Formats.Map.Objects.Face;
 using SledgeMap = Sledge.Formats.Map.Objects.MapFile;
 using System.Runtime.CompilerServices;
+using Celeste64.Mod;
+using System.Globalization;
 
 namespace Celeste64;
 
@@ -87,6 +89,7 @@ public class Map
 				entity.GetIntProperty("secret", 0) != 0);
 		}) { IsSolidGeometry = true },
 		["CassetteBlock"] = new((map, entity) => new CassetteBlock(entity.GetIntProperty("startOn", 1) != 0)) { IsSolidGeometry = true },
+		["NonClimbableBlock"] = new((map, entity) => new NonClimbableBlock()) { IsSolidGeometry = true },
 		["DoubleDashPuzzleBlock"] = new((map, entity) => new DoubleDashPuzzleBlock()) { IsSolidGeometry = true },
 		["EndingArea"] = new((map, entity) => new EndingArea()) { UseSolidsAsBounds = true },
 		["Fog"] = new((map, entity) => new FogRing(entity)),
@@ -324,12 +327,18 @@ public class Map
 	
 	public void HandleActorCreation(World world, SledgeEntity entity, Actor it, ActorFactory? factory)
 	{
-		if ((factory?.IsSolidGeometry ?? false) && it is Solid solid)
+		if(it is Solid solid)
 		{
-			List<SledgeSolid> collection = [];
-			CollectSolids(entity, collection);
-			GenerateSolid(solid, collection);
+			if ((factory?.IsSolidGeometry ?? false))
+			{
+				List<SledgeSolid> collection = [];
+				CollectSolids(entity, collection);
+				GenerateSolid(solid, collection);
+			}
+			if (entity.Properties.ContainsKey("climbable"))
+				solid.Climbable = entity.GetStringProperty("climbable", "true") != "false";
 		}
+
 
 		if (entity.Properties.ContainsKey("origin"))
 			it.Position = Vec3.Transform(entity.GetVectorProperty("origin", Vec3.Zero), baseTransform);
@@ -338,11 +347,35 @@ public class Map
 		    groupNames.TryGetValue(entity.GetIntProperty("_tb_group", -1), out var groupName))
 			it.GroupName = groupName;
 
-		if (entity.Properties.ContainsKey("angle"))
-			it.Facing = new(Calc.AngleToVector(entity.GetIntProperty("angle", 0) * Calc.DegToRad - MathF.PI / 2), it.Facing.Z);
 
-		if (entity.Properties.ContainsKey("tilt"))
-			it.Facing = new(it.Facing.XY(), entity.GetIntProperty("tilt", 0) * Calc.DegToRad);
+		// Fuji Custom - Allows for rotation in maps using either a vec3 rotation property
+		// Or 3 different Angle properties. This is to support compatibility with existing vanilla actors who only use 1 angle property 
+		Vec3 rotationXYZ = new(0, 0, -MathF.PI / 2);
+		if (entity.Properties.ContainsKey("rotation") && entity.Properties["rotation"].Split(' ').Length == 3)
+		{
+			var value = entity.Properties["rotation"];
+			var spl = value.Split(' ');
+			if (spl.Length == 3)
+			{
+				if (float.TryParse(spl[0], NumberStyles.Float, CultureInfo.InvariantCulture, out var x))
+					rotationXYZ.X = x * Calc.DegToRad;
+				if (float.TryParse(spl[1], NumberStyles.Float, CultureInfo.InvariantCulture, out var y))
+					rotationXYZ.Y = y * Calc.DegToRad;
+				if (float.TryParse(spl[2], NumberStyles.Float, CultureInfo.InvariantCulture, out var z))
+					rotationXYZ.Z = z * Calc.DegToRad - MathF.PI / 2;
+			}
+		}
+		else
+		{
+			if (entity.Properties.ContainsKey("anglepitch"))
+				rotationXYZ.X = entity.GetIntProperty("anglepitch", 0) * Calc.DegToRad;
+			if (entity.Properties.ContainsKey("angleroll"))
+				rotationXYZ.Y = entity.GetIntProperty("angleroll", 0) * Calc.DegToRad;
+			if (entity.Properties.ContainsKey("angle"))
+				rotationXYZ.Z = entity.GetIntProperty("angle", 0) * Calc.DegToRad - MathF.PI / 2;
+		}
+		it.RotationXYZ = rotationXYZ;
+
 
 		if (factory?.UseSolidsAsBounds ?? false)
 		{

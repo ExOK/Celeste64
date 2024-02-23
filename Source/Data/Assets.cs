@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.Text;
 using System.Text.Json;
+using Celeste64.Mod;
 
 namespace Celeste64;
 
@@ -9,6 +10,44 @@ public static class Assets
 {
 	public const float FontSize = Game.RelativeScale * 16;
 	public const string AssetFolder = "Content";
+	
+	public const string MapsFolder = "Maps";
+	public const string MapsExtension = "map";
+	
+	public const string TexturesFolder = "Textures";
+	public const string TexturesExtension = "png";
+	
+	public const string FacesFolder = "Faces";
+	public const string FacesExtension = "png";
+	
+	public const string ModelsFolder = "Models";
+	public const string ModelsExtension = "glb";
+
+	public const string TextFolder = "Text";
+	public const string TextExtension = "json";
+	
+	public const string AudioFolder = "Audio";
+	public const string AudioExtension = "bank";
+
+	public const string ShadersFolder = "Shaders";
+	public const string ShadersExtension = "glsl";
+	
+	public const string FontsFolder = "Fonts";
+	public const string FontsExtensionTTF = "ttf";
+	public const string FontsExtensionOTF = "otf";
+	
+	public const string SpritesFolder = "Sprites";
+	public const string SpritesExtension = "png";
+	
+	public const string SkinsFolder = "Skins";
+	public const string SkinsExtension = "json";
+	
+	public const string LibrariesFolder = "Libraries";
+	public const string LibrariesExtensionAssembly = "dll";
+	public const string LibrariesExtensionSymbol = "pdb";
+	
+	public const string FujiJSON = "Fuji.json";
+	public const string LevelsJSON = "Levels.json";
 
 	private static string? contentPath = null;
 
@@ -38,11 +77,18 @@ public static class Assets
 	public static readonly ModAssetDictionary<SkinnedTemplate> Models = new(gameMod => gameMod.Models);
 	public static readonly ModAssetDictionary<Subtexture> Subtextures = new(gameMod => gameMod.Subtextures);
 	public static readonly ModAssetDictionary<Font> Fonts = new(gameMod => gameMod.Fonts);
+	public static readonly ModAssetDictionary<FMOD.Sound> Sounds = new(gameMod => gameMod.Sounds);
+	public static readonly ModAssetDictionary<FMOD.Sound> Music = new(gameMod => gameMod.Music);
 	public static readonly Dictionary<string, Language> Languages = new(StringComparer.OrdinalIgnoreCase);
 
-	public static List<SkinInfo> Skins { get; private set; } = [];
-
-	public static List<SkinInfo> EnabledSkins { get { return Skins.Where(skin => skin.IsEnabled()).ToList(); } }
+	public static List<SkinInfo> EnabledSkins { 
+		get { 
+			return ModManager.Instance.EnabledMods
+				.SelectMany(mod => mod.Skins)
+				.Where(skin => skin.IsUnlocked())
+				.ToList();
+		}
+	}
 
 	public static List<LevelInfo> Levels { get; private set; } = [];
 
@@ -58,6 +104,8 @@ public static class Assets
 		Models.Clear();
 		Fonts.Clear();
 		Languages.Clear();
+		Sounds.Clear();
+		Music.Clear();
 		Audio.Unload();
 
 		Map.ModActorFactories.Clear();
@@ -66,22 +114,24 @@ public static class Assets
 		var maps = new ConcurrentBag<(Map, GameMod)>();
 		var images = new ConcurrentBag<(string, Image, GameMod)>();
 		var models = new ConcurrentBag<(string, SkinnedTemplate, GameMod)>();
+		var sounds = new ConcurrentBag<(string, FMOD.Sound, GameMod)>();
+		var music = new ConcurrentBag<(string, FMOD.Sound, GameMod)>();
 		var langs = new ConcurrentBag<(Language, GameMod)>();
 		var tasks = new List<Task>();
 
 		// NOTE: Make sure to update ModManager.OnModFileChanged() as well, for hot-reloading to work!
 		
 		var globalFs = ModManager.Instance.GlobalFilesystem;
-		foreach (var (file, mod) in globalFs.FindFilesInDirectoryRecursiveWithMod("Maps", "map"))
+		foreach (var (file, mod) in globalFs.FindFilesInDirectoryRecursiveWithMod(MapsFolder, MapsExtension))
 		{
 			// Skip the "autosave" folder
-			if (file.StartsWith("Maps/autosave", StringComparison.OrdinalIgnoreCase))
+			if (file.StartsWith($"{MapsFolder}/autosave", StringComparison.OrdinalIgnoreCase))
 				continue;
 
 			tasks.Add(Task.Run(() =>
 			{
 				if (mod.Filesystem != null && mod.Filesystem.TryOpenFile(file, 
-					    stream => new Map(GetResourceNameFromVirt(file, "Maps"), file, stream), out var map))
+					    stream => new Map(GetResourceNameFromVirt(file, MapsFolder), file, stream), out var map))
 				{
 					maps.Add((map, mod));
 				}
@@ -89,23 +139,23 @@ public static class Assets
 		}
 
 		// load texture pngs
-		foreach (var (file, mod) in globalFs.FindFilesInDirectoryRecursiveWithMod("Textures", "png"))
+		foreach (var (file, mod) in globalFs.FindFilesInDirectoryRecursiveWithMod(TexturesFolder, TexturesExtension))
 		{
 			tasks.Add(Task.Run(() =>
 			{
 				if (mod.Filesystem != null && mod.Filesystem.TryLoadImage(file, out var image))
 				{
-					images.Add((GetResourceNameFromVirt(file, "Textures"), image, mod));
+					images.Add((GetResourceNameFromVirt(file, TexturesFolder), image, mod));
 				}
 			}));
 		}
 
 		// load faces
-		foreach (var (file, mod) in globalFs.FindFilesInDirectoryRecursiveWithMod("Faces", "png"))
+		foreach (var (file, mod) in globalFs.FindFilesInDirectoryRecursiveWithMod(FacesFolder, FacesExtension))
 		{
 			tasks.Add(Task.Run(() =>
 			{
-				var name = $"faces/{GetResourceNameFromVirt(file, "Faces")}";
+				var name = $"faces/{GetResourceNameFromVirt(file, FacesFolder)}";
 				if (mod.Filesystem != null && mod.Filesystem.TryLoadImage(file, out var image))
 				{
 					images.Add((name, image, mod));
@@ -114,7 +164,7 @@ public static class Assets
 		}
 
 		// load glb models
-		foreach (var (file, mod) in globalFs.FindFilesInDirectoryRecursiveWithMod("Models", "glb"))
+		foreach (var (file, mod) in globalFs.FindFilesInDirectoryRecursiveWithMod(ModelsFolder, ModelsExtension))
 		{
 			tasks.Add(Task.Run(() =>
 			{
@@ -122,13 +172,13 @@ public static class Assets
 						out var input))
 				{
 					var model = new SkinnedTemplate(input);
-					models.Add((GetResourceNameFromVirt(file, "Models"), model, mod));
+					models.Add((GetResourceNameFromVirt(file, ModelsFolder), model, mod));
 				}
 			}));
 		}
 		
 		// load languages
-		foreach (var (file, mod) in globalFs.FindFilesInDirectoryRecursiveWithMod("Text", "json"))
+		foreach (var (file, mod) in globalFs.FindFilesInDirectoryRecursiveWithMod(TextFolder, TextExtension))
 		{
 			tasks.Add(Task.Run(() =>
 			{
@@ -141,25 +191,55 @@ public static class Assets
 		}
 
 		// load audio
-		var allBankFiles = globalFs.FindFilesInDirectoryRecursiveWithMod("Audio", "bank").ToList();
+		var allBankFiles = globalFs.FindFilesInDirectoryRecursiveWithMod(AudioFolder, AudioExtension).ToList();
 		// load strings first
 		foreach (var (file, mod) in allBankFiles)
 		{
-			if (mod.Filesystem != null && file.EndsWith(".strings.bank"))
+			if (mod.Filesystem != null && file.EndsWith($".strings.{AudioExtension}"))
 				mod.Filesystem.TryOpenFile(file, Audio.LoadBankFromStream);
 		}
 		// load banks second
 		foreach (var (file, mod) in allBankFiles)
 		{
-			if (mod.Filesystem != null && file.EndsWith(".bank") && !file.EndsWith(".strings.bank"))
+			if (mod.Filesystem != null && file.EndsWith($".{AudioExtension}") && !file.EndsWith($".strings.{AudioExtension}"))
 				mod.Filesystem.TryOpenFile(file, Audio.LoadBankFromStream);
+		}
+
+		foreach (var (file, mod) in globalFs.FindFilesInDirectoryRecursiveWithMod("Sounds", "wav"))
+		{
+			tasks.Add(Task.Run(() =>
+			{
+				if (mod.Filesystem != null && mod.Filesystem.TryOpenFile(file, stream => Audio.LoadWavFromStream(stream),
+						out FMOD.Sound? sound))
+				{
+					if(sound != null)
+					{
+						sounds.Add((GetResourceNameFromVirt(file, "Sounds"), sound.Value, mod));
+					}
+				}
+			}));
+		}
+
+		foreach (var (file, mod) in globalFs.FindFilesInDirectoryRecursiveWithMod("Music", "wav"))
+		{
+			tasks.Add(Task.Run(() =>
+			{
+				if (mod.Filesystem != null && mod.Filesystem.TryOpenFile(file, stream => Audio.LoadWavFromStream(stream),
+						out FMOD.Sound? song))
+				{
+					if (song != null)
+					{
+						music.Add((GetResourceNameFromVirt(file, "Music"), song.Value, mod));
+					}
+				}
+			}));
 		}
 
 		// load level, dialog jsons
 		foreach (var mod in ModManager.Instance.Mods)
 		{
 			mod.Levels.Clear();
-			if (mod.Filesystem != null && mod.Filesystem.TryOpenFile("Levels.json", 
+			if (mod.Filesystem != null && mod.Filesystem.TryOpenFile(LevelsJSON, 
 				    stream => JsonSerializer.Deserialize(stream, LevelInfoListContext.Default.ListLevelInfo) ?? [], 
 				    out var levels))
 			{
@@ -179,22 +259,22 @@ public static class Assets
 		}
 
 		// load glsl shaders
-		foreach (var (file, mod) in globalFs.FindFilesInDirectoryRecursiveWithMod("Shaders", "glsl"))
+		foreach (var (file, mod) in globalFs.FindFilesInDirectoryRecursiveWithMod(ShadersFolder, ShadersExtension))
 		{
 			if (mod.Filesystem != null && mod.Filesystem.TryOpenFile(file, stream => LoadShader(file, stream), out var shader))
 			{
-				shader.Name = GetResourceNameFromVirt(file, "Shaders");
+				shader.Name = GetResourceNameFromVirt(file, ShadersFolder);
 				Shaders.Add(shader.Name, shader, mod);
 			}
 		}
 
 		// load font files
-		foreach (var (file, mod) in globalFs.FindFilesInDirectoryRecursiveWithMod("Fonts", ""))
+		foreach (var (file, mod) in globalFs.FindFilesInDirectoryRecursiveWithMod(FontsFolder, ""))
 		{
-			if (file.EndsWith(".ttf") || file.EndsWith(".otf"))
+			if (file.EndsWith($".{FontsExtensionTTF}") || file.EndsWith($".{FontsExtensionOTF}"))
 			{
 				if (mod.Filesystem != null && mod.Filesystem.TryOpenFile(file, stream => new Font(stream), out var font))
-					Fonts.Add(GetResourceNameFromVirt(file, "Fonts"), font, mod);
+					Fonts.Add(GetResourceNameFromVirt(file, FontsFolder), font, mod);
 			}
 		}
 
@@ -206,11 +286,11 @@ public static class Assets
 				CombineDuplicates = false,
 				Padding = 1
 			};
-			foreach (var (file, mod) in globalFs.FindFilesInDirectoryRecursiveWithMod("Sprites", "png"))
+			foreach (var (file, mod) in globalFs.FindFilesInDirectoryRecursiveWithMod(SpritesFolder, SpritesExtension))
 			{
 				if (mod.Filesystem != null && mod.Filesystem.TryOpenFile(file, stream => new Image(stream), out var img))
 				{
-					packer.Add($"{mod.ModInfo.Id}:{GetResourceNameFromVirt(file, "Sprites")}", img);
+					packer.Add($"{mod.ModInfo.Id}:{GetResourceNameFromVirt(file, SpritesFolder)}", img);
 				}
 			}
 
@@ -243,6 +323,10 @@ public static class Assets
 				Textures.Add(name, new Texture(img) { Name = name }, mod);
 			foreach (var (map, mod) in maps)
 				Maps.Add(map.Name, map, mod);
+			foreach (var (name, sound, mod) in sounds)
+				Sounds.Add(name, sound, mod);
+			foreach (var (name, song, mod) in music)
+				Music.Add(name, song, mod);
 			foreach (var (name, model, mod) in models)
 			{
 				model.ConstructResources();
@@ -263,25 +347,29 @@ public static class Assets
 		}
 
 		// Load Skins
-		Skins = [
-			new SkinInfo{
-				Name = "Madeline",
-				Model = "player",
-				HideHair = false,
-				HairNormal = 0xdb2c00,
-				HairNoDash = 0x6ec0ff,
-				HairTwoDash = 0xfa91ff,
-				HairRefillFlash = 0xffffff,
-				HairFeather = 0xf2d450
-			}
-		];
-		foreach (var (file, mod) in globalFs.FindFilesInDirectoryRecursiveWithMod("Skins", "json"))
+		if (ModManager.Instance.VanillaGameMod != null)
+		{
+			ModManager.Instance.VanillaGameMod.Skins.Add(
+				new SkinInfo
+				{
+					Name = "Madeline",
+					Model = "player",
+					HideHair = false,
+					HairNormal = 0xdb2c00,
+					HairNoDash = 0x6ec0ff,
+					HairTwoDash = 0xfa91ff,
+					HairRefillFlash = 0xffffff,
+					HairFeather = 0xf2d450
+				}
+			);
+		}
+
+		foreach (var (file, mod) in globalFs.FindFilesInDirectoryRecursiveWithMod(SkinsFolder, SkinsExtension))
 		{
 			if (mod.Filesystem != null && mod.Filesystem.TryOpenFile(file,
 				    stream => JsonSerializer.Deserialize(stream, SkinInfoContext.Default.SkinInfo), out var skin) && skin.IsValid())
 			{
-				skin.ModId = mod.ModInfo.Id;
-				Skins.Add(skin);
+				mod.Skins.Add(skin);
 			}
 			else
 			{

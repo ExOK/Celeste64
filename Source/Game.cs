@@ -1,5 +1,7 @@
 ﻿using System.Diagnostics;
-using System.Text.Json;
+using System.Text;
+using Celeste64.Mod;
+using Celeste64.Mod.Patches;
 
 namespace Celeste64;
 
@@ -60,9 +62,14 @@ public class Game : Module
 	private readonly FMOD.Studio.EVENT_CALLBACK audioEventCallback;
 	private int audioBeatCounter;
 	private bool audioBeatCounterEvent;
+    
+    private ImGuiManager imGuiManager;
 
 	public AudioHandle Ambience;
 	public AudioHandle Music;
+
+	public SoundHandle? AmbienceWav;
+	public SoundHandle? MusicWav;
 
 	public Scene? Scene { get { return scenes.TryPeek(out Scene? scene) ? scene : null; } }
 	public World? World { get { return Scene is World world ? world : null; } }
@@ -73,17 +80,21 @@ public class Game : Module
 	{
 		// If this isn't stored, the delegate will get GC'd and everything will crash :)
 		audioEventCallback = MusicTimelineCallback;
+		imGuiManager = new ImGuiManager();
 	}
 
 	public override void Startup()
 	{
 		instance = this;
+        
+        // Fuji: apply patches
+        Patches.Load();
 		
 		Time.FixedStep = true;
 		App.VSync = true;
 		App.Title = GameTitle;
 		Audio.Init();
-
+        
 		scenes.Push(new Startup());
 		ModManager.Instance.OnGameLoaded(this);
 	}
@@ -99,8 +110,14 @@ public class Game : Module
 			it.Disposed();
 		}
 		
+        // Fuji: remove patches
+        Patches.Unload();
+        
 		scenes.Clear();
 		instance = null;
+
+		Log.Info("Shutting down...");
+		WriteToLog();
 	}
 
 	public bool IsMidTransition => transitionStep != TransitionStep.None;
@@ -120,6 +137,8 @@ public class Game : Module
 
 	public override void Update()
 	{
+        imGuiManager.UpdateHandlers();
+        
 		// update top scene
 		if (scenes.TryPeek(out var scene))
 		{
@@ -218,6 +237,17 @@ public class Game : Module
 					if (Music)
 						Music.SetCallback(audioEventCallback);
 				}
+
+				string lastWav = MusicWav != null && MusicWav.Value.IsPlaying && lastScene != null ? lastScene.MusicWav : string.Empty;
+				string nextWav = nextScene?.MusicWav ?? string.Empty;
+				if (lastWav != nextWav)
+				{
+					MusicWav?.Stop();
+					if (string.IsNullOrEmpty(nextWav))
+					{
+						MusicWav = Audio.PlayMusic(nextWav);
+					}
+				}
 			}
 
 			// switch ambience
@@ -227,13 +257,29 @@ public class Game : Module
 				if (next != last)
 				{
 					Ambience.Stop();
-					Ambience = Audio.Play(next);
+					if (string.IsNullOrEmpty(next))
+					{
+						Ambience = Audio.Play(next);
+					}
+				}
+
+				string lastWav = AmbienceWav != null && AmbienceWav.Value.IsPlaying && lastScene != null ? lastScene.AmbienceWav : string.Empty;
+				string nextWav = nextScene?.AmbienceWav ?? string.Empty;
+				if (lastWav != nextWav)
+				{
+					AmbienceWav?.Stop();
+					if (string.IsNullOrEmpty(nextWav))
+					{
+						AmbienceWav = Audio.PlayMusic(nextWav);
+					}
 				}
 			}
 
 			// in case new music was played
 			Save.Instance.SyncSettings();
 			transitionStep = TransitionStep.FadeIn;
+
+			WriteToLog();
 		}
 		else if (transitionStep == TransitionStep.FadeIn)
 		{
@@ -314,6 +360,8 @@ public class Game : Module
 	public override void Render()
 	{
 		Graphics.Clear(Color.Black);
+        
+        imGuiManager.RenderHandlers();
 
 		if (transitionStep != TransitionStep.Perform && transitionStep != TransitionStep.Hold)
 		{
@@ -334,9 +382,64 @@ public class Game : Module
 				var scale = Math.Min(App.WidthInPixels / (float)target.Width, App.HeightInPixels / (float)target.Height);
 				batcher.SetSampler(new(TextureFilter.Nearest, TextureWrap.ClampToEdge, TextureWrap.ClampToEdge));
 				batcher.Image(target, App.SizeInPixels / 2, target.Bounds.Size / 2, Vec2.One * scale, 0, Color.White);
+                imGuiManager.RenderTexture(batcher);
 				batcher.Render();
 				batcher.Clear();
 			}
+		}
+	}
+
+	// Fuji Custom
+	public static void WriteToLog()
+	{
+		if (!Save.Instance.WriteLog)
+		{
+			return;
+		}
+
+		// construct a log message
+		const string LogFileName = "Log.txt";
+		StringBuilder log = new();
+		lock (Log.Logs)
+			log.AppendLine(Log.Logs.ToString());
+
+		// write to file
+		string path = LogFileName;
+		{
+			if (App.Running)
+			{
+				try
+				{
+					path = Path.Join(App.UserPath, LogFileName);
+				}
+				catch
+				{
+					path = LogFileName;
+				}
+			}
+
+			File.WriteAllText(path, log.ToString());
+		}
+	}
+
+	internal static void OpenLog()
+	{
+		const string LogFileName = "Log.txt";
+		string path = "";
+		if (App.Running)
+		{
+			try
+			{
+				path = Path.Join(App.UserPath, LogFileName);
+			}
+			catch
+			{
+				path = LogFileName;
+			}
+		}
+		if (File.Exists(path))
+		{
+			new Process { StartInfo = new ProcessStartInfo(path) { UseShellExecute = true } }.Start();
 		}
 	}
 

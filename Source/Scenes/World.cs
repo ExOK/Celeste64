@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using ModelEntry = (Celeste64.Actor Actor, Celeste64.Model Model);
+using Celeste64.Mod;
 
 namespace Celeste64;
 
@@ -143,8 +144,29 @@ public class World : Scene
 				}
 			}
 
-			Music = $"event:/music/{map.Music}";
-			Ambience = $"event:/sfx/ambience/{map.Ambience}";
+			// Fuji Custom: Allows playing music and ambience from wav files if available.
+			// Otherwise, uses fmod events like normal.
+			if (Assets.Music.ContainsKey(map.Music))
+			{
+				MusicWav = map.Music;
+				Music = $"event:/music/";
+			}
+			else
+			{
+				MusicWav = "";
+				Music = $"event:/music/{map.Music}";
+			}
+
+			if (Assets.Music.ContainsKey(map.Ambience))
+			{
+				AmbienceWav = map.Ambience;
+				Ambience = $"event:/sfx/ambience/";
+			}
+			else
+			{
+				AmbienceWav = "";
+				Ambience = $"event:/sfx/ambience/{map.Ambience}";
+			}
 		}
 
 		ModManager.Instance.OnPreMapLoaded(this, map);
@@ -292,6 +314,14 @@ public class World : Scene
 				}
 			}
 			destroying.Clear();
+		}
+	}
+
+	public override void Entered()
+	{
+		if(Get<Player>() is Player player)
+		{
+			player.SetSkin(Save.Instance.GetSkin());
 		}
 	}
 
