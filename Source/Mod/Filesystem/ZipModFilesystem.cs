@@ -40,7 +40,7 @@ public sealed class ZipModFilesystem : IModFilesystem {
                 OnFileChanged?.Invoke(new(mod, null));
         };
 
-			var zip = OpenZipIfNeeded();
+            var zip = OpenZipIfNeeded();
       var modFolder = $"{Path.GetFileNameWithoutExtension(zipFilePath)}/";
 
       foreach (ZipArchiveEntry entry in zip.Entries) {
@@ -64,11 +64,11 @@ public sealed class ZipModFilesystem : IModFilesystem {
     
     public Stream OpenFile(string path)
     {
-	    var zip = OpenZipIfNeeded();
-	    var entry = zip.GetEntry(path) ?? throw new FileNotFoundException($"Couldn't find zip entry for mod '{Mod?.ModInfo.Id}'", path);
-	    var stream = entry.Open();
-	    openedFiles.Add(stream);
-	    return stream;
+        var zip = OpenZipIfNeeded();
+        var entry = zip.GetEntry(path) ?? throw new FileNotFoundException($"Couldn't find zip entry for mod '{Mod?.ModInfo.Id}'", path);
+        var stream = entry.Open();
+        openedFiles.Add(stream);
+        return stream;
     }
     
     private Stream? OpenFile(string path, ZipArchive zip) {
@@ -87,13 +87,30 @@ public sealed class ZipModFilesystem : IModFilesystem {
         {
             var zip = OpenZipIfNeeded();
 
-            using var stream = OpenFile(modRoot+path, zip);
-            if (stream is null) {
+            var stream = OpenFile(modRoot + path, zip);
+            if (stream is null)
+            {
                 value = default;
                 return false;
             }
+            if (stream.CanSeek)
+            {
+                value = callback(stream)!;
+				stream.Dispose();
+			}
+			else
+            {
+                // If the stream cannot seek, we need to copy it to a memory stream so consumers can use position and lenght.
+                // This is mostly needed to support how Foster uses stream.Position and stream.Length in the Image constructor
+                // and stream.Position and stream.Length are not supported by the DeflateStreams that OpenFile can return.
+                MemoryStream resultStream = new MemoryStream();
+                stream.CopyTo(resultStream);
+                stream.Dispose();
+                resultStream.Position = 0;
+                value = callback(resultStream)!;
+                resultStream.Dispose();
+            }
 
-            value = callback(stream)!;
             return true;
         }
     }
