@@ -268,7 +268,7 @@ public static class ModLoader
 		foreach (var (info, attr) in ilHookMethods)
 		{
 			Log.Info($"Registering IL-hook for method '{attr.Target}' in type '{attr.Target.DeclaringType}' with hook method '{info}'");
-			HookManager.Instance.RegisterHook(new Hook(attr.Target, info));
+			HookManager.Instance.RegisterILHook(new ILHook(attr.Target, info));
 		}
 	}
 }
