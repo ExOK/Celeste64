@@ -194,7 +194,7 @@ public class ModSelectionMenu : Menu
 
 		if (Controls.Confirm.Pressed)
 		{
-			modInfoMenu.Mod = mods[CurrentPageStart + CurrentIndex];
+			modInfoMenu.SetMod(mods[CurrentPageStart + CurrentIndex]);
 			Audio.Play(Sfx.ui_select);
 			if (RootMenu != null)
 			{

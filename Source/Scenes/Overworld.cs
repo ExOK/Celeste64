@@ -279,7 +279,7 @@ public class Overworld : Scene
 						Title = "Mods Menu"
 					};
 
-					pauseMenu.Add(new Menu.Submenu(Loc.Str("PauseMods"), pauseMenu, modMenu));
+					pauseMenu.Add(new Menu.Submenu(Loc.Str("Mods"), pauseMenu, modMenu));
 					pauseMenu.Add(new Menu.Submenu(Loc.Str("PauseOptions"), pauseMenu, optionsMenu));
 					pauseMenu.Add(new Menu.Option(Loc.Str("Exit"), () =>
 					{

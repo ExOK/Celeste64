@@ -30,9 +30,10 @@
 		"FujiEnableDebugMenu": "Enable Debug Menu (F6)",
 		"FujiOpenLogFile": "Open Log File",
 		"FailedToLoadMods": "Failed to load {0} mods. Check Mods Menu for details.",
-		"PauseMods": "Mods",
-		"PauseModEnabled": "Enabled",
-		"PauseModsConfirmDisable": "Continue & Disable Mod",
+		"Mods": "Mods",
+		"ModEnabled": "Enabled",
+		"ModOptions": "Mod Options",
+		"ConfirmDisableMod": "Continue & Disable Mod",
 		"ModSafeDisableErrorMessage": "This mod can't be disabled because it would disable the level you're currently in.\nTry going to the main menu first."
 	},
 	"Dialog":

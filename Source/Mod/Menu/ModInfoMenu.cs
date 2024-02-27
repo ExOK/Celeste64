@@ -15,6 +15,8 @@ public class ModInfoMenu : Menu
 	public Menu? RootMenu;
 	public Menu? depWarningMenu;
 	public Menu? safeDisableErrorMenu;
+	public ModOptionsMenu modOptionsMenu;
+
 
 	internal ModInfoMenu()
 	{
@@ -23,7 +25,9 @@ public class ModInfoMenu : Menu
 		strawberryImage = Assets.Subtextures["icon_strawberry"];
 		Target = new Target(CardWidth, CardHeight);
 
-		Add(new Toggle(Loc.Str("PauseModEnabled"),
+		modOptionsMenu = new ModOptionsMenu();
+
+		Add(new Toggle(Loc.Str("ModEnabled"),
 			() => {
 				//If we are trying to disable the current mod, don't
 				if (Mod != null && Mod != ModManager.Instance.CurrentLevelMod)
@@ -61,7 +65,7 @@ public class ModInfoMenu : Menu
 							depWarningMenu = new Menu();
 
 							depWarningMenu.Title = $"Warning, this mod is depended on by {Mod.GetDependents().Count} other mod(s).\nIf you disable this mod, those mods will also be disabled.";
-							depWarningMenu.Add(new Menu.Option(Loc.Str("PauseModsConfirmDisable"), () => {
+							depWarningMenu.Add(new Menu.Option(Loc.Str("ConfirmDisableMod"), () => {
 								Mod.DisableSafe(false);
 
 								RootMenu?.PopSubMenu();
@@ -97,6 +101,7 @@ public class ModInfoMenu : Menu
 				}
 			},
 			() => Mod != null ? Save.Instance.GetOrMakeMod(Mod.ModInfo.Id).Enabled : false));
+		Add(new Submenu(Loc.Str("ModOptions"), this, modOptionsMenu));
 		Add(new Option(Loc.Str("Back"), () =>
 		{
 			if(RootMenu != null)
@@ -106,85 +111,17 @@ public class ModInfoMenu : Menu
 		}));
 	}
 
+	public void SetMod(GameMod mod)
+	{
+		Mod = mod;
+		modOptionsMenu.SetMod(mod);
+		modOptionsMenu.RootMenu = this;
+	}
+
 	public override void Initialized()
 	{
 		base.Initialized();
 	}
-
-	private static string GenerateModDescription(string str, int maxLength, int maxLines)
-	{
-		List<string> words = str.Split(' ').ToList();
-		List<string> lines = [""];
-		for(int wordIndex = 0; wordIndex < words.Count;)
-		{
-			if (lines.Count > maxLines) break;
-			string word = words[wordIndex];
-			if ((lines[lines.Count-1] + word).Length <= maxLength)
-			{
-				lines[lines.Count - 1] = lines[lines.Count - 1] + " " + word;
-				wordIndex++;
-				continue;
-			}
-			else if (lines.Last().Length == 0)
-			{
-				lines[lines.Count - 1] = word.Substring(0, maxLength);
-				words.Insert(wordIndex+1, word.Substring(maxLength));
-				lines.Add("");
-				wordIndex++;
-				continue;
-			}
-			else
-			{
-				lines.Add("");
-			}
-		}
-
-		return string.Join("\n", lines);
-	}
-
-	protected virtual void RenderOptions(Batcher batch)
-	{
-		var font = Language.Current.SpriteFont;
-		var size = Size;
-		var position = Vec2.Zero;
-		batch.PushMatrix(new Vec2(0, -size.Y / 2));
-
-		if (!string.IsNullOrEmpty(Title))
-		{
-			var text = Title;
-			var justify = new Vec2(0.5f, 0);
-			var color = new Color(8421504);
-
-			batch.PushMatrix(
-				Matrix3x2.CreateScale(TitleScale) *
-				Matrix3x2.CreateTranslation(position));
-			UI.Text(batch, text, Vec2.Zero, justify, color);
-			batch.PopMatrix();
-
-			position.Y += font.LineHeight * TitleScale;
-			position.Y += SpacerHeight + Spacing;
-		}
-
-		for (int i = 0; i < items.Count; i++)
-		{
-			if (string.IsNullOrEmpty(items[i].Label))
-			{
-				position.Y += SpacerHeight;
-				continue;
-			}
-
-			var text = items[i].Label;
-			var justify = new Vec2(0.5f, 0);
-			var color = Index == i && Focused ? (Time.BetweenInterval(0.1f) ? 0x84FF54 : 0xFCFF59) : Foster.Framework.Color.White;
-
-			UI.Text(batch, text, position, justify, color);
-
-			position.Y += font.LineHeight;
-			position.Y += Spacing;
-		}
-		batch.PopMatrix();
-	}
-
 
 	protected override void RenderItems(Batcher batch)
 	{
@@ -213,8 +150,39 @@ public class ModInfoMenu : Menu
 			batch.Image(image, pos + new Vec2(imgSizeMin, imgSizeMin) * imgScale * 0.05f, imageSize * imgScale, imageSize * imgScale, 0, Color.White);
 
 			batch.PushMatrix(Matrix3x2.CreateScale(1.0f) * Matrix3x2.CreateTranslation(bounds.TopLeft + new Vec2(size.X / 6.8f, -size.Y/20)));
-			RenderOptions(batch);
+			base.RenderItems(batch);
 			batch.PopMatrix();
 		}
+	}
+
+	private static string GenerateModDescription(string str, int maxLength, int maxLines)
+	{
+		List<string> words = str.Split(' ').ToList();
+		List<string> lines = [""];
+		for (int wordIndex = 0; wordIndex < words.Count;)
+		{
+			if (lines.Count > maxLines) break;
+			string word = words[wordIndex];
+			if ((lines[lines.Count - 1] + word).Length <= maxLength)
+			{
+				lines[lines.Count - 1] = lines[lines.Count - 1] + " " + word;
+				wordIndex++;
+				continue;
+			}
+			else if (lines.Last().Length == 0)
+			{
+				lines[lines.Count - 1] = word.Substring(0, maxLength);
+				words.Insert(wordIndex + 1, word.Substring(maxLength));
+				lines.Add("");
+				wordIndex++;
+				continue;
+			}
+			else
+			{
+				lines.Add("");
+			}
+		}
+
+		return string.Join("\n", lines);
 	}
 }

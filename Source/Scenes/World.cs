@@ -112,7 +112,7 @@ public class World : Scene
 				);
 			}
 			pauseMenu.Add(new Menu.Submenu(Loc.Str("PauseOptions"), pauseMenu, optionsMenu));
-			pauseMenu.Add(new Menu.Submenu(Loc.Str("PauseMods"), pauseMenu, modMenu));
+			pauseMenu.Add(new Menu.Submenu(Loc.Str("Mods"), pauseMenu, modMenu));
 			pauseMenu.Add(new Menu.Option(Loc.Str("PauseSaveQuit"), () => Game.Instance.Goto(new Transition()
 			{
 				Mode = Transition.Modes.Replace,

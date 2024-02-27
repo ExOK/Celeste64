@@ -189,6 +189,7 @@ public abstract class GameMod
 		}
 	}
 
+
 	// Passthrough functions to simplify adding stuff to the Hook Manager.
 	public static void RegisterHook(Hook hook) => HookManager.Instance.RegisterHook(hook);
 	public static void RegisterILHook(ILHook iLHook) => HookManager.Instance.RegisterILHook(iLHook);
@@ -202,6 +203,12 @@ public abstract class GameMod
 	{
 		CustomPlayerStateRegistry.Register<T>();
 		OnUnloadedCleanup += CustomPlayerStateRegistry.Deregister<T>;
+	}
+
+	// DISCLAIMER: THIS IS STILL WORK IN PROGRESS AND WILL LIKELY BE CHANGED. DON'T USE THIS YET.
+	public virtual void AddModOptions(Menu optionsMenu)
+	{
+
 	}
 
 	// Game Event Functions. These are used to provide an "interface" of sorts that mods can easily override.

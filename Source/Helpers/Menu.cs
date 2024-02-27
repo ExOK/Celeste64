@@ -70,12 +70,22 @@ public class Menu
 		private readonly Func<List<string>> getLabels;
 		private readonly Action<string> set;
 
+		public OptionList(string label, Func<List<string>> getLabels, Func<string> get, Action<string> set)
+		{
+			this.label = label;
+			this.getLabels = getLabels;
+			this.min = 0;
+			this.getMax = () => getLabels().Count;
+			this.get = get;
+			this.set = set;
+		}
+
 		public OptionList(string label, Func<List<string>> getLabels, int min, Func<int> getMax, Func<string> get, Action<string> set)
 		{
 			this.label = label;
 			this.getLabels = getLabels;
-			this.getMax = getMax;
 			this.min = min;
+			this.getMax = getMax;
 			this.get = get;
 			this.set = set;
 		}
@@ -179,6 +189,10 @@ public class Menu
 	public bool IsInMainMenu => submenus.Count <= 0;
 	protected Menu CurrentMenu => GetDeepestActiveSubmenu(this);
 
+	protected virtual int maxItemsCount { get; set; } = 12;
+	protected int scrolledAmount = 0;
+	protected bool showScrollbar = true;
+
 	public Menu GetDeepestActiveSubmenu(Menu target)
 	{
 		if (target.submenus.Count <= 0)
@@ -213,15 +227,15 @@ public class Menu
 				size.Y += SpacerHeight + Spacing;
 			}
 	
-			foreach (var item in items)
+			for (int i = scrolledAmount; i < items.Count && i < scrolledAmount + maxItemsCount; i++)
 			{
-				if (string.IsNullOrEmpty(item.Label))
+				if (string.IsNullOrEmpty(items[i].Label))
 				{
 					size.Y += SpacerHeight;
 				}
 				else
 				{
-					size.X = MathF.Max(size.X, font.WidthOf(item.Label));
+					size.X = MathF.Max(size.X, font.WidthOf(items[i].Label));
 					size.Y += font.LineHeight;
 				}
 				size.Y += Spacing;
@@ -276,7 +290,20 @@ public class Menu
 			while (!items[(items.Count + Index) % items.Count].Selectable)
 				Index += step;
 			Index = (items.Count + Index) % items.Count;
-	
+
+			if(items.Count > maxItemsCount)
+			{
+				if (Index >= scrolledAmount + (maxItemsCount - 3))
+				{
+					scrolledAmount = Index - (maxItemsCount - 3);
+				}
+				else if (Index < scrolledAmount + 2)
+				{
+					scrolledAmount = Index - 2;
+				}
+				scrolledAmount = Math.Clamp(scrolledAmount, 0, items.Count - maxItemsCount);
+			}
+
 			if (was != Index)
 				Audio.Play(step < 0 ? UpSound : DownSound);
 	
@@ -327,7 +354,7 @@ public class Menu
 			position.Y += SpacerHeight + Spacing;
 		}
 	
-		for (int i = 0; i < items.Count; i ++)
+		for (int i = scrolledAmount; i < items.Count && i < scrolledAmount + maxItemsCount; i ++)
 		{
 			if (string.IsNullOrEmpty(items[i].Label))
 			{
@@ -345,8 +372,27 @@ public class Menu
 			position.Y += Spacing;    
 	    }
 		batch.PopMatrix();
+
+		// Render a scrolbar if there are too many items to show on screen at once
+		if(showScrollbar && items.Count > maxItemsCount)
+		{
+			// TODO: This will need to be redone if we implement mouse support and want it to interact with menus.
+			int padding = 4;
+			int scrollSize = 16;
+			int xPos = Game.Width - scrollSize - padding;
+			int scrollBarHeight = Game.Height - (scrollSize * 2) - padding * 4;
+			int scrollStartPos = padding * 2 + scrollSize;
+			batch.PushMatrix(Vec2.Zero, false);
+			batch.Rect(new Rect(xPos, padding, scrollSize, scrollSize), Color.White);
+			batch.Rect(new Rect(xPos, scrollStartPos, scrollSize, scrollBarHeight), Color.Gray);
+			int scrollYPos = (int)MathF.Ceiling(scrollStartPos + ((float)scrolledAmount * scrollBarHeight / items.Count));
+			int scrollYHeight = scrollBarHeight * maxItemsCount / items.Count;
+			batch.Rect(new Rect(xPos, scrollYPos, scrollSize, scrollYHeight), Color.White);
+			batch.Rect(new Rect(xPos, Game.Height - scrollSize - padding, scrollSize, scrollSize), Color.White);
+			batch.PopMatrix();
+		}
 	}
-	
+
 	public virtual void Render(Batcher batch, Vec2 position)
 	{
 		batch.PushMatrix(position);
