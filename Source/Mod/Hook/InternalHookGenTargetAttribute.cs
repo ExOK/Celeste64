@@ -8,11 +8,11 @@ namespace Celeste64.Mod;
 [AttributeUsage(AttributeTargets.Method)]
 public class InternalOnHookGenTargetAttribute : Attribute
 {
-	internal MethodInfo Target = null!;
+	internal MethodBase Target = null!;
 }
 
 [AttributeUsage(AttributeTargets.Method)]
 public class InternalILHookGenTargetAttribute : Attribute
 {
-	internal MethodInfo Target = null!;
+	internal MethodBase Target = null!;
 }

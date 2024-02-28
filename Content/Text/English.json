@@ -25,6 +25,7 @@
 		"OptionsInvertCamera": "Inverted Camera",
 
 		"FujiOptions": "Fuji Options...",
+		"FujiOptions.Description": "Configure options for the Fuji mod loader",
 		"FujiWriteLog": "Write Log File",
 		"FujiFailedToLoad": "Failed to load the following mods:",
 		"FujiEnableDebugMenu": "Enable Debug Menu (F6)",
