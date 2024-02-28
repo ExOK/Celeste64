@@ -1,5 +1,6 @@
 ﻿using System.Reflection;
 using System.Text.Json;
+using MonoMod.Cil;
 using MonoMod.RuntimeDetour;
 
 namespace Celeste64.Mod;
@@ -255,7 +256,7 @@ public static class ModLoader
 
 		foreach (var (info, attr) in onHookMethods)
 		{
-			Log.Info($"Registering On-hook for method '{attr.Target}' in type '{attr.Target.DeclaringType}' with hook method '{info}'");
+			Log.Info($"Registering On-hook for method '{attr.Target}' in type '{attr.Target.DeclaringType}' with hook method '{info}' in type '{info.DeclaringType}'");
 			HookManager.Instance.RegisterHook(new Hook(attr.Target, info));
 		}
 		
@@ -267,8 +268,8 @@ public static class ModLoader
 
 		foreach (var (info, attr) in ilHookMethods)
 		{
-			Log.Info($"Registering IL-hook for method '{attr.Target}' in type '{attr.Target.DeclaringType}' with hook method '{info}'");
-			HookManager.Instance.RegisterHook(new Hook(attr.Target, info));
+			Log.Info($"Registering IL-hook for method '{attr.Target}' in type '{attr.Target.DeclaringType}' with hook method '{info}' in type '{info.DeclaringType}'");
+			HookManager.Instance.RegisterILHook(new ILHook(attr.Target, info.CreateDelegate<ILContext.Manipulator>()));
 		}
 	}
 }

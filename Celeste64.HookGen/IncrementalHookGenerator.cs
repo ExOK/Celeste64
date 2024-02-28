@@ -18,7 +18,7 @@ public class IncrementalHookGenerator : IIncrementalGenerator
 	private const string ILHookNamespace = $"IL.{GameNamespace}";
 	
 	private const string BindingFlags = "global::System.Reflection.BindingFlags";
-	private const string MethodInfo = "global::System.Reflection.MethodInfo";
+	private const string MethodBase = "global::System.Reflection.MethodBase";
 	private const string OnHookGenTargetAttribute = "global::Celeste64.Mod.InternalOnHookGenTargetAttribute";
 	private const string ILHookGenTargetAttribute = "global::Celeste64.Mod.InternalILHookGenTargetAttribute";
 
@@ -151,11 +151,20 @@ public class IncrementalHookGenerator : IIncrementalGenerator
 					var bindingFlags = method.IsStatic
 						? $"{BindingFlags}.Static | {BindingFlags}.Public"
 						: $"{BindingFlags}.Instance | {BindingFlags}.Public";
-					var methodInfo = isOverloaded
-						? $"typeof({classSymbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)}).GetMethod(\"{method.Name}\", {bindingFlags}, [{
-							string.Join(", ", method.Parameters.Select(param => $"typeof({param.Type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)})"))}])"
-						: $"typeof({classSymbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)}).GetMethod(\"{method.Name}\", {bindingFlags})";
-					code.AppendLine($"{Indent}public static readonly {MethodInfo} m_{methodName} = {methodInfo};");
+					var paramTypes = string.Join(", ", method.Parameters.Select(param => $"typeof({param.Type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)})"));
+
+					string methodBase;
+					if (method.Name is ".ctor" or ".cctor")
+					{
+						methodBase = $"typeof({classSymbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)}).GetConstructor({bindingFlags}, [{paramTypes}])";
+					}
+					else
+					{
+						methodBase = isOverloaded
+							? $"typeof({classSymbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)}).GetMethod(\"{method.Name}\", {bindingFlags}, [{paramTypes}])"
+							: $"typeof({classSymbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)}).GetMethod(\"{method.Name}\", {bindingFlags})";
+					}
+					code.AppendLine($"{Indent}public static readonly {MethodBase} m_{methodName} = {methodBase};");
 				}
 				
 				// Hook attribute
