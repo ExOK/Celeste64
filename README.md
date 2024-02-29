@@ -27,3 +27,13 @@ It also implements some new functionality like custom skins, and the ability to 
  - The `Source` folder, with exceptions where noted, is [licensed under MIT](Source/License.txt).
  - The `Source/Audio/FMOD` folder contains bindings and binaries from FMOD.
  - This mod loader is adapted from Celeste 64's Source code, but it is not made or Endorsed by the game's creators. 
+
+# Contributing
+Make sure you fork the `dev` branch. The `main` branch is for stable builds and `beta` for beta builds, so they can't be pushed to directly.
+
+Do not modify the vanilla gameplay. We'd like Fuji to hopefully be a speedrun/TAS-compatible mod loader. Stuff like visual/critical bug fixes is fine.
+
+Otherwise, feel free to submit PRs for pretty much anything. If you're looking for inspiration, look at currently open feature requests without implementation progress.
+
+# Building
+See [SETUP.md](SETUP.md) for build instructions.
