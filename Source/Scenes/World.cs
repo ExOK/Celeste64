@@ -79,7 +79,8 @@ public class World : Scene
 			ToBlack = new SpotlightWipe(),
 			FromBlack = new SpotlightWipe(),
 			StopMusic = true,
-			HoldOnBlackFor = 0
+			HoldOnBlackFor = 0,
+			PerformAssetReload = true
 		})));
 
 		badMapWarningMenu.Add(new Menu.Option(Loc.Str("FujiOpenLogFile"), () => {
