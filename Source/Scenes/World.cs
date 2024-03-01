@@ -877,7 +877,7 @@ public class World : Scene
 				}
 
 				// show version number when paused / in ending area
-				if (IsInEndingArea || Paused)
+				if ((IsInEndingArea || Paused) && pauseMenu.IsInMainMenu)
 				{
 					UI.Text(batch, Game.VersionString, bounds.BottomLeft + new Vec2(4, -4) * Game.RelativeScale, new Vec2(0, 1), Color.CornflowerBlue * 0.75f);
 					UI.Text(batch, Game.LoaderVersion, bounds.BottomLeft + new Vec2(4, -24) * Game.RelativeScale, new Vec2(0, 1), new Color(12326399) * 0.75f);
