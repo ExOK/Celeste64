@@ -13,6 +13,15 @@ public class Menu
 		public virtual bool Selectable { get; } = true;
 		public virtual bool Pressed() => false;
 		public virtual void Slide(int dir) {}
+
+		public string Description { get; set; } = "";
+
+		public Item Describe(string str)
+		{
+			this.Description = str;
+
+			return this;
+		}
 	}
 
 	public class Submenu(string label, Menu? rootMenu, Menu? submenu = null) : Item 
@@ -398,5 +407,18 @@ public class Menu
 		batch.PushMatrix(position);
 		CurrentMenu.RenderItems(batch);
 		batch.PopMatrix();
+
+		// let's not crash if the menu has no items
+		// such as the modselectionmenu
+		if(CurrentMenu.items.Count > 0)
+		{
+			var currentItem = CurrentMenu.items[CurrentMenu.Index];
+
+			var text = currentItem.Description;
+			var justify = new Vec2(0.5f, -8f);
+			var color = Color.Gray;
+				
+			UI.Text(batch, text, position, justify, color);
+		}
 	}
 }
