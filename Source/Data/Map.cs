@@ -25,12 +25,15 @@ public class Map
 	public readonly string Name;
 	public readonly string Filename;
 	public readonly string Folder;
-	public readonly SledgeMap Data;
-	public readonly string Skybox;
+	public readonly SledgeMap? Data;
+	public readonly string? Skybox;
 	public readonly float SnowAmount;
 	public readonly Vec3 SnowWind;
-	public readonly string Music;
-	public readonly string Ambience;
+	public readonly string? Music;
+	public readonly string? Ambience;
+
+	public readonly bool isMalformed = false;
+	public readonly string? readExceptionMessage;
 
 	public static readonly Dictionary<string, ActorFactory> ActorFactories =  new()
 	{
@@ -127,13 +130,29 @@ public class Map
 		Folder = Path.GetDirectoryName(virtPath) ?? string.Empty;
 
 		var format = new QuakeMapFormat();
-		Data = format.Read(stream);
+		try 
+		{
+			Data = format.Read(stream);
+		} catch (Exception e) 
+		{
+			Data = null;
 
-		Skybox = Data.Worldspawn.GetStringProperty("skybox", "city");
-		SnowAmount = Data.Worldspawn.GetFloatProperty("snowAmount", 1);
-		SnowWind = Data.Worldspawn.GetVectorProperty("snowDirection", -Vec3.UnitZ);
-		Music = Data.Worldspawn.GetStringProperty("music", string.Empty);
-		Ambience = Data.Worldspawn.GetStringProperty("ambience", string.Empty);
+			isMalformed = true;
+
+			readExceptionMessage = e.Message;
+
+			Log.Error($"Failed to load map {name}, more details below.");
+			Log.Error(e.ToString());
+		}
+
+		if(Data != null) 
+		{
+			Skybox = Data.Worldspawn.GetStringProperty("skybox", "city");
+			SnowAmount = Data.Worldspawn.GetFloatProperty("snowAmount", 1);
+			SnowWind = Data.Worldspawn.GetVectorProperty("snowDirection", -Vec3.UnitZ);
+			Music = Data.Worldspawn.GetStringProperty("music", string.Empty);
+			Ambience = Data.Worldspawn.GetStringProperty("ambience", string.Empty);
+		}
 
 		void QueryObjects(SledgeMapObject obj)
 		{
@@ -176,7 +195,10 @@ public class Map
 			}
 		}
 
-		QueryObjects(Data.Worldspawn);
+		if(Data != null)
+		{
+			QueryObjects(Data.Worldspawn);
+		}
 
 		// figure out entire bounds of static solids (localized)
 		if (staticSolids.Count > 0)
@@ -411,6 +433,11 @@ public class Map
 
 	public bool FindTargetNode(string name, out Vec3 pos)
 	{
+		if(Data == null) {
+			pos = Vec3.Zero;
+			return false;
+		}
+
 		if (FindTargetEntity(Data.Worldspawn, name) is { } target)
 		{
 			pos = Vec3.Transform(target.GetVectorProperty("origin", Vec3.Zero), baseTransform);
