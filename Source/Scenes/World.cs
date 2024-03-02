@@ -973,7 +973,7 @@ public class World : Scene
 		// perform post processing effects
 		if (Camera.Target != null)
 		{
-			if (postTarget == null || postTarget.Width < Camera.Target.Width || postTarget.Height < Camera.Target.Height)
+			if (postTarget == null || postTarget.Width != Camera.Target.Width || postTarget.Height != Camera.Target.Height)
 			{
 				postTarget?.Dispose();
 				postTarget = new(Camera.Target.Width, Camera.Target.Height);
