@@ -76,7 +76,7 @@ public class Overworld : Scene
 				{
 					batch.Image(
 						new Subtexture(texture), 
-						bounds.BottomRight - new Vec2(50, 0), 
+						bounds.BottomRight - new Vec2(50, 0) * Game.RelativeScale, 
 						new Vec2(texture.Width / 2, texture.Height), 
 						Vec2.One * 0.50f, 0, Color.White);
 				}
@@ -105,9 +105,9 @@ public class Overworld : Scene
 						time = record.Time;
 					}
 
-					UI.Strawberries(batch, strawbs, new Vec2(-8, -UI.IconSize / 2 - 4), 1);
-					UI.Deaths(batch, deaths, new Vec2(8, -UI.IconSize / 2 - 4), 0);
-					UI.Timer(batch, time, new Vec2(0, UI.IconSize / 2 + 4), 0.5f);
+					UI.Strawberries(batch, strawbs, new Vec2(-8 * Game.RelativeScale, -UI.IconSize / 2 - 4 * Game.RelativeScale), 1);
+					UI.Deaths(batch, deaths, new Vec2(8 * Game.RelativeScale, -UI.IconSize / 2 - 4 * Game.RelativeScale), 0);
+					UI.Timer(batch, time, new Vec2(0 * Game.RelativeScale, UI.IconSize / 2 + 4 * Game.RelativeScale), 0.5f);
 				}
 				batch.PopMatrix();
 
@@ -118,13 +118,13 @@ public class Overworld : Scene
 			if (shine > 0)
 			{
 				batch.Line(
-					bounds.BottomLeft + new Vec2(-50 + shine * 50, 50), 
-					bounds.TopCenter + new Vec2(shine * 50, -50), 120, 
+					bounds.BottomLeft + new Vec2(-50 + shine * 50, 50) * Game.RelativeScale, 
+					bounds.TopCenter + new Vec2(shine * 50, -50) * Game.RelativeScale, 120 * Game.RelativeScale, 
 					Color.White * shine * 0.30f);
 
 				batch.Line(
-					bounds.BottomLeft + new Vec2(-50 + 100 + shine * 120, 50), 
-					bounds.TopCenter + new Vec2(100 + shine * 120, -50), 70, 
+					bounds.BottomLeft + new Vec2(-50 + 100 + shine * 120, 50) * Game.RelativeScale, 
+					bounds.TopCenter + new Vec2(100 + shine * 120, -50) * Game.RelativeScale, 70 * Game.RelativeScale, 
 					Color.White * shine * 0.30f);
 			}
 

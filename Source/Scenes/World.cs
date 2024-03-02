@@ -921,11 +921,11 @@ public class World : Scene
 
 			// stats
 			{
-				var at = bounds.TopLeft + new Vec2(4, 8);
+				var at = bounds.TopLeft + new Vec2(4, 8) * Game.RelativeScale;
 				if (IsInEndingArea || Save.Instance.SpeedrunTimer)
 				{
 					UI.Timer(batch, Save.CurrentRecord.Time, at);
-					at.Y += UI.IconSize + 4;
+					at.Y += UI.IconSize + 4 * Game.RelativeScale;
 				}
 
 				if (strawbCounterEase > 0)
@@ -987,7 +987,7 @@ public class World : Scene
             if (postMaterial.Shader?.Has("u_depth") ?? false)
 			    postMaterial.Set("u_depth", Camera.Target.Attachments[1]);
             if (postMaterial.Shader?.Has("u_pixel") ?? false)
-			    postMaterial.Set("u_pixel", new Vec2(1.0f / postCam.Target.Width, 1.0f / postCam.Target.Height));
+			    postMaterial.Set("u_pixel", new Vec2(1.0f / postCam.Target.Width * Game.RelativeScale, 1.0f / postCam.Target.Height * Game.RelativeScale));
             if (postMaterial.Shader?.Has("u_edge") ?? false)
 			    postMaterial.Set("u_edge", new Color(0x110d33));
 			batch.PushMaterial(postMaterial);

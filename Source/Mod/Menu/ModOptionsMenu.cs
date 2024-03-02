@@ -57,7 +57,7 @@ public class ModOptionsMenu : Menu
 			var scale = MathF.Max(bounds.Width / postcardImage.Width, bounds.Height / postcardImage.Height);
 			var size = new Vec2(postcardImage.Width, postcardImage.Height);
 			batch.Image(postcardImage, bounds.TopLeft, size / 2, Vec2.One * scale, 0, Color.White);
-			batch.Text(font, $"{Mod.ModInfo.Name}\nBy: {Mod.ModInfo.ModAuthor ?? "Unknown"}\nv.{Mod.ModInfo.Version}", bounds.TopLeft - size / 4 + new Vec2(16, 12) * Game.RelativeScale, Color.Black * 0.7f);
+			batch.Text(font, $"{Mod.ModInfo.Name}\nBy: {Mod.ModInfo.ModAuthor ?? "Unknown"}\nv.{Mod.ModInfo.Version}", bounds.TopLeft + (-size / 4 + new Vec2(16, 12)) * Game.RelativeScale, Color.Black * 0.7f);
 
 			float imgScale = 0.9f;
 			Subtexture image = Mod.Subtextures.TryGetValue(Mod.ModInfo.Icon ?? "", out Subtexture value) ? value : strawberryImage;
@@ -66,8 +66,8 @@ public class ModOptionsMenu : Menu
 			Vec2 imageSize = new Vec2(imgSizeMin / image.Width, imgSizeMin / image.Height);
 			Vec2 stampPos = bounds.TopLeft - (new Vec2(imgSizeMin, imgSizeMin) * imgScale) / 2 + new Vec2(size.X / 5.5f, -size.Y / 4.7f);
 			Vec2 pos = bounds.TopLeft - (new Vec2(imgSizeMin, imgSizeMin) * imgScale) / 2 + new Vec2(size.X / 5.05f, -size.Y / 5.3f);
-			batch.Image(stampImage, stampPos + new Vec2(imgSizeMin, imgSizeMin) * imgScale * 0.05f, stampImageSize * imgScale, stampImageSize * imgScale * 1.3f, 0, Color.White);
-			batch.Image(image, pos + new Vec2(imgSizeMin, imgSizeMin) * imgScale * 0.05f, imageSize * imgScale, imageSize * imgScale, 0, Color.White);
+			batch.Image(stampImage, (stampPos + new Vec2(imgSizeMin, imgSizeMin) * imgScale * 0.05f) * Game.RelativeScale, stampImageSize * imgScale * Game.RelativeScale, stampImageSize * imgScale * 1.3f * Game.RelativeScale, 0, Color.White);
+			batch.Image(image, (pos + new Vec2(imgSizeMin, imgSizeMin) * imgScale * 0.05f) * Game.RelativeScale, imageSize * imgScale * Game.RelativeScale, imageSize * imgScale * Game.RelativeScale, 0, Color.White);
 
 			base.RenderItems(batch);
 		}
