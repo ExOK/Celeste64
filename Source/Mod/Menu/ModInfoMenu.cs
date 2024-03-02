@@ -2,9 +2,7 @@ namespace Celeste64.Mod;
 
 public class ModInfoMenu : Menu
 {
-	public const int CardWidth = (int)(480 * Game.RelativeScale);
-	public const int CardHeight = (int)(320 * Game.RelativeScale);
-	public readonly Target Target;
+	public Target Target;
 
 	Subtexture postcardImage;
 	Subtexture stampImage;
@@ -20,10 +18,12 @@ public class ModInfoMenu : Menu
 
 	internal ModInfoMenu()
 	{
+		Target = new Target(Overworld.CardWidth, Overworld.CardHeight);
+		Game.OnResolutionChaned += () => Target = new Target(Overworld.CardWidth, Overworld.CardHeight);
+		
 		postcardImage = new(Assets.Textures["postcards/back-empty"]);
 		stampImage = Assets.Subtextures["stamp"];
 		strawberryImage = Assets.Subtextures["icon_strawberry"];
-		Target = new Target(CardWidth, CardHeight);
 
 		modOptionsMenu = new ModOptionsMenu();
 

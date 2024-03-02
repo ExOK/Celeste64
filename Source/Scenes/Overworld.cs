@@ -4,15 +4,15 @@ namespace Celeste64;
 
 public class Overworld : Scene
 {
-	public const int CardWidth = (int)(480 * Game.RelativeScale);
-	public const int CardHeight = (int)(320 * Game.RelativeScale);
+	public static int CardWidth => (int)(480 * Game.RelativeScale);
+	public static int CardHeight => (int)(320 * Game.RelativeScale);
 	public bool Paused;
 	public Menu? pauseMenu;
 
 	public class Entry
 	{
 		public readonly LevelInfo Level;
-		public readonly Target Target;
+		public Target Target;
 		public readonly Subtexture Image;
 		public readonly Menu Menu;
 		public readonly bool Complete = false;
@@ -24,6 +24,7 @@ public class Overworld : Scene
 		{
 			Level = level;
 			Target = new Target(CardWidth, CardHeight);
+			Game.OnResolutionChaned += () => Target = new Target(CardWidth, CardHeight);
 
 			// Postcards should always come from the current mod if they are available
 			if (mod != null && mod.Textures.ContainsKey(level.Preview))
@@ -53,7 +54,7 @@ public class Overworld : Scene
 
 		public void Redraw(Batcher batch, float shine)
 		{
-			const float Padding = 16 * Game.RelativeScale;
+			float Padding = 16 * Game.RelativeScale;
 
 			Target.Clear(Color.Transparent);
 			batch.SetSampler(new(TextureFilter.Linear, TextureWrap.ClampToEdge, TextureWrap.ClampToEdge));
@@ -174,6 +175,13 @@ public class Overworld : Scene
 			new(new Vec3(-cardWidth, 0, cardHeight) / 2, new Vec2(0, 1), Color.White),
 		]);
 		mesh.SetIndices<int>([0, 1, 2, 0, 2, 3]);
+		
+		Game.OnResolutionChaned += () => mesh.SetVertices<SpriteVertex>([
+			new(new Vec3(-cardWidth, 0, -cardHeight) / 2, new Vec2(0, 0), Color.White),
+			new(new Vec3(cardWidth, 0, -cardHeight) / 2, new Vec2(1, 0), Color.White),
+			new(new Vec3(cardWidth, 0, cardHeight) / 2, new Vec2(1, 1), Color.White),
+			new(new Vec3(-cardWidth, 0, cardHeight) / 2, new Vec2(0, 1), Color.White),
+		]); 
 
 		restartConfirmMenu.Add(new Menu.Option(Loc.Str("Cancel")));
 		restartConfirmMenu.Add(new Menu.Option(Loc.Str("RestartLevel")));

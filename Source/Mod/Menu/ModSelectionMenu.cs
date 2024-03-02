@@ -2,9 +2,7 @@ namespace Celeste64.Mod;
 
 public class ModSelectionMenu : Menu
 {
-	public const int CardWidth = (int)(480 * Game.RelativeScale);
-	public const int CardHeight = (int)(320 * Game.RelativeScale);
-	public readonly Target Target;
+	public Target Target;
 
 	private int currentPage = 0;
 	private int currentRow = 0;
@@ -27,12 +25,14 @@ public class ModSelectionMenu : Menu
 
 	internal ModSelectionMenu()
 	{
+		Target = new Target(Overworld.CardWidth, Overworld.CardHeight);
+		Game.OnResolutionChaned += () => Target = new Target(Overworld.CardWidth, Overworld.CardHeight);
+		
 		postcardImage = new(Assets.Textures["postcards/back-empty"]);
 		strawberryImage = Assets.Subtextures["icon_strawberry"];
-		Target = new Target(CardWidth, CardHeight);
 		mods = ModManager.Instance.Mods.Where(mod => mod is not VanillaGameMod).ToArray();
 		modInfoMenu = new ModInfoMenu();
-
+		
 		FailedToLoadModsMenu = new Menu();
 		string unloadedMods = string.Join("\n", ModLoader.FailedToLoadMods);
 		FailedToLoadModsMenu.Title = Loc.Str("FujiFailedToLoad") + "\n" + unloadedMods;

@@ -3,8 +3,8 @@ namespace Celeste64;
 
 public static class UI
 {
-	public const float IconSize = 30 * Game.RelativeScale;
-	public const float PromptSize = 28 * Game.RelativeScale;
+	public static float IconSize => 30 * Game.RelativeScale;
+	public static float PromptSize => 28 * Game.RelativeScale;
 
 	public static void Text(Batcher batch, string text, in Vec2 at, in Vec2 justify, in Color color)
 	{

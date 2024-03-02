@@ -6,7 +6,7 @@ public class SpotlightWipe : ScreenWipe
 	public Vec2? FocusPoint;
 	public float Modifier = 0;
 	public bool Linear = false;
-	private const float SmallCircleRadius = 96 * Game.RelativeScale;
+	private static float SmallCircleRadius => 96 * Game.RelativeScale;
 	private const float EaseDuration = 1.2f;
 	private const float EaseOpenPercent = 0.3f; // how long (in percent) it eases the small circle open
 	private const float EaseClosePercent = 0.3f; // how long (in percent) it eases the entire screen
