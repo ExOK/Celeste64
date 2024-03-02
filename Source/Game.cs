@@ -69,7 +69,7 @@ public class Game : Module
 	/// <summary>
 	/// Used by various rendering elements to proportionally scale if you change the default game resolution
 	/// </summary>
-	public static float RelativeScale => Height / 360.0f;
+	public static float RelativeScale => _resolutionScale;
 
 	private static Game? instance;
 	public static Game Instance => instance ?? throw new Exception("Game isn't running");
