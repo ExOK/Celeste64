@@ -71,7 +71,7 @@ public class Game : Module
 	public override void Startup()
 	{
 		instance = this;
-		
+		App.MouseVisible = false;
 		Time.FixedStep = true;
 		App.VSync = true;
 		App.Title = GameTitle;
