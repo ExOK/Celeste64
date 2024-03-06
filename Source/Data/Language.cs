@@ -158,9 +158,11 @@ public static class Loc
 	public static List<Language.Line> Lines(string key) => Language.Current.GetLines(key);
 	public static bool HasLines(string key) => Language.Current.Dialog.ContainsKey(key);
 
-	public class Localized(string key) {
+	public class Localized(string key) 
+	{
 		protected string Key => key;
-		public override string ToString() {
+		public override string ToString() 
+		{
 			return Str(key);
 		}
 
@@ -168,8 +170,10 @@ public static class Loc
 		public static implicit operator string(Localized s) => s.ToString();
 	}
 
-	public class Unlocalized(string value) : Localized(value) {
-		public override string ToString() {
+	public class Unlocalized(string value) : Localized(value) 
+	{
+		public override string ToString() 
+		{
 			return Key;
 		}
 
