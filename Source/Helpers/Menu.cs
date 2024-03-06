@@ -212,8 +212,8 @@ public class Menu
 				string localizedLabel = Loc.Str(label);
 				label = localizedLabel == "<MISSING>" ? label : localizedLabel;
 			}
-			labelOff = $"{label} : OFF";
-			labelOn = $"{label} :  ON";
+			labelOff = $"{label} : {Loc.Str("OptionsToggleOff")}";
+			labelOn = $"{label} :  {Loc.Str("OptionsToggleOn")}";
 			this.action = action;
 			this.get = get;
 		}
