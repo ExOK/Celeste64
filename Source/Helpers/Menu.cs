@@ -16,18 +16,39 @@ public class Menu
 
 		public string Description { get; set; } = "";
 
-		public Item Describe(string str)
+		public Item Describe(string description, bool localized = true)
 		{
-			this.Description = str;
+			if (localized)
+			{
+				string localizedDescription = Loc.Str(description);
+				description = localizedDescription == "<MISSING>" ? description : localizedDescription;
+			}
+
+			this.Description = description;
 
 			return this;
 		}
 	}
 
-	public class Submenu(string label, Menu? rootMenu, Menu? submenu = null) : Item 
+	public class Submenu : Item 
 	{
-		private readonly string label = label;
+		private readonly string label;
+		private readonly Menu? submenu;
+		private readonly Menu? rootMenu;
 		public override string Label => label;
+
+		public Submenu(string label, Menu? rootMenu, Menu? submenu = null, bool localized = true)
+		{
+			if (localized)
+			{
+				string localizedLabel = Loc.Str(label);
+				label = localizedLabel == "<MISSING>" ? label : localizedLabel;
+			}
+			this.label = label;
+			this.rootMenu = rootMenu;
+			this.submenu = submenu;
+		}
+
 		public override bool Pressed() 
 		{
 			if (submenu != null) 
@@ -35,7 +56,6 @@ public class Menu
 				Audio.Play(Sfx.ui_select);
 				submenu.Index = 0;
 				rootMenu?.PushSubMenu(submenu);
-				submenu.Initialized();
 				return true;
 			}
 			
@@ -56,8 +76,13 @@ public class Menu
 		private readonly Func<int> get;
 		private readonly Action<int> set;
 	
-		public Slider(string label, int min, int max, Func<int> get, Action<int> set)
+		public Slider(string label, int min, int max, Func<int> get, Action<int> set, bool localized = true)
 		{
+			if (localized)
+			{
+				string localizedLabel = Loc.Str(label);
+				label = localizedLabel == "<MISSING>" ? label : localizedLabel;
+			}
 			for (int i = 0, n = (max - min); i <= n; i ++)
 				labels.Add($"{label} [{new string('|', i)}{new string('.', n - i)}]");
 			this.min = min;
@@ -70,6 +95,23 @@ public class Menu
         public override void Slide(int dir) => set(Calc.Clamp(get() + dir, min, max));
     }
 
+	public class SubHeader : Item
+	{
+		private readonly string label;
+		public override string Label => label;
+		public override bool Selectable { get; } = false;
+
+		public SubHeader(string label, bool localized = true)
+		{
+			if (localized)
+			{
+				string localizedLabel = Loc.Str(label);
+				label = localizedLabel == "<MISSING>" ? label : localizedLabel;
+			}
+			this.label = label;
+		}
+	}
+
 	public class OptionList : Item
 	{
 		private readonly string label;
@@ -79,8 +121,13 @@ public class Menu
 		private readonly Func<List<string>> getLabels;
 		private readonly Action<string> set;
 
-		public OptionList(string label, Func<List<string>> getLabels, Func<string> get, Action<string> set)
+		public OptionList(string label, Func<List<string>> getLabels, Func<string> get, Action<string> set, bool localized = true)
 		{
+			if (localized)
+			{
+				string localizedLabel = Loc.Str(label);
+				label = localizedLabel == "<MISSING>" ? label : localizedLabel;
+			}
 			this.label = label;
 			this.getLabels = getLabels;
 			this.min = 0;
@@ -89,8 +136,13 @@ public class Menu
 			this.set = set;
 		}
 
-		public OptionList(string label, Func<List<string>> getLabels, int min, Func<int> getMax, Func<string> get, Action<string> set)
+		public OptionList(string label, Func<List<string>> getLabels, int min, Func<int> getMax, Func<string> get, Action<string> set, bool localized = true)
 		{
+			if (localized)
+			{
+				string localizedLabel = Loc.Str(label);
+				label = localizedLabel == "<MISSING>" ? label : localizedLabel;
+			}
 			this.label = label;
 			this.getLabels = getLabels;
 			this.min = min;
@@ -115,12 +167,24 @@ public class Menu
 		}
     }
 
-    public class Option(string label, Action? action = null) : Item
+    public class Option: Item
 	{
-		private readonly string label = label;
-		private readonly Action? action = action;
+		private readonly string label;
+		private readonly Action? action;
         public override string Label => label;
-        public override bool Pressed()
+
+		public Option(string label, Action? action = null, bool localized = true)
+		{
+			if (localized)
+			{
+				string localizedLabel = Loc.Str(label);
+				label = localizedLabel == "<MISSING>" ? label : localizedLabel;
+			}
+			this.label = label;
+			this.action = action;
+		}
+
+		public override bool Pressed()
 		{
 			if (action != null)
 			{
@@ -132,12 +196,28 @@ public class Menu
 		}
     }
 
-	public class Toggle(string label, Action action, Func<bool> get)  : Item
+	public class Toggle : Item
 	{
-		private readonly string labelOff = $"{label} : OFF";
-		private readonly string labelOn  = $"{label} :  ON";
-		private readonly Action action = action;
-        public override string Label => get() ? labelOn : labelOff;
+		private readonly string labelOff;
+		private readonly string labelOn;
+		private readonly Action action;
+		private Func<bool> get;
+
+		public override string Label => get() ? labelOn : labelOff;
+
+		public Toggle(string label, Action action, Func<bool> get, bool localized = true)
+		{
+			if (localized)
+			{
+				string localizedLabel = Loc.Str(label);
+				label = localizedLabel == "<MISSING>" ? label : localizedLabel;
+			}
+			labelOff = $"{label} : {Loc.Str("OptionsToggleOff")}";
+			labelOn = $"{label} :  {Loc.Str("OptionsToggleOn")}";
+			this.action = action;
+			this.get = get;
+		}
+
         public override bool Pressed()
 		{
 			action();
@@ -149,11 +229,26 @@ public class Menu
 		}
 	}
 
-	public class MultiSelect(string label, List<string> options, Func<int> get, Action<int> set) : Item
+	public class MultiSelect : Item
 	{
-		private readonly List<string> options = options;
-		private readonly Action<int> set = set;
+		private readonly List<string> options;
+		private readonly Action<int> set;
+		private readonly string label;
+		private Func<int> get;
 		public override string Label => $"{label} : {options[get()]}";
+
+		public MultiSelect(string label, List<string> options, Func<int> get, Action<int> set, bool localized = true)
+		{
+			if (localized)
+			{
+				string localizedLabel = Loc.Str(label);
+				label = localizedLabel == "<MISSING>" ? label : localizedLabel;
+			}
+			this.label = label;
+			this.options = options;
+			this.get = get;
+			this.set = set;
+		}
 
 		public override void Slide(int dir) 
 		{
@@ -178,8 +273,8 @@ public class Menu
 			return list;
 		}
 
-		public MultiSelect(string label, Action<T> set, Func<T> get)
-			: base(label, GetEnumOptions(), () => (int)(object)get(), (i) => set((T)(object)i))
+		public MultiSelect(string label, Action<T> set, Func<T> get, bool localized = true)
+			: base(label, GetEnumOptions(), () => (int)(object)get(), (i) => set((T)(object)i), localized)
 		{
 
 		}
@@ -191,6 +286,7 @@ public class Menu
 
 	protected readonly List<Item> items = [];
 	protected readonly Stack<Menu> submenus = [];
+	public Menu? RootMenu { get; protected set; }
 
 	public string UpSound = Sfx.ui_move;
 	public string DownSound = Sfx.ui_move;
@@ -257,11 +353,26 @@ public class Menu
 		}
 	}
 
+	public Menu(Menu? rootMenu)
+	{
+		RootMenu = rootMenu;
+	}
+	
+	public Menu()
+	{
+
+	}
+
 	public virtual void Initialized()
 	{
 
 	}
-	
+
+	public virtual void Closed()
+	{
+
+	}
+
 	public Menu Add(Item item)
 	{
 		items.Add(item);
@@ -270,16 +381,47 @@ public class Menu
 	
 	internal void PushSubMenu(Menu menu) 
 	{
+		menu.RootMenu = RootMenu ?? this;
 		submenus.Push(menu);
+		menu.Initialized();
 	}
 
 	internal void PopSubMenu()
 	{
-		submenus.Pop();
+		Menu popped = submenus.Pop();
+		popped.Closed();
+	}
+
+	internal void PopRootSubMenu()
+	{
+		if(RootMenu != null)
+		{
+			RootMenu.PopSubMenu();
+		}
+		else
+		{
+			PopSubMenu();
+		}
+	}
+
+	internal void PushRootSubMenu(Menu menu)
+	{
+		if (RootMenu != null)
+		{
+			RootMenu.PushSubMenu(menu);
+		}
+		else
+		{
+			PopSubMenu();
+		}
 	}
 
 	public void CloseSubMenus() 
 	{
+		foreach (var submenu in submenus)
+		{
+			submenu.Closed();
+		}
 		submenus.Clear();
 	}
 
@@ -335,7 +477,8 @@ public class Menu
 	        if (!IsInMainMenu && Controls.Cancel.ConsumePress()) 
 			{
 				Audio.Play(Sfx.main_menu_toggle_off);
-				GetSecondDeepestMenu(this).submenus.Pop();
+				Menu popped = GetSecondDeepestMenu(this).submenus.Pop();
+				popped.Closed();
 			}
 	    }
 	}
@@ -374,11 +517,24 @@ public class Menu
 			var text = items[i].Label;
 			var justify = new Vec2(0.5f, 0);
 			var color = Index == i && Focused ? (Time.BetweenInterval(0.1f) ? 0x84FF54 : 0xFCFF59) : Color.White;
-			
-			UI.Text(batch, text, position, justify, color);
-	
-			position.Y += font.LineHeight;
-			position.Y += Spacing;    
+
+			if (items[i] is SubHeader)
+			{
+				color = new Color(8421504);
+				position.Y += Spacing; 
+				batch.PushMatrix(
+					Matrix3x2.CreateScale(TitleScale) *
+					Matrix3x2.CreateTranslation(position));
+				UI.Text(batch, text, Vec2.Zero, justify, color);
+				batch.PopMatrix();
+				position.Y += font.LineHeight;
+			}
+			else
+			{
+				UI.Text(batch, text, position, justify, color);
+				position.Y += font.LineHeight;
+				position.Y += Spacing;
+			} 
 	    }
 		batch.PopMatrix();
 
@@ -408,8 +564,7 @@ public class Menu
 		CurrentMenu.RenderItems(batch);
 		batch.PopMatrix();
 
-		// let's not crash if the menu has no items
-		// such as the modselectionmenu
+		// Don't render the description if the menu has no items.
 		if(CurrentMenu.items.Count > 0)
 		{
 			var currentItem = CurrentMenu.items[CurrentMenu.Index];

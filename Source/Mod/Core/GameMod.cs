@@ -1,4 +1,5 @@
 ﻿using MonoMod.RuntimeDetour;
+using System.Reflection;
 
 namespace Celeste64.Mod;
 
@@ -41,6 +42,8 @@ public abstract class GameMod
 
 	// Common Metadata about this mod.
 	public bool Enabled { get { return this is VanillaGameMod || ModSaveData.Enabled; } }
+	public virtual Type? SettingsType { get; set; }
+	public virtual GameModSettings? Settings { get; set; }
 
 	/// <summary>
 	/// List of currently used <see cref="ImGuiHandler"/>s by this mod.
@@ -69,36 +72,312 @@ public abstract class GameMod
 	{
 		return ModSaveData.SetString(key, value);
 	}
-	public string GetString(string key)
+	public string GetString(string key, string defaultValue="")
 	{
-		return ModSaveData.GetString(key);
+		return ModSaveData.GetString(key, defaultValue);
 	}
 	public int SaveInt(string key, int value)
 	{
 		return ModSaveData.SetInt(key, value);
 	}
-	public int GetInt(string key)
+	public int GetInt(string key, int defaultValue = 0)
 	{
-		return ModSaveData.GetInt(key);
+		return ModSaveData.GetInt(key, defaultValue);
 	}
 	public float SaveFloat(string key, float value)
 	{
 		return ModSaveData.SetFloat(key, value);
 	}
-	public float GetFloat(string key)
+	public float GetFloat(string key, float defaultValue = 0.0f)
 	{
-		return ModSaveData.GetFloat(key);
+		return ModSaveData.GetFloat(key, defaultValue);	
 	}
 	public bool SaveBool(string key, bool value)
 	{
 		return ModSaveData.SetBool(key, value);
 	}
-	public bool GetBool(string key)
+	public bool GetBool(string key, bool defaultValue = false)
 	{
-		return ModSaveData.GetBool(key);
+		return ModSaveData.GetBool(key, defaultValue);
 	}
 	#endregion
 
+	#region Mod Settings
+
+	public bool SaveSettings()
+	{
+		if (SettingsType == null || Settings == null)
+			return false;
+
+		try
+		{
+			return SaveSettingsForType("Settings.", SettingsType, Settings);
+		}
+		catch (Exception e)
+		{
+			Log.Error($"Failed to save the settings of {ModInfo.Id}!");
+			Log.Error(e.Message);
+			return false;
+		}
+	}
+
+	public bool SaveSettingsForType(string settingKey, Type type, object instance)
+	{
+		if (type == null || instance == null)
+			return false;
+
+		PropertyInfo[] props = type.GetProperties();
+		foreach (PropertyInfo prop in props)
+		{
+			object? propValue = prop.GetValue(instance);
+			if (propValue is int propInt)
+			{
+				ModSaveData.SettingsSetInt($"{settingKey}{prop.Name}", propInt);
+			}
+			else if (propValue is bool propBool)
+			{
+				ModSaveData.SettingsSetBool($"{settingKey}{prop.Name}", propBool);
+			}
+			else if (propValue is string propString)
+			{
+				ModSaveData.SettingsSetString($"{settingKey}{prop.Name}", propString);
+			}
+			else if (propValue is float propFloat)
+			{
+				ModSaveData.SettingsSetFloat($"{settingKey}{prop.Name}", propFloat);
+			}
+			else if (prop.PropertyType.IsEnum)
+			{
+				int intVal = propValue != null ? (int)propValue : 0;
+				ModSaveData.SettingsSetInt($"{settingKey}{prop.Name}", intVal);
+			}
+			else if (propValue != null && prop.PropertyType.GetCustomAttribute<SettingSubMenuAttribute>() != null)
+			{
+				SaveSettingsForType($"{settingKey}{prop.Name}.", prop.PropertyType, propValue);
+			}
+		}
+		return true;
+	}
+
+	public bool LoadSettings()
+	{
+		if (SettingsType == null || Settings == null)
+			return false;
+
+		try
+		{
+			return LoadSettingsForType("Settings.", SettingsType, Settings);
+		}
+		catch (Exception e)
+		{
+			Log.Error($"Failed to save the settings of {ModInfo.Id}!");
+			Log.Error(e.Message);
+			return false;
+		}
+	}
+
+	public bool LoadSettingsForType(string settingKey, Type type, object instance)
+	{
+		if (type == null || instance == null)
+			return false;
+
+		PropertyInfo[] props = type.GetProperties();
+		foreach (PropertyInfo prop in props)
+		{
+			object? propValue = prop.GetValue(instance);
+			if (propValue is int propInt)
+			{
+				prop.SetValue(instance, ModSaveData.SettingsGetInt($"{settingKey}{prop.Name}", propInt));
+			}
+			else if (propValue is bool propBool)
+			{
+				prop.SetValue(instance, ModSaveData.SettingsGetBool($"{settingKey}{prop.Name}", propBool));
+			}
+			else if (propValue is string propString)
+			{
+				prop.SetValue(instance, ModSaveData.SettingsGetString($"{settingKey}{prop.Name}", propString));
+			}
+			else if (propValue is float propFloat)
+			{
+				prop.SetValue(instance, ModSaveData.SettingsGetFloat($"{settingKey}{prop.Name}", propFloat));
+			}
+			else if (prop.PropertyType.IsEnum)
+			{
+				int intVal = propValue != null ? (int)propValue : 0;
+				prop.SetValue(instance, prop.PropertyType.GetEnumValues().GetValue(ModSaveData.SettingsGetInt($"{settingKey}{prop.Name}", intVal)));
+			}
+			else if (propValue != null && prop.PropertyType.GetCustomAttribute<SettingSubMenuAttribute>() != null)
+			{
+				LoadSettingsForType($"{settingKey}{prop.Name}.", prop.PropertyType, propValue);
+			}
+		}
+		return true;
+	}
+
+	/// <summary>
+	/// This function is responsible for creating mod settings menus from the settings object
+	/// It works with AddMenuSettingsForType which is broken out because that calls itself recursively to make submenus.
+	/// </summary>
+	/// <param name="settingsMenu">The menu we are adding settings to.</param>
+	public virtual void AddModSettings(ModOptionsMenu settingsMenu)
+	{
+		if (SettingsType == null || Settings == null)
+			return;
+
+		AddMenuSettingsForType(settingsMenu, SettingsType, Settings);
+	}
+
+	public virtual void AddMenuSettingsForType(Menu menu, Type type, object instance)
+	{
+		if (type == null || instance == null)
+			return;
+
+		PropertyInfo[] props = type.GetProperties();
+		foreach (PropertyInfo prop in props)
+		{
+			Type propType = prop.PropertyType;
+
+			if (prop.GetCustomAttribute<SettingIgnoreAttribute>() != null)
+				continue;
+
+
+			string propName = prop.Name;
+			string? nameAttibute = prop.GetCustomAttribute<SettingNameAttribute>()?.Name;
+			if (!string.IsNullOrEmpty(nameAttibute))
+			{
+				string localizedName = Loc.ModStr(this, nameAttibute);
+				propName = localizedName == "<MISSING>" ? nameAttibute : localizedName;
+			}
+
+			Menu.Item? newItem = null;
+
+			if (prop.GetCustomAttribute<SettingSpacerAttribute>() != null)
+			{
+				menu.Add(new Menu.Spacer());
+			}
+
+			bool changingNeedsReload = prop.GetCustomAttribute<SettingNeedsReloadAttribute>() != null;
+
+			string? subheader = prop.GetCustomAttribute<SettingSubHeaderAttribute>()?.SubHeader;
+			if (!string.IsNullOrEmpty(subheader))
+			{
+				string localizedSubHeader = Loc.ModStr(this, subheader);
+				menu.Add(new Menu.SubHeader(localizedSubHeader == "<MISSING>" ? subheader : localizedSubHeader));
+			}
+
+			if (propType.IsEnum)
+			{
+				newItem = new Menu.MultiSelect(
+					propName,
+					propType.GetEnumNames().ToList(),
+					() =>
+					{
+						object? val = prop.GetValue(instance);
+						int intVal = val != null ? (int)val : 0;
+						return intVal;
+					},
+					(int value) =>
+					{
+						object? newValue = propType.GetEnumValues().GetValue(value);
+						OnModSettingChanged(propName, newValue, changingNeedsReload);
+						prop.SetValue(instance, propType.GetEnumValues().GetValue(value));
+					},
+					false
+				);
+			}
+			else if (propType == typeof(int))
+			{
+				int min = 0;
+				int max = 10;
+				SettingRangeAttribute? settingRangeAttribute = prop.GetCustomAttribute<SettingRangeAttribute>();
+				if (settingRangeAttribute != null && settingRangeAttribute.Max > settingRangeAttribute.Min)
+				{
+					min = settingRangeAttribute.Min;
+					max = settingRangeAttribute.Max;
+				}
+				newItem = new Menu.Slider(
+					propName,
+					min,
+					max,
+					() => prop.GetValue(instance) as int? ?? 0,
+					(int value) =>
+					{
+						OnModSettingChanged(propName, value, changingNeedsReload);
+						prop.SetValue(instance, value);
+					},
+					false
+				);
+			}
+			else if (propType == typeof(bool))
+			{
+				newItem = new Menu.Toggle(
+					propName,
+					() => {
+						bool newValue = !(prop.GetValue(instance) as bool? ?? false);
+						prop.SetValue(instance, newValue);
+						OnModSettingChanged(propName, newValue, changingNeedsReload);
+					},
+					() => prop.GetValue(instance) as bool? ?? false,
+					false
+				);
+			}
+			else if (prop.PropertyType.GetCustomAttribute<SettingSubMenuAttribute>() != null)
+			{
+				object? value = prop.GetValue(instance);
+				if (value != null)
+				{
+					Menu subMenu = new Menu(menu.RootMenu);
+					subMenu.Title = propName;
+					AddMenuSettingsForType(subMenu, prop.PropertyType, value);
+					subMenu.Add(new Menu.Option("Back", () =>
+					{
+						if (menu != null)
+						{
+							menu.PopRootSubMenu();
+						}
+					},
+					false));
+					newItem = new Menu.Submenu(
+						propName,
+						menu.RootMenu,
+						subMenu,
+						false
+					);
+				}
+			}
+
+			if (newItem != null)
+			{
+				string? propDescription = prop.GetCustomAttribute<SettingDescriptionAttribute>()?.Description;
+				if (!string.IsNullOrEmpty(propDescription))
+				{
+					string localizedDescription = Loc.ModStr(this, propDescription);
+					propDescription = localizedDescription == "<MISSING>" ? propDescription : localizedDescription;
+					newItem.Describe(propDescription, false);
+				}
+				menu.Add(newItem);
+			}
+		}
+	}
+
+	/// <summary>
+	/// This gets called when a mod setting is changed.
+	/// Right now, this mostly tells the game to reload, but modders can override this to detect a mod setting changing.
+	/// If this is overridden, the base function should probably be called as well.
+	/// This gets called every time a setting gets changed in the UI, so this may get called a lot.
+	/// </summary>
+	/// <param name="settingName"> The name of the setting that changed</param>
+	/// <param name="value"> The value the setting is changing to.</param>
+	/// <param name="needsReload"> Whether this setting should relauch the game</param>
+	public virtual void OnModSettingChanged(string settingName, object? newValue, bool needsReload)
+	{
+		if (needsReload)
+		{
+			Game.Instance.NeedsReload = true;
+		}
+	}
+
+	#endregion
 
 	/// <summary>
 	/// Get all mods which depend on this mod.
@@ -190,11 +469,12 @@ public abstract class GameMod
 	}
 
 
-	// Passthrough functions to simplify adding stuff to the Hook Manager.
+	// Passthrough functions to simplify adding Hooks to the Hook Manager.
 	public static void RegisterHook(Hook hook) => HookManager.Instance.RegisterHook(hook);
 	public static void RegisterILHook(ILHook iLHook) => HookManager.Instance.RegisterILHook(iLHook);
 	public static void RemoveHook(Hook hook) => HookManager.Instance.RemoveHook(hook);
 	public static void RemoveILHook(ILHook iLHook) => HookManager.Instance.RemoveILHook(iLHook);
+	
 	/// <summary>
 	/// Registers the provided custom player state,
 	/// and ensures it will be deregistered once the mod unloads.
@@ -205,11 +485,8 @@ public abstract class GameMod
 		OnUnloadedCleanup += CustomPlayerStateRegistry.Deregister<T>;
 	}
 
-	// DISCLAIMER: THIS IS STILL WORK IN PROGRESS AND WILL LIKELY BE CHANGED. DON'T USE THIS YET.
-	public virtual void AddModOptions(Menu optionsMenu)
-	{
+	#region Game Events
 
-	}
 
 	// Game Event Functions. These are used to provide an "interface" of sorts that mods can easily override.
 	// They will not be called if the mod is disabled.
@@ -303,7 +580,6 @@ public abstract class GameMod
 	/// <param name="player">A reference to the player</param>
 	public virtual void OnPlayerJumped(Player player, Player.JumpType jumpType) { }
 
-
 	/// <summary>
 	/// Called whenever the player's state changes
 	/// </summary>
@@ -324,4 +600,6 @@ public abstract class GameMod
 	/// <param name="player">The player that picked up the item</param>
 	/// <param name="item">The IPickup item that was picked up</param>
 	public virtual void OnItemPickup(Player player, IPickup item){}
+
+	#endregion
 }
