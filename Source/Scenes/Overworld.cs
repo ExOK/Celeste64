@@ -41,13 +41,13 @@ public class Overworld : Scene
 
 			if (Save.Instance.TryGetRecord(Level.ID) is {} record)
 			{
-				Menu.Add(new Menu.Option(Loc.Str("Continue")));
-				Menu.Add(new Menu.Option(Loc.Str("Restart")));
+				Menu.Add(new Menu.Option("Continue"));
+				Menu.Add(new Menu.Option("Restart"));
 				Complete = record.Strawberries.Count >= Level.Strawberries;
 			}
 			else
 			{
-				Menu.Add(new Menu.Option(Loc.Str("Start")));
+				Menu.Add(new Menu.Option("Start"));
 			}
 		}
 
@@ -175,8 +175,8 @@ public class Overworld : Scene
 		]);
 		mesh.SetIndices<int>([0, 1, 2, 0, 2, 3]);
 
-		restartConfirmMenu.Add(new Menu.Option(Loc.Str("Cancel")));
-		restartConfirmMenu.Add(new Menu.Option(Loc.Str("RestartLevel")));
+		restartConfirmMenu.Add(new Menu.Option("Cancel"));
+		restartConfirmMenu.Add(new Menu.Option("RestartLevel"));
 		restartConfirmMenu.UpSound = Sfx.main_menu_roll_up;
 		restartConfirmMenu.DownSound = Sfx.main_menu_roll_down;
 
@@ -268,23 +268,22 @@ public class Overworld : Scene
 
 				if (Paused)
 				{
-					Menu optionsMenu = new GameOptionsMenu();
-
 					pauseMenu = new();
 					pauseMenu.Title = Loc.Str("PauseOptions");
 
-					ModSelectionMenu modMenu = new ModSelectionMenu()
+					Menu optionsMenu = new GameOptionsMenu(pauseMenu);
+					ModSelectionMenu modMenu = new ModSelectionMenu(pauseMenu)
 					{
-						RootMenu = pauseMenu,
 						Title = "Mods Menu"
 					};
 
-					pauseMenu.Add(new Menu.Submenu(Loc.Str("Mods"), pauseMenu, modMenu));
-					pauseMenu.Add(new Menu.Submenu(Loc.Str("PauseOptions"), pauseMenu, optionsMenu));
-					pauseMenu.Add(new Menu.Option(Loc.Str("Exit"), () =>
+					pauseMenu.Add(new Menu.Submenu("PauseOptions", pauseMenu, optionsMenu));
+					pauseMenu.Add(new Menu.Submenu("Mods", pauseMenu, modMenu));
+					pauseMenu.Add(new Menu.Option("Exit", () =>
 					{
 						if (Game.Instance.NeedsReload)
 						{
+							Game.Instance.NeedsReload = false;
 							Game.Instance.ReloadAssets();
 						}
 						Paused = false;
@@ -351,10 +350,15 @@ public class Overworld : Scene
 		}
 		else if (Paused)
 		{
-			if (Controls.Pause.ConsumePress())
+			if (Controls.Pause.ConsumePress() || (pauseMenu != null && pauseMenu.IsInMainMenu && Controls.Cancel.ConsumePress()))
 			{
+				if(pauseMenu!= null)
+				{
+					pauseMenu.CloseSubMenus();
+				}
 				if (Game.Instance.NeedsReload)
 				{
+					Game.Instance.NeedsReload = false;
 					Game.Instance.ReloadAssets();
 				}
 				Paused = false;

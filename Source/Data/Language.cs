@@ -17,11 +17,11 @@ public class Language
 	public string Font { get; set; } = string.Empty;
 	[JsonIgnore]
 	public ModAssetDictionary<string> ModStrings { get; set; } = new(
-		gamemod => gamemod.Strings.TryGetValue(Language.Current.ID, out var value) ? value : []
+		gamemod => gamemod.Strings.TryGetValue(Current.ID, out var value) ? value : []
 	);
 	[JsonIgnore]
 	public ModAssetDictionary<List<Line>> ModDialog { get; set; } = new(
-		gamemod => gamemod.DialogLines.TryGetValue(Language.Current.ID, out var value) ? value : []
+		gamemod => gamemod.DialogLines.TryGetValue(Current.ID, out var value) ? value : []
 	);
 
 	public Dictionary<string, string> Strings { get; set; } = new(StringComparer.OrdinalIgnoreCase);
@@ -36,6 +36,16 @@ public class Language
 			return modValue;
 		else if (Strings.TryGetValue(key, out var value))
 			return value;
+
+		return "<MISSING>";
+	}
+
+	public string GetModString(GameMod mod, string key)
+	{
+		if(mod.Strings.TryGetValue(Current.ID, out var dictionary) && dictionary.ContainsKey(key))
+		{
+			return dictionary[key];
+		}
 
 		return "<MISSING>";
 	}
@@ -144,6 +154,7 @@ public class Language
 public static class Loc
 {
 	public static string Str(string key) => Language.Current.GetString(key);
+	public static string ModStr(GameMod mod, string key) => Language.Current.GetModString(mod, key);
 	public static List<Language.Line> Lines(string key) => Language.Current.GetLines(key);
 	public static bool HasLines(string key) => Language.Current.Dialog.ContainsKey(key);
 }

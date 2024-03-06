@@ -72,7 +72,7 @@ public class World : Scene
 	{
 		badMapWarningMenu.Title = $"placeholder";
 
-		badMapWarningMenu.Add(new Menu.Option(Loc.Str("PauseRetry"), () => Game.Instance.Goto(new Transition()
+		badMapWarningMenu.Add(new Menu.Option("PauseRetry", () => Game.Instance.Goto(new Transition()
 		{
 			Mode = Transition.Modes.Replace,
 			Scene = () => new World(new(entry.Map, Save.CurrentRecord.Checkpoint, false, World.EntryReasons.Entered)),
@@ -83,12 +83,12 @@ public class World : Scene
 			PerformAssetReload = true
 		})));
 
-		badMapWarningMenu.Add(new Menu.Option(Loc.Str("FujiOpenLogFile"), () => {
+		badMapWarningMenu.Add(new Menu.Option("FujiOpenLogFile", () => {
 			Game.WriteToLog();
 			Game.OpenLog();
 		}));
 
-		badMapWarningMenu.Add(new Menu.Option(Loc.Str("Exit"), () => Game.Instance.Goto(new Transition()
+		badMapWarningMenu.Add(new Menu.Option("Exit", () => Game.Instance.Goto(new Transition()
 		{
 			Mode = Transition.Modes.Replace,
 			Scene = () => new Overworld(true),
@@ -130,20 +130,19 @@ public class World : Scene
 
 		// setup pause menu
 		{
-			Menu optionsMenu = new GameOptionsMenu();
+			Menu optionsMenu = new GameOptionsMenu(pauseMenu);
 
-			ModSelectionMenu modMenu = new ModSelectionMenu()
+			ModSelectionMenu modMenu = new ModSelectionMenu(pauseMenu)
 			{
-				RootMenu = pauseMenu,
 				Title = "Mods Menu"
 			};
 
 			pauseMenu.Title = Loc.Str("PauseTitle");
-            pauseMenu.Add(new Menu.Option(Loc.Str("PauseResume"), () =>
+            pauseMenu.Add(new Menu.Option("PauseResume", () =>
 			{
 				SetPaused(false);
 			}));
-			pauseMenu.Add(new Menu.Option(Loc.Str("PauseRetry"), () =>
+			pauseMenu.Add(new Menu.Option("PauseRetry", () =>
 			{
 				SetPaused(false);
 				Audio.StopBus(Sfx.bus_dialog, false);
@@ -158,9 +157,9 @@ public class World : Scene
 					() => Save.Instance.GetSkin().Name, Save.Instance.SetSkinName)
 				);
 			}
-			pauseMenu.Add(new Menu.Submenu(Loc.Str("PauseOptions"), pauseMenu, optionsMenu));
-			pauseMenu.Add(new Menu.Submenu(Loc.Str("Mods"), pauseMenu, modMenu));
-			pauseMenu.Add(new Menu.Option(Loc.Str("PauseSaveQuit"), () => Game.Instance.Goto(new Transition()
+			pauseMenu.Add(new Menu.Submenu("PauseOptions", pauseMenu, optionsMenu));
+			pauseMenu.Add(new Menu.Submenu("Mods", pauseMenu, modMenu));
+			pauseMenu.Add(new Menu.Option("PauseSaveQuit", () => Game.Instance.Goto(new Transition()
 			{
 				Mode = Transition.Modes.Replace,
 				Scene = () => new Overworld(true),

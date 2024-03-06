@@ -21,29 +21,29 @@ public class ModSelectionMenu : Menu
 
 	private GameMod[] mods;
 	private ModInfoMenu modInfoMenu;
-	public Menu? RootMenu;
 	public Menu FailedToLoadModsMenu;
 	public bool HandledFailedMods;
 
-	internal ModSelectionMenu()
+	internal ModSelectionMenu(Menu? rootMenu)
 	{
+		RootMenu = rootMenu;
 		postcardImage = new(Assets.Textures["postcards/back-empty"]);
 		strawberryImage = Assets.Subtextures["icon_strawberry"];
 		Target = new Target(CardWidth, CardHeight);
 		mods = ModManager.Instance.Mods.Where(mod => mod is not VanillaGameMod).ToArray();
-		modInfoMenu = new ModInfoMenu();
+		modInfoMenu = new ModInfoMenu(rootMenu);
 
-		FailedToLoadModsMenu = new Menu();
+		FailedToLoadModsMenu = new Menu(rootMenu);
 		string unloadedMods = string.Join("\n", ModLoader.FailedToLoadMods);
 		FailedToLoadModsMenu.Title = Loc.Str("FujiFailedToLoad") + "\n" + unloadedMods;
-		FailedToLoadModsMenu.Add(new Option(Loc.Str("Continue"), () => {
+		FailedToLoadModsMenu.Add(new Option("Continue", () => {
 			HandledFailedMods = true;
 			if(RootMenu != null)
 			{
 				RootMenu.PopSubMenu();
 			}
 		}));
-		FailedToLoadModsMenu.Add(new Option(Loc.Str("FujiOpenLogFile"), () => {
+		FailedToLoadModsMenu.Add(new Option("FujiOpenLogFile", () => {
 			Game.WriteToLog();
 			Game.OpenLog();
 		}));
@@ -55,10 +55,7 @@ public class ModSelectionMenu : Menu
 		currentColumn = 0;
 		currentRow = 0;
 		currentPage = 0;
-		modInfoMenu = new ModInfoMenu()
-		{
-			RootMenu = RootMenu
-		};
+		modInfoMenu = new ModInfoMenu(RootMenu);
 
 		if (!HandledFailedMods && RootMenu != null && ModLoader.FailedToLoadMods.Any())
 		{
@@ -206,7 +203,6 @@ public class ModSelectionMenu : Menu
 
 	protected override void RenderItems(Batcher batch)
 	{
-
 		if (postcardImage.Texture != null)
 		{
 			var bounds = Target.Bounds;
