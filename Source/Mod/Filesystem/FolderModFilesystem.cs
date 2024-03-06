@@ -57,7 +57,43 @@ public sealed class FolderModFilesystem : IModFilesystem {
 
     public Stream OpenFile(string path) {
         var realPath = VirtToRealPath(path);
-        return File.OpenRead(realPath);
+        var realCasePath = GetActualCaseForFileName(realPath);
+
+        return File.OpenRead(realCasePath);
+    }
+
+    private static string GetActualCaseForFileName(string pathAndFileName)
+    {
+        string? directory = Path.GetDirectoryName(pathAndFileName);
+        string? pattern = Path.GetFileName(pathAndFileName);
+        if(directory == null || pattern == null)
+            return pathAndFileName;
+
+        string resultFileName;
+
+        // Enumerate all files in the directory, using the file name as a pattern
+        // This will list all case variants of the filename even on file systems that
+        // are case sensitive
+        IEnumerable<string> foundFiles = Directory.EnumerateFiles(directory, pattern);
+
+        if (foundFiles.Any())
+        {
+            if (foundFiles.Count() > 1)
+            {
+                // More than two files with the same name but different case spelling found
+                throw new Exception("Ambiguous File reference for " + pathAndFileName);
+            }
+            else
+            {
+                resultFileName = foundFiles.First();
+            }
+        }
+        else
+        {
+            throw new FileNotFoundException("File not found" + pathAndFileName, pathAndFileName);
+        }
+
+        return resultFileName;
     }
 
     public bool TryOpenFile<T>(string path, Func<Stream, T> callback, [NotNullWhen(true)] out T? value) {
@@ -65,13 +101,13 @@ public sealed class FolderModFilesystem : IModFilesystem {
 
         try
         {
-	        using var stream = OpenFile(path);
-	        value = callback(stream)!;
-	        return true;
+            using var stream = OpenFile(path);
+            value = callback(stream)!;
+            return true;
         }
         catch (Exception)
         {
-	        // ignored
+            // ignored
         }
 
         value = default;

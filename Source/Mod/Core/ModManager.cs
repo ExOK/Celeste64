@@ -1,6 +1,4 @@
-﻿using System.Collections.Frozen;
-
-namespace Celeste64.Mod;
+﻿namespace Celeste64.Mod;
 
 public sealed class ModManager
 {
@@ -102,8 +100,8 @@ public sealed class ModManager
 			    (dir.StartsWith(Assets.SpritesFolder) && extension == $".{Assets.SpritesExtension}") ||
 			    (dir.StartsWith(Assets.SkinsFolder) && extension == $".{Assets.SkinsExtension}") ||
 			    (dir.StartsWith(Assets.LibrariesFolder) && extension == $".{Assets.LibrariesExtensionAssembly}") ||
-			    filepath == Assets.LevelsJSON ||			    
-			    filepath == Assets.FujiJSON)
+			    filepath.ToLower() == Assets.LevelsJSON.ToLower() ||			    
+			    filepath.ToLower() == Assets.FujiJSON.ToLower())
 			{
 				Log.Info($"File Changed: {filepath} (From mod {ctx.Mod.ModInfo.Name}). Reloading assets.");
 			} 

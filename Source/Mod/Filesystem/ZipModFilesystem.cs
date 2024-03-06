@@ -72,13 +72,19 @@ public sealed class ZipModFilesystem : IModFilesystem {
     }
     
     private Stream? OpenFile(string path, ZipArchive zip) {
-        var entry = zip.GetEntry(path);
+        var entry = GetZipEntryCaseInsensitive(path, zip);
         var stream = entry?.Open();
         if (stream is { }) {
             openedFiles.Add(stream);
         }
 
         return stream;
+    }
+
+    // Get first entry that matches this path regardless of casing.
+    private static ZipArchiveEntry? GetZipEntryCaseInsensitive(string pathAndFileName, ZipArchive zip)
+    {
+        return zip.Entries.FirstOrDefault(e => e.FullName.ToLower() == pathAndFileName.ToLower());
     }
 
     public bool TryOpenFile<T>(string path, Func<Stream, T> callback, [NotNullWhen(true)] out T? value)
@@ -96,9 +102,9 @@ public sealed class ZipModFilesystem : IModFilesystem {
             if (stream.CanSeek)
             {
                 value = callback(stream)!;
-				stream.Dispose();
-			}
-			else
+                stream.Dispose();
+            }
+            else
             {
                 // If the stream cannot seek, we need to copy it to a memory stream so consumers can use position and lenght.
                 // This is mostly needed to support how Foster uses stream.Position and stream.Length in the Image constructor
