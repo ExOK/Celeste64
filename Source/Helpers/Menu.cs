@@ -16,14 +16,9 @@ public class Menu
 
 		public string Description { get; set; } = "";
 
-		public Item Describe(string description, bool localized = true)
+		public Item Describe(Loc.Localized description)
 		{
-			if (localized)
-			{
-				string localizedDescription = Loc.Str(description);
-				description = localizedDescription == "<MISSING>" ? description : localizedDescription;
-			}
-
+			
 			this.Description = description;
 
 			return this;
@@ -37,13 +32,8 @@ public class Menu
 		private readonly Menu? rootMenu;
 		public override string Label => label;
 
-		public Submenu(string label, Menu? rootMenu, Menu? submenu = null, bool localized = true)
+		public Submenu(Loc.Localized label, Menu? rootMenu, Menu? submenu = null)
 		{
-			if (localized)
-			{
-				string localizedLabel = Loc.Str(label);
-				label = localizedLabel == "<MISSING>" ? label : localizedLabel;
-			}
 			this.label = label;
 			this.rootMenu = rootMenu;
 			this.submenu = submenu;
@@ -76,13 +66,8 @@ public class Menu
 		private readonly Func<int> get;
 		private readonly Action<int> set;
 	
-		public Slider(string label, int min, int max, Func<int> get, Action<int> set, bool localized = true)
+		public Slider(Loc.Localized label, int min, int max, Func<int> get, Action<int> set)
 		{
-			if (localized)
-			{
-				string localizedLabel = Loc.Str(label);
-				label = localizedLabel == "<MISSING>" ? label : localizedLabel;
-			}
 			for (int i = 0, n = (max - min); i <= n; i ++)
 				labels.Add($"{label} [{new string('|', i)}{new string('.', n - i)}]");
 			this.min = min;
@@ -101,13 +86,8 @@ public class Menu
 		public override string Label => label;
 		public override bool Selectable { get; } = false;
 
-		public SubHeader(string label, bool localized = true)
+		public SubHeader(Loc.Localized label)
 		{
-			if (localized)
-			{
-				string localizedLabel = Loc.Str(label);
-				label = localizedLabel == "<MISSING>" ? label : localizedLabel;
-			}
 			this.label = label;
 		}
 	}
@@ -121,13 +101,8 @@ public class Menu
 		private readonly Func<List<string>> getLabels;
 		private readonly Action<string> set;
 
-		public OptionList(string label, Func<List<string>> getLabels, Func<string> get, Action<string> set, bool localized = true)
+		public OptionList(Loc.Localized label, Func<List<string>> getLabels, Func<string> get, Action<string> set)
 		{
-			if (localized)
-			{
-				string localizedLabel = Loc.Str(label);
-				label = localizedLabel == "<MISSING>" ? label : localizedLabel;
-			}
 			this.label = label;
 			this.getLabels = getLabels;
 			this.min = 0;
@@ -173,13 +148,8 @@ public class Menu
 		private readonly Action? action;
         public override string Label => label;
 
-		public Option(string label, Action? action = null, bool localized = true)
+		public Option(Loc.Localized label, Action? action = null)
 		{
-			if (localized)
-			{
-				string localizedLabel = Loc.Str(label);
-				label = localizedLabel == "<MISSING>" ? label : localizedLabel;
-			}
 			this.label = label;
 			this.action = action;
 		}
@@ -205,13 +175,8 @@ public class Menu
 
 		public override string Label => get() ? labelOn : labelOff;
 
-		public Toggle(string label, Action action, Func<bool> get, bool localized = true)
+		public Toggle(Loc.Localized label, Action action, Func<bool> get)
 		{
-			if (localized)
-			{
-				string localizedLabel = Loc.Str(label);
-				label = localizedLabel == "<MISSING>" ? label : localizedLabel;
-			}
 			labelOff = $"{label} : {Loc.Str("OptionsToggleOff")}";
 			labelOn = $"{label} :  {Loc.Str("OptionsToggleOn")}";
 			this.action = action;
@@ -237,13 +202,8 @@ public class Menu
 		private Func<int> get;
 		public override string Label => $"{label} : {options[get()]}";
 
-		public MultiSelect(string label, List<string> options, Func<int> get, Action<int> set, bool localized = true)
+		public MultiSelect(Loc.Localized label, List<string> options, Func<int> get, Action<int> set)
 		{
-			if (localized)
-			{
-				string localizedLabel = Loc.Str(label);
-				label = localizedLabel == "<MISSING>" ? label : localizedLabel;
-			}
 			this.label = label;
 			this.options = options;
 			this.get = get;
@@ -273,8 +233,8 @@ public class Menu
 			return list;
 		}
 
-		public MultiSelect(string label, Action<T> set, Func<T> get, bool localized = true)
-			: base(label, GetEnumOptions(), () => (int)(object)get(), (i) => set((T)(object)i), localized)
+		public MultiSelect(Loc.Localized label, Action<T> set, Func<T> get)
+			: base(label, GetEnumOptions(), () => (int)(object)get(), (i) => set((T)(object)i))
 		{
 
 		}

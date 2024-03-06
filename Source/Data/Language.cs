@@ -157,6 +157,24 @@ public static class Loc
 	public static string ModStr(GameMod mod, string key) => Language.Current.GetModString(mod, key);
 	public static List<Language.Line> Lines(string key) => Language.Current.GetLines(key);
 	public static bool HasLines(string key) => Language.Current.Dialog.ContainsKey(key);
+
+	public class Localized(string key) {
+		protected string Key => key;
+		public override string ToString() {
+			return Str(key);
+		}
+
+		public static implicit operator Localized(string s) => new(s);
+		public static implicit operator string(Localized s) => s.ToString();
+	}
+
+	public class Unlocalized(string value) : Localized(value) {
+		public override string ToString() {
+			return Key;
+		}
+
+		public static explicit operator Unlocalized(string s) => new(s);
+	}
 }
 
 [JsonSourceGenerationOptions(
