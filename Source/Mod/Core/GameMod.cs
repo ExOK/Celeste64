@@ -33,6 +33,22 @@ public abstract class GameMod
 	internal Action? OnUnloadedCleanup { get; private set; }
 	#endregion
 
+	// These provide readonly properties to access assets associated with this mod.
+	// Modders should not be manually changing these at runtime, which is why they are readonly.
+	// This lets you bypass going through the assets system which might be more efficient, and will prioritize loading from this mod.
+	// It will also bypass any asset replacements.
+	public IReadOnlyDictionary<string, Map> ModMaps => Maps;
+	public IReadOnlyDictionary<string, Shader> ModShaders => Shaders;
+	public IReadOnlyDictionary<string, Texture> ModTextures => Textures;
+	public IReadOnlyDictionary<string, Subtexture> ModSubTextures => Subtextures;
+	public IReadOnlyDictionary<string, SkinnedTemplate> ModModels => Models;
+	public IReadOnlyDictionary<string, Font> ModFonts => Fonts;
+	public IReadOnlyDictionary<string, FMOD.Sound> ModSounds => Sounds;
+	public IReadOnlyDictionary<string, FMOD.Sound> ModMusic => Music;
+	public IReadOnlyDictionary<string, Dictionary<string, string>> ModStrings => Strings;
+	public IReadOnlyDictionary<string, Dictionary<string, List<Language.Line>>> ModDialogLines => DialogLines;
+	public IReadOnlyList<LevelInfo> ModLevels => Levels;
+
 	// This is here to give mods easier access to these objects, so they don't have to get them themselves
 	// Warning, these may be null if they haven't been initialized yet, so you should always do a null check before using them.
 	public Game? Game { get { return Game.Instance; } }
