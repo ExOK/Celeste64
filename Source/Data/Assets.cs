@@ -29,6 +29,12 @@ public static class Assets
 	public const string AudioFolder = "Audio";
 	public const string AudioExtension = "bank";
 
+	public const string SoundsFolder = "Sounds";
+	public const string SoundsExtension = "wav";
+
+	public const string MusicFolder = "Music";
+	public const string MusicExtension = "wav";
+
 	public const string ShadersFolder = "Shaders";
 	public const string ShadersExtension = "glsl";
 	
@@ -205,7 +211,7 @@ public static class Assets
 				mod.Filesystem.TryOpenFile(file, Audio.LoadBankFromStream);
 		}
 
-		foreach (var (file, mod) in globalFs.FindFilesInDirectoryRecursiveWithMod("Sounds", "wav"))
+		foreach (var (file, mod) in globalFs.FindFilesInDirectoryRecursiveWithMod(SoundsFolder, SoundsExtension))
 		{
 			tasks.Add(Task.Run(() =>
 			{
@@ -214,13 +220,13 @@ public static class Assets
 				{
 					if(sound != null)
 					{
-						sounds.Add((GetResourceNameFromVirt(file, "Sounds"), sound.Value, mod));
+						sounds.Add((GetResourceNameFromVirt(file, SoundsFolder), sound.Value, mod));
 					}
 				}
 			}));
 		}
 
-		foreach (var (file, mod) in globalFs.FindFilesInDirectoryRecursiveWithMod("Music", "wav"))
+		foreach (var (file, mod) in globalFs.FindFilesInDirectoryRecursiveWithMod(MusicFolder, MusicExtension))
 		{
 			tasks.Add(Task.Run(() =>
 			{
@@ -229,7 +235,7 @@ public static class Assets
 				{
 					if (song != null)
 					{
-						music.Add((GetResourceNameFromVirt(file, "Music"), song.Value, mod));
+						music.Add((GetResourceNameFromVirt(file, MusicFolder), song.Value, mod));
 					}
 				}
 			}));

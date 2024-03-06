@@ -90,18 +90,20 @@ public sealed class ModManager
 			// Important assets taken from Assets.Load()
 			// TODO: Support non-toplevel mods?
 			if ((dir.StartsWith(Assets.MapsFolder) && extension == $".{Assets.MapsExtension}" && !dir.StartsWith($"{Assets.MapsFolder}/autosave")) || 
-			    (dir.StartsWith(Assets.TexturesFolder) && extension == $".{Assets.TexturesExtension}") ||
-			    (dir.StartsWith(Assets.FacesFolder) && extension == $".{Assets.FacesExtension}") ||
-			    (dir.StartsWith(Assets.ModelsFolder) && extension == $".{Assets.ModelsExtension}") ||
-			    (dir.StartsWith(Assets.TextFolder) && extension == $".{Assets.TextExtension}") ||
-			    (dir.StartsWith(Assets.AudioFolder) && extension == $".{Assets.AudioExtension}") ||
-			    (dir.StartsWith(Assets.ShadersFolder) && extension == $".{Assets.ShadersExtension}") ||
-			    (dir.StartsWith(Assets.FontsFolder) && extension is $".{Assets.FontsExtensionTTF}" or $".{Assets.FontsExtensionOTF}") ||
-			    (dir.StartsWith(Assets.SpritesFolder) && extension == $".{Assets.SpritesExtension}") ||
-			    (dir.StartsWith(Assets.SkinsFolder) && extension == $".{Assets.SkinsExtension}") ||
-			    (dir.StartsWith(Assets.LibrariesFolder) && extension == $".{Assets.LibrariesExtensionAssembly}") ||
-			    filepath.ToLower() == Assets.LevelsJSON.ToLower() ||			    
-			    filepath.ToLower() == Assets.FujiJSON.ToLower())
+				(dir.StartsWith(Assets.TexturesFolder) && extension == $".{Assets.TexturesExtension}") ||
+				(dir.StartsWith(Assets.FacesFolder) && extension == $".{Assets.FacesExtension}") ||
+				(dir.StartsWith(Assets.ModelsFolder) && extension == $".{Assets.ModelsExtension}") ||
+				(dir.StartsWith(Assets.TextFolder) && extension == $".{Assets.TextExtension}") ||
+				(dir.StartsWith(Assets.AudioFolder) && extension == $".{Assets.AudioExtension}") ||
+				(dir.StartsWith(Assets.SoundsFolder) && extension == $".{Assets.SoundsExtension}") ||
+				(dir.StartsWith(Assets.MusicFolder) && extension == $".{Assets.MusicExtension}") ||
+				(dir.StartsWith(Assets.ShadersFolder) && extension == $".{Assets.ShadersExtension}") ||
+				(dir.StartsWith(Assets.FontsFolder) && extension is $".{Assets.FontsExtensionTTF}" or $".{Assets.FontsExtensionOTF}") ||
+				(dir.StartsWith(Assets.SpritesFolder) && extension == $".{Assets.SpritesExtension}") ||
+				(dir.StartsWith(Assets.SkinsFolder) && extension == $".{Assets.SkinsExtension}") ||
+				(dir.StartsWith(Assets.LibrariesFolder) && extension == $".{Assets.LibrariesExtensionAssembly}") ||
+				filepath.ToLower() == Assets.LevelsJSON.ToLower() ||			    
+				filepath.ToLower() == Assets.FujiJSON.ToLower())
 			{
 				Log.Info($"File Changed: {filepath} (From mod {ctx.Mod.ModInfo.Name}). Reloading assets.");
 			} 

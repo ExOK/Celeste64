@@ -243,7 +243,7 @@ public class Game : Module
 				if (lastWav != nextWav)
 				{
 					MusicWav?.Stop();
-					if (string.IsNullOrEmpty(nextWav))
+					if (!string.IsNullOrEmpty(nextWav))
 					{
 						MusicWav = Audio.PlayMusic(nextWav);
 					}
@@ -257,7 +257,7 @@ public class Game : Module
 				if (next != last)
 				{
 					Ambience.Stop();
-					if (string.IsNullOrEmpty(next))
+					if (!string.IsNullOrEmpty(next))
 					{
 						Ambience = Audio.Play(next);
 					}
