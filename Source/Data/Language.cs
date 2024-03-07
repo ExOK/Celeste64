@@ -27,8 +27,20 @@ public class Language
 	public Dictionary<string, string> Strings { get; set; } = new(StringComparer.OrdinalIgnoreCase);
 	public Dictionary<string, List<Line>> Dialog { get; set; } = new(StringComparer.OrdinalIgnoreCase);
 
+	internal List<string> KnownMissingKeys = new();
+
 	[JsonIgnore]
 	private SpriteFont? spriteFont;
+
+	private void TryLogMissing(string key)
+	{
+		if(!KnownMissingKeys.Contains(key)) // we shouldn't spam the logs with keys that are already known
+		{
+			KnownMissingKeys.Add(key);
+
+			Log.Warning($"Attempt to access a missing dialog key: {key}");
+		}
+	}
 
 	public string GetString(string key)
 	{
@@ -37,6 +49,7 @@ public class Language
 		else if (Strings.TryGetValue(key, out var value))
 			return value;
 
+		TryLogMissing(key);
 		return $"#{key}";
 	}
 
@@ -47,6 +60,7 @@ public class Language
 			return dictionary[key];
 		}
 
+		TryLogMissing($"{Current.ID}:{key}");
 		return $"#{key}";
 	}
 

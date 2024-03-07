@@ -28,7 +28,6 @@ public class GameOptionsMenu : Menu
         this.Add(new Slider("OptionsBGM", 0, 10, () => Save.Instance.MusicVolume, Save.Instance.SetMusicVolume));
         this.Add(new Slider("OptionsSFX", 0, 10, () => Save.Instance.SfxVolume, Save.Instance.SetSfxVolume));
         this.Add(new Spacer());
-        this.Add(new Submenu("FujiOptions", this, FujiOptionsMenu)
-            .Describe("FujiOptions.Description"));
+        this.Add(new Submenu("FujiOptions", this, FujiOptionsMenu));
     }
 }
