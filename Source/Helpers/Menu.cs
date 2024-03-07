@@ -95,13 +95,8 @@ public class Menu
 			this.set = set;
 		}
 
-		public OptionList(string label, Func<List<string>> getLabels, int min, Func<int> getMax, Func<string> get, Action<string> set, bool localized = true)
+		public OptionList(Loc.Localized label, Func<List<string>> getLabels, int min, Func<int> getMax, Func<string> get, Action<string> set)
 		{
-			if (localized)
-			{
-				string localizedLabel = Loc.Str(label);
-				label = localizedLabel == "<MISSING>" ? label : localizedLabel;
-			}
 			this.label = label;
 			this.getLabels = getLabels;
 			this.min = min;
