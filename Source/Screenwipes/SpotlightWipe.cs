@@ -60,7 +60,7 @@ public class SpotlightWipe : ScreenWipe
 	public static void DrawSpotlight(Batcher batch, Vec2 position, float radius)
 	{
 		var lastAngle = new Vec2(1, 0);
-		var steps = 256;
+		int steps = (int)(256 * Game.RelativeScale);
 
 		for (int i = 0; i < steps; i += 12)
 		{
