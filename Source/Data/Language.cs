@@ -193,7 +193,7 @@ public static class Loc
 
 		public Localized GetSub(string subkey)
 		{
-			return new(key + $".{subkey}");
+			return new($"{key}.{subkey}");
 		}
 
 		public static implicit operator Localized(string s) => new(s);
