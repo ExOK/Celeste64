@@ -26,6 +26,7 @@
 		"OptionsToggleOn": "ON",
 		"OptionsToggleOff": "OFF",
 
+		"Skin": "Skin",
 		"FujiOptions": "Fuji Options...",
 		"FujiOptions.Description": "Configure options for the Fuji mod loader",
 		"FujiWriteLog": "Write Log File",
