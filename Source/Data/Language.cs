@@ -165,6 +165,10 @@ public static class Loc
 		{
 			return Str(key);
 		}
+		public string GetKey()
+		{
+			return this.Key;
+		}
 
 		public static implicit operator Localized(string s) => new(s);
 		public static implicit operator string(Localized s) => s.ToString();

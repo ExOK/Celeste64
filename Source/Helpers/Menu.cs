@@ -18,7 +18,6 @@ public class Menu
 
 		public Item Describe(Loc.Localized description)
 		{
-			
 			this.Description = description;
 
 			return this;
