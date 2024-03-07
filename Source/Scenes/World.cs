@@ -880,7 +880,7 @@ public class World : Scene
 			Camera.Target.Clear(Color.Black, 1, 0, ClearMask.Depth);
 
 			batch.Rect(Camera.Target.Bounds, Color.Black * 0.90f);
-			batch.Image(img, Camera.Target.Bounds.Center, orig, Vec2.One, 0, Color.White);
+			batch.Image(img, Camera.Target.Bounds.Center, orig, Vec2.One * Game.RelativeScale, 0, Color.White);
 			batch.Render(Camera.Target);
 			batch.Clear();
 
