@@ -188,17 +188,11 @@ public static class ModLoader
 
 	private static GameMod LoadGameMod(ModInfo info, IModFilesystem fs)
 	{
-		// If the mod is not enabled, don't load the assemblies
-		if (!Save.Instance.GetOrMakeMod(info.Id).Enabled)
-		{
-			return new DummyGameMod
-			{
-				ModInfo = info,
-				Filesystem = fs
-			};
-		}
+		bool modEnabled = Save.Instance.GetOrMakeMod(info.Id).Enabled;
 
 		GameMod? loadedMod = null;
+		GameModSettings? loadedModSettings = null;
+		Type? loadedModSettingsType = null;
 		var anyDllFile = false;
 
 		var assemblyContext = new ModAssemblyLoadContext(info, fs);
@@ -209,43 +203,65 @@ public static class ModLoader
 
 			foreach (var type in assembly.GetExportedTypes())
 			{
-				if (type.BaseType != typeof(GameMod))
-					continue;
-
-				if (loadedMod is { })
+				if (type.BaseType == typeof(GameMod))
 				{
-					Log.Error($"Mod at {fs.Root} contains multiple classes extending from {typeof(GameMod)} " +
-					          $"[{loadedMod.GetType().FullName} vs {type.FullName}]! Only the first one will be used!");
-					continue;
+					if (loadedMod is { })
+					{
+						Log.Error($"Mod at {fs.Root} contains multiple classes extending from {typeof(GameMod)} " +
+								  $"[{loadedMod.GetType().FullName} vs {type.FullName}]! Only the first one will be used!");
+						continue;
+					}
+
+					if (Activator.CreateInstance(type) is not GameMod instance)
+						continue;
+
+					loadedMod = instance;
+					instance.Filesystem = fs;
+					instance.ModInfo = info;
 				}
+				else if (type.BaseType == typeof(GameModSettings))
+				{
+					if (loadedModSettings is { })
+					{
+						Log.Error($"Mod at {fs.Root} contains multiple classes extending from {typeof(GameModSettings)} " +
+								  $"[{loadedModSettings.GetType().FullName} vs {type.FullName}]! Only the first one will be used!");
+						continue;
+					}
 
-				if (Activator.CreateInstance(type) is not GameMod instance)
-					continue;
+					if (Activator.CreateInstance(type) is not GameModSettings instance)
+						continue;
 
-				loadedMod = instance;
-				instance.Filesystem = fs;
-				instance.ModInfo = info;
+					loadedModSettings = instance;
+					loadedModSettingsType = type;
+				}
 			}
 		}
 
-		if (loadedMod is null)
+		if (loadedMod is null || !modEnabled)
 		{
-			if (anyDllFile)
+			if (loadedMod is null && anyDllFile)
 			{
 				Log.Warning($"Mod at {fs.Root} has assemblies, but none of them contain a public type extending from {typeof(GameMod)}.");
 			}
 
-			// No GameMod, create a dummy one
-			return new DummyGameMod
+			// Either no GameMod found or mod was disabled, so make a dummy one
+			loadedMod = new DummyGameMod
 			{
 				ModInfo = info,
 				Filesystem = fs
 			};
 		}
 		
+		if(loadedModSettings != null && loadedModSettingsType != null)
+		{
+			loadedMod.SettingsType = loadedModSettingsType;
+			loadedMod.Settings = loadedModSettings;
+			loadedMod.LoadSettings();
+		}
+		
 		return loadedMod;
 	}
-	
+
 	private static void FindAndRegisterHooks(Type type)
 	{
 		// On. hooks

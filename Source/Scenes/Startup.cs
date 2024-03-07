@@ -12,9 +12,6 @@ public class Startup : Scene
 
 	private void BeginGame()
 	{
-		// load assets
-		Assets.Load();
-
 		// load save file
 		{
 			var saveFile = Path.Join(App.UserPath, Save.FileName);
@@ -25,6 +22,10 @@ public class Startup : Scene
 				Save.Instance = new();
 			Save.Instance.SyncSettings();
 		}
+
+		// load assets
+		// this currently needs to happen after the save file loads, because this also loads mods, which get their saved settings from the save file.
+		Assets.Load();
 
 		// make sure the active language is ready for use,
 		// since the save file may have loaded a different language than default.

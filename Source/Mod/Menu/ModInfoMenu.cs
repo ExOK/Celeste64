@@ -10,24 +10,30 @@ public class ModInfoMenu : Menu
 
 	internal GameMod? Mod;
 
-	public Menu? RootMenu;
 	public Menu? depWarningMenu;
 	public Menu? safeDisableErrorMenu;
 	public ModOptionsMenu modOptionsMenu;
 
-
-	internal ModInfoMenu()
+	internal ModInfoMenu(Menu? rootMenu)
 	{
 		Target = new Target(Overworld.CardWidth, Overworld.CardHeight);
 		Game.OnResolutionChanged += () => Target = new Target(Overworld.CardWidth, Overworld.CardHeight);
 		
+		RootMenu = rootMenu;
 		postcardImage = new(Assets.Textures["postcards/back-empty"]);
 		stampImage = Assets.Subtextures["stamp"];
 		strawberryImage = Assets.Subtextures["icon_strawberry"];
 
-		modOptionsMenu = new ModOptionsMenu();
+		modOptionsMenu = new ModOptionsMenu(rootMenu);
 
-		Add(new Toggle(Loc.Str("ModEnabled"),
+		InitItems();
+	}
+
+	private void InitItems()
+	{
+		items.Clear();
+		Add(new Toggle(
+			"ModEnabled",
 			() => {
 				//If we are trying to disable the current mod, don't
 				if (Mod != null && Mod != ModManager.Instance.CurrentLevelMod)
@@ -48,13 +54,13 @@ public class ModInfoMenu : Menu
 
 							safeDisableErrorMenu.Title = Loc.Str("ModSafeDisableErrorMessage");
 
-							safeDisableErrorMenu.Add(new Menu.Option(Loc.Str("Exit"), () => {
+							safeDisableErrorMenu.Add(new Option("Exit", () => {
 								Save.Instance.GetOrMakeMod(Mod.ModInfo.Id).Enabled = true; // Override the toggle if the operation can't be done.
 
-								RootMenu?.PopSubMenu();
+								PopRootSubMenu();
 							}));
 
-							RootMenu?.PushSubMenu(safeDisableErrorMenu);
+							PushRootSubMenu(safeDisableErrorMenu);
 
 							return;
 						}
@@ -65,30 +71,34 @@ public class ModInfoMenu : Menu
 							depWarningMenu = new Menu();
 
 							depWarningMenu.Title = $"Warning, this mod is depended on by {Mod.GetDependents().Count} other mod(s).\nIf you disable this mod, those mods will also be disabled.";
-							depWarningMenu.Add(new Menu.Option(Loc.Str("ConfirmDisableMod"), () => {
+							depWarningMenu.Add(new Option("ConfirmDisableMod", () => {
 								Mod.DisableSafe(false);
 
 								RootMenu?.PopSubMenu();
 							}));
-							depWarningMenu.Add(new Menu.Option(Loc.Str("Exit"), () => {
+							depWarningMenu.Add(new Option("Exit", () => {
 								Save.Instance.GetOrMakeMod(Mod.ModInfo.Id).Enabled = true; // Override the toggle if the operation was cancelled.
 
 								RootMenu?.PopSubMenu();
 							}));
 
 							RootMenu?.PushSubMenu(depWarningMenu);
-						} else {
+						}
+						else
+						{
 							Mod.OnModUnloaded();
 						}
 					}
 
 					Game.Instance.NeedsReload = true;
-				} else {
+				}
+				else
+				{
 					safeDisableErrorMenu = new Menu();
 
 					safeDisableErrorMenu.Title = Loc.Str("ModSafeDisableErrorMessage");
 
-					safeDisableErrorMenu.Add(new Menu.Option(Loc.Str("Exit"), () => {
+					safeDisableErrorMenu.Add(new Option("Exit", () => {
 						if (Mod != null)
 						{
 							Save.Instance.GetOrMakeMod(Mod.ModInfo.Id).Enabled = true; // Override the toggle if the operation can't be done.
@@ -100,22 +110,27 @@ public class ModInfoMenu : Menu
 					RootMenu?.PushSubMenu(safeDisableErrorMenu);
 				}
 			},
-			() => Mod != null ? Save.Instance.GetOrMakeMod(Mod.ModInfo.Id).Enabled : false));
-		Add(new Submenu(Loc.Str("ModOptions"), this, modOptionsMenu));
-		Add(new Option(Loc.Str("Back"), () =>
+			() => Mod != null ? Save.Instance.GetOrMakeMod(Mod.ModInfo.Id).Enabled : false)
+		);
+		if (modOptionsMenu.ShouldDisplay)
 		{
-			if(RootMenu != null)
+			Add(new Submenu("ModOptions", RootMenu, modOptionsMenu));
+		}
+		Add(new Option("Back", () =>
+		{
+			if (RootMenu != null)
 			{
 				RootMenu.PopSubMenu();
 			}
 		}));
 	}
 
-	public void SetMod(GameMod mod)
+	internal void SetMod(GameMod mod)
 	{
 		Mod = mod;
 		modOptionsMenu.SetMod(mod);
-		modOptionsMenu.RootMenu = this;
+
+		InitItems();
 	}
 
 	public override void Initialized()

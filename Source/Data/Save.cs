@@ -47,7 +47,6 @@ public class Save
 	{
 		public string ID { get; set; } = string.Empty;
 		public bool Enabled { get; set; } = true;
-		public Dictionary<string, string> Settings { get; set; } = [];
 		public Dictionary<string, string> StringData { get; set; } = [];
 		public Dictionary<string, int> IntData { get; set; } = [];
 		public Dictionary<string, float> FloatData { get; set; } = [];
@@ -76,6 +75,35 @@ public class Save
 
 		public bool SetBool(string name, bool value = false)
 			=> BoolData[name] = value;
+
+		public Dictionary<string, string> SettingsStringData { get; set; } = [];
+		public Dictionary<string, int> SettingsIntData { get; set; } = [];
+		public Dictionary<string, float> SettingsFloatData { get; set; } = [];
+		public Dictionary<string, bool> SettingsBoolData { get; set; } = [];
+
+		public string SettingsGetString(string name, string defaultValue = "")
+			=> SettingsStringData.TryGetValue(name, out string? value) ? value : defaultValue;
+
+		public string SettingsSetString(string name, string value = "")
+			=> SettingsStringData[name] = value;
+
+		public int SettingsGetInt(string name, int defaultValue = 0)
+			=> SettingsIntData.TryGetValue(name, out int value) ? value : defaultValue;
+
+		public int SettingsSetInt(string name, int value = 1)
+			=> SettingsIntData[name] = value;
+
+		public float SettingsGetFloat(string name, float defaultValue = 0)
+			=> SettingsFloatData.TryGetValue(name, out float value) ? value : defaultValue;
+
+		public float SettingsSetFloat(string name, float value = 1)
+			=> SettingsFloatData[name] = value;
+
+		public bool SettingsGetBool(string name, bool defaultValue = false)
+			=> SettingsBoolData.TryGetValue(name, out bool value) ? value : defaultValue;
+
+		public bool SettingsSetBool(string name, bool value = false)
+			=> SettingsBoolData[name] = value;
 	}
 
 	public static Save Instance = new();

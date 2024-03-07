@@ -23,6 +23,8 @@
 		"OptionsBGM": "BGM",
 		"OptionsSFX": "SFX",
 		"OptionsInvertCamera": "Inverted Camera",
+		"OptionsToggleOn": "ON",
+		"OptionsToggleOff": "OFF",
 
 		"FujiOptions": "Fuji Options...",
 		"FujiOptions.Description": "Configure options for the Fuji mod loader",
