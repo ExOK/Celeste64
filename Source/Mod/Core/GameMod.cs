@@ -284,7 +284,7 @@ public abstract class GameMod
 			if (propType.IsEnum)
 			{
 				newItem = new Menu.MultiSelect(
-					propName,
+					(Loc.Unlocalized)propName,
 					propType.GetEnumNames().ToList(),
 					() =>
 					{
@@ -297,8 +297,7 @@ public abstract class GameMod
 						object? newValue = propType.GetEnumValues().GetValue(value);
 						OnModSettingChanged(propName, newValue, changingNeedsReload);
 						prop.SetValue(instance, propType.GetEnumValues().GetValue(value));
-					},
-					false
+					}
 				);
 			}
 			else if (propType == typeof(int))
@@ -312,7 +311,7 @@ public abstract class GameMod
 					max = settingRangeAttribute.Max;
 				}
 				newItem = new Menu.Slider(
-					propName,
+					(Loc.Unlocalized)propName,
 					min,
 					max,
 					() => prop.GetValue(instance) as int? ?? 0,
@@ -320,21 +319,19 @@ public abstract class GameMod
 					{
 						OnModSettingChanged(propName, value, changingNeedsReload);
 						prop.SetValue(instance, value);
-					},
-					false
+					}
 				);
 			}
 			else if (propType == typeof(bool))
 			{
 				newItem = new Menu.Toggle(
-					propName,
+					(Loc.Unlocalized)propName,
 					() => {
 						bool newValue = !(prop.GetValue(instance) as bool? ?? false);
 						prop.SetValue(instance, newValue);
 						OnModSettingChanged(propName, newValue, changingNeedsReload);
 					},
-					() => prop.GetValue(instance) as bool? ?? false,
-					false
+					() => prop.GetValue(instance) as bool? ?? false
 				);
 			}
 			else if (prop.PropertyType.GetCustomAttribute<SettingSubMenuAttribute>() != null)
@@ -345,19 +342,17 @@ public abstract class GameMod
 					Menu subMenu = new Menu(menu.RootMenu);
 					subMenu.Title = propName;
 					AddMenuSettingsForType(subMenu, prop.PropertyType, value);
-					subMenu.Add(new Menu.Option("Back", () =>
-					{
-						if (menu != null)
+					subMenu.Add(new Menu.Option((Loc.Unlocalized)"Back", () =>
 						{
-							menu.PopRootSubMenu();
-						}
-					},
-					false));
+							if (menu != null)
+							{
+								menu.PopRootSubMenu();
+							}
+						}));
 					newItem = new Menu.Submenu(
-						propName,
+						(Loc.Unlocalized)propName,
 						menu.RootMenu,
-						subMenu,
-						false
+						subMenu
 					);
 				}
 			}
@@ -369,7 +364,7 @@ public abstract class GameMod
 				{
 					string localizedDescription = Loc.ModStr(this, propDescription);
 					propDescription = localizedDescription == "<MISSING>" ? propDescription : localizedDescription;
-					newItem.Describe(propDescription, false);
+					newItem.Describe((Loc.Unlocalized)propDescription);
 				}
 				menu.Add(newItem);
 			}
