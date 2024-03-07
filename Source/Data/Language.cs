@@ -191,6 +191,11 @@ public static class Loc
 			return key;
 		}
 
+		public Localized GetSub(string subkey)
+		{
+			return new(key + $".{subkey}");
+		}
+
 		public static implicit operator Localized(string s) => new(s);
 		public static implicit operator string(Localized s) => s.ToString();
 	}
