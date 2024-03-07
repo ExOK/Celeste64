@@ -14,7 +14,7 @@ public class Menu
 		public virtual bool Pressed() => false;
 		public virtual void Slide(int dir) {}
 
-		public string Description { get; set; } = "";
+		public virtual string Description { get; set; } = "";
 
 		public Item Describe(Loc.Localized description)
 		{
@@ -27,6 +27,7 @@ public class Menu
 	public class Submenu(Loc.Localized label, Menu? rootMenu, Menu? submenu = null) : Item 
 	{
 		public override string Label => label;
+		public override string Description => new Loc.Localized(label.GetKey() + ".desc").StringOrEmpty();
 
 		public override bool Pressed() 
 		{
@@ -63,6 +64,7 @@ public class Menu
 			this.max = max;
 			this.get = get;
 			this.set = set;
+			this.Description = new Loc.Localized(label.GetKey() + ".desc").StringOrEmpty();
 		}
 
         public override string Label => labels[get() - min];
@@ -72,6 +74,7 @@ public class Menu
 	public class SubHeader(Loc.Localized label) : Item
 	{
 		public override string Label => label;
+		public override string Description => new Loc.Localized(label.GetKey() + ".desc").StringOrEmpty();
 		public override bool Selectable { get; } = false;
 	}
 
@@ -92,6 +95,7 @@ public class Menu
 			this.getMax = () => getLabels().Count;
 			this.get = get;
 			this.set = set;
+			this.Description = new Loc.Localized(label.GetKey() + ".desc").StringOrEmpty();
 		}
 
 		public OptionList(Loc.Localized label, Func<List<string>> getLabels, int min, Func<int> getMax, Func<string> get, Action<string> set)
@@ -102,6 +106,7 @@ public class Menu
 			this.getMax = getMax;
 			this.get = get;
 			this.set = set;
+			this.Description = new Loc.Localized(label.GetKey() + ".desc").StringOrEmpty();
 		}
 
 		public override string Label => $"{label} : {getLabels()[getId() - min]}";
@@ -123,6 +128,7 @@ public class Menu
     public class Option(Loc.Localized label, Action? action = null) : Item
 	{
         public override string Label => label;
+		public override string Description => new Loc.Localized(label.GetKey() + ".desc").StringOrEmpty();
 
 		public override bool Pressed()
 		{
@@ -142,6 +148,7 @@ public class Menu
 		private readonly string labelOn = $"{label} :  {Loc.Str("OptionsToggleOn")}";
 
 		public override string Label => get() ? labelOn : labelOff;
+		public override string Description => new Loc.Localized(label.GetKey() + ".desc").StringOrEmpty();
 
         public override bool Pressed()
 		{
@@ -157,6 +164,7 @@ public class Menu
 	public class MultiSelect(Loc.Localized label, List<string> options, Func<int> get, Action<int> set) : Item
 	{
 		public override string Label => $"{label} : {options[get()]}";
+		public override string Description => new Loc.Localized(label.GetKey() + ".desc").StringOrEmpty();
 
 		public override void Slide(int dir) 
 		{

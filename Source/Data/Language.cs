@@ -165,6 +165,12 @@ public static class Loc
 		{
 			return Str(key);
 		}
+
+		public string StringOrEmpty()
+		{
+			return HasLines(this.Key) ? Str(this.Key) : string.Empty;
+		}
+
 		public string GetKey()
 		{
 			return this.Key;
