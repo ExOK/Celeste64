@@ -157,6 +157,7 @@ public static class Loc
 	public static string ModStr(GameMod mod, string key) => Language.Current.GetModString(mod, key);
 	public static List<Language.Line> Lines(string key) => Language.Current.GetLines(key);
 	public static bool HasLines(string key) => Language.Current.Dialog.ContainsKey(key);
+	public static bool HasKey(string key) => Language.Current.Strings.ContainsKey(key) || Language.Current.ModStrings.ContainsKey(key);
 
 	public class Localized(string key) 
 	{
@@ -168,12 +169,12 @@ public static class Loc
 
 		public string StringOrEmpty()
 		{
-			return HasLines(this.Key) ? Str(this.Key) : string.Empty;
+			return HasKey(key) ? Str(key) : string.Empty;
 		}
 
 		public string GetKey()
 		{
-			return this.Key;
+			return key;
 		}
 
 		public static implicit operator Localized(string s) => new(s);
