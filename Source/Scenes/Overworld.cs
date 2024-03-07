@@ -4,8 +4,11 @@ namespace Celeste64;
 
 public class Overworld : Scene
 {
-	public static int CardWidth => (int)(480 * Game.RelativeScale);
-	public static int CardHeight => (int)(320 * Game.RelativeScale);
+	public const int DefaultCardWidth = 480;
+	public const int DefaultCardHeight = 320;
+	public static int CardWidth => (int)(DefaultCardWidth * Game.RelativeScale);
+	public static int CardHeight => (int)(DefaultCardHeight * Game.RelativeScale);
+
 	public bool Paused;
 	public Menu? pauseMenu;
 
@@ -165,8 +168,8 @@ public class Overworld : Scene
 			}
 		}
 
-		var cardWidth = CardWidth / 6.0f / Game.RelativeScale;
-		var cardHeight = CardHeight / 6.0f / Game.RelativeScale;
+		var cardWidth = DefaultCardWidth / 6.0f;
+		var cardHeight = DefaultCardHeight / 6.0f;
 
 		mesh.SetVertices<SpriteVertex>([
 			new(new Vec3(-cardWidth, 0, -cardHeight) / 2, new Vec2(0, 0), Color.White),
@@ -175,13 +178,6 @@ public class Overworld : Scene
 			new(new Vec3(-cardWidth, 0, cardHeight) / 2, new Vec2(0, 1), Color.White),
 		]);
 		mesh.SetIndices<int>([0, 1, 2, 0, 2, 3]);
-		
-		Game.OnResolutionChanged += () => mesh.SetVertices<SpriteVertex>([
-			new(new Vec3(-cardWidth, 0, -cardHeight) / 2, new Vec2(0, 0), Color.White),
-			new(new Vec3(cardWidth, 0, -cardHeight) / 2, new Vec2(1, 0), Color.White),
-			new(new Vec3(cardWidth, 0, cardHeight) / 2, new Vec2(1, 1), Color.White),
-			new(new Vec3(-cardWidth, 0, cardHeight) / 2, new Vec2(0, 1), Color.White),
-		]); 
 
 		restartConfirmMenu.Add(new Menu.Option(Loc.Str("Cancel")));
 		restartConfirmMenu.Add(new Menu.Option(Loc.Str("RestartLevel")));
