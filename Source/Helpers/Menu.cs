@@ -25,19 +25,9 @@ public class Menu
 		}
 	}
 
-	public class Submenu : Item 
+	public class Submenu(Loc.Localized label, Menu? rootMenu, Menu? submenu = null) : Item 
 	{
-		private readonly string label;
-		private readonly Menu? submenu;
-		private readonly Menu? rootMenu;
 		public override string Label => label;
-
-		public Submenu(Loc.Localized label, Menu? rootMenu, Menu? submenu = null)
-		{
-			this.label = label;
-			this.rootMenu = rootMenu;
-			this.submenu = submenu;
-		}
 
 		public override bool Pressed() 
 		{
@@ -80,16 +70,10 @@ public class Menu
         public override void Slide(int dir) => set(Calc.Clamp(get() + dir, min, max));
     }
 
-	public class SubHeader : Item
+	public class SubHeader(Loc.Localized label) : Item
 	{
-		private readonly string label;
 		public override string Label => label;
 		public override bool Selectable { get; } = false;
-
-		public SubHeader(Loc.Localized label)
-		{
-			this.label = label;
-		}
 	}
 
 	public class OptionList : Item
@@ -142,17 +126,9 @@ public class Menu
 		}
     }
 
-    public class Option: Item
+    public class Option(Loc.Localized label, Action? action = null) : Item
 	{
-		private readonly string label;
-		private readonly Action? action;
         public override string Label => label;
-
-		public Option(Loc.Localized label, Action? action = null)
-		{
-			this.label = label;
-			this.action = action;
-		}
 
 		public override bool Pressed()
 		{
@@ -166,22 +142,12 @@ public class Menu
 		}
     }
 
-	public class Toggle : Item
+	public class Toggle(Loc.Localized label, Action action, Func<bool> get) : Item
 	{
-		private readonly string labelOff;
-		private readonly string labelOn;
-		private readonly Action action;
-		private Func<bool> get;
+		private readonly string labelOff = $"{label} : {Loc.Str("OptionsToggleOff")}";
+		private readonly string labelOn = $"{label} :  {Loc.Str("OptionsToggleOn")}";
 
 		public override string Label => get() ? labelOn : labelOff;
-
-		public Toggle(Loc.Localized label, Action action, Func<bool> get)
-		{
-			labelOff = $"{label} : {Loc.Str("OptionsToggleOff")}";
-			labelOn = $"{label} :  {Loc.Str("OptionsToggleOn")}";
-			this.action = action;
-			this.get = get;
-		}
 
         public override bool Pressed()
 		{
@@ -194,21 +160,9 @@ public class Menu
 		}
 	}
 
-	public class MultiSelect : Item
+	public class MultiSelect(Loc.Localized label, List<string> options, Func<int> get, Action<int> set) : Item
 	{
-		private readonly List<string> options;
-		private readonly Action<int> set;
-		private readonly string label;
-		private Func<int> get;
 		public override string Label => $"{label} : {options[get()]}";
-
-		public MultiSelect(Loc.Localized label, List<string> options, Func<int> get, Action<int> set)
-		{
-			this.label = label;
-			this.options = options;
-			this.get = get;
-			this.set = set;
-		}
 
 		public override void Slide(int dir) 
 		{
