@@ -24,7 +24,7 @@ public class Overworld : Scene
 		{
 			Level = level;
 			Target = new Target(CardWidth, CardHeight);
-			Game.OnResolutionChaned += () => Target = new Target(CardWidth, CardHeight);
+			Game.OnResolutionChanged += () => Target = new Target(CardWidth, CardHeight);
 
 			// Postcards should always come from the current mod if they are available
 			if (mod != null && mod.Textures.ContainsKey(level.Preview))
@@ -176,7 +176,7 @@ public class Overworld : Scene
 		]);
 		mesh.SetIndices<int>([0, 1, 2, 0, 2, 3]);
 		
-		Game.OnResolutionChaned += () => mesh.SetVertices<SpriteVertex>([
+		Game.OnResolutionChanged += () => mesh.SetVertices<SpriteVertex>([
 			new(new Vec3(-cardWidth, 0, -cardHeight) / 2, new Vec2(0, 0), Color.White),
 			new(new Vec3(cardWidth, 0, -cardHeight) / 2, new Vec2(1, 0), Color.White),
 			new(new Vec3(cardWidth, 0, cardHeight) / 2, new Vec2(1, 1), Color.White),

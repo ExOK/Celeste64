@@ -86,7 +86,7 @@ public class Language
 		}
 
 		spriteFont = new SpriteFont(Assets.Fonts[Font], Assets.FontSize, codepoints.ToArray());
-		Game.OnResolutionChaned += () => spriteFont = new SpriteFont(Assets.Fonts[Font], Assets.FontSize, codepoints.ToArray());
+		Game.OnResolutionChanged += () => spriteFont = new SpriteFont(Assets.Fonts[Font], Assets.FontSize, codepoints.ToArray());
 	}
 
 	public void Absorb(Language other, GameMod mod)

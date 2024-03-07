@@ -47,7 +47,7 @@ public class Game : Module
 	public const int DefaultWidth = 640;
 	public const int DefaultHeight = 360;
 	
-	public static event Action OnResolutionChaned;
+	public static event Action OnResolutionChanged;
 	
 	private static float _resolutionScale = 1.0f;
 	public static float ResolutionScale
@@ -59,7 +59,7 @@ public class Game : Module
 				return;
 			
 			_resolutionScale = value;
-			OnResolutionChaned.Invoke();
+			OnResolutionChanged.Invoke();
 		}
 	}
 	
@@ -98,7 +98,7 @@ public class Game : Module
 
 	public Game()
 	{
-		OnResolutionChaned += () =>
+		OnResolutionChanged += () =>
 		{
 			target.Dispose();
 			target = new(Width, Height, [TextureFormat.Color, TextureFormat.Depth24Stencil8]);

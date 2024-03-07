@@ -19,7 +19,7 @@ public class ModInfoMenu : Menu
 	internal ModInfoMenu()
 	{
 		Target = new Target(Overworld.CardWidth, Overworld.CardHeight);
-		Game.OnResolutionChaned += () => Target = new Target(Overworld.CardWidth, Overworld.CardHeight);
+		Game.OnResolutionChanged += () => Target = new Target(Overworld.CardWidth, Overworld.CardHeight);
 		
 		postcardImage = new(Assets.Textures["postcards/back-empty"]);
 		stampImage = Assets.Subtextures["stamp"];
