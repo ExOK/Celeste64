@@ -37,7 +37,7 @@ public class Language
 		else if (Strings.TryGetValue(key, out var value))
 			return value;
 
-		return "<MISSING>";
+		return $"#{key}";
 	}
 
 	public string GetModString(GameMod mod, string key)
@@ -47,7 +47,7 @@ public class Language
 			return dictionary[key];
 		}
 
-		return "<MISSING>";
+		return $"#{key}";
 	}
 
 	public List<Line> GetLines(string key)

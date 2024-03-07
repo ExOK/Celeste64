@@ -27,7 +27,7 @@
 		"OptionsToggleOff": "OFF",
 
 		"Skin": "Skin",
-		"FujiOptions": "Fuji Options...",
+		"FujiOption": "Fuji Options...",
 		"FujiOptions.desc": "Configure options for the Fuji mod loader",
 		"FujiWriteLog": "Write Log File",
 		"FujiFailedToLoad": "Failed to load the following mods:",
