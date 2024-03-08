@@ -120,6 +120,10 @@ public abstract class GameMod
 
 	#region Mod Settings
 
+	/// <summary>
+	/// Save this Mod's Settings.
+	/// </summary>
+	/// <returns>Whether the settings were saved or not.</returns>
 	public bool SaveSettings()
 	{
 		if (SettingsType == null || Settings == null)
@@ -175,6 +179,10 @@ public abstract class GameMod
 		return true;
 	}
 
+	/// <summary>
+	/// Load this Mod's Settings.
+	/// </summary>
+	/// <returns>Whether the settings were loaded or not.</returns>
 	public bool LoadSettings()
 	{
 		if (SettingsType == null || Settings == null)
@@ -233,6 +241,7 @@ public abstract class GameMod
 	/// <summary>
 	/// This function is responsible for creating mod settings menus from the settings object
 	/// It works with AddMenuSettingsForType which is broken out because that calls itself recursively to make submenus.
+	/// This can be overloaded by mods to manually initialize the menu instead.
 	/// </summary>
 	/// <param name="settingsMenu">The menu we are adding settings to.</param>
 	public virtual void AddModSettings(ModOptionsMenu settingsMenu)
@@ -243,6 +252,13 @@ public abstract class GameMod
 		AddMenuSettingsForType(settingsMenu, SettingsType, Settings);
 	}
 
+	/// <summary>
+	/// Initialize Menu settings for a given type.
+	/// This will go through the properties of an object, and automatically convert them to menu items.
+	/// </summary>
+	/// <param name="menu">The menu we will add the menu items to.</param>
+	/// <param name="type">The type of the object we are getting the properties for.</param>
+	/// <param name="instance">The instance of the object we want to get the properties from.</param>
 	public virtual void AddMenuSettingsForType(Menu menu, Type type, object instance)
 	{
 		if (type == null || instance == null)
@@ -261,8 +277,11 @@ public abstract class GameMod
 			string? nameAttibute = prop.GetCustomAttribute<SettingNameAttribute>()?.Name;
 			if (!string.IsNullOrEmpty(nameAttibute))
 			{
-				string localizedName = Loc.ModStr(this, nameAttibute);
-				propName = localizedName == "<MISSING>" ? nameAttibute : localizedName;
+				// We go through the Mod strings directly to avoid possible naming conflicts with other mods or the vanilla game
+				// If the property name can be localized, use that, otherwise, just use the attribute name to make localization optional
+				propName = Loc.TryGetModString(this, nameAttibute, out string localizedName) ?
+					localizedName :
+					nameAttibute;
 			}
 
 			Menu.Item? newItem = null;
@@ -277,8 +296,10 @@ public abstract class GameMod
 			string? subheader = prop.GetCustomAttribute<SettingSubHeaderAttribute>()?.SubHeader;
 			if (!string.IsNullOrEmpty(subheader))
 			{
-				string localizedSubHeader = Loc.ModStr(this, subheader);
-				menu.Add(new Menu.SubHeader(localizedSubHeader == "<MISSING>" ? subheader : localizedSubHeader));
+				string subHeader = Loc.TryGetModString(this, subheader, out string localizedSubHeader) ?
+					localizedSubHeader :
+					subheader;
+				menu.Add(new Menu.SubHeader((Loc.Unlocalized)subHeader));
 			}
 
 			if (propType.IsEnum)
@@ -362,8 +383,9 @@ public abstract class GameMod
 				string? propDescription = prop.GetCustomAttribute<SettingDescriptionAttribute>()?.Description;
 				if (!string.IsNullOrEmpty(propDescription))
 				{
-					string localizedDescription = Loc.ModStr(this, propDescription);
-					propDescription = localizedDescription == "<MISSING>" ? propDescription : localizedDescription;
+					propDescription = Loc.TryGetModString(this, propDescription, out string localizedDescription) ?
+						localizedDescription :
+						propDescription;
 					newItem.Describe((Loc.Unlocalized)propDescription);
 				}
 				menu.Add(newItem);
@@ -373,9 +395,6 @@ public abstract class GameMod
 
 	/// <summary>
 	/// This gets called when a mod setting is changed.
-	/// Right now, this mostly tells the game to reload, but modders can override this to detect a mod setting changing.
-	/// If this is overridden, the base function should probably be called as well.
-	/// This gets called every time a setting gets changed in the UI, so this may get called a lot.
 	/// </summary>
 	/// <param name="settingName"> The name of the setting that changed</param>
 	/// <param name="value"> The value the setting is changing to.</param>

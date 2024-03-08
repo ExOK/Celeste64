@@ -9,25 +9,42 @@ public class Menu
 
 	public abstract class Item
 	{
-		public virtual string Label { get; } = string.Empty;
+		// Whether this item can be selected when scrolling through the menu.
 		public virtual bool Selectable { get; } = true;
 		public virtual bool Pressed() => false;
 		public virtual void Slide(int dir) {}
 
-		public virtual string Description { get; set; } = "";
+		// LocString is the base localized string object, before any changes.
+		// This is kept separate from the label so we can get substrings from the LocString like the Description.
+		public virtual Loc.Localized? LocString { get; set; } = null;
 
+		// Get the localized string or the string's key from the LocString. If LocString is null, return an empty string instead.
+		// This can be overridden in subclasses for more control over how the label is displayed.
+		public virtual string Label => LocString?.ToString() ?? "";
+
+		// Return the localized description string from the loc string.
+		// If a description override has been set, use that instead.
+		public virtual string Description => descriptionOverride ?? LocString?.GetSub("desc").StringOrEmpty() ?? "";
+
+		private string? descriptionOverride = null;
+
+		/// <summary>
+		/// Set the Description Override.
+		/// This is used to force the description to be a given string without automatically being localized.
+		/// </summary>
+		/// <param name="description"></param>
+		/// <returns></returns>
 		public Item Describe(Loc.Localized description)
 		{
-			this.Description = description;
+			this.descriptionOverride = description;
 
 			return this;
 		}
 	}
 
-	public class Submenu(Loc.Localized label, Menu? rootMenu, Menu? submenu = null) : Item 
+	public class Submenu(Loc.Localized locString, Menu? rootMenu, Menu? submenu = null) : Item 
 	{
-		public override string Label => label;
-		public override string Description => label.GetSub("desc").StringOrEmpty();
+		public override Loc.Localized? LocString => locString;
 
 		public override bool Pressed() 
 		{
@@ -56,60 +73,56 @@ public class Menu
 		private readonly Func<int> get;
 		private readonly Action<int> set;
 	
-		public Slider(Loc.Localized label, int min, int max, Func<int> get, Action<int> set)
+		public Slider(Loc.Localized locString, int min, int max, Func<int> get, Action<int> set)
 		{
+			LocString = locString;
 			for (int i = 0, n = (max - min); i <= n; i ++)
-				labels.Add($"{label} [{new string('|', i)}{new string('.', n - i)}]");
+				labels.Add($"{LocString} [{new string('|', i)}{new string('.', n - i)}]");
 			this.min = min;
 			this.max = max;
 			this.get = get;
 			this.set = set;
-			this.Description = label.GetSub("desc").StringOrEmpty();
 		}
 
         public override string Label => labels[get() - min];
         public override void Slide(int dir) => set(Calc.Clamp(get() + dir, min, max));
     }
 
-	public class SubHeader(Loc.Localized label) : Item
+	public class SubHeader(Loc.Localized locString) : Item
 	{
-		public override string Label => label;
-		public override string Description => label.GetSub("desc").StringOrEmpty();
+		public override Loc.Localized? LocString => locString;
 		public override bool Selectable { get; } = false;
 	}
 
 	public class OptionList : Item
 	{
-		private readonly string label;
 		private readonly int min;
 		private readonly Func<string> get;
 		private readonly Func<int> getMax;
 		private readonly Func<List<string>> getLabels;
 		private readonly Action<string> set;
 
-		public OptionList(Loc.Localized label, Func<List<string>> getLabels, Func<string> get, Action<string> set)
+		public OptionList(Loc.Localized locString, Func<List<string>> getLabels, Func<string> get, Action<string> set)
 		{
-			this.label = label;
 			this.getLabels = getLabels;
 			this.min = 0;
 			this.getMax = () => getLabels().Count;
 			this.get = get;
 			this.set = set;
-			this.Description = label.GetSub("desc").StringOrEmpty();
+			this.LocString = locString;
 		}
 
-		public OptionList(Loc.Localized label, Func<List<string>> getLabels, int min, Func<int> getMax, Func<string> get, Action<string> set)
+		public OptionList(Loc.Localized locString, Func<List<string>> getLabels, int min, Func<int> getMax, Func<string> get, Action<string> set)
 		{
-			this.label = label;
 			this.getLabels = getLabels;
 			this.min = min;
 			this.getMax = getMax;
 			this.get = get;
 			this.set = set;
-			this.Description = label.GetSub("desc").StringOrEmpty();
+			this.LocString = locString;
 		}
 
-		public override string Label => $"{label} : {getLabels()[getId() - min]}";
+		public override string Label => $"{LocString} : {getLabels()[getId() - min]}";
 		public override void Slide(int dir) 
 		{
 			if(getLabels().Count > 1)
@@ -125,10 +138,9 @@ public class Menu
 		}
     }
 
-    public class Option(Loc.Localized label, Action? action = null) : Item
+    public class Option(Loc.Localized locString, Action? action = null) : Item
 	{
-        public override string Label => label;
-		public override string Description => label.GetSub("desc").StringOrEmpty();
+        public override Loc.Localized? LocString => locString;
 
 		public override bool Pressed()
 		{
@@ -142,13 +154,13 @@ public class Menu
 		}
     }
 
-	public class Toggle(Loc.Localized label, Action action, Func<bool> get) : Item
+	public class Toggle(Loc.Localized locString, Action action, Func<bool> get) : Item
 	{
-		private readonly string labelOff = $"{label} : {Loc.Str("OptionsToggleOff")}";
-		private readonly string labelOn = $"{label} :  {Loc.Str("OptionsToggleOn")}";
+		private readonly string labelOff = $"{locString} : {Loc.Str("OptionsToggleOff")}";
+		private readonly string labelOn = $"{locString} :  {Loc.Str("OptionsToggleOn")}";
 
+		public override Loc.Localized? LocString => locString;
 		public override string Label => get() ? labelOn : labelOff;
-		public override string Description => label.GetSub("desc").StringOrEmpty();
 
         public override bool Pressed()
 		{
@@ -161,10 +173,10 @@ public class Menu
 		}
 	}
 
-	public class MultiSelect(Loc.Localized label, List<string> options, Func<int> get, Action<int> set) : Item
+	public class MultiSelect(Loc.Localized locString, List<string> options, Func<int> get, Action<int> set) : Item
 	{
-		public override string Label => $"{label} : {options[get()]}";
-		public override string Description => label.GetSub("desc").StringOrEmpty();
+		public override Loc.Localized LocString => locString;
+		public override string Label => $"{LocString} : {options[get()]}";
 
 		public override void Slide(int dir) 
 		{

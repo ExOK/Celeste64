@@ -1,6 +1,4 @@
-using System.Text;
 using System.Text.Json.Serialization;
-using System.Text.Unicode;
 using Celeste64.Mod;
 
 namespace Celeste64;
@@ -42,6 +40,12 @@ public class Language
 		}
 	}
 
+	/// <summary>
+	/// Returns a localized string.
+	/// If no localized string exists for the given key, return the key instead with a # in front of it.
+	/// </summary>
+	/// <param name="key">The key we are trying to find a localized string for.</param>
+	/// <returns>The localized string or its key</returns>
 	public string GetString(string key)
 	{
 		if (ModStrings.TryGetValue(key, out var modValue))
@@ -53,6 +57,37 @@ public class Language
 		return $"#{key}";
 	}
 
+	/// <summary>
+	/// Try to get a localized string
+	/// If no localized string exists for the given key, return false.
+	/// </summary>
+	/// <param name="key">The key we are trying to find a localized string for.</param>
+	/// <param name="value">The localized string if it exists</param>
+	/// <returns>Returns true if the localized string exists or false if it doesn't</returns>
+	public bool TryGetString(string key, out string value)
+	{
+		if (ModStrings.TryGetValue(key, out var modValue))
+		{
+			value = modValue;
+			return true;
+		}
+		else if (Strings.TryGetValue(key, out var stringValue))
+		{
+			value = stringValue;
+			return true;
+		}
+
+		value = string.Empty;
+		return false;
+	}
+
+	/// <summary>
+	/// Returns a localized string for a specific mod.
+	/// If no localized string exists for the given key, return the key instead with a # in front of it.
+	/// </summary>
+	/// <param name="mod">The mod we want to pull a localized string from.</param>
+	/// <param name="key">The key we are trying to find a localized string for.</param>
+	/// <returns>The localized string or its key</returns>
 	public string GetModString(GameMod mod, string key)
 	{
 		if(mod.Strings.TryGetValue(Current.ID, out var dictionary) && dictionary.ContainsKey(key))
@@ -62,6 +97,26 @@ public class Language
 
 		TryLogMissing($"{Current.ID}:{key}");
 		return $"#{key}";
+	}
+
+	/// <summary>
+	/// Try to get a localized string for a specific mod.
+	/// If no localized string exists for the given key, return false.
+	/// </summary>
+	/// <param name="mod">The mod we want to pull a localized string from.</param>
+	/// <param name="key">The key we are trying to find a localized string for.</param>
+	/// <param name="value">The localized string if it exists</param>
+	/// <returns>Returns true if the localized string exists or false if it doesn't</returns>
+	public bool TryGetModString(GameMod mod, string key, out string value)
+	{
+		if (mod.Strings.TryGetValue(Current.ID, out var dictionary) && dictionary.ContainsKey(key))
+		{
+			value = dictionary[key];
+			return true;
+		}
+
+		value = string.Empty;
+		return false;
 	}
 
 	public List<Line> GetLines(string key)
@@ -170,6 +225,9 @@ public static class Loc
 {
 	public static string Str(string key) => Language.Current.GetString(key);
 	public static string ModStr(GameMod mod, string key) => Language.Current.GetModString(mod, key);
+	public static bool TryGetString(string key, out string value) => Language.Current.TryGetString(key, out value);
+	public static bool TryGetModString(GameMod mod, string key, out string value) => Language.Current.TryGetModString(mod, key, out value);
+
 	public static List<Language.Line> Lines(string key) => Language.Current.GetLines(key);
 	public static bool HasLines(string key) => Language.Current.Dialog.ContainsKey(key);
 	public static bool HasKey(string key) => Language.Current.Strings.ContainsKey(key) || Language.Current.ModStrings.ContainsKey(key);
@@ -177,21 +235,41 @@ public static class Loc
 	public class Localized(string key) 
 	{
 		protected string Key => key;
+
+		/// <summary>
+		/// Return the localized string.
+		/// If the string cannot be localized, this will return the default <MISSING> string
+		/// </summary>
+		/// <returns>The localized string.</returns>
 		public override string ToString() 
 		{
 			return Str(key);
 		}
 
-		public string StringOrEmpty()
+		/// <summary>
+		/// Return the localized string if the key exists.
+		/// If the key cannot be localized, return an empty string
+		/// </summary>
+		/// <returns>The localized string or an empty string.</returns>
+		public virtual string StringOrEmpty()
 		{
 			return HasKey(key) ? Str(key) : string.Empty;
 		}
 
-		public string GetKey()
+		/// <summary>
+		/// Returns the key without localization.
+		/// </summary>
+		/// <returns>The unlocalized key.</returns>
+		public virtual string GetKey()
 		{
 			return key;
 		}
 
+		/// <summary>
+		/// Get a full subkey for this localizion string.
+		/// </summary>
+		/// <param name="subkey">The final subkey part</param>
+		/// <returns>the combined subkey in the format of {key}.{subkey}</returns>
 		public Localized GetSub(string subkey)
 		{
 			return new($"{key}.{subkey}");
@@ -201,9 +279,23 @@ public static class Loc
 		public static implicit operator string(Localized s) => s.ToString();
 	}
 
+	/// <summary>
+	/// This class gives us a way to pass in unlocalized strings where a localized string would normally be required.
+	/// </summary>
+	/// <param name="value">The unlocalized string that will be displayed.</param>
 	public class Unlocalized(string value) : Localized(value) 
 	{
 		public override string ToString() 
+		{
+			return Key;
+		}
+
+		public override string StringOrEmpty()
+		{
+			return Key;
+		}
+
+		public override string GetKey()
 		{
 			return Key;
 		}
