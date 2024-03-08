@@ -238,7 +238,7 @@ public static class Loc
 
 		/// <summary>
 		/// Return the localized string.
-		/// If the string cannot be localized, this will return the default <MISSING> string
+		/// If the string cannot be localized, this will return the key with a # in front of it instead
 		/// </summary>
 		/// <returns>The localized string.</returns>
 		public override string ToString() 
