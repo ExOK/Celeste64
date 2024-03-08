@@ -3,8 +3,8 @@ namespace Celeste64;
 
 public class Menu
 {
-	public const float Spacing = 4 * Game.RelativeScale;
-	public const float SpacerHeight = 12 * Game.RelativeScale;
+	public static float Spacing => 4 * Game.RelativeScale;
+	public static float SpacerHeight => 12 * Game.RelativeScale;
 	public const float TitleScale = 0.75f;
 
 	public abstract class Item

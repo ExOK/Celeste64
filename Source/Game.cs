@@ -40,22 +40,42 @@ public class Game : Module
 	public const string GamePath = "Celeste64";
     // ModloaderCustom
     public const string GameTitle = "Celeste 64: Fragments of the Mountain + Fuji Mod Loader";
-	public const int Width = 640;
-	public const int Height = 360;
 	public static readonly Version GameVersion = typeof(Game).Assembly.GetName().Version!;
 	public static readonly string VersionString = $"Celeste 64: v.{GameVersion.Major}.{GameVersion.Minor}.{GameVersion.Build}";
 	public static string LoaderVersion { get; set; } = "";
+	
+	public const int DefaultWidth = 640;
+	public const int DefaultHeight = 360;
+	
+	public static event Action OnResolutionChanged;
+	
+	private static float _resolutionScale = 1.0f;
+	public static float ResolutionScale
+	{
+		get => _resolutionScale;
+		set
+		{
+			if (_resolutionScale == value)
+				return;
+			
+			_resolutionScale = value;
+			OnResolutionChanged.Invoke();
+		}
+	}
+	
+	public static int Width => (int)(DefaultWidth * _resolutionScale);
+	public static int Height => (int)(DefaultHeight * _resolutionScale);
 
 	/// <summary>
 	/// Used by various rendering elements to proportionally scale if you change the default game resolution
 	/// </summary>
-	public const float RelativeScale = Height / 360.0f;
+	public static float RelativeScale => _resolutionScale;
 
 	private static Game? instance;
 	public static Game Instance => instance ?? throw new Exception("Game isn't running");
 
 	private readonly Stack<Scene> scenes = new();
-	private readonly Target target = new(Width, Height, [TextureFormat.Color, TextureFormat.Depth24Stencil8]);
+	private Target target = new(Width, Height, [TextureFormat.Color, TextureFormat.Depth24Stencil8]);
 	private readonly Batcher batcher = new();
 	private Transition transition;
 	private TransitionStep transitionStep = TransitionStep.None;
@@ -78,6 +98,12 @@ public class Game : Module
 
 	public Game()
 	{
+		OnResolutionChanged += () =>
+		{
+			target.Dispose();
+			target = new(Width, Height, [TextureFormat.Color, TextureFormat.Depth24Stencil8]);
+		};
+		
 		// If this isn't stored, the delegate will get GC'd and everything will crash :)
 		audioEventCallback = MusicTimelineCallback;
 		imGuiManager = new ImGuiManager();

@@ -4,15 +4,18 @@ namespace Celeste64;
 
 public class Overworld : Scene
 {
-	public const int CardWidth = (int)(480 * Game.RelativeScale);
-	public const int CardHeight = (int)(320 * Game.RelativeScale);
+	public const int DefaultCardWidth = 480;
+	public const int DefaultCardHeight = 320;
+	public static int CardWidth => (int)(DefaultCardWidth * Game.RelativeScale);
+	public static int CardHeight => (int)(DefaultCardHeight * Game.RelativeScale);
+
 	public bool Paused;
 	public Menu? pauseMenu;
 
 	public class Entry
 	{
 		public readonly LevelInfo Level;
-		public readonly Target Target;
+		public Target Target;
 		public readonly Subtexture Image;
 		public readonly Menu Menu;
 		public readonly bool Complete = false;
@@ -24,6 +27,7 @@ public class Overworld : Scene
 		{
 			Level = level;
 			Target = new Target(CardWidth, CardHeight);
+			Game.OnResolutionChanged += () => Target = new Target(CardWidth, CardHeight);
 
 			// Postcards should always come from the current mod if they are available
 			if (mod != null && mod.Textures.ContainsKey(level.Preview))
@@ -53,7 +57,7 @@ public class Overworld : Scene
 
 		public void Redraw(Batcher batch, float shine)
 		{
-			const float Padding = 16 * Game.RelativeScale;
+			float Padding = 16 * Game.RelativeScale;
 
 			Target.Clear(Color.Transparent);
 			batch.SetSampler(new(TextureFilter.Linear, TextureWrap.ClampToEdge, TextureWrap.ClampToEdge));
@@ -75,7 +79,7 @@ public class Overworld : Scene
 				{
 					batch.Image(
 						new Subtexture(texture), 
-						bounds.BottomRight - new Vec2(50, 0), 
+						bounds.BottomRight - new Vec2(50, 0) * Game.RelativeScale, 
 						new Vec2(texture.Width / 2, texture.Height), 
 						Vec2.One * 0.50f, 0, Color.White);
 				}
@@ -104,9 +108,9 @@ public class Overworld : Scene
 						time = record.Time;
 					}
 
-					UI.Strawberries(batch, strawbs, new Vec2(-8, -UI.IconSize / 2 - 4), 1);
-					UI.Deaths(batch, deaths, new Vec2(8, -UI.IconSize / 2 - 4), 0);
-					UI.Timer(batch, time, new Vec2(0, UI.IconSize / 2 + 4), 0.5f);
+					UI.Strawberries(batch, strawbs, new Vec2(-8 * Game.RelativeScale, -UI.IconSize / 2 - 4 * Game.RelativeScale), 1);
+					UI.Deaths(batch, deaths, new Vec2(8 * Game.RelativeScale, -UI.IconSize / 2 - 4 * Game.RelativeScale), 0);
+					UI.Timer(batch, time, new Vec2(0 * Game.RelativeScale, UI.IconSize / 2 + 4 * Game.RelativeScale), 0.5f);
 				}
 				batch.PopMatrix();
 
@@ -117,13 +121,13 @@ public class Overworld : Scene
 			if (shine > 0)
 			{
 				batch.Line(
-					bounds.BottomLeft + new Vec2(-50 + shine * 50, 50), 
-					bounds.TopCenter + new Vec2(shine * 50, -50), 120, 
+					bounds.BottomLeft + new Vec2(-50 + shine * 50, 50) * Game.RelativeScale, 
+					bounds.TopCenter + new Vec2(shine * 50, -50) * Game.RelativeScale, 120 * Game.RelativeScale, 
 					Color.White * shine * 0.30f);
 
 				batch.Line(
-					bounds.BottomLeft + new Vec2(-50 + 100 + shine * 120, 50), 
-					bounds.TopCenter + new Vec2(100 + shine * 120, -50), 70, 
+					bounds.BottomLeft + new Vec2(-50 + 100 + shine * 120, 50) * Game.RelativeScale, 
+					bounds.TopCenter + new Vec2(100 + shine * 120, -50) * Game.RelativeScale, 70 * Game.RelativeScale, 
 					Color.White * shine * 0.30f);
 			}
 
@@ -164,8 +168,8 @@ public class Overworld : Scene
 			}
 		}
 
-		var cardWidth = CardWidth / 6.0f / Game.RelativeScale;
-		var cardHeight = CardHeight / 6.0f / Game.RelativeScale;
+		var cardWidth = DefaultCardWidth / 6.0f;
+		var cardHeight = DefaultCardHeight / 6.0f;
 
 		mesh.SetVertices<SpriteVertex>([
 			new(new Vec3(-cardWidth, 0, -cardHeight) / 2, new Vec2(0, 0), Color.White),

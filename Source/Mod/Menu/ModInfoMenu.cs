@@ -2,9 +2,7 @@ namespace Celeste64.Mod;
 
 public class ModInfoMenu : Menu
 {
-	public const int CardWidth = (int)(480 * Game.RelativeScale);
-	public const int CardHeight = (int)(320 * Game.RelativeScale);
-	public readonly Target Target;
+	public Target Target;
 
 	Subtexture postcardImage;
 	Subtexture stampImage;
@@ -18,11 +16,13 @@ public class ModInfoMenu : Menu
 
 	internal ModInfoMenu(Menu? rootMenu)
 	{
+		Target = new Target(Overworld.CardWidth, Overworld.CardHeight);
+		Game.OnResolutionChanged += () => Target = new Target(Overworld.CardWidth, Overworld.CardHeight);
+		
 		RootMenu = rootMenu;
 		postcardImage = new(Assets.Textures["postcards/back-empty"]);
 		stampImage = Assets.Subtextures["stamp"];
 		strawberryImage = Assets.Subtextures["icon_strawberry"];
-		Target = new Target(CardWidth, CardHeight);
 
 		modOptionsMenu = new ModOptionsMenu(rootMenu);
 
@@ -149,8 +149,8 @@ public class ModInfoMenu : Menu
 			var scale = MathF.Max(bounds.Width / postcardImage.Width, bounds.Height / postcardImage.Height);
 			var size = new Vec2(postcardImage.Width, postcardImage.Height);
 			batch.Image(postcardImage, bounds.TopLeft, size / 2, Vec2.One * scale, 0, Color.White);
-			batch.Text(font, $"{Mod.ModInfo.Name}\nBy: {Mod.ModInfo.ModAuthor ?? "Unknown"}\nv.{Mod.ModInfo.Version}", bounds.TopLeft - size / 4 + new Vec2(16, 12) * Game.RelativeScale, Color.Black * 0.7f);
-			batch.PushMatrix(Matrix3x2.CreateScale(.7f) * Matrix3x2.CreateTranslation(bounds.TopLeft - size / 4 + new Vec2(14, 72) * Game.RelativeScale));
+			batch.Text(font, $"{Mod.ModInfo.Name}\nBy: {Mod.ModInfo.ModAuthor ?? "Unknown"}\nv.{Mod.ModInfo.Version}", bounds.TopLeft + (-size / 4 + new Vec2(16, 12)) * Game.RelativeScale, Color.Black * 0.7f);
+			batch.PushMatrix(Matrix3x2.CreateScale(.7f) * Matrix3x2.CreateTranslation(bounds.TopLeft + (-size / 4 + new Vec2(14, 72)) * Game.RelativeScale));
 			batch.Text(font, GenerateModDescription(Mod.ModInfo.Description ?? "", 40, 15), Vec2.Zero, Color.Black);
 			batch.PopMatrix();
 
@@ -161,10 +161,10 @@ public class ModInfoMenu : Menu
 			Vec2 imageSize = new Vec2(imgSizeMin / image.Width, imgSizeMin / image.Height);
 			Vec2 stampPos = bounds.TopLeft - (new Vec2(imgSizeMin, imgSizeMin) * imgScale) / 2 + new Vec2(size.X / 5.5f, -size.Y / 4.7f);
 			Vec2 pos = bounds.TopLeft - (new Vec2(imgSizeMin, imgSizeMin) * imgScale) / 2 + new Vec2(size.X / 5.05f, -size.Y / 5.3f);
-			batch.Image(stampImage, stampPos + new Vec2(imgSizeMin, imgSizeMin) * imgScale * 0.05f, stampImageSize * imgScale, stampImageSize * imgScale * 1.3f, 0, Color.White);
-			batch.Image(image, pos + new Vec2(imgSizeMin, imgSizeMin) * imgScale * 0.05f, imageSize * imgScale, imageSize * imgScale, 0, Color.White);
+			batch.Image(stampImage, (stampPos + new Vec2(imgSizeMin, imgSizeMin) * imgScale * 0.05f) * Game.RelativeScale, stampImageSize * imgScale * Game.RelativeScale, stampImageSize * imgScale * 1.3f * Game.RelativeScale, 0, Color.White);
+			batch.Image(image, (pos + new Vec2(imgSizeMin, imgSizeMin) * imgScale * 0.05f) * Game.RelativeScale, imageSize * imgScale * Game.RelativeScale, imageSize * imgScale * Game.RelativeScale, 0, Color.White);
 
-			batch.PushMatrix(Matrix3x2.CreateScale(1.0f) * Matrix3x2.CreateTranslation(bounds.TopLeft + new Vec2(size.X / 6.8f, -size.Y/20)));
+			batch.PushMatrix(Matrix3x2.CreateScale(1.0f) * Matrix3x2.CreateTranslation(bounds.TopLeft + new Vec2(size.X / 6.8f, -size.Y / 20) * Game.RelativeScale));
 			base.RenderItems(batch);
 			batch.PopMatrix();
 		}

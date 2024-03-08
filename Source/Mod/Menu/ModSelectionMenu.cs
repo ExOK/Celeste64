@@ -2,9 +2,7 @@ namespace Celeste64.Mod;
 
 public class ModSelectionMenu : Menu
 {
-	public const int CardWidth = (int)(480 * Game.RelativeScale);
-	public const int CardHeight = (int)(320 * Game.RelativeScale);
-	public readonly Target Target;
+	public Target Target;
 
 	private int currentPage = 0;
 	private int currentRow = 0;
@@ -26,11 +24,14 @@ public class ModSelectionMenu : Menu
 
 	internal ModSelectionMenu(Menu? rootMenu)
 	{
+		Target = new Target(Overworld.CardWidth, Overworld.CardHeight);
+		Game.OnResolutionChanged += () => Target = new Target(Overworld.CardWidth, Overworld.CardHeight);
+		
 		RootMenu = rootMenu;
 		postcardImage = new(Assets.Textures["postcards/back-empty"]);
 		strawberryImage = Assets.Subtextures["icon_strawberry"];
-		Target = new Target(CardWidth, CardHeight);
 		mods = ModManager.Instance.Mods.Where(mod => mod is not VanillaGameMod).ToArray();
+
 		modInfoMenu = new ModInfoMenu(rootMenu);
 
 		FailedToLoadModsMenu = new Menu(rootMenu);
@@ -68,9 +69,9 @@ public class ModSelectionMenu : Menu
 		float imgScale = 0.7f;
 		Subtexture image = mod.Subtextures.TryGetValue(mod.ModInfo.Icon ?? "", out Subtexture value) ? value : strawberryImage;
 		Vec2 imageSize = new Vec2(size.X / image.Width, size.Y / image.Height);
-		batch.Rect(pos - (size * imgScale) / 2, size * imgScale, Color.White);
-		batch.Image(image, pos - (size * imgScale) / 2, imageSize * imgScale, imageSize * imgScale, 0, mod.Enabled ? Color.White : Color.Gray);
-		batch.PushMatrix(Matrix3x2.CreateScale(.6f) * Matrix3x2.CreateTranslation(pos + new Vec2(0, size.Y * 0.4f)));
+		batch.Rect((pos - (size * imgScale) / 2) * Game.RelativeScale, size * imgScale * Game.RelativeScale, Color.White);
+		batch.Image(image, (pos - (size * imgScale) / 2) * Game.RelativeScale, imageSize * imgScale * Game.RelativeScale, imageSize * imgScale * Game.RelativeScale, 0, mod.Enabled ? Color.White : Color.Gray);
+		batch.PushMatrix(Matrix3x2.CreateScale(.6f) * Matrix3x2.CreateTranslation((pos + new Vec2(0, size.Y * 0.4f)) * Game.RelativeScale));
 		batch.Text(Language.Current.SpriteFont, GenerateModName(mod.ModInfo.Name ?? "", 16, 2), Vec2.Zero, new Vec2(0.5f, 0), Color.Black * 0.7f);
 		batch.PopMatrix();
 	}
@@ -80,9 +81,9 @@ public class ModSelectionMenu : Menu
 		float imgScale = 0.8f;
 		Subtexture image = mod.Subtextures.TryGetValue(mod.ModInfo.Icon ?? "", out Subtexture value) ? value : strawberryImage;
 		Vec2 imageSize = new Vector2(size.X / image.Width, size.Y / image.Height);
-		batch.Rect(pos - (size * imgScale) / 2, size * imgScale, Color.LightGray);
-		batch.Image(image, pos - (size * imgScale) / 2, imageSize * imgScale, imageSize * imgScale, 0, mod.Enabled ? Color.White : Color.Gray);
-		batch.PushMatrix(Matrix3x2.CreateScale(.7f) * Matrix3x2.CreateTranslation(pos + new Vec2(0, size.Y * 0.4f)));
+		batch.Rect((pos - (size * imgScale) / 2) * Game.RelativeScale, size * imgScale * Game.RelativeScale, Color.LightGray);
+		batch.Image(image, (pos - (size * imgScale) / 2) * Game.RelativeScale, imageSize * imgScale * Game.RelativeScale, imageSize * imgScale * Game.RelativeScale, 0, mod.Enabled ? Color.White : Color.Gray);
+		batch.PushMatrix(Matrix3x2.CreateScale(.7f) * Matrix3x2.CreateTranslation((pos + new Vec2(0, size.Y * 0.4f)) * Game.RelativeScale));
 		batch.Text(Language.Current.SpriteFont, GenerateModName(mod.ModInfo.Name ?? "", 16, 2), Vec2.Zero, new Vec2(0.5f, 0), mod.Enabled ? Color.Black : Color.Black * 0.7f);
 		batch.PopMatrix();
 	}
