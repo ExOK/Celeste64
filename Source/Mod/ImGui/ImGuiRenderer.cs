@@ -30,9 +30,10 @@ internal class ImGuiRenderer
         io.ConfigDockingAlwaysTabBar = true;
         io.ConfigDockingTransparentPayload = true;
 
-        io.Fonts.AddFontDefault();
+		io.Fonts.AddFontDefault();
+		io.FontGlobalScale = 1.5f;
 
-        Input.OnTextEvent += chr => io.AddInputCharacter(chr);
+		Input.OnTextEvent += chr => io.AddInputCharacter(chr);
     }
 
     public unsafe void RebuildFontAtlas() {

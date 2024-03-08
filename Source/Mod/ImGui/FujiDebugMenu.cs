@@ -18,9 +18,6 @@ internal class FujiDebugMenu : ImGuiHandler
 	}
 
 	public override void Render() {
-		var io = ImGui.GetIO();
-		io.FontGlobalScale = 1.5f;
-
 		ImGui.SetNextWindowSizeConstraints(new Vec2(300, 300), new Vec2(float.PositiveInfinity, float.PositiveInfinity));
 		ImGui.Begin("Celeste 64 - Debug Menu");
 
