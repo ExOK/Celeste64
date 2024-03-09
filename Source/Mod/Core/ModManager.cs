@@ -72,7 +72,7 @@ public sealed class ModManager
 
 		mod.ModInfo.AssemblyContext?.Dispose(); 
 		
-		if (!mod.Enabled)
+		if (mod.Enabled)
 		{
 			mod.OnModUnloaded();
 		}
