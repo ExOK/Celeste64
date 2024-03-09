@@ -201,8 +201,8 @@ public class Menu
 			return list;
 		}
 
-		public MultiSelect(Loc.Localized label, Action<T> set, Func<T> get)
-			: base(label, GetEnumOptions(), () => (int)(object)get(), (i) => set((T)(object)i))
+		public MultiSelect(Loc.Localized locString, Action<T> set, Func<T> get)
+			: base(locString, GetEnumOptions(), () => (int)(object)get(), (i) => set((T)(object)i))
 		{
 
 		}
@@ -499,7 +499,7 @@ public class Menu
 
 			var text = currentItem.Description;
 			var justify = new Vec2(0.5f, -8f);
-			var color = Color.Gray;
+			var color = Color.LightGray;
 				
 			UI.Text(batch, text, position, justify, color);
 		}

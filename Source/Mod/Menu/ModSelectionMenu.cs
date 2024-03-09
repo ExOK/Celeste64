@@ -37,7 +37,7 @@ public class ModSelectionMenu : Menu
 		FailedToLoadModsMenu = new Menu(rootMenu);
 		string unloadedMods = string.Join("\n", ModLoader.FailedToLoadMods);
 		FailedToLoadModsMenu.Title = Loc.Str("FujiFailedToLoad") + "\n" + unloadedMods;
-		FailedToLoadModsMenu.Add(new Option("Continue", () => {
+		FailedToLoadModsMenu.Add(new Option("FujiContinueToMods", () => {
 			HandledFailedMods = true;
 			if(RootMenu != null)
 			{
