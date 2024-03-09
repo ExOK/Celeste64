@@ -6,6 +6,7 @@ internal static class Patches
     {
         Keyboard.Load();
         Hooks.Load();
+		SledgeHooks.Load();
         
         // Needs to be done last, to prevent our patches from being rejected
         Hooks.AfterLoad();
@@ -15,5 +16,6 @@ internal static class Patches
     {
         Keyboard.Unload();
         Hooks.Unload();
+		SledgeHooks.Unload();
     }
 }
