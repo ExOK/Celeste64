@@ -9,7 +9,7 @@ namespace Celeste64.Mod.Patches;
 /// </summary>
 internal static class Keyboard 
 {
-    private static readonly List<ILHook> hooks = new();
+    private static readonly List<ILHook> hooks = [];
     
     /// <summary>
     /// Whether keyboard input should be disabled.

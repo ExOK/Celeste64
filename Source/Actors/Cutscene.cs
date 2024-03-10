@@ -204,11 +204,11 @@ public class Cutscene : Actor, IHaveUI
 
 	public virtual void RenderUI(Batcher batch, Rect bounds)
 	{
-		const float BarSize = 40 * Game.RelativeScale;
-		const float PortraitSize = 128 * Game.RelativeScale;
-		const float TopOffset = 100 * Game.RelativeScale;
-		const float EaseOffset = 32 * Game.RelativeScale;
-		const float Padding = 8 * Game.RelativeScale;
+		float BarSize = 40 * Game.RelativeScale;
+		float PortraitSize = 128 * Game.RelativeScale;
+		float TopOffset = 100 * Game.RelativeScale;
+		float EaseOffset = 32 * Game.RelativeScale;
+		float Padding = 8 * Game.RelativeScale;
 
 		batch.Rect(new Rect(bounds.X, bounds.Y, bounds.Width, BarSize * Ease), Color.Black);
 		batch.Rect(new Rect(bounds.X, bounds.Bottom - BarSize * Ease, bounds.Width, BarSize * Ease), Color.Black);

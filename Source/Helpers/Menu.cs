@@ -3,22 +3,49 @@ namespace Celeste64;
 
 public class Menu
 {
-	public const float Spacing = 4 * Game.RelativeScale;
-	public const float SpacerHeight = 12 * Game.RelativeScale;
+	public static float Spacing => 4 * Game.RelativeScale;
+	public static float SpacerHeight => 12 * Game.RelativeScale;
 	public const float TitleScale = 0.75f;
 
 	public abstract class Item
 	{
-		public virtual string Label { get; } = string.Empty;
+		// Whether this item can be selected when scrolling through the menu.
 		public virtual bool Selectable { get; } = true;
 		public virtual bool Pressed() => false;
 		public virtual void Slide(int dir) {}
+
+		// LocString is the base localized string object, before any changes.
+		// This is kept separate from the label so we can get substrings from the LocString like the Description.
+		public virtual Loc.Localized? LocString { get; set; } = null;
+
+		// Get the localized string or the string's key from the LocString. If LocString is null, return an empty string instead.
+		// This can be overridden in subclasses for more control over how the label is displayed.
+		public virtual string Label => LocString?.ToString() ?? "";
+
+		// Return the localized description string from the loc string.
+		// If a description override has been set, use that instead.
+		public virtual string Description => descriptionOverride ?? LocString?.GetSub("desc").StringOrEmpty() ?? "";
+
+		private string? descriptionOverride = null;
+
+		/// <summary>
+		/// Set the Description Override.
+		/// This is used to force the description to be a given string without automatically being localized.
+		/// </summary>
+		/// <param name="description"></param>
+		/// <returns></returns>
+		public Item Describe(Loc.Localized description)
+		{
+			this.descriptionOverride = description;
+
+			return this;
+		}
 	}
 
-	public class Submenu(string label, Menu? rootMenu, Menu? submenu = null) : Item 
+	public class Submenu(Loc.Localized locString, Menu? rootMenu, Menu? submenu = null) : Item 
 	{
-		private readonly string label = label;
-		public override string Label => label;
+		public override Loc.Localized? LocString => locString;
+
 		public override bool Pressed() 
 		{
 			if (submenu != null) 
@@ -26,7 +53,6 @@ public class Menu
 				Audio.Play(Sfx.ui_select);
 				submenu.Index = 0;
 				rootMenu?.PushSubMenu(submenu);
-				submenu.Initialized();
 				return true;
 			}
 			
@@ -47,10 +73,11 @@ public class Menu
 		private readonly Func<int> get;
 		private readonly Action<int> set;
 	
-		public Slider(string label, int min, int max, Func<int> get, Action<int> set)
+		public Slider(Loc.Localized locString, int min, int max, Func<int> get, Action<int> set)
 		{
+			LocString = locString;
 			for (int i = 0, n = (max - min); i <= n; i ++)
-				labels.Add($"{label} [{new string('|', i)}{new string('.', n - i)}]");
+				labels.Add($"{LocString} [{new string('|', i)}{new string('.', n - i)}]");
 			this.min = min;
 			this.max = max;
 			this.get = get;
@@ -61,26 +88,41 @@ public class Menu
         public override void Slide(int dir) => set(Calc.Clamp(get() + dir, min, max));
     }
 
+	public class SubHeader(Loc.Localized locString) : Item
+	{
+		public override Loc.Localized? LocString => locString;
+		public override bool Selectable { get; } = false;
+	}
+
 	public class OptionList : Item
 	{
-		private readonly string label;
 		private readonly int min;
 		private readonly Func<string> get;
 		private readonly Func<int> getMax;
 		private readonly Func<List<string>> getLabels;
 		private readonly Action<string> set;
 
-		public OptionList(string label, Func<List<string>> getLabels, int min, Func<int> getMax, Func<string> get, Action<string> set)
+		public OptionList(Loc.Localized locString, Func<List<string>> getLabels, Func<string> get, Action<string> set)
 		{
-			this.label = label;
 			this.getLabels = getLabels;
-			this.getMax = getMax;
-			this.min = min;
+			this.min = 0;
+			this.getMax = () => getLabels().Count;
 			this.get = get;
 			this.set = set;
+			this.LocString = locString;
 		}
 
-		public override string Label => $"{label} : {getLabels()[getId() - min]}";
+		public OptionList(Loc.Localized locString, Func<List<string>> getLabels, int min, Func<int> getMax, Func<string> get, Action<string> set)
+		{
+			this.getLabels = getLabels;
+			this.min = min;
+			this.getMax = getMax;
+			this.get = get;
+			this.set = set;
+			this.LocString = locString;
+		}
+
+		public override string Label => $"{LocString} : {getLabels()[getId() - min]}";
 		public override void Slide(int dir) 
 		{
 			if(getLabels().Count > 1)
@@ -96,12 +138,11 @@ public class Menu
 		}
     }
 
-    public class Option(string label, Action? action = null) : Item
+    public class Option(Loc.Localized locString, Action? action = null) : Item
 	{
-		private readonly string label = label;
-		private readonly Action? action = action;
-        public override string Label => label;
-        public override bool Pressed()
+        public override Loc.Localized? LocString => locString;
+
+		public override bool Pressed()
 		{
 			if (action != null)
 			{
@@ -113,12 +154,14 @@ public class Menu
 		}
     }
 
-	public class Toggle(string label, Action action, Func<bool> get)  : Item
+	public class Toggle(Loc.Localized locString, Action action, Func<bool> get) : Item
 	{
-		private readonly string labelOff = $"{label} : OFF";
-		private readonly string labelOn  = $"{label} :  ON";
-		private readonly Action action = action;
-        public override string Label => get() ? labelOn : labelOff;
+		private readonly string labelOff = $"{locString} : {Loc.Str("OptionsToggleOff")}";
+		private readonly string labelOn = $"{locString} :  {Loc.Str("OptionsToggleOn")}";
+
+		public override Loc.Localized? LocString => locString;
+		public override string Label => get() ? labelOn : labelOff;
+
         public override bool Pressed()
 		{
 			action();
@@ -130,11 +173,10 @@ public class Menu
 		}
 	}
 
-	public class MultiSelect(string label, List<string> options, Func<int> get, Action<int> set) : Item
+	public class MultiSelect(Loc.Localized locString, List<string> options, Func<int> get, Action<int> set) : Item
 	{
-		private readonly List<string> options = options;
-		private readonly Action<int> set = set;
-		public override string Label => $"{label} : {options[get()]}";
+		public override Loc.Localized LocString => locString;
+		public override string Label => $"{LocString} : {options[get()]}";
 
 		public override void Slide(int dir) 
 		{
@@ -159,8 +201,8 @@ public class Menu
 			return list;
 		}
 
-		public MultiSelect(string label, Action<T> set, Func<T> get)
-			: base(label, GetEnumOptions(), () => (int)(object)get(), (i) => set((T)(object)i))
+		public MultiSelect(Loc.Localized locString, Action<T> set, Func<T> get)
+			: base(locString, GetEnumOptions(), () => (int)(object)get(), (i) => set((T)(object)i))
 		{
 
 		}
@@ -172,12 +214,17 @@ public class Menu
 
 	protected readonly List<Item> items = [];
 	protected readonly Stack<Menu> submenus = [];
+	public Menu? RootMenu { get; protected set; }
 
 	public string UpSound = Sfx.ui_move;
 	public string DownSound = Sfx.ui_move;
 
 	public bool IsInMainMenu => submenus.Count <= 0;
 	protected Menu CurrentMenu => GetDeepestActiveSubmenu(this);
+
+	protected virtual int maxItemsCount { get; set; } = 12;
+	protected int scrolledAmount = 0;
+	protected bool showScrollbar = true;
 
 	public Menu GetDeepestActiveSubmenu(Menu target)
 	{
@@ -209,19 +256,19 @@ public class Menu
 			if (!string.IsNullOrEmpty(Title))
 			{
 				size.X = font.WidthOf(Title) * TitleScale;
-				size.Y += font.LineHeight * TitleScale;
+				size.Y += font.HeightOf(Title) * TitleScale;
 				size.Y += SpacerHeight + Spacing;
 			}
 	
-			foreach (var item in items)
+			for (int i = scrolledAmount; i < items.Count && i < scrolledAmount + maxItemsCount; i++)
 			{
-				if (string.IsNullOrEmpty(item.Label))
+				if (string.IsNullOrEmpty(items[i].Label))
 				{
 					size.Y += SpacerHeight;
 				}
 				else
 				{
-					size.X = MathF.Max(size.X, font.WidthOf(item.Label));
+					size.X = MathF.Max(size.X, font.WidthOf(items[i].Label));
 					size.Y += font.LineHeight;
 				}
 				size.Y += Spacing;
@@ -234,11 +281,26 @@ public class Menu
 		}
 	}
 
+	public Menu(Menu? rootMenu)
+	{
+		RootMenu = rootMenu;
+	}
+	
+	public Menu()
+	{
+
+	}
+
 	public virtual void Initialized()
 	{
 
 	}
-	
+
+	public virtual void Closed()
+	{
+
+	}
+
 	public Menu Add(Item item)
 	{
 		items.Add(item);
@@ -247,16 +309,47 @@ public class Menu
 	
 	internal void PushSubMenu(Menu menu) 
 	{
+		menu.RootMenu = RootMenu ?? this;
 		submenus.Push(menu);
+		menu.Initialized();
 	}
 
 	internal void PopSubMenu()
 	{
-		submenus.Pop();
+		Menu popped = submenus.Pop();
+		popped.Closed();
+	}
+
+	internal void PopRootSubMenu()
+	{
+		if(RootMenu != null)
+		{
+			RootMenu.PopSubMenu();
+		}
+		else
+		{
+			PopSubMenu();
+		}
+	}
+
+	internal void PushRootSubMenu(Menu menu)
+	{
+		if (RootMenu != null)
+		{
+			RootMenu.PushSubMenu(menu);
+		}
+		else
+		{
+			PopSubMenu();
+		}
 	}
 
 	public void CloseSubMenus() 
 	{
+		foreach (var submenu in submenus)
+		{
+			submenu.Closed();
+		}
 		submenus.Clear();
 	}
 
@@ -276,7 +369,20 @@ public class Menu
 			while (!items[(items.Count + Index) % items.Count].Selectable)
 				Index += step;
 			Index = (items.Count + Index) % items.Count;
-	
+
+			if(items.Count > maxItemsCount)
+			{
+				if (Index >= scrolledAmount + (maxItemsCount - 3))
+				{
+					scrolledAmount = Index - (maxItemsCount - 3);
+				}
+				else if (Index < scrolledAmount + 2)
+				{
+					scrolledAmount = Index - 2;
+				}
+				scrolledAmount = Math.Clamp(scrolledAmount, 0, items.Count - maxItemsCount);
+			}
+
 			if (was != Index)
 				Audio.Play(step < 0 ? UpSound : DownSound);
 	
@@ -299,7 +405,8 @@ public class Menu
 	        if (!IsInMainMenu && Controls.Cancel.ConsumePress()) 
 			{
 				Audio.Play(Sfx.main_menu_toggle_off);
-				GetSecondDeepestMenu(this).submenus.Pop();
+				Menu popped = GetSecondDeepestMenu(this).submenus.Pop();
+				popped.Closed();
 			}
 	    }
 	}
@@ -323,11 +430,11 @@ public class Menu
 			UI.Text(batch, text, Vec2.Zero, justify, color);
 			batch.PopMatrix();
 
-			position.Y += font.LineHeight * TitleScale;
+			position.Y += font.HeightOf(Title) * TitleScale;
 			position.Y += SpacerHeight + Spacing;
 		}
 	
-		for (int i = 0; i < items.Count; i ++)
+		for (int i = scrolledAmount; i < items.Count && i < scrolledAmount + maxItemsCount; i ++)
 		{
 			if (string.IsNullOrEmpty(items[i].Label))
 			{
@@ -338,19 +445,63 @@ public class Menu
 			var text = items[i].Label;
 			var justify = new Vec2(0.5f, 0);
 			var color = Index == i && Focused ? (Time.BetweenInterval(0.1f) ? 0x84FF54 : 0xFCFF59) : Color.White;
-			
-			UI.Text(batch, text, position, justify, color);
-	
-			position.Y += font.LineHeight;
-			position.Y += Spacing;    
+
+			if (items[i] is SubHeader)
+			{
+				color = new Color(8421504);
+				position.Y += Spacing; 
+				batch.PushMatrix(
+					Matrix3x2.CreateScale(TitleScale) *
+					Matrix3x2.CreateTranslation(position));
+				UI.Text(batch, text, Vec2.Zero, justify, color);
+				batch.PopMatrix();
+				position.Y += font.LineHeight;
+			}
+			else
+			{
+				UI.Text(batch, text, position, justify, color);
+				position.Y += font.LineHeight;
+				position.Y += Spacing;
+			} 
 	    }
 		batch.PopMatrix();
+
+		// Render a scrolbar if there are too many items to show on screen at once
+		if(showScrollbar && items.Count > maxItemsCount)
+		{
+			// TODO: This will need to be redone if we implement mouse support and want it to interact with menus.
+			int padding = 4;
+			int scrollSize = 16;
+			int xPos = Game.Width - scrollSize - padding;
+			int scrollBarHeight = Game.Height - (scrollSize * 2) - padding * 4;
+			int scrollStartPos = padding * 2 + scrollSize;
+			batch.PushMatrix(Vec2.Zero, false);
+			batch.Rect(new Rect(xPos, padding, scrollSize, scrollSize), Color.White);
+			batch.Rect(new Rect(xPos, scrollStartPos, scrollSize, scrollBarHeight), Color.Gray);
+			int scrollYPos = (int)MathF.Ceiling(scrollStartPos + ((float)scrolledAmount * scrollBarHeight / items.Count));
+			int scrollYHeight = scrollBarHeight * maxItemsCount / items.Count;
+			batch.Rect(new Rect(xPos, scrollYPos, scrollSize, scrollYHeight), Color.White);
+			batch.Rect(new Rect(xPos, Game.Height - scrollSize - padding, scrollSize, scrollSize), Color.White);
+			batch.PopMatrix();
+		}
 	}
-	
+
 	public virtual void Render(Batcher batch, Vec2 position)
 	{
 		batch.PushMatrix(position);
 		CurrentMenu.RenderItems(batch);
 		batch.PopMatrix();
+
+		// Don't render the description if the menu has no items.
+		if(CurrentMenu.items.Count > 0)
+		{
+			var currentItem = CurrentMenu.items[CurrentMenu.Index];
+
+			var text = currentItem.Description;
+			var justify = new Vec2(0.5f, -8f);
+			var color = Color.LightGray;
+				
+			UI.Text(batch, text, position, justify, color);
+		}
 	}
 }

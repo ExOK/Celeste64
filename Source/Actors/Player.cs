@@ -1,5 +1,5 @@
-
 using System.Collections.ObjectModel;
+using Celeste64.Mod;
 
 namespace Celeste64;
 
@@ -229,7 +229,7 @@ public class Player : Actor, IHaveModels, IHaveSprites, IRidePlatforms, ICastPoi
 	public static Vec3 StoredCameraForward;
 	public static float StoredCameraDistance;
 
-	public enum States { Normal, Dashing, Skidding, Climbing, StrawbGet, FeatherStart, Feather, Respawn, Dead, StrawbReveal, Cutscene, Bubble, Cassette };
+	public enum States { Normal, Dashing, Skidding, Climbing, StrawbGet, FeatherStart, Feather, Respawn, Dead, StrawbReveal, Cutscene, Bubble, Cassette, DebugFly };
 	public enum Events { Land };
 	public enum JumpType { Jumped, WallJumped, SkidJumped, DashJumped };
 
@@ -242,8 +242,11 @@ public class Player : Actor, IHaveModels, IHaveSprites, IRidePlatforms, ICastPoi
 
 	public SkinInfo Skin;
 
-	public Vec3 Velocity;
-	public Vec3 PreviousVelocity;
+	protected Vec3 velocity;
+	protected Vec3 previousVelocity;
+
+	public virtual Vec3 Velocity { get => velocity; set => velocity = value; }
+	public virtual Vec3 PreviousVelocity { get => previousVelocity; set => previousVelocity = value; }
 	public Vec3 GroundNormal;
 	public Vec3 PlatformVelocity;
 	public float TPlatformVelocityStorage;
@@ -340,6 +343,8 @@ public class Player : Actor, IHaveModels, IHaveSprites, IRidePlatforms, ICastPoi
 			}
 		}
 
+		Skin.OnEquipped(this, Model);
+
 		StateMachine = new(additionalStateCount: CustomPlayerStateRegistry.RegisteredStates.Count);
 		StateMachine.InitState(States.Normal, StNormalUpdate, StNormalEnter, StNormalExit);
 		StateMachine.InitState(States.Dashing, StDashingUpdate, StDashingEnter, StDashingExit);
@@ -354,6 +359,7 @@ public class Player : Actor, IHaveModels, IHaveSprites, IRidePlatforms, ICastPoi
 		StateMachine.InitState(States.Dead, StDeadUpdate, StDeadEnter);
 		StateMachine.InitState(States.Bubble, null, null, StBubbleExit, StBubbleRoutine);
 		StateMachine.InitState(States.Cassette, null, null, StCassetteExit, StCassetteRoutine);
+		StateMachine.InitState(States.DebugFly, StDebugFlyUpdate, StDebugFlyEnter, StDebugFlyExit);
 		// Register custom player states
 		var nextId = CustomPlayerStateRegistry.BaseId;
 		foreach (var customState in CustomPlayerStateRegistry.RegisteredStates)
@@ -369,7 +375,7 @@ public class Player : Actor, IHaveModels, IHaveSprites, IRidePlatforms, ICastPoi
 
 		SpikeBlockCheck = (spike) =>
 		{
-			return Vec3.Dot(Velocity.Normalized(), spike.Direction) < 0.5f;
+			return Vec3.Dot(velocity.Normalized(), spike.Direction) < 0.5f;
 		};
 
 		SetHairColor(0xdb2c00);
@@ -379,6 +385,7 @@ public class Player : Actor, IHaveModels, IHaveSprites, IRidePlatforms, ICastPoi
 	/// If the player is in a custom state, returns its definition.
 	/// Otherwise, returns null.
 	/// </summary>
+  [DisallowHooks]
 	public virtual CustomPlayerState? GetCurrentCustomState()
 	{
 		if (StateMachine.State is not { } state)
@@ -392,6 +399,7 @@ public class Player : Actor, IHaveModels, IHaveSprites, IRidePlatforms, ICastPoi
 	/// <summary>
 	/// Checks whether the player is currently in the provided custom state.
 	/// </summary>
+  [DisallowHooks]
 	public virtual bool IsInState<T>() where T : CustomPlayerState
 	{
 		var stateDef = GetCurrentCustomState();
@@ -402,6 +410,7 @@ public class Player : Actor, IHaveModels, IHaveSprites, IRidePlatforms, ICastPoi
 	/// <summary>
 	/// Sets the player's state to the provided custom state.
 	/// </summary>
+  [DisallowHooks]
 	public virtual void SetState<T>() where T : CustomPlayerState
 	{
 		var id = CustomPlayerStateRegistry.GetId<T>();
@@ -412,16 +421,19 @@ public class Player : Actor, IHaveModels, IHaveSprites, IRidePlatforms, ICastPoi
 	/// <summary>
 	/// Sets the player's state to the provided vanilla state.
 	/// </summary>
+  [DisallowHooks]
 	public virtual void SetState(States state)
 	{
 		StateMachine.State = state;
 	}
 
+  [DisallowHooks]
 	protected virtual void HandleStateChange(States? state)
 	{
 		ModManager.Instance.OnPlayerStateChanged(this, state);
 	}
 
+	[DisallowHooks]
 	public StatusEffect AddStatusEffect<T>(bool RemoveAfterDuration = false, float DurationOverride = 10) where T : StatusEffect, new()
 	{
 		StatusEffect? existingEffect = GetStatusEffect<T>();
@@ -445,6 +457,7 @@ public class Player : Actor, IHaveModels, IHaveSprites, IRidePlatforms, ICastPoi
 		return newEffect;
 	}
 
+	[DisallowHooks]
 	public void RemoveStatusEffect<T>() where T : StatusEffect
 	{
 		StatusEffect? existingEffect = GetStatusEffect<T>();
@@ -456,17 +469,20 @@ public class Player : Actor, IHaveModels, IHaveSprites, IRidePlatforms, ICastPoi
 		}
 	}
 
+	[DisallowHooks]
 	public void RemoveStatusEffect(StatusEffect effect)
 	{
 		effect.OnStatusEffectRemoved();
 		statusEffects.Remove(effect);
 	}
 
+	[DisallowHooks]
 	public bool HasStatusEffect<T>() where T : StatusEffect
 	{
 		return statusEffects.Any(effect => effect.GetType() == typeof(T));
 	}
 
+	[DisallowHooks]
 	public StatusEffect? GetStatusEffect<T>() where T : StatusEffect
 	{
 		return statusEffects.FirstOrDefault(effect => effect.GetType() == typeof(T));
@@ -547,7 +563,7 @@ public class Player : Actor, IHaveModels, IHaveSprites, IRidePlatforms, ICastPoi
 		}
 
 		// death plane
-		if (!InBubble)
+		if (!InBubble && StateMachine.State != States.DebugFly)
 		{
 			if (Position.Z < World.DeathPlane ||
 				World.Overlaps<DeathBlock>(SolidWaistTestPos) ||
@@ -584,11 +600,11 @@ public class Player : Actor, IHaveModels, IHaveSprites, IRidePlatforms, ICastPoi
 				TClimbCooldown -= Time.Delta;
 		}
 
-		PreviousVelocity = Velocity;
+		previousVelocity = velocity;
 		StateMachine.Update();
 
 		// move and pop out
-		if (!InBubble)
+		if (!InBubble && StateMachine.State != States.DebugFly)
 		{
 			// push out of NPCs
 			foreach (var actor in World.All<IHavePushout>())
@@ -613,7 +629,7 @@ public class Player : Actor, IHaveModels, IHaveSprites, IRidePlatforms, ICastPoi
 
 			// handle actual movement
 			{
-				var amount = Velocity * Time.Delta;
+				var amount = velocity * Time.Delta;
 				SweepTestMove(amount, TNoMove <= 0);
 			}
 
@@ -641,6 +657,7 @@ public class Player : Actor, IHaveModels, IHaveSprites, IRidePlatforms, ICastPoi
 	public override void LateUpdate()
 	{
 		// ground checks
+		if(StateMachine.State != States.DebugFly)
 		{
 			bool prevOnGround = OnGround;
 			OnGround = GroundCheck(out var pushout, out var normal, out _);
@@ -671,7 +688,7 @@ public class Player : Actor, IHaveModels, IHaveSprites, IRidePlatforms, ICastPoi
 
 			if (!prevOnGround && OnGround)
 			{
-				float t = Calc.ClampedMap(PreviousVelocity.Z, 0, MaxFall);
+				float t = Calc.ClampedMap(previousVelocity.Z, 0, MaxFall);
 				ModelScale = Vec3.Lerp(Vec3.One, new(1.4f, 1.4f, .6f), t);
 				StateMachine.CallEvent(Events.Land);
 				ModManager.Instance.OnPlayerLanded(this);
@@ -728,7 +745,7 @@ public class Player : Actor, IHaveModels, IHaveSprites, IRidePlatforms, ICastPoi
             World.Camera.Position += (cameraPos - World.Camera.Position) * (1 - MathF.Pow(0.01f, Time.Delta));
             World.Camera.LookAt = lookAt;
 
-			float targetFOV = Calc.ClampedMap(Velocity.XY().Length(), MaxSpeed * 1.2f, 120, 1, 1.2f);
+			float targetFOV = Calc.ClampedMap(velocity.XY().Length(), MaxSpeed * 1.2f, 120, 1, 1.2f);
 
 			World.Camera.FOVMultiplier = Calc.Approach(World.Camera.FOVMultiplier, targetFOV, Time.Delta / 4);
 		}
@@ -849,6 +866,7 @@ public class Player : Actor, IHaveModels, IHaveSprites, IRidePlatforms, ICastPoi
 	{
 		if(this.Skin != skin)
 		{
+			this.Skin.OnRemoved(this, Model);
 			this.Skin = skin;
 
 			Model = new(Assets.Models[this.Skin.Model]);
@@ -869,6 +887,8 @@ public class Player : Actor, IHaveModels, IHaveSprites, IRidePlatforms, ICastPoi
 
 			Trails.Clear();
 			DashTrailsCreated = 0;
+
+			skin.OnEquipped(this, Model);
 		}
 	}
 
@@ -951,7 +971,7 @@ public class Player : Actor, IHaveModels, IHaveSprites, IRidePlatforms, ICastPoi
 		{
 			Position += pushout;
 			if (resolveImpact)
-				Velocity.Z = MathF.Max(Velocity.Z, 0);
+				velocity.Z = MathF.Max(velocity.Z, 0);
 		}
 
 		// ceiling test
@@ -959,7 +979,7 @@ public class Player : Actor, IHaveModels, IHaveSprites, IRidePlatforms, ICastPoi
 		{
 			Position += pushout;
 			if (resolveImpact)
-				Velocity.Z = MathF.Min(Velocity.Z, 0);
+				velocity.Z = MathF.Min(velocity.Z, 0);
 		}
 
 		// wall test
@@ -970,21 +990,21 @@ public class Player : Actor, IHaveModels, IHaveSprites, IRidePlatforms, ICastPoi
 			if (resolveImpact && StateMachine.State == States.Feather && TFeatherWallBumpCooldown <= 0 && !(Controls.Climb.Down && TryClimb()))
 			{
 				Position += hit.Pushout;
-				Velocity = Velocity.WithXY(Vec2.Reflect(Velocity.XY(), hit.Normal.XY().Normalized()));
+				velocity = velocity.WithXY(Vec2.Reflect(velocity.XY(), hit.Normal.XY().Normalized()));
 				TFeatherWallBumpCooldown = 0.50f;
 				Audio.Play(Sfx.sfx_feather_state_bump_wall, Position);
 			}
 			// does it handle being dashed into?
-			else if (resolveImpact && hit.Actor is IDashTrigger trigger && !hit.Actor.Destroying && Velocity.XY().Length() > 90)
+			else if (resolveImpact && hit.Actor is IDashTrigger trigger && !hit.Actor.Destroying && velocity.XY().Length() > 90)
 			{
                 World.HitStun = 0.1f;
-                trigger.HandleDash(Velocity);
+                trigger.HandleDash(velocity);
 
                 if (trigger.BouncesPlayer)
                 {
-                    Velocity.X = -Velocity.X * 0.80f;
-                    Velocity.Y = -Velocity.Y * 0.80f;
-                    Velocity.Z = 100;
+                    velocity.X = -velocity.X * 0.80f;
+                    velocity.Y = -velocity.Y * 0.80f;
+                    velocity.Z = 100;
 
                     StateMachine.State = States.Normal;
                     CancelGroundSnap();
@@ -997,8 +1017,8 @@ public class Player : Actor, IHaveModels, IHaveSprites, IRidePlatforms, ICastPoi
 				
 				if (resolveImpact)
 				{
-					var dot = MathF.Min(0.0f, Vec3.Dot(Velocity.Normalized(), hit.Normal));
-					Velocity -= hit.Normal * Velocity.Length() * dot;
+					var dot = MathF.Min(0.0f, Vec3.Dot(velocity.Normalized(), hit.Normal));
+					velocity -= hit.Normal * velocity.Length() * dot;
 				}
 			}
 
@@ -1014,7 +1034,7 @@ public class Player : Actor, IHaveModels, IHaveSprites, IRidePlatforms, ICastPoi
 	public virtual void Jump()
 	{
 		Position = Position with { Z = CoyoteZ };
-		HoldJumpSpeed = Velocity.Z = JumpSpeed;
+		HoldJumpSpeed = velocity.Z = JumpSpeed;
 		THoldJump = JumpHoldTime;
 		TCoyote = 0;
 		AutoJump = false;
@@ -1024,7 +1044,7 @@ public class Player : Actor, IHaveModels, IHaveSprites, IRidePlatforms, ICastPoi
 		{
 			input = input.Normalized();
 			TargetFacing = input;
-			Velocity += new Vec3(input * JumpXYBoost, 0);
+			velocity += new Vec3(input * JumpXYBoost, 0);
 		}
 
 		AddPlatformVelocity(true);
@@ -1037,12 +1057,12 @@ public class Player : Actor, IHaveModels, IHaveSprites, IRidePlatforms, ICastPoi
 
 	public virtual void WallJump()
 	{
-		HoldJumpSpeed = Velocity.Z = JumpSpeed;
+		HoldJumpSpeed = velocity.Z = JumpSpeed;
 		THoldJump = JumpHoldTime;
 		AutoJump = false;
 
 		var velXY = TargetFacing * WallJumpXYSpeed;
-		Velocity = Velocity.WithXY(velXY);
+		velocity = velocity.WithXY(velXY);
 
 		AddPlatformVelocity(false);
 		CancelGroundSnap();
@@ -1055,12 +1075,12 @@ public class Player : Actor, IHaveModels, IHaveSprites, IRidePlatforms, ICastPoi
 	public virtual void SkidJump()
 	{
 		Position = Position with { Z = CoyoteZ };
-		HoldJumpSpeed = Velocity.Z = SkidJumpSpeed;
+		HoldJumpSpeed = velocity.Z = SkidJumpSpeed;
 		THoldJump = SkidJumpHoldTime;
 		TCoyote = 0;
 
 		var velXY = TargetFacing * SkidJumpXYSpeed;
-		Velocity = Velocity.WithXY(velXY);
+		velocity = velocity.WithXY(velXY);
 
 		AddPlatformVelocity(false);
 		CancelGroundSnap();
@@ -1068,7 +1088,7 @@ public class Player : Actor, IHaveModels, IHaveSprites, IRidePlatforms, ICastPoi
 		for (int i = 0; i < 16; i ++)
 		{
 			var dir = new Vec3(Calc.AngleToVector((i / 16f) * MathF.Tau), 0);
-			World.Request<Dust>().Init(Position + dir * 8, new Vec3(Velocity.XY() * 0.5f, 10) - dir * 50, 0x666666);
+			World.Request<Dust>().Init(Position + dir * 8, new Vec3(velocity.XY() * 0.5f, 10) - dir * 50, 0x666666);
 		}
 
 		ModelScale = new(.6f, .6f, 1.4f);
@@ -1080,7 +1100,7 @@ public class Player : Actor, IHaveModels, IHaveSprites, IRidePlatforms, ICastPoi
 	public virtual void DashJump()
 	{
 		Position = Position with { Z = CoyoteZ };
-		Velocity.Z = DashJumpSpeed;
+		velocity.Z = DashJumpSpeed;
 		HoldJumpSpeed = DashJumpHoldSpeed;
 		THoldJump = DashJumpHoldTime;
 		TCoyote = 0;
@@ -1094,7 +1114,7 @@ public class Player : Actor, IHaveModels, IHaveSprites, IRidePlatforms, ICastPoi
 			{
 				input = input.Normalized();
 				TargetFacing = input;
-				Velocity += new Vec3(input * DashJumpXYBoost, 0);
+				velocity += new Vec3(input * DashJumpXYBoost, 0);
 			}
 		}
 
@@ -1117,7 +1137,7 @@ public class Player : Actor, IHaveModels, IHaveSprites, IRidePlatforms, ICastPoi
 			if (add.XY().LengthSquared() > 300 * 300)
 				add = add.WithXY(add.XY().Normalized() * 300);
 
-			Velocity += add;
+			velocity += add;
 			PlatformVelocity = Vec3.Zero;
 			TPlatformVelocityStorage = 0;
 
@@ -1159,7 +1179,7 @@ public class Player : Actor, IHaveModels, IHaveSprites, IRidePlatforms, ICastPoi
 		// let us snap up to walls if we're jumping for them
 		// note: if vel.z is allowed to be downwards then we awkwardly re-grab when sliding off
 		// the bottoms of walls, which is really bad feeling
-		if (!result && Velocity.Z > 0 && !OnGround && StateMachine.State != States.Climbing)
+		if (!result && velocity.Z > 0 && !OnGround && StateMachine.State != States.Climbing)
 			result = ClimbCheckAt(Vec3.UnitZ * 4, out wall);
 
 		if (result)
@@ -1211,14 +1231,14 @@ public class Player : Actor, IHaveModels, IHaveSprites, IRidePlatforms, ICastPoi
 		Calc.Approach(ref posXY, spring.Position.XY(), 4);
 		Position = Position.WithXY(posXY);
 
-		HoldJumpSpeed = Velocity.Z = SpringJumpSpeed;
+		HoldJumpSpeed = velocity.Z = SpringJumpSpeed;
 		THoldJump = SpringJumpHoldTime;
 		TCoyote = 0;
 		AutoJump = true;
 
-		var velXY = Velocity.XY();
+		var velXY = velocity.XY();
 		Calc.Approach(ref velXY, Vec2.Zero, 30);
-		Velocity = Velocity.WithXY(velXY);
+		velocity = velocity.WithXY(velXY);
 
 		DashesLocal = Math.Max(DashesLocal, 1);
 		CancelGroundSnap();
@@ -1277,7 +1297,7 @@ public class Player : Actor, IHaveModels, IHaveSprites, IRidePlatforms, ICastPoi
 
 		// movement
 		{
-			var velXY = Velocity.XY();
+			var velXY = velocity.XY();
 
 			if (Controls.Move.Value == Vec2.Zero || TNoMove > 0)
 			{
@@ -1405,11 +1425,11 @@ public class Player : Actor, IHaveModels, IHaveSprites, IRidePlatforms, ICastPoi
 				Calc.Approach(ref velXY, RelativeMoveInput * MaxSpeed, accel * Time.Delta);
 			}
 
-			Velocity = Velocity.WithXY(velXY);
+			velocity = velocity.WithXY(velXY);
 		}
 
 		// Footstep sounds
-		if (OnGround && Velocity.XY().Length() > 10)
+		if (OnGround && velocity.XY().Length() > 10)
 		{
 			TFootstep -= Time.Delta * Model.Rate;
 			if (TFootstep <= 0)
@@ -1448,13 +1468,13 @@ public class Player : Actor, IHaveModels, IHaveSprites, IRidePlatforms, ICastPoi
 		{
 			if (THoldJump > 0 && (AutoJump || Controls.Jump.Down))
 			{
-				if (Velocity.Z < HoldJumpSpeed)
-					Velocity.Z = HoldJumpSpeed;
+				if (velocity.Z < HoldJumpSpeed)
+					velocity.Z = HoldJumpSpeed;
 			}
 			else
 			{
 				float mult;
-				if ((Controls.Jump.Down || AutoJump) && MathF.Abs(Velocity.Z) < HalfGravThreshold)
+				if ((Controls.Jump.Down || AutoJump) && MathF.Abs(velocity.Z) < HalfGravThreshold)
 					mult = .5f;
 				else
 				{
@@ -1462,7 +1482,7 @@ public class Player : Actor, IHaveModels, IHaveSprites, IRidePlatforms, ICastPoi
 					AutoJump = false;
 				}
 
-				Calc.Approach(ref Velocity.Z, MaxFall, Gravity * mult * Time.Delta);
+				Calc.Approach(ref velocity.Z, MaxFall, Gravity * mult * Time.Delta);
 				THoldJump = 0;
 
 			}
@@ -1471,7 +1491,7 @@ public class Player : Actor, IHaveModels, IHaveSprites, IRidePlatforms, ICastPoi
 		// Update Model Animations
 		if (OnGround)
 		{
-			var velXY = Velocity.XY();
+			var velXY = velocity.XY();
 			if (velXY.LengthSquared() > 1)
 			{
 				// TODO: this was jittery, turning off for now
@@ -1564,7 +1584,7 @@ public class Player : Actor, IHaveModels, IHaveSprites, IRidePlatforms, ICastPoi
 		if (TDash <= 0)
 		{
 			if (!OnGround)
-				Velocity *= DashEndSpeedMult;
+				velocity *= DashEndSpeedMult;
 			StateMachine.State = States.Normal;
 			return;
 		}
@@ -1627,9 +1647,9 @@ public class Player : Actor, IHaveModels, IHaveSprites, IRidePlatforms, ICastPoi
 	public virtual void SetDashSpeed(in Vec2 dir)
 	{
 		if (DashedOnGround)
-			Velocity = new Vec3(dir, 0) * DashSpeed;
+			velocity = new Vec3(dir, 0) * DashSpeed;
 		else
-			Velocity = new Vec3(dir, .4f).Normalized() * DashSpeed;
+			velocity = new Vec3(dir, .4f).Normalized() * DashSpeed;
 
 	}
 
@@ -1670,7 +1690,7 @@ public class Player : Actor, IHaveModels, IHaveSprites, IRidePlatforms, ICastPoi
 		}
 		else
 		{
-			var velXY = Velocity.XY();
+			var velXY = velocity.XY();
 
 			// skid jump
 			if (TNoSkidJump <= 0 && Controls.Jump.ConsumePress())
@@ -1689,7 +1709,7 @@ public class Player : Actor, IHaveModels, IHaveSprites, IRidePlatforms, ICastPoi
 			else
 				accel = SkiddingStartAccel;
 			Calc.Approach(ref velXY, RelativeMoveInput * MaxSpeed, accel * Time.Delta);
-			Velocity = Velocity.WithXY(velXY);
+			velocity = velocity.WithXY(velXY);
 			
 			// reached target
 			if (dotMatches && velXY.LengthSquared() >= EndSkidSpeed * EndSkidSpeed)
@@ -1718,7 +1738,7 @@ public class Player : Actor, IHaveModels, IHaveSprites, IRidePlatforms, ICastPoi
 	{
 		Model.Play("Climb.Idle", true);
 		Model.Rate = 1.8f;
-		Velocity = Vec3.Zero;
+		velocity = Vec3.Zero;
 		ClimbCornerEase = 0;
 		ClimbInputSign = 1;
 		Audio.Play(Sfx.sfx_grab, Position);
@@ -1829,7 +1849,7 @@ public class Player : Actor, IHaveModels, IHaveSprites, IRidePlatforms, ICastPoi
 		{
 			var ease = 1.0f - ClimbCornerEase;
 
-			Velocity = Vec3.Zero;
+			velocity = Vec3.Zero;
 			Position = Vec3.Lerp(ClimbCornerFrom, ClimbCornerTo, ease);
 			TargetFacing = Calc.AngleToVector(Calc.AngleLerp(ClimbCornerFacingFrom.Angle(), ClimbCornerFacingTo.Angle(), ease));
 
@@ -1892,7 +1912,7 @@ public class Player : Actor, IHaveModels, IHaveSprites, IRidePlatforms, ICastPoi
 		{
 			Audio.Play(Sfx.sfx_climb_ledge, Position);
 			StateMachine.State = States.Normal;
-			Velocity = new(TargetFacing * ClimbHopForwardSpeed, ClimbHopUpSpeed);
+			velocity = new(TargetFacing * ClimbHopForwardSpeed, ClimbHopUpSpeed);
 			TNoMove = ClimbHopNoMoveTime;
 			TClimbCooldown = 0.3f;
 			AutoJump = false;
@@ -1943,7 +1963,7 @@ public class Player : Actor, IHaveModels, IHaveSprites, IRidePlatforms, ICastPoi
 		Hair.Flags = ModelFlags.StrawberryGetEffect;
 		if (LastStrawb is { } strawb)
 			strawb.Model.Flags = ModelFlags.StrawberryGetEffect;
-		Velocity = Vec3.Zero;
+		velocity = Vec3.Zero;
 		StrawbGetForward = (World.Camera.Position - Position).XY().Normalized();
 		CameraOverride = new(World.Camera.Position, World.Camera.LookAt);
 	}
@@ -2039,9 +2059,9 @@ public class Player : Actor, IHaveModels, IHaveSprites, IRidePlatforms, ICastPoi
 			return;
 		}
 
-		var velXY = Velocity.XY();
+		var velXY = velocity.XY();
 		Calc.Approach(ref velXY, Vec2.Zero, 200 * Time.Delta);
-		Velocity = Velocity.WithXY(velXY);
+		velocity = velocity.WithXY(velXY);
 
 		// dashing
 		if (DashesLocal > 0 && TDashCooldown <= 0 && Controls.Dash.ConsumePress())
@@ -2073,7 +2093,7 @@ public class Player : Actor, IHaveModels, IHaveSprites, IRidePlatforms, ICastPoi
 	}
 
 	public virtual void HandleFeatherZ()
-		=> Calc.Approach(ref Velocity.Z, (FeatherZ - Position.Z) * 40, 600 * Time.Delta);
+		=> Calc.Approach(ref velocity.Z, (FeatherZ - Position.Z) * 40, 600 * Time.Delta);
 
 	#endregion
 
@@ -2086,7 +2106,7 @@ public class Player : Actor, IHaveModels, IHaveSprites, IRidePlatforms, ICastPoi
 
 	public virtual void StFeatherEnter()
 	{
-		Velocity = Velocity.WithXY(TargetFacing * FeatherStartSpeed);
+		velocity = velocity.WithXY(TargetFacing * FeatherStartSpeed);
 		TFeather = FeatherDuration;
 		Hair.Roundness = 1;
 		DrawModel = false;
@@ -2115,7 +2135,7 @@ public class Player : Actor, IHaveModels, IHaveSprites, IRidePlatforms, ICastPoi
 
 		HandleFeatherZ();
 
-		var velXY = Velocity.XY();
+		var velXY = velocity.XY();
 
 		var input = RelativeMoveInput;
 		if (input != Vec2.Zero)
@@ -2125,7 +2145,7 @@ public class Player : Actor, IHaveModels, IHaveSprites, IRidePlatforms, ICastPoi
 
 		velXY = Calc.RotateToward(velXY, input * FeatherFlySpeed, FeatherTurnSpeed * Time.Delta, FeatherAccel * Time.Delta);
 		TargetFacing = velXY.Normalized();
-		Velocity = Velocity.WithXY(velXY);
+		velocity = velocity.WithXY(velXY);
 
 		TFeather -= Time.Delta;
 		TFeatherWallBumpCooldown -= Time.Delta;
@@ -2140,9 +2160,9 @@ public class Player : Actor, IHaveModels, IHaveSprites, IRidePlatforms, ICastPoi
 		{
 			StateMachine.State = States.Normal;
 
-			Velocity.X *= FeatherExitXYMult;
-			Velocity.Y *= FeatherExitXYMult;
-			HoldJumpSpeed = Velocity.Z = FeatherExitZSpeed;
+			velocity.X *= FeatherExitXYMult;
+			velocity.Y *= FeatherExitXYMult;
+			HoldJumpSpeed = velocity.Z = FeatherExitZSpeed;
 			THoldJump = .1f;
 			AutoJump = true;
 			Audio.Play(Sfx.sfx_feather_state_end, Position);
@@ -2418,8 +2438,8 @@ public class Player : Actor, IHaveModels, IHaveSprites, IRidePlatforms, ICastPoi
 		cassette?.PlayerExit();
 
 		StateMachine.State = States.Normal;
-		Velocity = Vec3.UnitZ * 25;
-		HoldJumpSpeed = Velocity.Z;
+		velocity = Vec3.UnitZ * 25;
+		HoldJumpSpeed = velocity.Z;
 		THoldJump = .1f;
 		AutoJump = true;
 
@@ -2432,6 +2452,76 @@ public class Player : Actor, IHaveModels, IHaveSprites, IRidePlatforms, ICastPoi
 		DrawModel = DrawHair = true;
 		CameraOverride = null;
 		PointShadowAlpha = 1;
+	}
+
+	#endregion
+
+	#region Normal State
+
+	public virtual void StDebugFlyEnter()
+	{
+		THoldJump = 0;
+		TFootstep = FootstepInterval;
+	}
+
+	public virtual void StDebugFlyExit()
+	{
+		THoldJump = 0;
+		TNoMove = 0;
+		AutoJump = false;
+		Model.Rate = 1;
+	}
+
+	public virtual void StDebugFlyUpdate()
+	{
+		// movement
+		{
+			var velXY = Velocity.XY();
+			if (Controls.Move.Value == Vec2.Zero || TNoMove > 0)
+			{
+				// friction
+				Calc.Approach(ref velXY, Vec2.Zero, Friction * Time.Delta);
+			}
+			else
+			{
+				float accel;
+				if (velXY.LengthSquared() >= MaxSpeed * MaxSpeed && Vec2.Dot(RelativeMoveInput.Normalized(), velXY.Normalized()) >= .7f)
+				{
+					accel = PastMaxDeccel;
+
+					var dot = Vec2.Dot(RelativeMoveInput.Normalized(), TargetFacing);
+					accel *= Calc.ClampedMap(dot, -1, 1, AirAccelMultMax, AirAccelMultMin);
+				}
+				else
+				{
+					accel = Acceleration;
+
+					var dot = Vec2.Dot(RelativeMoveInput.Normalized(), TargetFacing);
+					accel *= Calc.ClampedMap(dot, -1, 1, AirAccelMultMin, AirAccelMultMax);
+				}
+
+				Calc.Approach(ref velXY, RelativeMoveInput * MaxSpeed, accel * Time.Delta);
+			}
+
+			Velocity = Velocity.WithXY(velXY);
+		}
+
+		if (Controls.Jump.Down)
+		{
+			Position = new Vector3(Position.X, Position.Y, Position.Z + 1);
+		}
+		if (Controls.Dash.Down)
+		{
+			Position = new Vector3(Position.X, Position.Y, Position.Z - 1);
+		}
+
+		if (Controls.Move.Value != Vec2.Zero && TNoMove <= 0)
+		{
+			TargetFacing = Calc.RotateToward(TargetFacing, RelativeMoveInput, RotateSpeed * Time.Delta, 0);
+			Facing = Calc.AngleToVector(Calc.AngleApproach(Facing.Angle(), TargetFacing.Angle(), MathF.Tau * 2 * Time.Delta));
+		}
+
+		Position += velocity * Time.Delta;
 	}
 
 	#endregion
@@ -2538,9 +2628,9 @@ public class Player : Actor, IHaveModels, IHaveSprites, IRidePlatforms, ICastPoi
 		if (value == Vec3.Zero)
 			return;
 
-		if (TPlatformVelocityStorage < 0 || value.Z >= Velocity.Z 
-		|| value.XY().LengthSquared() + .1f >= Velocity.XY().LengthSquared()
-		|| (value.XY() != Vec2.Zero && Vec2.Dot(value.XY().Normalized(), Velocity.XY().Normalized()) < .5f))
+		if (TPlatformVelocityStorage < 0 || value.Z >= velocity.Z 
+		|| value.XY().LengthSquared() + .1f >= velocity.XY().LengthSquared()
+		|| (value.XY() != Vec2.Zero && Vec2.Dot(value.XY().Normalized(), velocity.XY().Normalized()) < .5f))
 		{
 			PlatformVelocity = value;
 			TPlatformVelocityStorage = .1f;
@@ -2602,7 +2692,7 @@ public class Player : Actor, IHaveModels, IHaveSprites, IRidePlatforms, ICastPoi
 		return false;
 	}
 
-	public virtual void Stop() => Velocity = Vec3.Zero;
+	public virtual void Stop() => velocity = Vec3.Zero;
 
 	#endregion
 }

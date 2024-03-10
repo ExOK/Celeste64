@@ -9,12 +9,12 @@ public abstract class ImGuiHandler
     /// <summary>
     /// Whether this handler will be updated.
     /// </summary>
-    public bool Active { get; set; } = true;
+    public virtual bool Active { get; set; } = true;
 
     /// <summary>
     /// Whether this handler will be drawn.
     /// </summary>
-    public bool Visible { get; set; } = true;
+    public virtual bool Visible { get; set; } = true;
 
     /// <summary>
     /// Called once per frame and should be used to update state.

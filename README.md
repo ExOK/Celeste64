@@ -16,10 +16,10 @@ It also implements some new functionality like custom skins, and the ability to 
 
 # Installation
 - For Windows users:
-    - [Download the latest release here.](https://github.com/jasminegamedev/Fuji/releases/latest)
+    - [Download the latest release here.](https://github.com/FujiAPI/Fuji/releases/latest)
     - Unzip the project.
     - Put your mods into the Mods folder that comes with Fuji.
-    - Open `Celeste64Launcher.exe` to start playing!
+    - Open `Celeste64-Fuji.exe` to start playing!
 - For Linux/MacOS users you may follow [this](https://github.com/FujiAPI/Fuji/blob/main/SETUP.md) guide
 
 ### License

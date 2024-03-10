@@ -1,4 +1,5 @@
 
+using Celeste64.Mod;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -46,7 +47,6 @@ public class Save
 	{
 		public string ID { get; set; } = string.Empty;
 		public bool Enabled { get; set; } = true;
-		public Dictionary<string, string> Settings { get; set; } = [];
 		public Dictionary<string, string> StringData { get; set; } = [];
 		public Dictionary<string, int> IntData { get; set; } = [];
 		public Dictionary<string, float> FloatData { get; set; } = [];
@@ -75,6 +75,35 @@ public class Save
 
 		public bool SetBool(string name, bool value = false)
 			=> BoolData[name] = value;
+
+		public Dictionary<string, string> SettingsStringData { get; set; } = [];
+		public Dictionary<string, int> SettingsIntData { get; set; } = [];
+		public Dictionary<string, float> SettingsFloatData { get; set; } = [];
+		public Dictionary<string, bool> SettingsBoolData { get; set; } = [];
+
+		public string SettingsGetString(string name, string defaultValue = "")
+			=> SettingsStringData.TryGetValue(name, out string? value) ? value : defaultValue;
+
+		public string SettingsSetString(string name, string value = "")
+			=> SettingsStringData[name] = value;
+
+		public int SettingsGetInt(string name, int defaultValue = 0)
+			=> SettingsIntData.TryGetValue(name, out int value) ? value : defaultValue;
+
+		public int SettingsSetInt(string name, int value = 1)
+			=> SettingsIntData[name] = value;
+
+		public float SettingsGetFloat(string name, float defaultValue = 0)
+			=> SettingsFloatData.TryGetValue(name, out float value) ? value : defaultValue;
+
+		public float SettingsSetFloat(string name, float value = 1)
+			=> SettingsFloatData[name] = value;
+
+		public bool SettingsGetBool(string name, bool defaultValue = false)
+			=> SettingsBoolData.TryGetValue(name, out bool value) ? value : defaultValue;
+
+		public bool SettingsSetBool(string name, bool value = false)
+			=> SettingsBoolData[name] = value;
 	}
 
 	public static Save Instance = new();
@@ -115,11 +144,6 @@ public class Save
 	public int SfxVolume { get; set; } = 10;
 
 	/// <summary>
-	/// SkinName
-	/// </summary>
-	public string SkinName { get; set; } = "Madeline";
-
-	/// <summary>
 	/// Invert the camera in given directions
 	/// </summary>
 	public InvertCameraOptions InvertCamera { get; set; } = InvertCameraOptions.None;
@@ -135,7 +159,22 @@ public class Save
 	public List<LevelRecord> Records { get; set; } = [];
 
 	/// <summary>
-	/// Records for each level
+	/// Fuji Custom - Currently equipped skin name
+	/// </summary>
+	public string SkinName { get; set; } = "Madeline";
+
+	/// <summary>
+	/// Fuji Custom - Whether we should write to the log file or not.
+	/// </summary>
+	public bool WriteLog { get; set; } = true;
+
+	/// <summary>
+	/// Fuji Custom - Whether The debug menu should be enabled
+	/// </summary>
+	public bool EnableDebugMenu { get; set; } = false;
+
+	/// <summary>
+	/// Fuji Custom - Records for each mod
 	/// </summary>
 	public List<ModRecord> ModRecords { get; set; } = [];
 
@@ -223,6 +262,16 @@ public class Save
 		SyncSettings();
 	}
 
+	public void ToggleWriteLog()
+	{
+		WriteLog = !WriteLog;
+	}
+
+	public void ToggleEnableDebugMenu()
+	{
+		EnableDebugMenu = !EnableDebugMenu;
+	}
+
 	public void ToggleZGuide()
 	{
 		ZGuide = !ZGuide;
@@ -258,8 +307,20 @@ public class Save
 
 	public SkinInfo GetSkin()
 	{ 
-		return Assets.EnabledSkins.FirstOrDefault(s => s.Name == SkinName, Assets.Skins.First());
-	}
+		return Assets.EnabledSkins.FirstOrDefault(s => s.Name == SkinName) ??
+			ModManager.Instance.VanillaGameMod?.Skins.FirstOrDefault() ??
+			new SkinInfo
+			{
+				Name = "Madeline",
+				Model = "player",
+				HideHair = false,
+				HairNormal = 0xdb2c00,
+				HairNoDash = 0x6ec0ff,
+				HairTwoDash = 0xfa91ff,
+				HairRefillFlash = 0xffffff,
+				HairFeather = 0xf2d450
+			};
+}
 
 	public void SyncSettings()
 	{

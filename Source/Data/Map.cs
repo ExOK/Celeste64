@@ -1,4 +1,4 @@
-﻿using System.Runtime.InteropServices;
+using System.Runtime.InteropServices;
 using Sledge.Formats.Map.Formats;
 using SledgeMapObject = Sledge.Formats.Map.Objects.MapObject;
 using SledgeSolid = Sledge.Formats.Map.Objects.Solid;
@@ -6,6 +6,7 @@ using SledgeEntity = Sledge.Formats.Map.Objects.Entity;
 using SledgeFace = Sledge.Formats.Map.Objects.Face;
 using SledgeMap = Sledge.Formats.Map.Objects.MapFile;
 using System.Runtime.CompilerServices;
+using Celeste64.Mod;
 using System.Globalization;
 
 namespace Celeste64;
@@ -24,12 +25,16 @@ public class Map
 	public readonly string Name;
 	public readonly string Filename;
 	public readonly string Folder;
-	public readonly SledgeMap Data;
-	public readonly string Skybox;
+	public readonly SledgeMap? Data;
+	public readonly string? Skybox;
 	public readonly float SnowAmount;
 	public readonly Vec3 SnowWind;
-	public readonly string Music;
-	public readonly string Ambience;
+	public readonly string? Music;
+	public readonly string? Ambience;
+	public readonly int? ChunkSize;
+
+	public readonly bool isMalformed = false;
+	public readonly string? readExceptionMessage;
 
 	public static readonly Dictionary<string, ActorFactory> ActorFactories =  new()
 	{
@@ -126,13 +131,30 @@ public class Map
 		Folder = Path.GetDirectoryName(virtPath) ?? string.Empty;
 
 		var format = new QuakeMapFormat();
-		Data = format.Read(stream);
+		try 
+		{
+			Data = format.Read(stream);
+		} catch (Exception e) 
+		{
+			Data = null;
 
-		Skybox = Data.Worldspawn.GetStringProperty("skybox", "city");
-		SnowAmount = Data.Worldspawn.GetFloatProperty("snowAmount", 1);
-		SnowWind = Data.Worldspawn.GetVectorProperty("snowDirection", -Vec3.UnitZ);
-		Music = Data.Worldspawn.GetStringProperty("music", string.Empty);
-		Ambience = Data.Worldspawn.GetStringProperty("ambience", string.Empty);
+			isMalformed = true;
+
+			readExceptionMessage = e.Message;
+
+			Log.Error($"Failed to load map {name}, more details below.");
+			Log.Error(e.ToString());
+		}
+
+		if(Data != null) 
+		{
+			Skybox = Data.Worldspawn.GetStringProperty("skybox", "city");
+			SnowAmount = Data.Worldspawn.GetFloatProperty("snowAmount", 1);
+			SnowWind = Data.Worldspawn.GetVectorProperty("snowDirection", -Vec3.UnitZ);
+			Music = Data.Worldspawn.GetStringProperty("music", string.Empty);
+			Ambience = Data.Worldspawn.GetStringProperty("ambience", string.Empty);
+			ChunkSize = Data.Worldspawn.GetIntProperty("chunksize", 1000);
+		}
 
 		void QueryObjects(SledgeMapObject obj)
 		{
@@ -175,7 +197,10 @@ public class Map
 			}
 		}
 
-		QueryObjects(Data.Worldspawn);
+		if(Data != null)
+		{
+			QueryObjects(Data.Worldspawn);
+		}
 
 		// figure out entire bounds of static solids (localized)
 		if (staticSolids.Count > 0)
@@ -226,7 +251,7 @@ public class Map
 			var bounds = localStaticSolidsBounds;
 
 			// split into a grid so we don't have one massive solid
-			var chunk = new Vec3(1000, 1000, 1000);
+			var chunk = new Vec3(ChunkSize ?? 1000, ChunkSize ?? 1000, ChunkSize ?? 1000);
 			for (int x = 0; x < bounds.Size.X / chunk.X; x ++)
 			for (int y = 0; y < bounds.Size.Y / chunk.Y; y ++)
 			for (int z = 0; z < bounds.Size.Z / chunk.Z; z ++)
@@ -350,18 +375,18 @@ public class Map
 		// Fuji Custom - Allows for rotation in maps using either a vec3 rotation property
 		// Or 3 different Angle properties. This is to support compatibility with existing vanilla actors who only use 1 angle property 
 		Vec3 rotationXYZ = new(0, 0, -MathF.PI / 2);
-		if (entity.Properties.ContainsKey("rotation") && entity.Properties["rotation"].Split(' ').Length == 3)
+		if (entity.Properties.ContainsKey("angles") && entity.Properties["angles"].Split(' ').Length == 3)
 		{
-			var value = entity.Properties["rotation"];
+			var value = entity.Properties["angles"];
 			var spl = value.Split(' ');
 			if (spl.Length == 3)
 			{
-				if (float.TryParse(spl[0], NumberStyles.Float, CultureInfo.InvariantCulture, out var x))
-					rotationXYZ.X = x * Calc.DegToRad;
-				if (float.TryParse(spl[1], NumberStyles.Float, CultureInfo.InvariantCulture, out var y))
+				if (float.TryParse(spl[0], NumberStyles.Float, CultureInfo.InvariantCulture, out var y))
 					rotationXYZ.Y = y * Calc.DegToRad;
-				if (float.TryParse(spl[2], NumberStyles.Float, CultureInfo.InvariantCulture, out var z))
+				if (float.TryParse(spl[1], NumberStyles.Float, CultureInfo.InvariantCulture, out var z))
 					rotationXYZ.Z = z * Calc.DegToRad - MathF.PI / 2;
+				if (float.TryParse(spl[2], NumberStyles.Float, CultureInfo.InvariantCulture, out var x))
+					rotationXYZ.X = x * Calc.DegToRad;
 			}
 		}
 		else
@@ -410,6 +435,11 @@ public class Map
 
 	public bool FindTargetNode(string name, out Vec3 pos)
 	{
+		if(Data == null) {
+			pos = Vec3.Zero;
+			return false;
+		}
+
 		if (FindTargetEntity(Data.Worldspawn, name) is { } target)
 		{
 			pos = Vec3.Transform(target.GetVectorProperty("origin", Vec3.Zero), baseTransform);

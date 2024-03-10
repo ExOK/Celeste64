@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using ModelEntry = (Celeste64.Actor Actor, Celeste64.Model Model);
+using Celeste64.Mod;
 
 namespace Celeste64;
 
@@ -34,8 +35,12 @@ public class World : Scene
 	private readonly SpriteRenderer spriteRenderer = new();
 
 	// Pause Menu, only drawn when actually paused
-	private readonly Menu pauseMenu = new();
+	private Menu pauseMenu = new();
 	private AudioHandle pauseSnapshot;
+
+	// Panic menu
+	private Menu badMapWarningMenu = new();
+	protected bool Panicked = false;
 	
 	// makes the Strawberry UI wiggle when one is collected
 	private float strawbCounterWiggle = 0;
@@ -61,15 +66,58 @@ public class World : Scene
 	private int debugUpdateCount;
 	public static bool DebugDraw { get; private set; } = false;
 
-	public Map Map {  get; private set; }
+	public Map? Map {  get; private set; }
 
 	public World(EntryInfo entry)
 	{
+		badMapWarningMenu.Title = $"placeholder";
+
+		badMapWarningMenu.Add(new Menu.Option("PauseRetry", () => Game.Instance.Goto(new Transition()
+		{
+			Mode = Transition.Modes.Replace,
+			Scene = () => new World(new(entry.Map, Save.CurrentRecord.Checkpoint, false, World.EntryReasons.Entered)),
+			ToBlack = new SpotlightWipe(),
+			FromBlack = new SpotlightWipe(),
+			StopMusic = true,
+			HoldOnBlackFor = 0,
+			PerformAssetReload = true
+		})));
+
+		badMapWarningMenu.Add(new Menu.Option("FujiOpenLogFile", () => {
+			Game.WriteToLog();
+			Game.OpenLog();
+		}));
+
+		badMapWarningMenu.Add(new Menu.Option("Exit", () => Game.Instance.Goto(new Transition()
+		{
+			Mode = Transition.Modes.Replace,
+			Scene = () => new Overworld(true),
+			FromPause = true,
+			ToPause = true,
+			ToBlack = new SlideWipe(),
+			Saving = false
+		})));
+
 		Entry = entry;
 
 		var stopwatch = Stopwatch.StartNew();
+
+		if(Assets.Maps.ContainsKey(entry.Map) == false)
+		{
+			Panic($"Sorry, the map {entry.Map} does not exist.\nCheck your mod's Levels.json and Maps folder.");
+
+			return;
+		}
+
 		var map = Assets.Maps[entry.Map];
 		Map = map;
+
+		if(Map.isMalformed == true)
+		{
+			Panic($"Sorry, the map {entry.Map} appears to be broken/corrupted\nIt failed to load because:\n{Map.readExceptionMessage}\nMore information may be available in the logs.");
+
+			return;
+		} 
 
 		ModManager.Instance.CurrentLevelMod = ModManager.Instance.Mods.FirstOrDefault(mod => mod.Maps.ContainsKey(entry.Map));
 
@@ -82,20 +130,19 @@ public class World : Scene
 
 		// setup pause menu
 		{
-			Menu optionsMenu = new GameOptionsMenu();
+			Menu optionsMenu = new GameOptionsMenu(pauseMenu);
 
-			ModSelectionMenu modMenu = new ModSelectionMenu()
+			ModSelectionMenu modMenu = new ModSelectionMenu(pauseMenu)
 			{
-				RootMenu = pauseMenu,
 				Title = "Mods Menu"
 			};
 
 			pauseMenu.Title = Loc.Str("PauseTitle");
-            pauseMenu.Add(new Menu.Option(Loc.Str("PauseResume"), () =>
+            pauseMenu.Add(new Menu.Option("PauseResume", () =>
 			{
 				SetPaused(false);
 			}));
-			pauseMenu.Add(new Menu.Option(Loc.Str("PauseRetry"), () =>
+			pauseMenu.Add(new Menu.Option("PauseRetry", () =>
 			{
 				SetPaused(false);
 				Audio.StopBus(Sfx.bus_dialog, false);
@@ -110,15 +157,16 @@ public class World : Scene
 					() => Save.Instance.GetSkin().Name, Save.Instance.SetSkinName)
 				);
 			}
-			pauseMenu.Add(new Menu.Submenu(Loc.Str("PauseOptions"), pauseMenu, optionsMenu));
-			pauseMenu.Add(new Menu.Submenu(Loc.Str("PauseMods"), pauseMenu, modMenu));
-			pauseMenu.Add(new Menu.Option(Loc.Str("PauseSaveQuit"), () => Game.Instance.Goto(new Transition()
+			pauseMenu.Add(new Menu.Submenu("PauseOptions", pauseMenu, optionsMenu));
+			pauseMenu.Add(new Menu.Submenu("Mods", pauseMenu, modMenu));
+			pauseMenu.Add(new Menu.Option("PauseSaveQuit", () => Game.Instance.Goto(new Transition()
 			{
 				Mode = Transition.Modes.Replace,
 				Scene = () => new Overworld(true),
 				FromPause = true,
 				ToPause = true,
 				ToBlack = new SlideWipe(),
+				PerformAssetReload = Game.Instance.NeedsReload,
 				Saving = true
 			})));
 		}
@@ -145,7 +193,7 @@ public class World : Scene
 
 			// Fuji Custom: Allows playing music and ambience from wav files if available.
 			// Otherwise, uses fmod events like normal.
-			if (Assets.Music.ContainsKey(map.Music))
+			if (map.Music != null && Assets.Music.ContainsKey(map.Music))
 			{
 				MusicWav = map.Music;
 				Music = $"event:/music/";
@@ -156,7 +204,7 @@ public class World : Scene
 				Music = $"event:/music/{map.Music}";
 			}
 
-			if (Assets.Music.ContainsKey(map.Ambience))
+			if (map.Ambience != null && Assets.Music.ContainsKey(map.Ambience))
 			{
 				AmbienceWav = map.Ambience;
 				Ambience = $"event:/sfx/ambience/";
@@ -316,8 +364,35 @@ public class World : Scene
 		}
 	}
 
+	public override void Entered()
+	{
+		if(Get<Player>() is Player player)
+		{
+			player.SetSkin(Save.Instance.GetSkin());
+		}
+	}
+
 	public override void Update()
 	{
+		if(Paused)
+		{
+			if (Controls.Pause.ConsumePress() || (pauseMenu.IsInMainMenu && Controls.Cancel.ConsumePress()))
+			{
+				pauseMenu.CloseSubMenus();
+				SetPaused(false);
+				Audio.Play(Sfx.ui_unpause);
+			}
+			else
+			{
+				pauseMenu.Update();
+			}
+		}
+	
+		if(Panicked) {
+			return;
+		} // don't pour salt in wounds
+		
+		try {
 		debugUpdTimer.Restart();
 
 		// update audio
@@ -416,26 +491,24 @@ public class World : Scene
 				if (actor.UpdateOffScreen || actor.WorldBounds.Intersects(view))
 					actor.LateUpdate();
 		}
-		// unpause
-		else
-		{
-			if (Controls.Pause.ConsumePress() || (pauseMenu.IsInMainMenu && Controls.Cancel.ConsumePress()))
-			{
-				pauseMenu.CloseSubMenus();
-				SetPaused(false);
-				Audio.Play(Sfx.ui_unpause);
-			}
-			else
-			{
-				pauseMenu.Update();
-			}
-		}
 
 		debugUpdTimer.Stop();
+		} catch(Exception err) {
+			string currentModName = ModManager.Instance.CurrentLevelMod != null && ModManager.Instance.CurrentLevelMod.ModInfo != null ? ModManager.Instance.CurrentLevelMod.ModInfo.Id : "unknown";
+			Log.Error($"--- ERROR in the map {currentModName}:{Entry.Map}. More details below ---");
+			Log.Error(err.ToString());
+
+			Panic($"Oops, critical error :(\n{err.Message}\nYou can try to recover from this error by pressing Retry,\nbut we can't promise stability!");
+		} // We wrap most of Update() in a try-catch to hopefully catch errors that occur during gameplay.
 	}
 
 	public void SetPaused(bool paused)
 	{
+		if(paused == false && Panicked)
+		{
+			return;
+		} // dont wanna unpause while in panic state
+
 		if(paused == false)
 		{
 			if(Game.Instance.NeedsReload)
@@ -807,7 +880,7 @@ public class World : Scene
 			Camera.Target.Clear(Color.Black, 1, 0, ClearMask.Depth);
 
 			batch.Rect(Camera.Target.Bounds, Color.Black * 0.90f);
-			batch.Image(img, Camera.Target.Bounds.Center, orig, Vec2.One, 0, Color.White);
+			batch.Image(img, Camera.Target.Bounds.Center, orig, Vec2.One * Game.RelativeScale, 0, Color.White);
 			batch.Render(Camera.Target);
 			batch.Clear();
 
@@ -848,11 +921,11 @@ public class World : Scene
 
 			// stats
 			{
-				var at = bounds.TopLeft + new Vec2(4, 8);
+				var at = bounds.TopLeft + new Vec2(4, 8) * Game.RelativeScale;
 				if (IsInEndingArea || Save.Instance.SpeedrunTimer)
 				{
 					UI.Timer(batch, Save.CurrentRecord.Time, at);
-					at.Y += UI.IconSize + 4;
+					at.Y += UI.IconSize + 4 * Game.RelativeScale;
 				}
 
 				if (strawbCounterEase > 0)
@@ -868,7 +941,7 @@ public class World : Scene
 				}
 
 				// show version number when paused / in ending area
-				if (IsInEndingArea || Paused)
+				if ((IsInEndingArea || Paused) && pauseMenu.IsInMainMenu)
 				{
 					UI.Text(batch, Game.VersionString, bounds.BottomLeft + new Vec2(4, -4) * Game.RelativeScale, new Vec2(0, 1), Color.CornflowerBlue * 0.75f);
 					UI.Text(batch, Game.LoaderVersion, bounds.BottomLeft + new Vec2(4, -24) * Game.RelativeScale, new Vec2(0, 1), new Color(12326399) * 0.75f);
@@ -900,7 +973,7 @@ public class World : Scene
 		// perform post processing effects
 		if (Camera.Target != null)
 		{
-			if (postTarget == null || postTarget.Width < Camera.Target.Width || postTarget.Height < Camera.Target.Height)
+			if (postTarget == null || postTarget.Width != Camera.Target.Width || postTarget.Height != Camera.Target.Height)
 			{
 				postTarget?.Dispose();
 				postTarget = new(Camera.Target.Width, Camera.Target.Height);
@@ -914,7 +987,7 @@ public class World : Scene
             if (postMaterial.Shader?.Has("u_depth") ?? false)
 			    postMaterial.Set("u_depth", Camera.Target.Attachments[1]);
             if (postMaterial.Shader?.Has("u_pixel") ?? false)
-			    postMaterial.Set("u_pixel", new Vec2(1.0f / postCam.Target.Width, 1.0f / postCam.Target.Height));
+			    postMaterial.Set("u_pixel", new Vec2(1.0f / postCam.Target.Width * Game.RelativeScale, 1.0f / postCam.Target.Height * Game.RelativeScale));
             if (postMaterial.Shader?.Has("u_edge") ?? false)
 			    postMaterial.Set("u_edge", new Color(0x110d33));
 			batch.PushMaterial(postMaterial);
@@ -939,5 +1012,17 @@ public class World : Scene
 			state.ModelMatrix = it.Model.Transform * it.Actor.Matrix;
 			it.Model.Render(ref state);
 		}
+	}
+
+	private void Panic(string reason)
+	{
+		Audio.Play(Sfx.main_menu_restart_cancel);
+
+		Panicked = true;
+		badMapWarningMenu.Title = reason;
+
+		// this is hacky but preferred over writing even more code to handle this specific state
+		pauseMenu = badMapWarningMenu;
+		SetPaused(true);
 	}
 }

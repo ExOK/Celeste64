@@ -30,9 +30,10 @@ internal class ImGuiRenderer
         io.ConfigDockingAlwaysTabBar = true;
         io.ConfigDockingTransparentPayload = true;
 
-        io.Fonts.AddFontDefault();
+		io.Fonts.AddFontDefault();
+		io.FontGlobalScale = 1.5f;
 
-        Input.OnTextEvent += chr => io.AddInputCharacter(chr);
+		Input.OnTextEvent += chr => io.AddInputCharacter(chr);
     }
 
     public unsafe void RebuildFontAtlas() {
@@ -174,7 +175,7 @@ internal class ImGuiRenderer
                     throw new InvalidOperationException($"Could not find a texture with id '{drawCmd.TextureId}', please check your bindings");
                 }
 
-                if (spriteMaterial.Shader?.Has("u_texture") ?? false)
+                if (spriteMaterial != null && (spriteMaterial.Shader?.Has("u_texture") ?? false))
                     spriteMaterial.Set("u_texture", loadedTextures[drawCmd.TextureId]);
 
                 DrawCommand cmd = new(target, mesh, spriteMaterial!)
