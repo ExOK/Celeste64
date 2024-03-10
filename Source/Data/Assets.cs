@@ -90,6 +90,7 @@ public static class Assets
 	public static List<SkinInfo> EnabledSkins { 
 		get { 
 			return ModManager.Instance.EnabledMods
+				.Where(mod => mod.Loaded)
 				.SelectMany(mod => mod.Skins)
 				.Where(skin => skin.IsUnlocked())
 				.ToList();

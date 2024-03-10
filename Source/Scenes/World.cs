@@ -166,6 +166,7 @@ public class World : Scene
 				FromPause = true,
 				ToPause = true,
 				ToBlack = new SlideWipe(),
+				PerformAssetReload = Game.Instance.NeedsReload,
 				Saving = true
 			})));
 		}

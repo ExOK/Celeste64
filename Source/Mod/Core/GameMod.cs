@@ -24,6 +24,7 @@ public abstract class GameMod
 	internal readonly Dictionary<string, Dictionary<string, string>> Strings = new(StringComparer.OrdinalIgnoreCase);
 	internal readonly Dictionary<string, Dictionary<string, List<Language.Line>>> DialogLines = new(StringComparer.OrdinalIgnoreCase);
 	internal readonly List<LevelInfo> Levels = new();
+	internal bool Loaded = false;
 
 	/// <summary>
 	/// Cleanup tasks that have to be performed when this mod gets unloaded.
@@ -443,7 +444,6 @@ public abstract class GameMod
 			if (!simulate)
 			{
 				Save.Instance.GetOrMakeMod(dependent.ModInfo.Id).Enabled = false;
-				dependent.OnModUnloaded();
 			}
 
 			if (dependent == ModManager.Instance.CurrentLevelMod)
@@ -451,8 +451,6 @@ public abstract class GameMod
 				shouldEvac = true;
 			} // We'll want to adjust behaviour if the current level's parent mod must be disabled.
 		}
-
-		if (!simulate) { this.OnModUnloaded(); }
 
 		if (shouldEvac && !simulate)
 		{

@@ -56,6 +56,7 @@ public sealed class ModManager
 		if(mod.Enabled)
 		{
 			mod.OnModLoaded();
+			mod.Loaded = true;
 		}
 	}
 
@@ -72,9 +73,10 @@ public sealed class ModManager
 
 		mod.ModInfo.AssemblyContext?.Dispose(); 
 		
-		if (mod.Enabled)
+		if (mod.Loaded)
 		{
 			mod.OnModUnloaded();
+			mod.Loaded = false;
 		}
 
 		mod.OnUnloadedCleanup?.Invoke();

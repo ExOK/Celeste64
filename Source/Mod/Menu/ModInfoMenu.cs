@@ -43,8 +43,6 @@ public class ModInfoMenu : Menu
 					if (Save.Instance.GetOrMakeMod(Mod.ModInfo.Id).Enabled)
 					{
 						Mod.EnableDependencies(); // Also enable dependencies of the mod being enabled (if any).
-
-						Mod.OnModLoaded();
 					}
 					else
 					{
@@ -83,10 +81,6 @@ public class ModInfoMenu : Menu
 							}));
 
 							RootMenu?.PushSubMenu(depWarningMenu);
-						}
-						else
-						{
-							Mod.OnModUnloaded();
 						}
 					}
 
