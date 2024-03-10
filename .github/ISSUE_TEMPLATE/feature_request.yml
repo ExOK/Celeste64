@@ -1,6 +1,6 @@
 name: Submit a feature request
 description: Submit a request for a new Fuji mod loader feature
-labels: ["enhancement"]
+labels: ["enhancement", "fr-pending-review"]
 assignees:
   - axiand
 body:
