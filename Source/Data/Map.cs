@@ -1,4 +1,4 @@
-﻿using System.Runtime.InteropServices;
+using System.Runtime.InteropServices;
 using Sledge.Formats.Map.Formats;
 using SledgeMapObject = Sledge.Formats.Map.Objects.MapObject;
 using SledgeSolid = Sledge.Formats.Map.Objects.Solid;
@@ -31,6 +31,7 @@ public class Map
 	public readonly Vec3 SnowWind;
 	public readonly string? Music;
 	public readonly string? Ambience;
+	public readonly int? ChunkSize;
 
 	public readonly bool isMalformed = false;
 	public readonly string? readExceptionMessage;
@@ -152,6 +153,7 @@ public class Map
 			SnowWind = Data.Worldspawn.GetVectorProperty("snowDirection", -Vec3.UnitZ);
 			Music = Data.Worldspawn.GetStringProperty("music", string.Empty);
 			Ambience = Data.Worldspawn.GetStringProperty("ambience", string.Empty);
+			ChunkSize = Data.Worldspawn.GetIntProperty("chunksize", 1000);
 		}
 
 		void QueryObjects(SledgeMapObject obj)
@@ -249,7 +251,7 @@ public class Map
 			var bounds = localStaticSolidsBounds;
 
 			// split into a grid so we don't have one massive solid
-			var chunk = new Vec3(1000, 1000, 1000);
+			var chunk = new Vec3(ChunkSize ?? 1000, ChunkSize ?? 1000, ChunkSize ?? 1000);
 			for (int x = 0; x < bounds.Size.X / chunk.X; x ++)
 			for (int y = 0; y < bounds.Size.Y / chunk.Y; y ++)
 			for (int z = 0; z < bounds.Size.Z / chunk.Z; z ++)

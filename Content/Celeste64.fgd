@@ -5,6 +5,7 @@
 	snowDirection(vector) : "Snow move direction"
 	music(string) : "Music"
 	ambience(string) : "Ambience"
+	chunksize(int) : "Chunk Size" : "Used for determining chunk size when merging brushes together."
 ]
 
 @SolidClass = Decoration : "Used for decoration, not for gameplay"
