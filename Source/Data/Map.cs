@@ -375,18 +375,18 @@ public class Map
 		// Fuji Custom - Allows for rotation in maps using either a vec3 rotation property
 		// Or 3 different Angle properties. This is to support compatibility with existing vanilla actors who only use 1 angle property 
 		Vec3 rotationXYZ = new(0, 0, -MathF.PI / 2);
-		if (entity.Properties.ContainsKey("rotation") && entity.Properties["rotation"].Split(' ').Length == 3)
+		if (entity.Properties.ContainsKey("angles") && entity.Properties["angles"].Split(' ').Length == 3)
 		{
-			var value = entity.Properties["rotation"];
+			var value = entity.Properties["angles"];
 			var spl = value.Split(' ');
 			if (spl.Length == 3)
 			{
-				if (float.TryParse(spl[0], NumberStyles.Float, CultureInfo.InvariantCulture, out var x))
-					rotationXYZ.X = x * Calc.DegToRad;
-				if (float.TryParse(spl[1], NumberStyles.Float, CultureInfo.InvariantCulture, out var y))
+				if (float.TryParse(spl[0], NumberStyles.Float, CultureInfo.InvariantCulture, out var y))
 					rotationXYZ.Y = y * Calc.DegToRad;
-				if (float.TryParse(spl[2], NumberStyles.Float, CultureInfo.InvariantCulture, out var z))
+				if (float.TryParse(spl[1], NumberStyles.Float, CultureInfo.InvariantCulture, out var z))
 					rotationXYZ.Z = z * Calc.DegToRad - MathF.PI / 2;
+				if (float.TryParse(spl[2], NumberStyles.Float, CultureInfo.InvariantCulture, out var x))
+					rotationXYZ.X = x * Calc.DegToRad;
 			}
 		}
 		else
