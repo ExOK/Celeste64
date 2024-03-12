@@ -47,7 +47,7 @@ public class Game : Module
 	public const int DefaultWidth = 640;
 	public const int DefaultHeight = 360;
 
-	public static event Action OnResolutionChanged;
+	public static event Action OnResolutionChanged = () => { };
 
 	private static float _resolutionScale = 1.0f;
 	public static float ResolutionScale
