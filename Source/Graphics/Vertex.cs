@@ -14,9 +14,9 @@ public readonly struct SpriteVertex(Vec3 position, Vec2 texcoord, Color color) :
 
 	private static readonly VertexFormat VertexFormat = VertexFormat.Create<SpriteVertex>(
 	[
-		new (0, VertexType.Float3, normalized: false),
-		new (1, VertexType.Float2, normalized: false),
-		new (2, VertexType.UByte4, normalized: true)
+		new(0, VertexType.Float3, normalized: false),
+		new(1, VertexType.Float2, normalized: false),
+		new(2, VertexType.UByte4, normalized: true)
 	]);
 }
 
@@ -49,11 +49,11 @@ public readonly struct Vertex(Vec3 position, Vec2 texcoord, Vec3 color, Vec3 nor
 
 	private static readonly VertexFormat VertexFormat = VertexFormat.Create<Vertex>(
 	[
-		new (0, VertexType.Float3, normalized: false),
-		new (1, VertexType.Float2, normalized: false),
-		new (2, VertexType.Float3, normalized: true),
-		new (3, VertexType.Float3, normalized: false),
-		new (4, VertexType.Float4, normalized: false),
-		new (5, VertexType.Float4, normalized: false),
+		new(0, VertexType.Float3, normalized: false),
+		new(1, VertexType.Float2, normalized: false),
+		new(2, VertexType.Float3, normalized: true),
+		new(3, VertexType.Float3, normalized: false),
+		new(4, VertexType.Float4, normalized: false),
+		new(5, VertexType.Float4, normalized: false),
 	]);
 }

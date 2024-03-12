@@ -42,7 +42,7 @@ public class Refill : Actor, IHaveSprites, IPickup, IHaveModels, ICastPointShado
 
 		Particles.CollectSprites(Position, World, populate);
 	}
-	
+
 	public override void Added()
 	{
 		LocalBounds = new BoundingBox(Vec3.Zero, 3);

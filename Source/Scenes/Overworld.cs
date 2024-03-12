@@ -43,7 +43,7 @@ public class Overworld : Scene
 			Menu.UpSound = Sfx.main_menu_roll_up;
 			Menu.DownSound = Sfx.main_menu_roll_down;
 
-			if (Save.Instance.TryGetRecord(Level.ID) is {} record)
+			if (Save.Instance.TryGetRecord(Level.ID) is { } record)
 			{
 				Menu.Add(new Menu.Option("Continue"));
 				Menu.Add(new Menu.Option("Restart"));
@@ -75,12 +75,12 @@ public class Overworld : Scene
 
 			if (SelectionEase < 0.50f)
 			{
-				if (Complete && Assets.Textures.GetValueOrDefault("overworld/strawberry") is {} texture)
+				if (Complete && Assets.Textures.GetValueOrDefault("overworld/strawberry") is { } texture)
 				{
 					batch.Image(
-						new Subtexture(texture), 
-						bounds.BottomRight - new Vec2(50, 0) * Game.RelativeScale, 
-						new Vec2(texture.Width / 2, texture.Height), 
+						new Subtexture(texture),
+						bounds.BottomRight - new Vec2(50, 0) * Game.RelativeScale,
+						new Vec2(texture.Width / 2, texture.Height),
 						Vec2.One * 0.50f, 0, Color.White);
 				}
 
@@ -121,13 +121,13 @@ public class Overworld : Scene
 			if (shine > 0)
 			{
 				batch.Line(
-					bounds.BottomLeft + new Vec2(-50 + shine * 50, 50) * Game.RelativeScale, 
-					bounds.TopCenter + new Vec2(shine * 50, -50) * Game.RelativeScale, 120 * Game.RelativeScale, 
+					bounds.BottomLeft + new Vec2(-50 + shine * 50, 50) * Game.RelativeScale,
+					bounds.TopCenter + new Vec2(shine * 50, -50) * Game.RelativeScale, 120 * Game.RelativeScale,
 					Color.White * shine * 0.30f);
 
 				batch.Line(
-					bounds.BottomLeft + new Vec2(-50 + 100 + shine * 120, 50) * Game.RelativeScale, 
-					bounds.TopCenter + new Vec2(100 + shine * 120, -50) * Game.RelativeScale, 70 * Game.RelativeScale, 
+					bounds.BottomLeft + new Vec2(-50 + 100 + shine * 120, 50) * Game.RelativeScale,
+					bounds.TopCenter + new Vec2(100 + shine * 120, -50) * Game.RelativeScale, 70 * Game.RelativeScale,
 					Color.White * shine * 0.30f);
 			}
 
@@ -158,7 +158,7 @@ public class Overworld : Scene
 	public Overworld(bool startOnLastSelected)
 	{
 		Music = "event:/music/mus_title";
-		
+
 		foreach (var level in Assets.Levels)
 		{
 			GameMod? mod = ModManager.Instance.Mods.FirstOrDefault(mod => mod.Levels.Contains(level));
@@ -356,7 +356,7 @@ public class Overworld : Scene
 		{
 			if (Controls.Pause.ConsumePress() || (pauseMenu != null && pauseMenu.IsInMainMenu && Controls.Cancel.ConsumePress()))
 			{
-				if(pauseMenu!= null)
+				if (pauseMenu != null)
 				{
 					pauseMenu.CloseSubMenus();
 				}
@@ -402,8 +402,10 @@ public class Overworld : Scene
 			pauseMenu.Render(batch, bounds.Center);
 			batch.Render(target);
 			batch.Clear();
-		} else {
-			for (int i = 0; i < entries.Count; i ++)
+		}
+		else
+		{
+			for (int i = 0; i < entries.Count; i++)
 			{
 				var it = entries[i];
 				var shift = Ease.Cube.In(1.0f - it.HighlightEase) * 30 - Ease.Cube.In(it.SelectionEase) * 20;
@@ -411,7 +413,7 @@ public class Overworld : Scene
 					shift += Ease.Cube.InOut(selectedEase) * 50;
 				var position = new Vec3((i - slide) * 60, shift, 0);
 				var rotation = Ease.Cube.InOut(it.SelectionEase);
-				var matrix = 
+				var matrix =
 					Matrix.CreateScale(new Vec3(it.SelectionEase >= 0.50f ? -1 : 1, 1, 1)) *
 					Matrix.CreateRotationX(wobble.Y * it.HighlightEase) *
 					Matrix.CreateRotationZ(wobble.X * it.HighlightEase) *
@@ -453,13 +455,13 @@ public class Overworld : Scene
 
 				batch.PushBlend(BlendMode.Add);
 				batch.PushSampler(new TextureSampler(TextureFilter.Linear, TextureWrap.Repeat, TextureWrap.Repeat));
-				batch.Image(Assets.Textures["overworld/overlay"], 
+				batch.Image(Assets.Textures["overworld/overlay"],
 					bounds.TopLeft, bounds.TopRight, bounds.BottomRight, bounds.BottomLeft,
 					scroll + new Vec2(0, 0), scroll + new Vec2(1, 0), scroll + new Vec2(1, 1), scroll + new Vec2(0, 1),
 					Color.White * 0.10f);
 				batch.PopBlend();
 				batch.PopSampler();
-				batch.Image(Assets.Textures["overworld/vignette"], 
+				batch.Image(Assets.Textures["overworld/vignette"],
 					bounds.TopLeft, bounds.TopRight, bounds.BottomRight, bounds.BottomLeft,
 					new Vec2(0, 0), new Vec2(1, 0), new Vec2(1, 1), new Vec2(0, 1),
 					Color.White * 0.30f);
@@ -475,7 +477,7 @@ public class Overworld : Scene
 					at.X -= width + 8 * Game.RelativeScale;
 					UI.Prompt(batch, Controls.Confirm, Loc.Str("Confirm"), at, out width2, 1.0f);
 
-					if(state == States.Selecting)
+					if (state == States.Selecting)
 					{
 						at.X -= width2 + 8 * Game.RelativeScale;
 						UI.Prompt(batch, Controls.Pause, Loc.Str("OptionsTitle"), at, out _, 1.0f);
@@ -484,7 +486,7 @@ public class Overworld : Scene
 					// show version number on Overworld as well
 					UI.Text(batch, Game.VersionString, bounds.BottomLeft + new Vec2(4, -4) * Game.RelativeScale, new Vec2(0, 1), Color.CornflowerBlue * 0.75f);
 					UI.Text(batch, Game.LoaderVersion, bounds.BottomLeft + new Vec2(4, -24) * Game.RelativeScale, new Vec2(0, 1), new Color(12326399) * 0.75f);
-					if(ModLoader.FailedToLoadMods.Any())
+					if (ModLoader.FailedToLoadMods.Any())
 					{
 						UI.Text(batch, string.Format(Loc.Str("FailedToLoadMods"), ModLoader.FailedToLoadMods.Count), bounds.BottomLeft + new Vec2(4, -44) * Game.RelativeScale, new Vec2(0, 1), Color.Red * 0.75f);
 					}

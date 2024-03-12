@@ -12,7 +12,7 @@ public class Menu
 		// Whether this item can be selected when scrolling through the menu.
 		public virtual bool Selectable { get; } = true;
 		public virtual bool Pressed() => false;
-		public virtual void Slide(int dir) {}
+		public virtual void Slide(int dir) { }
 
 		// LocString is the base localized string object, before any changes.
 		// This is kept separate from the label so we can get substrings from the LocString like the Description.
@@ -42,41 +42,41 @@ public class Menu
 		}
 	}
 
-	public class Submenu(Loc.Localized locString, Menu? rootMenu, Menu? submenu = null) : Item 
+	public class Submenu(Loc.Localized locString, Menu? rootMenu, Menu? submenu = null) : Item
 	{
 		public override Loc.Localized? LocString => locString;
 
-		public override bool Pressed() 
+		public override bool Pressed()
 		{
-			if (submenu != null) 
+			if (submenu != null)
 			{
 				Audio.Play(Sfx.ui_select);
 				submenu.Index = 0;
 				rootMenu?.PushSubMenu(submenu);
 				return true;
 			}
-			
+
 			return false;
 		}
 	}
 
-    public class Spacer : Item
+	public class Spacer : Item
 	{
-        public override bool Selectable => false;
-    }
-	
-	public class Slider: Item
+		public override bool Selectable => false;
+	}
+
+	public class Slider : Item
 	{
 		private readonly List<string> labels = [];
 		private readonly int min;
 		private readonly int max;
 		private readonly Func<int> get;
 		private readonly Action<int> set;
-	
+
 		public Slider(Loc.Localized locString, int min, int max, Func<int> get, Action<int> set)
 		{
 			LocString = locString;
-			for (int i = 0, n = (max - min); i <= n; i ++)
+			for (int i = 0, n = (max - min); i <= n; i++)
 				labels.Add($"{LocString} [{new string('|', i)}{new string('.', n - i)}]");
 			this.min = min;
 			this.max = max;
@@ -84,9 +84,9 @@ public class Menu
 			this.set = set;
 		}
 
-        public override string Label => labels[get() - min];
-        public override void Slide(int dir) => set(Calc.Clamp(get() + dir, min, max));
-    }
+		public override string Label => labels[get() - min];
+		public override void Slide(int dir) => set(Calc.Clamp(get() + dir, min, max));
+	}
 
 	public class SubHeader(Loc.Localized locString) : Item
 	{
@@ -123,9 +123,9 @@ public class Menu
 		}
 
 		public override string Label => $"{LocString} : {getLabels()[getId() - min]}";
-		public override void Slide(int dir) 
+		public override void Slide(int dir)
 		{
-			if(getLabels().Count > 1)
+			if (getLabels().Count > 1)
 			{
 				set(getLabels()[(getMax() + getId() + dir) % getMax()]);
 			}
@@ -136,11 +136,11 @@ public class Menu
 			int id = getLabels().IndexOf(get());
 			return id > -1 ? id : 0;
 		}
-    }
+	}
 
-    public class Option(Loc.Localized locString, Action? action = null) : Item
+	public class Option(Loc.Localized locString, Action? action = null) : Item
 	{
-        public override Loc.Localized? LocString => locString;
+		public override Loc.Localized? LocString => locString;
 
 		public override bool Pressed()
 		{
@@ -152,7 +152,7 @@ public class Menu
 			}
 			return false;
 		}
-    }
+	}
 
 	public class Toggle(Loc.Localized locString, Action action, Func<bool> get) : Item
 	{
@@ -162,7 +162,7 @@ public class Menu
 		public override Loc.Localized? LocString => locString;
 		public override string Label => get() ? labelOn : labelOff;
 
-        public override bool Pressed()
+		public override bool Pressed()
 		{
 			action();
 			if (get())
@@ -178,7 +178,7 @@ public class Menu
 		public override Loc.Localized LocString => locString;
 		public override string Label => $"{LocString} : {options[get()]}";
 
-		public override void Slide(int dir) 
+		public override void Slide(int dir)
 		{
 			Audio.Play(Sfx.ui_select);
 
@@ -231,7 +231,9 @@ public class Menu
 		if (target.submenus.Count <= 0)
 		{
 			return target;
-		} else {
+		}
+		else
+		{
 			return GetDeepestActiveSubmenu(target.submenus.Peek());
 		}
 	}
@@ -241,25 +243,27 @@ public class Menu
 		if (target.submenus.Peek() != null && target.submenus.Peek().submenus.Count <= 0)
 		{
 			return target;
-		} else {
+		}
+		else
+		{
 			return GetSecondDeepestMenu(target.submenus.Peek());
 		}
 	}
-	
+
 	public Vec2 Size
 	{
 		get
 		{
 			var size = Vec2.Zero;
 			var font = Language.Current.SpriteFont;
-	
+
 			if (!string.IsNullOrEmpty(Title))
 			{
 				size.X = font.WidthOf(Title) * TitleScale;
 				size.Y += font.HeightOf(Title) * TitleScale;
 				size.Y += SpacerHeight + Spacing;
 			}
-	
+
 			for (int i = scrolledAmount; i < items.Count && i < scrolledAmount + maxItemsCount; i++)
 			{
 				if (string.IsNullOrEmpty(items[i].Label))
@@ -273,10 +277,10 @@ public class Menu
 				}
 				size.Y += Spacing;
 			}
-	
+
 			if (items.Count > 0)
 				size.Y -= Spacing;
-	
+
 			return size;
 		}
 	}
@@ -285,7 +289,7 @@ public class Menu
 	{
 		RootMenu = rootMenu;
 	}
-	
+
 	public Menu()
 	{
 
@@ -306,8 +310,8 @@ public class Menu
 		items.Add(item);
 		return this;
 	}
-	
-	internal void PushSubMenu(Menu menu) 
+
+	internal void PushSubMenu(Menu menu)
 	{
 		menu.RootMenu = RootMenu ?? this;
 		submenus.Push(menu);
@@ -322,7 +326,7 @@ public class Menu
 
 	internal void PopRootSubMenu()
 	{
-		if(RootMenu != null)
+		if (RootMenu != null)
 		{
 			RootMenu.PopSubMenu();
 		}
@@ -344,7 +348,7 @@ public class Menu
 		}
 	}
 
-	public void CloseSubMenus() 
+	public void CloseSubMenus()
 	{
 		foreach (var submenu in submenus)
 		{
@@ -364,13 +368,13 @@ public class Menu
 				step = 1;
 			if (Controls.Menu.Vertical.Negative.Pressed)
 				step = -1;
-	
+
 			Index += step;
 			while (!items[(items.Count + Index) % items.Count].Selectable)
 				Index += step;
 			Index = (items.Count + Index) % items.Count;
 
-			if(items.Count > maxItemsCount)
+			if (items.Count > maxItemsCount)
 			{
 				if (Index >= scrolledAmount + (maxItemsCount - 3))
 				{
@@ -385,12 +389,12 @@ public class Menu
 
 			if (was != Index)
 				Audio.Play(step < 0 ? UpSound : DownSound);
-	
+
 			if (Controls.Menu.Horizontal.Negative.Pressed)
 				items[Index].Slide(-1);
 			if (Controls.Menu.Horizontal.Positive.Pressed)
 				items[Index].Slide(1);
-	
+
 			if (Controls.Confirm.Pressed && items[Index].Pressed())
 				Controls.Consume();
 		}
@@ -402,13 +406,13 @@ public class Menu
 		{
 			CurrentMenu.HandleInput();
 
-	        if (!IsInMainMenu && Controls.Cancel.ConsumePress()) 
+			if (!IsInMainMenu && Controls.Cancel.ConsumePress())
 			{
 				Audio.Play(Sfx.main_menu_toggle_off);
 				Menu popped = GetSecondDeepestMenu(this).submenus.Pop();
 				popped.Closed();
 			}
-	    }
+		}
 	}
 
 	protected virtual void RenderItems(Batcher batch)
@@ -417,15 +421,15 @@ public class Menu
 		var size = Size;
 		var position = Vec2.Zero;
 		batch.PushMatrix(new Vec2(0, -size.Y / 2));
-	
-		if(!string.IsNullOrEmpty(Title)) 
+
+		if (!string.IsNullOrEmpty(Title))
 		{
 			var text = Title;
 			var justify = new Vec2(0.5f, 0);
 			var color = new Color(8421504);
 
 			batch.PushMatrix(
-				Matrix3x2.CreateScale(TitleScale) * 
+				Matrix3x2.CreateScale(TitleScale) *
 				Matrix3x2.CreateTranslation(position));
 			UI.Text(batch, text, Vec2.Zero, justify, color);
 			batch.PopMatrix();
@@ -433,15 +437,15 @@ public class Menu
 			position.Y += font.HeightOf(Title) * TitleScale;
 			position.Y += SpacerHeight + Spacing;
 		}
-	
-		for (int i = scrolledAmount; i < items.Count && i < scrolledAmount + maxItemsCount; i ++)
+
+		for (int i = scrolledAmount; i < items.Count && i < scrolledAmount + maxItemsCount; i++)
 		{
 			if (string.IsNullOrEmpty(items[i].Label))
 			{
 				position.Y += SpacerHeight;
 				continue;
 			}
-	
+
 			var text = items[i].Label;
 			var justify = new Vec2(0.5f, 0);
 			var color = Index == i && Focused ? (Time.BetweenInterval(0.1f) ? 0x84FF54 : 0xFCFF59) : Color.White;
@@ -449,7 +453,7 @@ public class Menu
 			if (items[i] is SubHeader)
 			{
 				color = new Color(8421504);
-				position.Y += Spacing; 
+				position.Y += Spacing;
 				batch.PushMatrix(
 					Matrix3x2.CreateScale(TitleScale) *
 					Matrix3x2.CreateTranslation(position));
@@ -462,12 +466,12 @@ public class Menu
 				UI.Text(batch, text, position, justify, color);
 				position.Y += font.LineHeight;
 				position.Y += Spacing;
-			} 
-	    }
+			}
+		}
 		batch.PopMatrix();
 
 		// Render a scrolbar if there are too many items to show on screen at once
-		if(showScrollbar && items.Count > maxItemsCount)
+		if (showScrollbar && items.Count > maxItemsCount)
 		{
 			// TODO: This will need to be redone if we implement mouse support and want it to interact with menus.
 			int padding = 4;
@@ -493,14 +497,14 @@ public class Menu
 		batch.PopMatrix();
 
 		// Don't render the description if the menu has no items.
-		if(CurrentMenu.items.Count > 0)
+		if (CurrentMenu.items.Count > 0)
 		{
 			var currentItem = CurrentMenu.items[CurrentMenu.Index];
 
 			var text = currentItem.Description;
 			var justify = new Vec2(0.5f, -8f);
 			var color = Color.LightGray;
-				
+
 			UI.Text(batch, text, position, justify, color);
 		}
 	}

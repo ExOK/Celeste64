@@ -123,13 +123,13 @@ public class Hair : Model
 
 		var angle = Matrix.CreateRotationZ(Forward.XY().Angle());
 
-		for (int i = 0; i < nodes.Count; i ++)
+		for (int i = 0; i < nodes.Count; i++)
 		{
 			var lerp = i / (float)nodes.Count;
 			var xzScale = Calc.Lerp(Calc.Lerp(3.2f, 3, Roundness), 1, lerp);
 			var yScale = Calc.Lerp(Calc.Lerp(4, 3, Roundness), Calc.Lerp(2, 1, Roundness), lerp);
 
-			var transform = 
+			var transform =
 				Matrix.CreateScale(new Vec3(xzScale, yScale, xzScale) * Squish) *
 				angle *
 				Matrix.CreateTranslation(nodes[i]);

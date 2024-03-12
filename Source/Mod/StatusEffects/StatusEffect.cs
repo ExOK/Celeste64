@@ -20,7 +20,7 @@ public abstract class StatusEffect
 
 	public void UpdateDuration(float deltaTime)
 	{
-		if(RemoveAfterDuration)
+		if (RemoveAfterDuration)
 		{
 			Duration -= deltaTime;
 			if (Duration <= 0 && Player != null)

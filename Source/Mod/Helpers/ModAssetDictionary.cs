@@ -1,5 +1,4 @@
-﻿using Sledge.Formats.Map.Objects;
-using System.Collections;
+﻿using System.Collections;
 using System.Diagnostics.CodeAnalysis;
 using Path = System.IO.Path;
 
@@ -62,17 +61,17 @@ public class ModAssetDictionary<V> : IEnumerable<KeyValuePair<string, V>>
 		string? modName = null;
 		string key = stringKey;
 
-		if(splitkey.Length == 2)
+		if (splitkey.Length == 2)
 		{
 			modName = splitkey[0];
 			key = splitkey[1];
 		}
 
-		if(modName != null)
+		if (modName != null)
 		{
 			if (
 				modName == "" &&
-				ModManager.Instance.CurrentLevelMod != null && 
+				ModManager.Instance.CurrentLevelMod != null &&
 				getDictionary(ModManager.Instance.CurrentLevelMod).TryGetValue(key, out V? currentModValue) &&
 				currentModValue != null
 			)
@@ -91,7 +90,7 @@ public class ModAssetDictionary<V> : IEnumerable<KeyValuePair<string, V>>
 			else
 			{
 				GameMod? targetMod = ModManager.Instance.EnabledMods.FirstOrDefault(mod => mod.ModInfo.Id == modName);
-				if (targetMod != null 
+				if (targetMod != null
 					&& getDictionary(targetMod).TryGetValue(key, out V? targetModValue)
 					&& targetModValue != null)
 				{
@@ -206,7 +205,7 @@ public class ModAssetDictionary<V> : IEnumerable<KeyValuePair<string, V>>
 		string[] split = key.Split(":");
 		foreach (GameMod mod in ModManager.Instance.EnabledMods)
 		{
-			if(getDictionary(mod).ContainsKey(key) || (split.Length == 2 && getDictionary(mod).ContainsKey(split[1])))
+			if (getDictionary(mod).ContainsKey(key) || (split.Length == 2 && getDictionary(mod).ContainsKey(split[1])))
 			{
 				return true;
 			}
@@ -249,7 +248,7 @@ public class ModAssetDictionary<V> : IEnumerable<KeyValuePair<string, V>>
 	/// <returns></returns>
 	public bool TryGetValue(string key, [MaybeNullWhen(false)] out V value)
 	{
-		if(ContainsKey(key))
+		if (ContainsKey(key))
 		{
 			value = this[key];
 			return true;

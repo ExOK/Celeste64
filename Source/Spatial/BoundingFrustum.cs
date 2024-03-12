@@ -60,7 +60,7 @@ public struct BoundingFrustum
 	{
 		var min = corners[0];
 		var max = corners[0];
-		for (int i = 1; i < CornerCount; i ++)
+		for (int i = 1; i < CornerCount; i++)
 		{
 			min = Vec3.Min(min, corners[i]);
 			max = Vec3.Max(max, corners[i]);
@@ -81,7 +81,7 @@ public struct BoundingFrustum
 	}
 
 	private void CreatePlanes()
-	{            
+	{
 		planes[0] = new Plane(-matrix.M13, -matrix.M23, -matrix.M33, -matrix.M43);
 		planes[1] = new Plane(matrix.M13 - matrix.M14, matrix.M23 - matrix.M24, matrix.M33 - matrix.M34, matrix.M43 - matrix.M44);
 		planes[2] = new Plane(-matrix.M14 - matrix.M11, -matrix.M24 - matrix.M21, -matrix.M34 - matrix.M31, -matrix.M44 - matrix.M41);
@@ -89,12 +89,12 @@ public struct BoundingFrustum
 		planes[4] = new Plane(matrix.M12 - matrix.M14, matrix.M22 - matrix.M24, matrix.M32 - matrix.M34, matrix.M42 - matrix.M44);
 		planes[5] = new Plane(-matrix.M14 - matrix.M12, -matrix.M24 - matrix.M22, -matrix.M34 - matrix.M32, -matrix.M44 - matrix.M42);
 
-        NormalizePlane(ref planes[0]);
-        NormalizePlane(ref planes[1]);
-        NormalizePlane(ref planes[2]);
-        NormalizePlane(ref planes[3]);
-        NormalizePlane(ref planes[4]);
-        NormalizePlane(ref planes[5]);
+		NormalizePlane(ref planes[0]);
+		NormalizePlane(ref planes[1]);
+		NormalizePlane(ref planes[2]);
+		NormalizePlane(ref planes[3]);
+		NormalizePlane(ref planes[4]);
+		NormalizePlane(ref planes[5]);
 	}
 
 	private static void IntersectionPoint(in Plane a, in Plane b, in Plane c, out Vec3 result)
@@ -105,17 +105,17 @@ public struct BoundingFrustum
 		//                             N1 . ( N2 * N3 )
 		//
 		// Note: N refers to the normal, d refers to the displacement. '.' means dot product. '*' means cross product
-		
+
 		var f = -Vec3.Dot(a.Normal, Vec3.Cross(b.Normal, c.Normal));
 		var v1 = Vec3.Cross(b.Normal, c.Normal) * a.D;
 		var v2 = Vec3.Cross(c.Normal, a.Normal) * b.D;
 		var v3 = Vec3.Cross(a.Normal, b.Normal) * c.D;
-		
+
 		result.X = (v1.X + v2.X + v3.X) / f;
 		result.Y = (v1.Y + v2.Y + v3.Y) / f;
 		result.Z = (v1.Z + v2.Z + v3.Z) / f;
 	}
-	
+
 	private static void NormalizePlane(ref Plane p)
 	{
 		float factor = 1f / p.Normal.Length();

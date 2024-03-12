@@ -8,7 +8,7 @@ public class Sound(Actor following, string sound) : Actor
 
 	public readonly string SoundEvent = sound;
 
-    public void Resume()
+	public void Resume()
 	{
 		if (!Handle)
 		{
@@ -24,8 +24,8 @@ public class Sound(Actor following, string sound) : Actor
 		UpdateOffScreen = false;
 	}
 
-    public override void LateUpdate()
-    {
+	public override void LateUpdate()
+	{
 		if (Following != null)
 		{
 			Handle.Position = Following.Position;
@@ -37,11 +37,11 @@ public class Sound(Actor following, string sound) : Actor
 		{
 			World.Destroy(this);
 		}
-    }
+	}
 
-    public override void Destroyed()
-    {
+	public override void Destroyed()
+	{
 		Stop();
 		Following = null;
-    }
+	}
 }

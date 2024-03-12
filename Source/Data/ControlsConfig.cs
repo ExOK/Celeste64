@@ -18,7 +18,7 @@ public class ControlsConfig
 		public Gamepads? OnlyFor { get; set; }
 		public Gamepads? NotFor { get; set; }
 
-		public Binding() {}
+		public Binding() { }
 		public Binding(Keys input) => Key = input;
 		public Binding(MouseButtons input) => MouseButton = input;
 		public Binding(Buttons input) => Button = input;
@@ -96,7 +96,8 @@ public class ControlsConfig
 
 	public static ControlsConfig Defaults = new()
 	{
-		Actions = new() {
+		Actions = new()
+		{
 			["Jump"] = [
 				new(Keys.C),
 				new(Buttons.South),
@@ -108,8 +109,12 @@ public class ControlsConfig
 				new(Buttons.East),
 			],
 			["Climb"] = [
-				new(Keys.Z),new(Keys.V),new(Keys.LeftShift),new(Keys.RightShift),
-				new(Buttons.LeftShoulder),new(Buttons.RightShoulder),
+				new(Keys.Z),
+				new(Keys.V),
+				new(Keys.LeftShift),
+				new(Keys.RightShift),
+				new(Buttons.LeftShoulder),
+				new(Buttons.RightShoulder),
 				new(Axes.LeftTrigger, 0.4f, false),
 				new(Axes.RightTrigger, 0.4f, false),
 			],
@@ -124,13 +129,18 @@ public class ControlsConfig
 				new(Buttons.South) { OnlyFor = Gamepads.Nintendo },
 			],
 			["Pause"] = [
-				new(Keys.Enter), new(Keys.Escape),
-				new(Buttons.Start), new(Buttons.Select), new(Buttons.Back)
+				new(Keys.Enter),
+				new(Keys.Escape),
+				new(Buttons.Start),
+				new(Buttons.Select),
+				new(Buttons.Back)
 			],
 		},
 
-		Sticks = new() {
-			["Move"] = new() {
+		Sticks = new()
+		{
+			["Move"] = new()
+			{
 				Deadzone = 0.35f,
 				Left = [
 					new(Keys.Left),
@@ -153,7 +163,8 @@ public class ControlsConfig
 					new(Axes.LeftY, 0.0f, false)
 				],
 			},
-			["Camera"] = new() {
+			["Camera"] = new()
+			{
 				Deadzone = 0.35f,
 				Left = [
 					new(Keys.A),
@@ -172,7 +183,8 @@ public class ControlsConfig
 					new(Axes.RightY, 0.0f, false)
 				],
 			},
-			["Menu"] = new() {
+			["Menu"] = new()
+			{
 				Deadzone = 0.35f,
 				Left = [
 					new(Keys.Left),
@@ -202,37 +214,37 @@ public class ControlsConfig
 // All of this is just so the Binding values are on a single line to increase readability
 public class ControlsConfigBindingConverter : JsonConverter<ControlsConfig.Binding>
 {
-    public override ControlsConfig.Binding? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
-    {
+	public override ControlsConfig.Binding? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+	{
 		return JsonSerializer.Deserialize(ref reader, ControlsConfigBindingContext.Default.Binding);
-    }
+	}
 
-    public override void Write(Utf8JsonWriter writer, ControlsConfig.Binding value, JsonSerializerOptions options)
-    {
-		var data = 
-			"\n" + 
-			new string(' ', writer.CurrentDepth * 2) + 
+	public override void Write(Utf8JsonWriter writer, ControlsConfig.Binding value, JsonSerializerOptions options)
+	{
+		var data =
+			"\n" +
+			new string(' ', writer.CurrentDepth * 2) +
 			JsonSerializer.Serialize(value, ControlsConfigBindingContext.Default.Binding);
 		writer.WriteRawValue(data);
-    }
+	}
 }
 
 [JsonSourceGenerationOptions(
 	WriteIndented = false,
-	UseStringEnumConverter = true, 
+	UseStringEnumConverter = true,
 	DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault,
 	AllowTrailingCommas = true
 )]
 [JsonSerializable(typeof(ControlsConfig.Binding))]
-internal partial class ControlsConfigBindingContext : JsonSerializerContext {}
+internal partial class ControlsConfigBindingContext : JsonSerializerContext { }
 
 // normal serialization
 [JsonSourceGenerationOptions(
 	WriteIndented = true,
-	UseStringEnumConverter = true, 
+	UseStringEnumConverter = true,
 	DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault,
 	AllowTrailingCommas = true,
 	Converters = [typeof(ControlsConfigBindingConverter)]
 )]
 [JsonSerializable(typeof(ControlsConfig))]
-internal partial class ControlsConfigContext : JsonSerializerContext {}
+internal partial class ControlsConfigContext : JsonSerializerContext { }

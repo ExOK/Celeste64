@@ -16,7 +16,7 @@ public readonly struct AudioHandle
 	{
 		get
 		{
-			if (instance.isValid() && 
+			if (instance.isValid() &&
 				instance.getDescription(out var desc) == FMOD.RESULT.OK &&
 				desc.getID(out var id) == FMOD.RESULT.OK)
 				return id;
@@ -28,7 +28,7 @@ public readonly struct AudioHandle
 	{
 		get
 		{
-			if (instance.isValid() && 
+			if (instance.isValid() &&
 				instance.getDescription(out var desc) == FMOD.RESULT.OK &&
 				desc.getPath(out var path) == FMOD.RESULT.OK)
 				return path;
@@ -40,7 +40,7 @@ public readonly struct AudioHandle
 	{
 		get
 		{
-			if (instance.isValid() && 
+			if (instance.isValid() &&
 				instance.getDescription(out var desc) == FMOD.RESULT.OK &&
 				desc.isOneshot(out var oneshot) == FMOD.RESULT.OK)
 				return !oneshot;
@@ -54,7 +54,7 @@ public readonly struct AudioHandle
 	{
 		get
 		{
-			if (instance.isValid() && 
+			if (instance.isValid() &&
 				instance.getPlaybackState(out var state) == FMOD.RESULT.OK &&
 				(state == PLAYBACK_STATE.PLAYING || state == PLAYBACK_STATE.STARTING))
 				return true;
@@ -66,7 +66,7 @@ public readonly struct AudioHandle
 	{
 		get
 		{
-			if (instance.isValid() && 
+			if (instance.isValid() &&
 				instance.getPlaybackState(out var state) == FMOD.RESULT.OK &&
 				(state == PLAYBACK_STATE.STOPPING || state == PLAYBACK_STATE.STOPPED))
 				return true;
@@ -104,7 +104,7 @@ public readonly struct AudioHandle
 			}
 		}
 	}
-	
+
 	public float Volume
 	{
 		get
@@ -162,13 +162,13 @@ public readonly struct AudioHandle
 		if (instance.isValid())
 			Audio.Check(instance.start());
 	}
-	
+
 	public void Stop()
 	{
 		StopNoRelease();
 		Release();
 	}
-	
+
 	public void StopNoRelease()
 	{
 		if (instance.isValid())
@@ -176,7 +176,7 @@ public readonly struct AudioHandle
 			Audio.Check(instance.getPlaybackState(out var state));
 
 			if (state == PLAYBACK_STATE.STARTING ||
-				state == PLAYBACK_STATE.PLAYING || 
+				state == PLAYBACK_STATE.PLAYING ||
 				state == PLAYBACK_STATE.SUSTAINING)
 			{
 				Audio.Check(instance.stop(STOP_MODE.ALLOWFADEOUT));
@@ -195,6 +195,6 @@ public readonly struct AudioHandle
 		throw new NotImplementedException();
 	}
 
-	public static implicit operator bool(AudioHandle handle) 
+	public static implicit operator bool(AudioHandle handle)
 		=> handle.instance.isValid();
 }

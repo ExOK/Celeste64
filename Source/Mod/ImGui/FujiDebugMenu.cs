@@ -17,7 +17,8 @@ internal class FujiDebugMenu : ImGuiHandler
 		}
 	}
 
-	public override void Render() {
+	public override void Render()
+	{
 		ImGui.SetNextWindowSizeConstraints(new Vec2(300, 300), new Vec2(float.PositiveInfinity, float.PositiveInfinity));
 		ImGui.Begin("Celeste 64 - Debug Menu");
 
@@ -51,7 +52,7 @@ internal class FujiDebugMenu : ImGuiHandler
 				int i = 0;
 				foreach (var actor in world.All<Checkpoint>())
 				{
-					if(actor is Checkpoint checkpoint)
+					if (actor is Checkpoint checkpoint)
 					{
 						string checkpointName = string.IsNullOrEmpty(checkpoint.CheckpointName) ? $"Checkpoint {i}" : checkpoint.CheckpointName;
 						if (ImGui.MenuItem(checkpointName))
@@ -59,7 +60,7 @@ internal class FujiDebugMenu : ImGuiHandler
 							player.Position = checkpoint.Position;
 						}
 						i++;
-					} 
+					}
 				}
 				ImGui.EndMenu();
 			}
@@ -76,7 +77,7 @@ internal class FujiDebugMenu : ImGuiHandler
 				}
 				if (ImGui.MenuItem("Toggle Debug Fly"))
 				{
-					if(player.StateMachine.State != Player.States.DebugFly)
+					if (player.StateMachine.State != Player.States.DebugFly)
 					{
 						player.StateMachine.State = Player.States.DebugFly;
 					}

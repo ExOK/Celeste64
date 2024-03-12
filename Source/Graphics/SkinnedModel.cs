@@ -10,7 +10,7 @@ public class SkinnedModel : Model
 	public readonly SharpGLTF.Runtime.SceneInstance Instance;
 	public static readonly Matrix BaseTranslation = Matrix.CreateRotationX(MathF.PI / 2);
 
-    public int AnimationIndex;
+	public int AnimationIndex;
 	public float Rate = 1.0f;
 
 	private const int SkinMatrixCount = 32;
@@ -31,16 +31,16 @@ public class SkinnedModel : Model
 	private readonly Dictionary<int, bool> loops = [];
 	private readonly Dictionary<int, float> durations = [];
 	private readonly Dictionary<string, int> indexof = new(StringComparer.OrdinalIgnoreCase);
-    private readonly List<Playing> playing = [];
+	private readonly List<Playing> playing = [];
 
 	public SkinnedModel(SkinnedTemplate template)
 	{
 		Template = template;
 		Instance = Template.Template.CreateInstance();
 		Flags = ModelFlags.Default;
-		
+
 		// by default just use the template's materials
-		for (int i = 0; i < Template.Materials.Length; i ++)
+		for (int i = 0; i < Template.Materials.Length; i++)
 			Materials.Add(Template.Materials[i]);
 
 		foreach (var it in Template.Root.LogicalAnimations)
@@ -59,32 +59,32 @@ public class SkinnedModel : Model
 		{
 			blendDurations[(a, b)] = duration;
 			if (twoWay)
-                blendDurations[(b, a)] = duration;
-        }
-    }
+				blendDurations[(b, a)] = duration;
+		}
+	}
 
-    public void SetLooping(string name, bool looping)
-    {
+	public void SetLooping(string name, bool looping)
+	{
 		var index = IndexOf(name);
 		if (index >= 0)
 			loops[index] = looping;
-    }
+	}
 
 	public int IndexOf(string name)
 	{
 		if (indexof.TryGetValue(name, out var index))
 			return index;
 		return -1;
-    }
+	}
 
-    public void Play(string name, bool restart = false)
-    {
+	public void Play(string name, bool restart = false)
+	{
 		var index = IndexOf(name);
 		if (index >= 0)
 			Play(index, restart);
-    }
+	}
 
-    public void Play(int index, bool restart = false)
+	public void Play(int index, bool restart = false)
 	{
 		var it = RequestPlayingStruct(index);
 
@@ -137,7 +137,7 @@ public class SkinnedModel : Model
 	{
 		Playing it = new() { Index = index, Time = 0, Blend = 0 };
 
-		for (int i = 0; i < playing.Count; i ++)
+		for (int i = 0; i < playing.Count; i++)
 		{
 			if (playing[i].Index == index)
 			{
@@ -175,13 +175,13 @@ public class SkinnedModel : Model
 
 			if (blendDuration > 0)
 				it.Blend = Calc.Approach(it.Blend, (i == playing.Count - 1 ? 1 : 0), Time.Delta / blendDuration);
-			
+
 			playing[i] = it;
 		}
 
 		// set blended weights
 		SetBlendedWeights(GetBlendedWeights());
-    }
+	}
 
 	public StackList8<BlendInput> GetBlendedWeights()
 	{
@@ -203,25 +203,25 @@ public class SkinnedModel : Model
 		}
 
 		return result;
-    }
+	}
 
 	public void SetBlendedWeights(in StackList8<BlendInput> values)
 	{
-        // this ugly thing is here because 'SetAnimationFrame' can't take a Span
+		// this ugly thing is here because 'SetAnimationFrame' can't take a Span
 		// and I don't want to allocate a new array every frame
-        while (blendedInput.Count <= values.Count)
+		while (blendedInput.Count <= values.Count)
 			blendedInput.Add(new BlendInput[blendedInput.Count]);
 
 		var input = blendedInput[values.Count];
 		for (int i = 0; i < values.Count; i++)
 			input[i] = values[i];
 
-        Instance.Armature.SetAnimationFrame(input);
-    }
+		Instance.Armature.SetAnimationFrame(input);
+	}
 
-    public override void Render(ref RenderState state)
+	public override void Render(ref RenderState state)
 	{
-		for (int i = 0; i < Instance.Count; i ++)
+		for (int i = 0; i < Instance.Count; i++)
 		{
 			var drawable = Instance[i];
 			var meshPart = Template.Parts[drawable.Template.LogicalMeshIndex];
@@ -233,20 +233,20 @@ public class SkinnedModel : Model
 					var mat = Materials[primitive.Material];
 
 					state.ApplyToMaterial(mat, statXform.WorldMatrix * BaseTranslation);
-					
-					if (mat.Shader != null && 
+
+					if (mat.Shader != null &&
 						mat.Shader.Has("u_jointMult"))
 						mat.Set("u_jointMult", 0.0f);
 
-                    DrawCommand cmd = new(state.Camera.Target, Template.Mesh, mat)
-                    {
-                        MeshIndexStart = primitive.Index,
-                        MeshIndexCount = primitive.Count,
+					DrawCommand cmd = new(state.Camera.Target, Template.Mesh, mat)
+					{
+						MeshIndexStart = primitive.Index,
+						MeshIndexCount = primitive.Count,
 						DepthMask = state.DepthMask,
-                        DepthCompare = state.DepthCompare,
-                        CullMode = CullMode.Back
-                    };
-                    cmd.Submit();
+						DepthCompare = state.DepthCompare,
+						CullMode = CullMode.Back
+					};
+					cmd.Submit();
 					state.Calls++;
 					state.Triangles += primitive.Count / 3;
 				}
@@ -259,25 +259,25 @@ public class SkinnedModel : Model
 					var mat = Materials[primitive.Material];
 
 					state.ApplyToMaterial(mat, BaseTranslation);
-					
-					if (mat.Shader != null && 
+
+					if (mat.Shader != null &&
 						mat.Shader.Has("u_jointMat"))
 					{
-						for (int j = 0, n = Math.Min(SkinMatrixCount, skinXform.SkinMatrices.Count); j < n; j ++)
+						for (int j = 0, n = Math.Min(SkinMatrixCount, skinXform.SkinMatrices.Count); j < n; j++)
 							transformSkin[j] = skinXform.SkinMatrices[j];
 						mat.Set("u_jointMult", 1.0f);
 						mat.Set("u_jointMat", transformSkin.AsSpan());
 					}
 
-                    DrawCommand cmd = new(state.Camera.Target, Template.Mesh, mat)
-                    {
-                        MeshIndexStart = primitive.Index,
-                        MeshIndexCount = primitive.Count,
+					DrawCommand cmd = new(state.Camera.Target, Template.Mesh, mat)
+					{
+						MeshIndexStart = primitive.Index,
+						MeshIndexCount = primitive.Count,
 						DepthMask = state.DepthMask,
-                        DepthCompare = state.DepthCompare,
-                        CullMode = CullMode.Back
-                    };
-                    cmd.Submit();
+						DepthCompare = state.DepthCompare,
+						CullMode = CullMode.Back
+					};
+					cmd.Submit();
 					state.Calls++;
 					state.Triangles += primitive.Count / 3;
 				}

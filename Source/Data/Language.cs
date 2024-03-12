@@ -1,5 +1,5 @@
-using System.Text.Json.Serialization;
 using Celeste64.Mod;
+using System.Text.Json.Serialization;
 
 namespace Celeste64;
 
@@ -32,7 +32,7 @@ public class Language
 
 	private void TryLogMissing(string key)
 	{
-		if(!KnownMissingKeys.Contains(key)) // we shouldn't spam the logs with keys that are already known
+		if (!KnownMissingKeys.Contains(key)) // we shouldn't spam the logs with keys that are already known
 		{
 			KnownMissingKeys.Add(key);
 
@@ -90,7 +90,7 @@ public class Language
 	/// <returns>The localized string or its key</returns>
 	public string GetModString(GameMod mod, string key)
 	{
-		if(mod.Strings.TryGetValue(Current.ID, out var dictionary) && dictionary.ContainsKey(key))
+		if (mod.Strings.TryGetValue(Current.ID, out var dictionary) && dictionary.ContainsKey(key))
 		{
 			return dictionary[key];
 		}
@@ -137,12 +137,12 @@ public class Language
 
 		// add ascii codepoinets always
 		for (int i = 32; i < 128; i++)
-            codepoints.Add(i);
+			codepoints.Add(i);
 
 		// strings values
 		foreach (var (key, value) in ModStrings)
 		{
-			for (int i = 0; i < value.Length; i ++)
+			for (int i = 0; i < value.Length; i++)
 			{
 				codepoints.Add(char.ConvertToUtf32(value, i));
 				if (char.IsSurrogate(value[i]))
@@ -155,7 +155,7 @@ public class Language
 		{
 			foreach (var line in lines)
 			{
-				for (int i = 0; i < line.Text.Length; i ++)
+				for (int i = 0; i < line.Text.Length; i++)
 				{
 					codepoints.Add(char.ConvertToUtf32(line.Text, i));
 					if (char.IsSurrogate(line.Text[i]))
@@ -232,7 +232,7 @@ public static class Loc
 	public static bool HasLines(string key) => Language.Current.Dialog.ContainsKey(key);
 	public static bool HasKey(string key) => Language.Current.Strings.ContainsKey(key) || Language.Current.ModStrings.ContainsKey(key);
 
-	public class Localized(string key) 
+	public class Localized(string key)
 	{
 		protected string Key => key;
 
@@ -241,7 +241,7 @@ public static class Loc
 		/// If the string cannot be localized, this will return the key with a # in front of it instead
 		/// </summary>
 		/// <returns>The localized string.</returns>
-		public override string ToString() 
+		public override string ToString()
 		{
 			return Str(key);
 		}
@@ -283,9 +283,9 @@ public static class Loc
 	/// This class gives us a way to pass in unlocalized strings where a localized string would normally be required.
 	/// </summary>
 	/// <param name="value">The unlocalized string that will be displayed.</param>
-	public class Unlocalized(string value) : Localized(value) 
+	public class Unlocalized(string value) : Localized(value)
 	{
-		public override string ToString() 
+		public override string ToString()
 		{
 			return Key;
 		}
@@ -305,9 +305,9 @@ public static class Loc
 }
 
 [JsonSourceGenerationOptions(
-	WriteIndented = true, 
+	WriteIndented = true,
 	PreferredObjectCreationHandling = JsonObjectCreationHandling.Populate,
 	AllowTrailingCommas = true
 )]
 [JsonSerializable(typeof(Language))]
-internal partial class LanguageContext : JsonSerializerContext {}
+internal partial class LanguageContext : JsonSerializerContext { }

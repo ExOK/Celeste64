@@ -62,7 +62,7 @@ public readonly struct SoundHandle
 			Audio.Check(channel.set3DAttributes(ref attr.position, ref attr.velocity));
 		}
 	}
-	
+
 	public float Volume
 	{
 		get
@@ -103,7 +103,7 @@ public readonly struct SoundHandle
 		Audio.Check(sound.getLength(out uint length, TIMEUNIT.MS));
 		Audio.Check(channel.setLoopPoints((uint)Math.Clamp(loopStart, 0, length), TIMEUNIT.MS, (uint)Math.Clamp(loopEnd, 0, length - 1), FMOD.TIMEUNIT.MS));
 	}
-	
+
 	public void Stop()
 	{
 		if (IsPlaying)

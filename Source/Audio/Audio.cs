@@ -7,7 +7,7 @@ public static class Audio
 {
 	private class Module : Foster.Framework.Module
 	{
-		public override void Update() 
+		public override void Update()
 			=> Audio.Update();
 
 		public override void Shutdown()
@@ -29,9 +29,9 @@ public static class Audio
 		// live upate allows FMOD UI to interact with sounds in-game in real time
 		var flags = FMOD.INITFLAGS.NORMAL;
 		var studioFlags = INITFLAGS.NORMAL;
-		#if DEBUG
-			studioFlags |= INITFLAGS.LIVEUPDATE;
-		#endif
+#if DEBUG
+		studioFlags |= INITFLAGS.LIVEUPDATE;
+#endif
 
 		Log.Info($"FMOD Bindings: v{FMOD.VERSION.number:x}");
 
@@ -67,11 +67,11 @@ public static class Audio
 			return;
 		isResolverSet = true;
 
-		var path 
-			=  Path.GetDirectoryName(AppContext.BaseDirectory) 
+		var path
+			= Path.GetDirectoryName(AppContext.BaseDirectory)
 			?? Directory.GetCurrentDirectory();
 
-		NativeLibrary.SetDllImportResolver(typeof(FMOD.Studio.System).Assembly, 
+		NativeLibrary.SetDllImportResolver(typeof(FMOD.Studio.System).Assembly,
 			(name, assembly, dllImportSearchPath) =>
 			{
 				name = Path.GetFileNameWithoutExtension(name);
@@ -165,7 +165,7 @@ public static class Audio
 	}
 
 	// Fuji Custom
-	public static SoundHandle? PlaySound(string name, int loopCount = 0, int loopStart=0, int loopEnd = int.MaxValue)
+	public static SoundHandle? PlaySound(string name, int loopCount = 0, int loopStart = 0, int loopEnd = int.MaxValue)
 	{
 		if (Assets.Sounds.TryGetValue(name, out var sound))
 		{
@@ -249,9 +249,9 @@ public static class Audio
 	// Fuji Custom
 	public static void StopSounds()
 	{
-		foreach(var sound in playingSounds)
+		foreach (var sound in playingSounds)
 		{
-			if(sound.IsPlaying)
+			if (sound.IsPlaying)
 				sound.Stop();
 		}
 		playingSounds.Clear();
@@ -298,7 +298,7 @@ public static class Audio
 			Log.Warning($"Failed to create Audio Event Instance: {result}");
 			return new AudioHandle();
 		}
-		
+
 		return new AudioHandle(instance);
 	}
 
@@ -382,9 +382,9 @@ public static class Audio
 	}
 
 	internal static void Check(FMOD.RESULT result)
-	{	
-		if(result != FMOD.RESULT.OK)
-			throw new Exception( $"FMOD Failed: {result} ({FMOD.Error.String(result)})");
+	{
+		if (result != FMOD.RESULT.OK)
+			throw new Exception($"FMOD Failed: {result} ({FMOD.Error.String(result)})");
 	}
 }
 

@@ -88,6 +88,6 @@ public interface ICastPointShadow
 /// </summary>
 public interface IDashTrigger
 {
-    public bool BouncesPlayer { get; }
-    public void HandleDash(Vec3 velocity);
+	public bool BouncesPlayer { get; }
+	public void HandleDash(Vec3 velocity);
 }

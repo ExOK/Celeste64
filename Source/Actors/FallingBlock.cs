@@ -113,9 +113,9 @@ public class FallingBlock : Solid, IUnlockStrawberry
 		World.Destroy(this);
 	}
 
-    public override void CollectModels(List<(Actor Actor, Model Model)> populate)
-    {
+	public override void CollectModels(List<(Actor Actor, Model Model)> populate)
+	{
 		if (State != States.Respawn)
-        	base.CollectModels(populate);
-    }
+			base.CollectModels(populate);
+	}
 }

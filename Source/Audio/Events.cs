@@ -64,7 +64,7 @@ public static class Sfx
 
 	public const string sfx_cassette_enter = "event:/sfx/general/cassette_enter";
 	public const string sfx_cassette_exit = "event:/sfx/general/cassette_exit";
-	
+
 	public const string sfx_dashcrystal = "event:/sfx/prop/dashCrystal";
 	public const string sfx_dashcrystal_return = "event:/sfx/prop/dashCrystal_return";
 	public const string sfx_dashcrystal_double = "event:/sfx/prop/dashCrystal_double";

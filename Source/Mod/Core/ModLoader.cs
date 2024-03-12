@@ -1,7 +1,7 @@
-﻿using System.Reflection;
-using System.Text.Json;
-using MonoMod.Cil;
+﻿using MonoMod.Cil;
 using MonoMod.RuntimeDetour;
+using System.Reflection;
+using System.Text.Json;
 
 namespace Celeste64.Mod;
 
@@ -57,9 +57,9 @@ public static class ModLoader
 			var fs = new FolderModFilesystem(modDir);
 
 			ModInfo? info = LoadModInfo(modName, fs);
-			if(info != null)
+			if (info != null)
 			{
-				if(info.Id == "Celeste64Vanilla" || modInfos.Any(data => data.Item1.Id == info.Id))
+				if (info.Id == "Celeste64Vanilla" || modInfos.Any(data => data.Item1.Id == info.Id))
 				{
 					FailedToLoadMods.Add(modName);
 					Log.Error($"Fuji Error: Could not load mod from directory: {modName}, because a mod with that id already exists");
@@ -116,9 +116,9 @@ public static class ModLoader
 					var version = new Version(versionString);
 
 					if (loaded.FirstOrDefault(loadedInfo => loadedInfo.Id == modID) is { } dep &&
-					    dep.Version.Major == version.Major &&
-					    (dep.Version.Minor > version.Minor ||
-					     dep.Version.Minor == version.Minor && dep.Version.Build >= version.Build))
+						dep.Version.Major == version.Major &&
+						(dep.Version.Minor > version.Minor ||
+						 dep.Version.Minor == version.Minor && dep.Version.Build >= version.Build))
 					{
 						continue;
 					}
@@ -138,7 +138,7 @@ public static class ModLoader
 				{
 					FindAndRegisterHooks(type);
 				}
-				
+
 				modInfos.RemoveAt(i);
 				loaded.Add(info);
 				loadedModInIteration = true;
@@ -251,14 +251,14 @@ public static class ModLoader
 				Filesystem = fs
 			};
 		}
-		
-		if(loadedModSettings != null && loadedModSettingsType != null)
+
+		if (loadedModSettings != null && loadedModSettingsType != null)
 		{
 			loadedMod.SettingsType = loadedModSettingsType;
 			loadedMod.Settings = loadedModSettings;
 			loadedMod.LoadSettings();
 		}
-		
+
 		return loadedMod;
 	}
 
@@ -275,7 +275,7 @@ public static class ModLoader
 			Log.Info($"Registering On-hook for method '{attr.Target}' in type '{attr.Target.DeclaringType}' with hook method '{info}' in type '{info.DeclaringType}'");
 			HookManager.Instance.RegisterHook(new Hook(attr.Target, info));
 		}
-		
+
 		// IL. hooks
 		var ilHookMethods = type.GetMethods(BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic)
 			.Select(m => (m, m.GetCustomAttribute<InternalILHookGenTargetAttribute>()))

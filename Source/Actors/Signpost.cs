@@ -8,7 +8,7 @@ public class Signpost : NPC, IHaveModels
 	public Signpost(string conversation) : base(Assets.Models["sign"])
 	{
 		Conversation = conversation;
-		Model.Transform = 
+		Model.Transform =
 			Matrix.CreateScale(4) *
 			Matrix.CreateTranslation(0, 0, -1.5f);
 		InteractHoverOffset = new Vec3(0, 0, 16);
@@ -16,7 +16,7 @@ public class Signpost : NPC, IHaveModels
 		PushoutRadius = 6;
 	}
 
-    public override void Interact(Player player)
+	public override void Interact(Player player)
 	{
 		World.Add(new Cutscene(Talk));
 	}

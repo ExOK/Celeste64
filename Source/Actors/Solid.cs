@@ -81,12 +81,12 @@ public class Solid : Actor, IHaveModels
 		Transformed();
 	}
 
-    public override void Destroyed()
-    {
+	public override void Destroyed()
+	{
 		World.SolidGrid.Remove(this, new Rect(LastWorldBounds.Min.XY(), LastWorldBounds.Max.XY()));
-    }
+	}
 
-    public override void Update()
+	public override void Update()
 	{
 		if (Velocity.LengthSquared() > .001f)
 			MoveTo(Position + Velocity * Time.Delta);
@@ -109,10 +109,10 @@ public class Solid : Actor, IHaveModels
 		if (Initialized)
 		{
 			var mat = Matrix;
-			for (int i = 0; i < LocalVertices.Length; i ++)
+			for (int i = 0; i < LocalVertices.Length; i++)
 				WorldVerticesLocal[i] = Vec3.Transform(LocalVertices[i], mat);
-			
-			for (int i = 0; i < LocalFaces.Length; i ++)
+
+			for (int i = 0; i < LocalFaces.Length; i++)
 			{
 				WorldFacesLocal[i] = LocalFaces[i];
 				WorldFacesLocal[i].Plane = Plane.Transform(LocalFaces[i].Plane, mat);
@@ -144,7 +144,7 @@ public class Solid : Actor, IHaveModels
 				{
 					if (actor == this || actor is not IRidePlatforms rider)
 						continue;
-					
+
 					if (rider.RidingPlatformCheck(this))
 					{
 						Collidable = false;

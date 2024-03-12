@@ -26,7 +26,7 @@ public class ModSelectionMenu : Menu
 	{
 		Target = new Target(Overworld.CardWidth, Overworld.CardHeight);
 		Game.OnResolutionChanged += () => Target = new Target(Overworld.CardWidth, Overworld.CardHeight);
-		
+
 		RootMenu = rootMenu;
 		postcardImage = new(Assets.Textures["postcards/back-empty"]);
 		strawberryImage = Assets.Subtextures["icon_strawberry"];
@@ -37,14 +37,16 @@ public class ModSelectionMenu : Menu
 		FailedToLoadModsMenu = new Menu(rootMenu);
 		string unloadedMods = string.Join("\n", ModLoader.FailedToLoadMods);
 		FailedToLoadModsMenu.Title = Loc.Str("FujiFailedToLoad") + "\n" + unloadedMods;
-		FailedToLoadModsMenu.Add(new Option("FujiContinueToMods", () => {
+		FailedToLoadModsMenu.Add(new Option("FujiContinueToMods", () =>
+		{
 			HandledFailedMods = true;
-			if(RootMenu != null)
+			if (RootMenu != null)
 			{
 				RootMenu.PopSubMenu();
 			}
 		}));
-		FailedToLoadModsMenu.Add(new Option("FujiOpenLogFile", () => {
+		FailedToLoadModsMenu.Add(new Option("FujiOpenLogFile", () =>
+		{
 			Game.WriteToLog();
 			Game.OpenLog();
 		}));
@@ -128,12 +130,12 @@ public class ModSelectionMenu : Menu
 
 		var offset = new Vec2(postcardImage.Width * -0.19f, postcardImage.Height * 0.5f * -0.15f);
 
-		int index =0;
+		int index = 0;
 		for (int i = 0; i < rows && CurrentPageStart + index < mods.Length; i++)
 		{
 			for (int j = 0; j < columns && CurrentPageStart + index < mods.Length; j++)
 			{
-				if(index == currentRow * columns + currentColumn)
+				if (index == currentRow * columns + currentColumn)
 				{
 					RenderCurrentMod(batch, mods[CurrentPageStart + index], new Vec2(sizeMin * j * 1.1f, sizeMin * i * 1.1f) + offset, size);
 				}
@@ -150,14 +152,14 @@ public class ModSelectionMenu : Menu
 	{
 		if (Controls.Menu.Horizontal.Positive.Pressed)
 		{
-			if(currentColumn == columns-1)
+			if (currentColumn == columns - 1)
 			{
-				if(((currentPage+1) * columns * rows) + (currentRow * columns) < mods.Length)
+				if (((currentPage + 1) * columns * rows) + (currentRow * columns) < mods.Length)
 				{
 					currentPage++;
 					currentColumn = 0;
 				}
-				else if((currentPage + 1) * columns * rows < mods.Length)
+				else if ((currentPage + 1) * columns * rows < mods.Length)
 				{
 					currentPage++;
 					currentColumn = 0;
@@ -185,7 +187,7 @@ public class ModSelectionMenu : Menu
 			}
 		}
 
-		if (Controls.Menu.Vertical.Positive.Pressed && (currentRow + 1) < rows && CurrentPageStart+CurrentIndex+columns < mods.Length)
+		if (Controls.Menu.Vertical.Positive.Pressed && (currentRow + 1) < rows && CurrentPageStart + CurrentIndex + columns < mods.Length)
 			currentRow += 1;
 		if (Controls.Menu.Vertical.Negative.Pressed && (currentRow - 1) >= 0)
 			currentRow -= 1;

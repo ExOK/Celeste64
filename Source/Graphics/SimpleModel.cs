@@ -16,12 +16,12 @@ public class SimpleModel : Model
 	{
 		throw new NotImplementedException();
 	}
-	
+
 	public SimpleModel(List<SkinnedModel> combine)
 	{
 		var vertices = new List<Vertex>();
 		var indices = new List<int>();
-		
+
 		foreach (var it in combine)
 		{
 			for (int i = 0; i < it.Instance.Count; i++)

@@ -20,7 +20,7 @@ public class BreakBlock : Solid, IDashTrigger
 			Model.Flags = ModelFlags.Transparent;
 	}
 
-    public virtual void HandleDash(Vec3 velocity)
+	public virtual void HandleDash(Vec3 velocity)
 	{
 		var size = LocalBounds.Size;
 		var amount = (size.X * size.Y * size.Z) / 200;

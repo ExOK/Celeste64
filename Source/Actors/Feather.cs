@@ -50,9 +50,9 @@ public class Feather : Actor, IHaveModels, IHaveSprites, IPickup, ICastPointShad
 				Audio.Play(Sfx.sfx_feather_reappear, Position);
 			}
 		}
-		
+
 		PointShadowAlpha = TCooldown <= 0 ? 1 : 0;
-		
+
 		Particles.SpawnParticle(
 			Position + new Vec3(6 - World.Rng.Float() * 12, 6 - World.Rng.Float() * 12, 6 - World.Rng.Float() * 12),
 			new Vec3(0, 0, 0), 1);

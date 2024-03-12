@@ -4,7 +4,7 @@ namespace Celeste64;
 public struct Camera()
 {
 	private Target? target = null;
-	private Vec3 position =  Vec3.Zero;
+	private Vec3 position = Vec3.Zero;
 	private Vec3 lookAt = new(0, 1, 0);
 	private float nearPlane = 0.01f;
 	private float farPlane = 100f;

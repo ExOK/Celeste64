@@ -1,7 +1,7 @@
 ﻿
 namespace Celeste64;
 
-public unsafe sealed class StateMachine<TIndex, TEvent> 
+public unsafe sealed class StateMachine<TIndex, TEvent>
 	where TIndex : unmanaged, Enum
 	where TEvent : unmanaged, Enum
 {
@@ -28,12 +28,12 @@ public unsafe sealed class StateMachine<TIndex, TEvent>
 	public StateMachine(int additionalStateCount = 0)
 	{
 		var totalStateCount = DefaultStateCount + additionalStateCount;
-		
+
 		update = new Action[totalStateCount];
 		enter = new Action[totalStateCount];
 		exit = new Action[totalStateCount];
 		routine = new Func<CoEnumerator>[totalStateCount];
-		
+
 		events = new Action?[totalStateCount][];
 		for (var i = 0; i < totalStateCount; i++)
 			events[i] = new Action?[EventCount];

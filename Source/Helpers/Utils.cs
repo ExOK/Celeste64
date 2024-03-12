@@ -55,20 +55,20 @@ public static class Utils
 		}
 	}
 
-    public static Vec3 ClosestPointOnLine(in Vec3 point, in Vec3 v0, in Vec3 v1)
-    {
-        Vec3 vector = v1 - v0;
-        if (vector.X == 0f && vector.Y == 0f)
-            return v0;
+	public static Vec3 ClosestPointOnLine(in Vec3 point, in Vec3 v0, in Vec3 v1)
+	{
+		Vec3 vector = v1 - v0;
+		if (vector.X == 0f && vector.Y == 0f)
+			return v0;
 
-        float num = Vec3.Dot(v1 - v0, vector) / (vector.X * vector.X + vector.Y * vector.Y);
-        if (num < 0f)
-            num = 0f;
-        else if (num > 1f)
-            num = 1f;
+		float num = Vec3.Dot(v1 - v0, vector) / (vector.X * vector.X + vector.Y * vector.Y);
+		if (num < 0f)
+			num = 0f;
+		else if (num > 1f)
+			num = 1f;
 
-        return vector * num + v0;
-    }
+		return vector * num + v0;
+	}
 
 	public static bool RayIntersectsTriangle(Vec3 origin, Vec3 direction, Vec3 v0, Vec3 v1, Vec3 v2, out float t)
 	{
@@ -113,7 +113,7 @@ public static class Utils
 		float dot2p = Vec3.Dot(edge2, toPoint);
 
 		float denominator = dot11 * dot22 - dot12 * dot12;
-		
+
 		u = (dot22 * dot1p - dot12 * dot2p) / denominator;
 		v = (dot11 * dot2p - dot12 * dot1p) / denominator;
 		w = 1 - u - v;
@@ -169,7 +169,7 @@ public static class Utils
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static Vec2 XY(this Vec3 Vec3)
 		=> new(Vec3.X, Vec3.Y);
-	
+
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static Vec3 WithXY(this Vec3 Vec3, in Vec2 vec2)
 		=> new(vec2.X, vec2.Y, Vec3.Z);

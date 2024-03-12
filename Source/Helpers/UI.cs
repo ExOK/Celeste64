@@ -12,7 +12,7 @@ public static class UI
 		for (int x = -1; x <= 1; x++)
 			for (int y = -1; y <= 3; y++)
 				if (x != 0 || y != 0)
-				batch.Text(font, text, at + new Vec2(x, y) * Game.RelativeScale, justify, Color.Black);
+					batch.Text(font, text, at + new Vec2(x, y) * Game.RelativeScale, justify, Color.Black);
 		batch.Text(font, text, at, justify, color);
 	}
 
@@ -20,13 +20,13 @@ public static class UI
 	{
 		Icon(batch, Assets.Subtextures.GetValueOrDefault(icon), label, at, align);
 	}
-	
+
 	public static void Icon(Batcher batch, Subtexture icon, string label, in Vec2 at, float align = 0)
 	{
 		var pos = at;
 		var size = IconSize;
 		var iconAdvance = size * 0.7f;
-		
+
 		if (align > 0)
 		{
 			var font = Language.Current.SpriteFont;
@@ -36,9 +36,9 @@ public static class UI
 		for (int x = -1; x <= 1; x++)
 			for (int y = -1; y <= 1; y++)
 				if (x != 0 || y != 0)
-				batch.ImageFit(icon, new Rect(pos.X + x * Game.RelativeScale, pos.Y + y * Game.RelativeScale, size, size), Vec2.One * 0.50f, Color.Black, false, false);
+					batch.ImageFit(icon, new Rect(pos.X + x * Game.RelativeScale, pos.Y + y * Game.RelativeScale, size, size), Vec2.One * 0.50f, Color.Black, false, false);
 		batch.ImageFit(icon, new Rect(pos.X, pos.Y, size, size), Vec2.One * 0.50f, Color.White, false, false);
-		
+
 		Text(batch, label, new Vec2(pos.X + iconAdvance, pos.Y + size / 2), new Vec2(0, 0.5f), Color.White);
 	}
 
@@ -77,9 +77,9 @@ public static class UI
 		for (int x = -1; x <= 1; x++)
 			for (int y = -1; y <= 1; y++)
 				if (x != 0 || y != 0)
-				batch.ImageFit(icon, new Rect(pos.X + x, pos.Y + y, size, size), Vec2.One * 0.50f, Color.Black, false, false);
+					batch.ImageFit(icon, new Rect(pos.X + x, pos.Y + y, size, size), Vec2.One * 0.50f, Color.Black, false, false);
 		batch.ImageFit(icon, new Rect(pos.X, pos.Y, size, size), Vec2.One * 0.50f, Color.White, false, false);
-		
+
 		Text(batch, label, new Vec2(pos.X + iconAdvance, pos.Y + size / 2), new Vec2(0, 0.5f), Color.White);
 	}
 }

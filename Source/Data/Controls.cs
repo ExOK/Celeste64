@@ -94,7 +94,7 @@ public static class Controls
 	private static string GetPromptLocation(string name)
 	{
 		var gamepad = Input.Controllers[0];
-		var deviceTypeName = 
+		var deviceTypeName =
 			gamepad.Connected ? GetControllerName(gamepad.Gamepad) : "PC";
 
 		if (!prompts.TryGetValue(deviceTypeName, out var list))
@@ -102,7 +102,7 @@ public static class Controls
 
 		if (!list.TryGetValue(name, out var lookup))
 			list[name] = lookup = $"Controls/{deviceTypeName}/{name}";
-					
+
 		return lookup;
 	}
 

@@ -6,24 +6,24 @@ namespace Celeste64.Mod;
 /// </summary>
 public abstract class ImGuiHandler
 {
-    /// <summary>
-    /// Whether this handler will be updated.
-    /// </summary>
-    public virtual bool Active { get; set; } = true;
+	/// <summary>
+	/// Whether this handler will be updated.
+	/// </summary>
+	public virtual bool Active { get; set; } = true;
 
-    /// <summary>
-    /// Whether this handler will be drawn.
-    /// </summary>
-    public virtual bool Visible { get; set; } = true;
+	/// <summary>
+	/// Whether this handler will be drawn.
+	/// </summary>
+	public virtual bool Visible { get; set; } = true;
 
-    /// <summary>
-    /// Called once per frame and should be used to update state.
-    /// </summary>
-    public virtual void Update() { }
-    
-    /// <summary>
-    /// Called an undefined amount per frame and should only be used to draw the current state.
-    /// This should <b>not</b> update any state.
-    /// </summary>
-    public virtual void Render() { }
+	/// <summary>
+	/// Called once per frame and should be used to update state.
+	/// </summary>
+	public virtual void Update() { }
+
+	/// <summary>
+	/// Called an undefined amount per frame and should only be used to draw the current state.
+	/// This should <b>not</b> update any state.
+	/// </summary>
+	public virtual void Render() { }
 }

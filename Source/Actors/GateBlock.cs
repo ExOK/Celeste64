@@ -13,12 +13,12 @@ public class GateBlock(Vec3 end) : Solid
 
 	public readonly Routine Routine = new();
 
-    public override void Added()
-    {
+	public override void Added()
+	{
 		Sfx = World.Add(new Sound(this, Celeste64.Sfx.sfx_touch_switch_gate_open_move));
 		UpdateOffScreen = true;
 		Start = Position;
-    }
+	}
 
 	public override void Update()
 	{

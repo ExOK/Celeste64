@@ -16,7 +16,7 @@ public class AngledWipe : ScreenWipe
 
 	public override void Start()
 	{
-		
+
 	}
 
 	public override void Step(float percent)
@@ -36,7 +36,7 @@ public class AngledWipe : ScreenWipe
 		var left = -AngleSize;
 		var width = bounds.Width + AngleSize;
 
-		for (var i = 0; i < Rows; i ++)
+		for (var i = 0; i < Rows; i++)
 		{
 			var v = i * 6;
 			var x = left;
@@ -45,7 +45,7 @@ public class AngledWipe : ScreenWipe
 
 			// get delay based on Y
 			var across = (i / (float)Rows);
-			var delay = (IsFromBlack ? 1- across : across) * 0.3f;
+			var delay = (IsFromBlack ? 1 - across : across) * 0.3f;
 
 			// get ease after delay
 			if (Percent > delay)
@@ -57,7 +57,7 @@ public class AngledWipe : ScreenWipe
 
 			// resulting width
 			var w = width * e;
-			
+
 			triangles[v + 0] = new Vec2(x, y);
 			triangles[v + 1] = new Vec2(x + w, y);
 			triangles[v + 2] = new Vec2(x, y + rowHeight);

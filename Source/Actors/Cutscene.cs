@@ -29,13 +29,13 @@ public class Cutscene : Actor, IHaveUI
 		UpdateOffScreen = true;
 	}
 
-    public override void Destroyed()
-    {
+	public override void Destroyed()
+	{
 		Audio.StopBus(Sfx.bus_dialog, false);
 		DialogSnapshot.Stop();
-    }
+	}
 
-    public virtual CoEnumerator Say(List<Language.Line> lines)
+	public virtual CoEnumerator Say(List<Language.Line> lines)
 	{
 		foreach (var line in lines)
 		{
@@ -95,7 +95,7 @@ public class Cutscene : Actor, IHaveUI
 			CurrentSaying.Ease -= Time.Delta * 10.0f;
 			yield return Co.SingleFrame;
 		}
-		
+
 		DialogSnapshot.Stop();
 		CurrentSaying = new();
 	}
@@ -149,7 +149,7 @@ public class Cutscene : Actor, IHaveUI
 				if (actor is Player player)
 					player.SetTargetFacing(current);
 				else
-					actor.Facing = current; 
+					actor.Facing = current;
 				yield return Co.SingleFrame;
 			}
 		}

@@ -1,7 +1,7 @@
+using Foster.Framework;
 using System.Diagnostics;
 using System.Globalization;
 using System.Text;
-using Foster.Framework;
 
 namespace Celeste64.Launcher;
 

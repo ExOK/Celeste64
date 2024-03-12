@@ -36,7 +36,7 @@ public class SolidMesh : Solid
 				foreach (var primitive in meshPart)
 				{
 					int v = vertices.Count;
-					for (int n = 0; n < primitive.Count; n ++)
+					for (int n = 0; n < primitive.Count; n++)
 						vertices.Add(Vec3.Transform(meshVertices[meshIndices[primitive.Index + n + 0]].Pos, meshMatrix));
 					for (int n = 0; n < primitive.Count; n += 3)
 					{
@@ -59,22 +59,22 @@ public class SolidMesh : Solid
 		}
 	}
 
-    public override void Added()
-    {
-        base.Added();
+	public override void Added()
+	{
+		base.Added();
 		Position += -Vec3.UnitZ * 1.3f;
 		SpawnPoint = Position;
-    }
+	}
 
-    public override void Update()
-    {
-        base.Update();
-    }
+	public override void Update()
+	{
+		base.Update();
+	}
 
-    public override void CollectModels(List<(Actor Actor, Model Model)> populate)
-    {
+	public override void CollectModels(List<(Actor Actor, Model Model)> populate)
+	{
 		ObjectModel.Transform = Matrix.CreateScale(Scale);
 
 		populate.Add((this, ObjectModel));
-    }
+	}
 }

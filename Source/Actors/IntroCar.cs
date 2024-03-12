@@ -37,7 +37,7 @@ public class IntroCar : Solid
 				foreach (var primitive in meshPart)
 				{
 					int v = vertices.Count;
-					for (int n = 0; n < primitive.Count; n ++)
+					for (int n = 0; n < primitive.Count; n++)
 						vertices.Add(Vec3.Transform(meshVertices[meshIndices[primitive.Index + n + 0]].Pos, meshMatrix));
 					for (int n = 0; n < primitive.Count; n += 3)
 					{
@@ -62,16 +62,16 @@ public class IntroCar : Solid
 		Transparent = true;
 	}
 
-    public override void Added()
-    {
-        base.Added();
+	public override void Added()
+	{
+		base.Added();
 		Position += -Vec3.UnitZ * 1.3f;
 		SpawnPoint = Position;
-    }
+	}
 
-    public override void Update()
-    {
-        base.Update();
+	public override void Update()
+	{
+		base.Update();
 
 		if (!HasRider && HasPlayerRider())
 		{
@@ -87,19 +87,19 @@ public class IntroCar : Solid
 		var target = (HasRider ? SpawnPoint - Vec3.UnitZ * 1.5f : SpawnPoint);
 		var step = Utils.Approach(Position, target, 20 * Time.Delta);
 		MoveTo(step);
-    }
+	}
 
-    public override void CollectModels(List<(Actor Actor, Model Model)> populate)
-    {
+	public override void CollectModels(List<(Actor Actor, Model Model)> populate)
+	{
 		// hack: don't use actor translation for wheels....
-		WheelsModel.Transform = 
-			Matrix.CreateTranslation((SpawnPoint - Position) / Scale) * 
+		WheelsModel.Transform =
+			Matrix.CreateTranslation((SpawnPoint - Position) / Scale) *
 			Matrix.CreateScale(Scale);
-		
-		BodyModel.Transform = 
+
+		BodyModel.Transform =
 			Matrix.CreateScale(Scale);
 
 		populate.Add((this, WheelsModel));
 		populate.Add((this, BodyModel));
-    }
+	}
 }

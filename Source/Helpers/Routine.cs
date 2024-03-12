@@ -7,7 +7,7 @@ public readonly struct Co
 	public static readonly Co Continue = new(Types.Continue);
 	public static readonly Co SingleFrame = new(Types.SingleFrame);
 	public static Co Run(CoEnumerator routine) => new(routine);
-	public static Co Until(Func<bool> condition) => new (condition); 
+	public static Co Until(Func<bool> condition) => new(condition);
 
 	public enum Types
 	{
@@ -22,11 +22,11 @@ public readonly struct Co
 	public readonly float Time;
 	public readonly CoEnumerator? Routine;
 	public readonly Func<bool>? Condition;
-	
+
 	public Co(Types type)
 		=> Type = type;
 
-	public Co(float time) 
+	public Co(float time)
 		: this(Types.Wait) => Time = time;
 
 	public Co(CoEnumerator subroutine)

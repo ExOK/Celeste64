@@ -32,8 +32,8 @@ public class Coin : Actor, IHaveModels, IHaveSprites, IPickup, ICastPointShadow
 		}
 	}
 
-    public virtual void CollectModels(List<(Actor Actor, Model Model)> populate)
-    {
+	public virtual void CollectModels(List<(Actor Actor, Model Model)> populate)
+	{
 		if (Collected)
 		{
 			Model.Flags = ModelFlags.Transparent;
@@ -47,7 +47,7 @@ public class Coin : Actor, IHaveModels, IHaveSprites, IPickup, ICastPointShadow
 			Matrix.CreateRotationZ(World.GeneralTimer * 3.0f);
 
 		populate.Add((this, Model));
-    }
+	}
 
 	public virtual void Pickup(Player player)
 	{
