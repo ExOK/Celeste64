@@ -692,7 +692,7 @@ public class World : Scene
 			}
 		}
 
-	RESULT:
+		RESULT:
 		Pool.Return(solids);
 		return hits;
 	}

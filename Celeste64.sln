@@ -11,7 +11,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Celeste64.HookGen", "Celest
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{1799D95D-E51D-4D0C-9678-4F1A37C54FB2}"
 	ProjectSection(SolutionItems) = preProject
-		editorconfig = editorconfig
+		.editorconfig = .editorconfig
 	EndProjectSection
 EndProject
 Global
