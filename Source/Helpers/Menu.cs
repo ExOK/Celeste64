@@ -77,14 +77,14 @@ public class Menu
 		{
 			LocString = locString;
 			for (int i = 0, n = (max - min); i <= n; i++)
-				labels.Add($"{LocString} [{new string('|', i)}{new string('.', n - i)}]");
+				labels.Add($"[{new string('|', i)}{new string('.', n - i)}]");
 			this.min = min;
 			this.max = max;
 			this.get = get;
 			this.set = set;
 		}
 
-		public override string Label => labels[get() - min];
+		public override string Label => $"{LocString} {labels[get() - min]}";
 		public override void Slide(int dir) => set(Calc.Clamp(get() + dir, min, max));
 	}
 
@@ -156,8 +156,8 @@ public class Menu
 
 	public class Toggle(Loc.Localized locString, Action action, Func<bool> get) : Item
 	{
-		private readonly string labelOff = $"{locString} : {Loc.Str("OptionsToggleOff")}";
-		private readonly string labelOn = $"{locString} :  {Loc.Str("OptionsToggleOn")}";
+		private string labelOff => $"{locString} : {Loc.Str("OptionsToggleOff")}";
+		private string labelOn => $"{locString} :  {Loc.Str("OptionsToggleOn")}";
 
 		public override Loc.Localized? LocString => locString;
 		public override string Label => get() ? labelOn : labelOff;

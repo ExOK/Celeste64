@@ -305,6 +305,11 @@ public class Save
 		SyncSettings();
 	}
 
+	public void SetLanguage(string language)
+	{
+		Language = language;
+	}
+
 	public SkinInfo GetSkin()
 	{
 		return Assets.EnabledSkins.FirstOrDefault(s => s.Name == SkinName) ??
