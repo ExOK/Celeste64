@@ -317,8 +317,8 @@ public abstract class GameMod
 					(int value) =>
 					{
 						object? newValue = propType.GetEnumValues().GetValue(value);
-						OnModSettingChanged(propName, newValue, changingNeedsReload);
 						prop.SetValue(instance, propType.GetEnumValues().GetValue(value));
+						OnModSettingChanged(prop.Name, newValue, changingNeedsReload);
 					}
 				);
 			}
@@ -339,8 +339,8 @@ public abstract class GameMod
 					() => prop.GetValue(instance) as int? ?? 0,
 					(int value) =>
 					{
-						OnModSettingChanged(propName, value, changingNeedsReload);
 						prop.SetValue(instance, value);
+						OnModSettingChanged(prop.Name, value, changingNeedsReload);
 					}
 				);
 			}
@@ -352,7 +352,7 @@ public abstract class GameMod
 					{
 						bool newValue = !(prop.GetValue(instance) as bool? ?? false);
 						prop.SetValue(instance, newValue);
-						OnModSettingChanged(propName, newValue, changingNeedsReload);
+						OnModSettingChanged(prop.Name, newValue, changingNeedsReload);
 					},
 					() => prop.GetValue(instance) as bool? ?? false
 				);
