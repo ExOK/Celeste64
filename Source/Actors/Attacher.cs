@@ -1,5 +1,4 @@
-﻿
-namespace Celeste64;
+﻿namespace Celeste64;
 
 public abstract class Attacher : Actor, IRidePlatforms
 {

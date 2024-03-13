@@ -56,7 +56,7 @@ public static class ModLoader
 			var modName = Path.GetFileNameWithoutExtension(modDir)!; // Todo: read from some metadata file
 			var fs = new FolderModFilesystem(modDir);
 
-			ModInfo? info = LoadModInfo(modName, fs);
+			var info = LoadModInfo(modName, fs);
 			if (info != null)
 			{
 				if (info.Id == "Celeste64Vanilla" || modInfos.Any(data => data.Item1.Id == info.Id))
@@ -78,7 +78,7 @@ public static class ModLoader
 			var modName = Path.GetFileNameWithoutExtension(modZip)!; // Todo: read from some metadata file
 			var fs = new ZipModFilesystem(modZip);
 
-			ModInfo? info = LoadModInfo(modName, fs);
+			var info = LoadModInfo(modName, fs);
 			if (info != null)
 			{
 				if (info.Id == "Celeste64Vanilla" || modInfos.Any(data => data.Item1.Id == info.Id))

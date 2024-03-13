@@ -1,18 +1,12 @@
-
 namespace Celeste64;
 
-public class AngledWipe : ScreenWipe
+public class AngledWipe() : ScreenWipe(Duration)
 {
 	private const int Rows = 12;
 	private const float AngleSize = 64;
 	private const float Duration = 0.50f;
 
-	private readonly Vec2[] triangles;
-
-	public AngledWipe() : base(Duration)
-	{
-		triangles = new Vec2[Rows * 6];
-	}
+	private readonly Vec2[] triangles = new Vec2[Rows * 6];
 
 	public override void Start()
 	{

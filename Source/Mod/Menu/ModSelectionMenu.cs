@@ -11,8 +11,8 @@ public class ModSelectionMenu : Menu
 	private const int rows = 2;
 	private const int columns = 4;
 
-	private int CurrentPageStart { get { return currentPage * columns * rows; } }
-	private int CurrentIndex { get { return currentRow * columns + currentColumn; } }
+	private int CurrentPageStart => currentPage * columns * rows;
+	private int CurrentIndex => currentRow * columns + currentColumn;
 
 	private Subtexture postcardImage;
 	private Subtexture strawberryImage;
@@ -69,8 +69,8 @@ public class ModSelectionMenu : Menu
 	private void RenderMod(Batcher batch, GameMod mod, Vec2 pos, Vec2 size)
 	{
 		float imgScale = 0.7f;
-		Subtexture image = mod.Subtextures.TryGetValue(mod.ModInfo.Icon ?? "", out Subtexture value) ? value : strawberryImage;
-		Vec2 imageSize = new Vec2(size.X / image.Width, size.Y / image.Height);
+		var image = mod.Subtextures.TryGetValue(mod.ModInfo.Icon ?? "", out var value) ? value : strawberryImage;
+		var imageSize = new Vec2(size.X / image.Width, size.Y / image.Height);
 		batch.Rect((pos - (size * imgScale) / 2) * Game.RelativeScale, size * imgScale * Game.RelativeScale, Color.White);
 		batch.Image(image, (pos - (size * imgScale) / 2) * Game.RelativeScale, imageSize * imgScale * Game.RelativeScale, imageSize * imgScale * Game.RelativeScale, 0, mod.Enabled ? Color.White : Color.Gray);
 		batch.PushMatrix(Matrix3x2.CreateScale(.6f) * Matrix3x2.CreateTranslation((pos + new Vec2(0, size.Y * 0.4f)) * Game.RelativeScale));
@@ -81,8 +81,8 @@ public class ModSelectionMenu : Menu
 	private void RenderCurrentMod(Batcher batch, GameMod mod, Vec2 pos, Vec2 size)
 	{
 		float imgScale = 0.8f;
-		Subtexture image = mod.Subtextures.TryGetValue(mod.ModInfo.Icon ?? "", out Subtexture value) ? value : strawberryImage;
-		Vec2 imageSize = new Vector2(size.X / image.Width, size.Y / image.Height);
+		var image = mod.Subtextures.TryGetValue(mod.ModInfo.Icon ?? "", out var value) ? value : strawberryImage;
+		var imageSize = new Vector2(size.X / image.Width, size.Y / image.Height);
 		batch.Rect((pos - (size * imgScale) / 2) * Game.RelativeScale, size * imgScale * Game.RelativeScale, Color.LightGray);
 		batch.Image(image, (pos - (size * imgScale) / 2) * Game.RelativeScale, imageSize * imgScale * Game.RelativeScale, imageSize * imgScale * Game.RelativeScale, 0, mod.Enabled ? Color.White : Color.Gray);
 		batch.PushMatrix(Matrix3x2.CreateScale(.7f) * Matrix3x2.CreateTranslation((pos + new Vec2(0, size.Y * 0.4f)) * Game.RelativeScale));

@@ -87,17 +87,12 @@ public static class Assets
 	public static readonly ModAssetDictionary<FMOD.Sound> Music = new(gameMod => gameMod.Music);
 	public static readonly Dictionary<string, Language> Languages = new(StringComparer.OrdinalIgnoreCase);
 
-	public static List<SkinInfo> EnabledSkins
-	{
-		get
-		{
-			return ModManager.Instance.EnabledMods
-				.Where(mod => mod.Loaded)
-				.SelectMany(mod => mod.Skins)
-				.Where(skin => skin.IsUnlocked())
-				.ToList();
-		}
-	}
+	public static List<SkinInfo> EnabledSkins =>
+		ModManager.Instance.EnabledMods
+			.Where(mod => mod.Loaded)
+			.SelectMany(mod => mod.Skins)
+			.Where(skin => skin.IsUnlocked())
+			.ToList();
 
 	public static List<LevelInfo> Levels { get; private set; } = [];
 
@@ -219,7 +214,7 @@ public static class Assets
 			tasks.Add(Task.Run(() =>
 			{
 				if (mod.Filesystem != null && mod.Filesystem.TryOpenFile(file, stream => Audio.LoadWavFromStream(stream),
-						out FMOD.Sound? sound))
+						out var sound))
 				{
 					if (sound != null)
 					{
@@ -234,7 +229,7 @@ public static class Assets
 			tasks.Add(Task.Run(() =>
 			{
 				if (mod.Filesystem != null && mod.Filesystem.TryOpenFile(file, stream => Audio.LoadWavFromStream(stream),
-						out FMOD.Sound? song))
+						out var song))
 				{
 					if (song != null)
 					{
@@ -289,7 +284,7 @@ public static class Assets
 
 		// pack sprites into single texture
 		{
-			Packer packer = new Packer
+			var packer = new Packer
 			{
 				Trim = false,
 				CombineDuplicates = false,
@@ -314,7 +309,7 @@ public static class Assets
 			foreach (var it in result.Entries)
 			{
 				string[] nameSplit = it.Name.Split(':');
-				GameMod? mod = ModManager.Instance.Mods.FirstOrDefault(mod => mod.ModInfo.Id == nameSplit[0]) ?? ModManager.Instance.VanillaGameMod;
+				var mod = ModManager.Instance.Mods.FirstOrDefault(mod => mod.ModInfo.Id == nameSplit[0]) ?? ModManager.Instance.VanillaGameMod;
 				if (mod != null)
 				{
 					Subtextures.Add(nameSplit[1], new Subtexture(pages[it.Page], it.Source, it.Frame), mod);

@@ -2,7 +2,7 @@ global using CoEnumerator = System.Collections.Generic.IEnumerator<Celeste64.Co>
 
 namespace Celeste64;
 
-public readonly struct Co
+public readonly struct Co(Co.Types type)
 {
 	public static readonly Co Continue = new(Types.Continue);
 	public static readonly Co SingleFrame = new(Types.SingleFrame);
@@ -18,13 +18,10 @@ public readonly struct Co
 		Until
 	}
 
-	public readonly Types Type;
+	public readonly Types Type = type;
 	public readonly float Time;
 	public readonly CoEnumerator? Routine;
 	public readonly Func<bool>? Condition;
-
-	public Co(Types type)
-		=> Type = type;
 
 	public Co(float time)
 		: this(Types.Wait) => Time = time;
@@ -102,7 +99,7 @@ public class Routine
 
 	public void Update()
 	{
-		RunAgain:
+	RunAgain:
 
 		if (waiting > 0)
 		{

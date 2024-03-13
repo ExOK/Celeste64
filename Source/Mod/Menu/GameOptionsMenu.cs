@@ -8,9 +8,8 @@ public class GameOptionsMenu : Menu
 	{
 		RootMenu = rootMenu;
 		// Setup fuji options menu
-		FujiOptionsMenu = new Menu();
+		FujiOptionsMenu = new Menu { Title = Loc.Str("FujiOptions") };
 
-		FujiOptionsMenu.Title = Loc.Str("FujiOptions");
 		FujiOptionsMenu.Add(new Toggle("FujiEnableDebugMenu", Save.Instance.ToggleEnableDebugMenu, () => Save.Instance.EnableDebugMenu));
 		FujiOptionsMenu.Add(new Toggle("FujiWriteLog", Save.Instance.ToggleWriteLog, () => Save.Instance.WriteLog));
 		FujiOptionsMenu.Add(new Option("Exit", () =>

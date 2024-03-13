@@ -1,20 +1,12 @@
-
 namespace Celeste64;
 
-public abstract class ScreenWipe
+public abstract class ScreenWipe(float duration)
 {
 	public bool IsFromBlack;
-	public bool IsFinished { get; private set; }
+	public bool IsFinished { get; private set; } = false;
 	public float Percent => percent;
 
 	private float percent = 0;
-	private float duration;
-
-	public ScreenWipe(float duration)
-	{
-		IsFinished = false;
-		this.duration = duration;
-	}
 
 	public void Restart(bool isFromBlack)
 	{

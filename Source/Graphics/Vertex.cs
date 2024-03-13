@@ -3,7 +3,6 @@ using System.Runtime.InteropServices;
 
 namespace Celeste64;
 
-
 [StructLayout(LayoutKind.Sequential, Pack = 1)]
 public readonly struct SpriteVertex(Vec3 position, Vec2 texcoord, Color color) : IVertex
 {

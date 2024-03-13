@@ -1,4 +1,3 @@
-
 namespace Celeste64;
 
 public class Menu
@@ -191,7 +190,9 @@ public class Menu
 		}
 	}
 
-	public class MultiSelect<T> : MultiSelect where T : struct, Enum
+	public class MultiSelect<T>(Loc.Localized locString, Action<T> set, Func<T> get)
+		: MultiSelect(locString, GetEnumOptions(), () => (int)(object)get(), i => set((T)(object)i))
+		where T : struct, Enum
 	{
 		private static List<string> GetEnumOptions()
 		{
@@ -199,12 +200,6 @@ public class Menu
 			foreach (var it in Enum.GetNames<T>())
 				list.Add(it);
 			return list;
-		}
-
-		public MultiSelect(Loc.Localized locString, Action<T> set, Func<T> get)
-			: base(locString, GetEnumOptions(), () => (int)(object)get(), (i) => set((T)(object)i))
-		{
-
 		}
 	}
 
@@ -320,7 +315,7 @@ public class Menu
 
 	internal void PopSubMenu()
 	{
-		Menu popped = submenus.Pop();
+		var popped = submenus.Pop();
 		popped.Closed();
 	}
 
@@ -409,7 +404,7 @@ public class Menu
 			if (!IsInMainMenu && Controls.Cancel.ConsumePress())
 			{
 				Audio.Play(Sfx.main_menu_toggle_off);
-				Menu popped = GetSecondDeepestMenu(this).submenus.Pop();
+				var popped = GetSecondDeepestMenu(this).submenus.Pop();
 				popped.Closed();
 			}
 		}

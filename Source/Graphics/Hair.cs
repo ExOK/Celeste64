@@ -86,7 +86,7 @@ public class Hair : Model
 			//nodes[i] += (target - nodes[i]) * (1 - MathF.Pow(.0000001f, Time.Delta));
 
 			// don't let the hair cross the forward boundary (intersects face)
-			var dist = Utils.DistanceToPlane(nodes[i], plane);
+			var dist = nodes[i].DistanceToPlane(plane);
 			if (dist < 0)
 				nodes[i] -= plane.Normal * dist;
 

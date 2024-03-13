@@ -1,4 +1,3 @@
-
 namespace Celeste64;
 
 public class IntroCar : Solid
@@ -25,9 +24,8 @@ public class IntroCar : Solid
 			var meshIndices = collider.Template.Indices;
 			var mat = SkinnedModel.BaseTranslation * collider.Transform * Matrix.CreateScale(scale);
 
-			for (int i = 0; i < collider.Instance.Count; i++)
+			foreach (var drawable in collider.Instance)
 			{
-				var drawable = collider.Instance[i];
 				if (drawable.Transform is not SharpGLTF.Transforms.RigidTransform statXform)
 					continue;
 

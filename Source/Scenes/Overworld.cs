@@ -39,9 +39,11 @@ public class Overworld : Scene
 				Image = new(Assets.Textures[level.Preview]);
 			}
 
-			Menu = new();
-			Menu.UpSound = Sfx.main_menu_roll_up;
-			Menu.DownSound = Sfx.main_menu_roll_down;
+			Menu = new()
+			{
+				UpSound = Sfx.main_menu_roll_up,
+				DownSound = Sfx.main_menu_roll_down,
+			};
 
 			if (Save.Instance.TryGetRecord(Level.ID) is { } record)
 			{
@@ -161,8 +163,8 @@ public class Overworld : Scene
 
 		foreach (var level in Assets.Levels)
 		{
-			GameMod? mod = ModManager.Instance.Mods.FirstOrDefault(mod => mod.Levels.Contains(level));
-			if (mod != null && mod.Enabled)
+			var mod = ModManager.Instance.Mods.FirstOrDefault(mod => mod.Levels.Contains(level));
+			if (mod is { Enabled: true })
 			{
 				entries.Add(new(level, mod));
 			}
@@ -186,7 +188,7 @@ public class Overworld : Scene
 
 		if (startOnLastSelected)
 		{
-			var exitedFrom = entries.FindIndex((e) => e.Level.ID == Save.Instance.LevelID);
+			var exitedFrom = entries.FindIndex(e => e.Level.ID == Save.Instance.LevelID);
 			if (exitedFrom >= 0)
 			{
 				index = exitedFrom;
@@ -272,11 +274,10 @@ public class Overworld : Scene
 
 				if (Paused)
 				{
-					pauseMenu = new();
-					pauseMenu.Title = Loc.Str("PauseOptions");
+					pauseMenu = new() { Title = Loc.Str("PauseOptions") };
 
 					Menu optionsMenu = new GameOptionsMenu(pauseMenu);
-					ModSelectionMenu modMenu = new ModSelectionMenu(pauseMenu)
+					var modMenu = new ModSelectionMenu(pauseMenu)
 					{
 						Title = "Mods Menu"
 					};
@@ -354,7 +355,7 @@ public class Overworld : Scene
 		}
 		else if (Paused)
 		{
-			if (Controls.Pause.ConsumePress() || (pauseMenu != null && pauseMenu.IsInMainMenu && Controls.Cancel.ConsumePress()))
+			if (Controls.Pause.ConsumePress() || (pauseMenu is { IsInMainMenu: true } && Controls.Cancel.ConsumePress()))
 			{
 				if (pauseMenu != null)
 				{

@@ -52,9 +52,9 @@ public static class Audio
 
 		// Initialize FMOD
 		Check(system.initialize(1024, studioFlags, flags, IntPtr.Zero));
-		Check(core.createChannelGroup("SoundEffects", out FMOD.ChannelGroup soundGroup));
+		Check(core.createChannelGroup("SoundEffects", out var soundGroup));
 		SoundEffectGroup = soundGroup;
-		Check(core.createChannelGroup("Music", out FMOD.ChannelGroup musicGroup));
+		Check(core.createChannelGroup("Music", out var musicGroup));
 		MusicGroup = musicGroup;
 		App.Register<Module>();
 	}
@@ -160,7 +160,7 @@ public static class Audio
 		var exinfo = new FMOD.CREATESOUNDEXINFO();
 		exinfo.cbsize = Marshal.SizeOf(exinfo);
 		exinfo.length = (uint)stream.Length;
-		Check(core.createSound(stream.ReadAllToByteArray(), FMOD.MODE.OPENMEMORY, ref exinfo, out FMOD.Sound sound));
+		Check(core.createSound(stream.ReadAllToByteArray(), FMOD.MODE.OPENMEMORY, ref exinfo, out var sound));
 		return sound;
 	}
 
@@ -200,7 +200,7 @@ public static class Audio
 	private static SoundHandle? PlaySoundInChannel(FMOD.Sound sound, FMOD.ChannelGroup group, int loopCount = 0, int loopStart = 0, int loopEnd = 1000)
 	{
 		Check(system.getCoreSystem(out var core));
-		Check(core.playSound(sound, group, false, out FMOD.Channel channel));
+		Check(core.playSound(sound, group, false, out var channel));
 		if (loopCount != 0)
 		{
 			Check(channel.setMode(FMOD.MODE.LOOP_NORMAL));

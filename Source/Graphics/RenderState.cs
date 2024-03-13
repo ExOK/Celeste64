@@ -1,4 +1,3 @@
-
 namespace Celeste64;
 
 public struct RenderState

@@ -46,7 +46,7 @@ public sealed class ZipModFilesystem : IModFilesystem
 		var zip = OpenZipIfNeeded();
 		var modFolder = $"{Path.GetFileNameWithoutExtension(zipFilePath)}/";
 
-		foreach (ZipArchiveEntry entry in zip.Entries)
+		foreach (var entry in zip.Entries)
 		{
 			if (entry.FullName.StartsWith(modFolder, StringComparison.OrdinalIgnoreCase))
 			{
@@ -117,7 +117,7 @@ public sealed class ZipModFilesystem : IModFilesystem
 				// If the stream cannot seek, we need to copy it to a memory stream so consumers can use position and lenght.
 				// This is mostly needed to support how Foster uses stream.Position and stream.Length in the Image constructor
 				// and stream.Position and stream.Length are not supported by the DeflateStreams that OpenFile can return.
-				MemoryStream resultStream = new MemoryStream();
+				var resultStream = new MemoryStream();
 				stream.CopyTo(resultStream);
 				stream.Dispose();
 				resultStream.Position = 0;

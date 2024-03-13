@@ -1,4 +1,3 @@
-
 namespace Celeste64;
 
 public class Strawberry : Actor, IHaveModels, IHaveSprites, IPickup, ICastPointShadow
@@ -34,8 +33,7 @@ public class Strawberry : Actor, IHaveModels, IHaveSprites, IPickup, ICastPointS
 		UnlockConditionGroup = unlockCondition ?? string.Empty;
 		PlayUnlockSound = unlockSound;
 		BubbleTo = bubbleTo;
-		Model = new(Assets.Models["strawberry"]);
-		Model.Transform = Matrix.CreateScale(3);
+		Model = new(Assets.Models["strawberry"]) { Transform = Matrix.CreateScale(3) };
 		Model.Materials[0].Effects = 0;
 		LocalBounds = new BoundingBox(Vec3.Zero, 10);
 		Particles = new(32, new ParticleTheme()

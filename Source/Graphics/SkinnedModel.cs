@@ -40,8 +40,8 @@ public class SkinnedModel : Model
 		Flags = ModelFlags.Default;
 
 		// by default just use the template's materials
-		for (int i = 0; i < Template.Materials.Length; i++)
-			Materials.Add(Template.Materials[i]);
+		foreach (var t in Template.Materials)
+			Materials.Add(t);
 
 		foreach (var it in Template.Root.LogicalAnimations)
 		{
@@ -221,9 +221,8 @@ public class SkinnedModel : Model
 
 	public override void Render(ref RenderState state)
 	{
-		for (int i = 0; i < Instance.Count; i++)
+		foreach (var drawable in Instance)
 		{
-			var drawable = Instance[i];
 			var meshPart = Template.Parts[drawable.Template.LogicalMeshIndex];
 
 			if (drawable.Transform is RigidTransform statXform)

@@ -1,4 +1,3 @@
-
 namespace Celeste64;
 
 public class Solid : Actor, IHaveModels
@@ -55,13 +54,7 @@ public class Solid : Actor, IHaveModels
 		}
 	}
 
-	public virtual bool IsClimbable
-	{
-		get
-		{
-			return Climbable;
-		}
-	}
+	public virtual bool IsClimbable => Climbable;
 
 	public Vec3 Velocity = Vec3.Zero;
 

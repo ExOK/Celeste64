@@ -104,7 +104,7 @@ internal sealed class ModAssemblyLoadContext : AssemblyLoadContext
 			}
 
 			// Unload all assemblies loaded in the context
-			foreach (ModuleDefinition module in _assemblyModules.Values)
+			foreach (var module in _assemblyModules.Values)
 				module.Dispose();
 			_assemblyModules.Clear();
 

@@ -1,4 +1,3 @@
-
 namespace Celeste64;
 
 public class Cassette : Actor, IHaveModels, IPickup, IHaveSprites, ICastPointShadow
@@ -16,8 +15,7 @@ public class Cassette : Actor, IHaveModels, IPickup, IHaveSprites, ICastPointSha
 		Map = map;
 		LocalBounds = new BoundingBox(Vec3.Zero, 3);
 		Model = new(Assets.Models["tape_1"]);
-		CollectedModel = new(Assets.Models["tape_2"]);
-		CollectedModel.Flags = ModelFlags.Transparent;
+		CollectedModel = new(Assets.Models["tape_2"]) { Flags = ModelFlags.Transparent };
 		foreach (var mat in CollectedModel.Materials)
 			mat.Color = Color.White * 0.50f;
 	}

@@ -1,5 +1,4 @@
-﻿
-namespace Celeste64;
+﻿namespace Celeste64;
 
 public class Coin : Actor, IHaveModels, IHaveSprites, IPickup, ICastPointShadow
 {
@@ -13,8 +12,7 @@ public class Coin : Actor, IHaveModels, IHaveSprites, IPickup, ICastPointShadow
 
 	public Coin()
 	{
-		Model = new SkinnedModel(Assets.Models["coin"]);
-		Model.Flags = ModelFlags.Default;
+		Model = new SkinnedModel(Assets.Models["coin"]) { Flags = ModelFlags.Default };
 		Model.MakeMaterialsUnique();
 		foreach (var mat in Model.Materials)
 			mat.Color = InactiveColor;

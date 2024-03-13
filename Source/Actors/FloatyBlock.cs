@@ -1,5 +1,4 @@
-﻿
-namespace Celeste64;
+﻿namespace Celeste64;
 
 public sealed class FloatyBlock : Solid
 {
@@ -29,7 +28,7 @@ public sealed class FloatyBlock : Solid
 		}
 		else if (HasPlayerRiderLocal && !HasPlayerRider())
 		{
-			if (World.Get<Player>() is Player player)
+			if (World.Get<Player>() is { } player)
 				Velocity -= player.Velocity * .8f;
 			HasPlayerRiderLocal = false;
 		}
@@ -37,12 +36,12 @@ public sealed class FloatyBlock : Solid
 		// friction
 		Friction = 200;
 		FrictionThreshold = 1;
-		if (Friction > 0 && Velocity.LengthSquared() > Calc.Squared(FrictionThreshold))
+		if (Friction > 0 && Velocity.LengthSquared() > FrictionThreshold.Squared())
 			Velocity = Utils.Approach(Velocity, Velocity.Normalized() * FrictionThreshold, Friction * Time.Delta);
 
 		// spring!
-		Vec3 diff = Position - (Origin + Offset);
-		Vec3 normal = diff.Normalized();
+		var diff = Position - (Origin + Offset);
+		var normal = diff.Normalized();
 		float vel = Vec3.Dot(Velocity, normal);
 		float old_vel = vel;
 		vel = SpringPhysics.Calculate(diff.Length(), vel, 0, 0, Frequency, Halflife);

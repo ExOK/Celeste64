@@ -9,26 +9,18 @@ public abstract class GameModSettings
 /// The dialog key / name for the settings option.
 /// </summary>
 [AttributeUsage(AttributeTargets.Class | AttributeTargets.Property)]
-public class SettingNameAttribute : Attribute
+public class SettingNameAttribute(string name) : Attribute
 {
-	public string Name;
-	public SettingNameAttribute(string name)
-	{
-		Name = name;
-	}
+	public string Name = name;
 }
 
 /// <summary>
 /// Add a description shown when the setting is selected
 /// </summary>
 [AttributeUsage(AttributeTargets.Property)]
-public class SettingDescriptionAttribute : Attribute
+public class SettingDescriptionAttribute(string description) : Attribute
 {
-	public string Description;
-	public SettingDescriptionAttribute(string description)
-	{
-		Description = description;
-	}
+	public string Description = description;
 }
 
 /// <summary>
@@ -36,15 +28,10 @@ public class SettingDescriptionAttribute : Attribute
 /// The Max must be greater than the Min for this to work
 /// </summary>
 [AttributeUsage(AttributeTargets.Property)]
-public class SettingRangeAttribute : Attribute
+public class SettingRangeAttribute(int min, int max) : Attribute
 {
-	public int Min;
-	public int Max;
-	public SettingRangeAttribute(int min, int max)
-	{
-		Min = min;
-		Max = max;
-	}
+	public int Min = min;
+	public int Max = max;
 }
 
 /// <summary>
@@ -84,14 +71,9 @@ public class SettingSpacerAttribute : Attribute
 /// Insert a subheader before the setting.
 /// </summary>
 [AttributeUsage(AttributeTargets.Property)]
-public class SettingSubHeaderAttribute : Attribute
+public class SettingSubHeaderAttribute(string subheader) : Attribute
 {
-	public string SubHeader;
-
-	public SettingSubHeaderAttribute(string subheader)
-	{
-		SubHeader = subheader;
-	}
+	public string SubHeader = subheader;
 }
 
 /// <summary>

@@ -1,4 +1,3 @@
-
 namespace Celeste64;
 
 public class SolidMesh : Solid
@@ -11,9 +10,11 @@ public class SolidMesh : Solid
 	{
 		Scale = scale * 0.2f;
 
-		ObjectModel = new(model);
-		ObjectModel.Flags = ModelFlags.Terrain;
-		ObjectModel.Transform = Matrix.CreateScale(0.2f);
+		ObjectModel = new(model)
+		{
+			Flags = ModelFlags.Terrain,
+			Transform = Matrix.CreateScale(0.2f),
+		};
 
 		// create solids out of mesh ....?
 		{
@@ -24,9 +25,8 @@ public class SolidMesh : Solid
 			var meshIndices = collider.Template.Indices;
 			var mat = SkinnedModel.BaseTranslation * collider.Transform * Matrix.CreateScale(Scale);
 
-			for (int i = 0; i < collider.Instance.Count; i++)
+			foreach (var drawable in collider.Instance)
 			{
-				var drawable = collider.Instance[i];
 				if (drawable.Transform is not SharpGLTF.Transforms.RigidTransform statXform)
 					continue;
 

@@ -6,7 +6,7 @@ namespace Celeste64.Mod;
 public abstract class GameMod
 {
 	#region Internally Used Data
-	internal Save.ModRecord ModSaveData { get { return Save.Instance.GetOrMakeMod(ModInfo.Id); } }
+	internal Save.ModRecord ModSaveData => Save.Instance.GetOrMakeMod(ModInfo.Id);
 
 	// They get set as part of the Mod Loading step, not the constructor.
 	internal IModFilesystem Filesystem { get; set; } = null!;
@@ -52,13 +52,13 @@ public abstract class GameMod
 
 	// This is here to give mods easier access to these objects, so they don't have to get them themselves
 	// Warning, these may be null if they haven't been initialized yet, so you should always do a null check before using them.
-	public Game? Game { get { return Game.Instance; } }
-	public World? World { get { return Game != null ? Game.World : null; } }
-	public Map? Map { get { return World != null ? World.Map : null; } }
-	public Player? Player { get { return World != null ? World.Get<Player>() : null; } }
+	public Game? Game => Game.Instance;
+	public World? World => Game?.World;
+	public Map? Map => World?.Map;
+	public Player? Player => World?.Get<Player>();
 
 	// Common Metadata about this mod.
-	public bool Enabled { get { return this is VanillaGameMod || ModSaveData.Enabled; } }
+	public bool Enabled => this is VanillaGameMod || ModSaveData.Enabled;
 	public virtual Type? SettingsType { get; set; }
 	public virtual GameModSettings? Settings { get; set; }
 
@@ -147,8 +147,8 @@ public abstract class GameMod
 		if (type == null || instance == null)
 			return false;
 
-		PropertyInfo[] props = type.GetProperties();
-		foreach (PropertyInfo prop in props)
+		var props = type.GetProperties();
+		foreach (var prop in props)
 		{
 			object? propValue = prop.GetValue(instance);
 			if (propValue is int propInt)
@@ -206,8 +206,8 @@ public abstract class GameMod
 		if (type == null || instance == null)
 			return false;
 
-		PropertyInfo[] props = type.GetProperties();
-		foreach (PropertyInfo prop in props)
+		var props = type.GetProperties();
+		foreach (var prop in props)
 		{
 			object? propValue = prop.GetValue(instance);
 			if (propValue is int propInt)
@@ -265,10 +265,10 @@ public abstract class GameMod
 		if (type == null || instance == null)
 			return;
 
-		PropertyInfo[] props = type.GetProperties();
-		foreach (PropertyInfo prop in props)
+		var props = type.GetProperties();
+		foreach (var prop in props)
 		{
-			Type propType = prop.PropertyType;
+			var propType = prop.PropertyType;
 
 			if (prop.GetCustomAttribute<SettingIgnoreAttribute>() != null)
 				continue;
@@ -326,7 +326,7 @@ public abstract class GameMod
 			{
 				int min = 0;
 				int max = 10;
-				SettingRangeAttribute? settingRangeAttribute = prop.GetCustomAttribute<SettingRangeAttribute>();
+				var settingRangeAttribute = prop.GetCustomAttribute<SettingRangeAttribute>();
 				if (settingRangeAttribute != null && settingRangeAttribute.Max > settingRangeAttribute.Min)
 				{
 					min = settingRangeAttribute.Min;
@@ -362,8 +362,7 @@ public abstract class GameMod
 				object? value = prop.GetValue(instance);
 				if (value != null)
 				{
-					Menu subMenu = new Menu(menu.RootMenu);
-					subMenu.Title = propName;
+					var subMenu = new Menu(menu.RootMenu) { Title = propName };
 					AddMenuSettingsForType(subMenu, prop.PropertyType, value);
 					subMenu.Add(new Menu.Option((Loc.Unlocalized)"Back", () =>
 						{
@@ -416,9 +415,9 @@ public abstract class GameMod
 	/// </summary>
 	public List<GameMod> GetDependents()
 	{
-		List<GameMod> depMods = new List<GameMod>();
+		var depMods = new List<GameMod>();
 
-		foreach (GameMod mod in ModManager.Instance.Mods)
+		foreach (var mod in ModManager.Instance.Mods)
 		{
 			if (mod.ModInfo.Dependencies.ContainsKey(ModInfo.Id) && mod.Enabled)
 			{
@@ -440,7 +439,7 @@ public abstract class GameMod
 	{
 		bool shouldEvac = false;
 
-		foreach (GameMod dependent in this.GetDependents())
+		foreach (var dependent in this.GetDependents())
 		{
 			if (!simulate)
 			{

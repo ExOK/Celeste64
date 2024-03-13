@@ -7,12 +7,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Celeste64", "Source\Celeste
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Celeste64.Launcher", "Celeste64.Launcher\Celeste64.Launcher.csproj", "{284463DD-FAD6-4946-8C87-615E7339A610}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Celeste64.HookGen", "Celeste64.HookGen\Celeste64.HookGen.csproj", "{202740F9-9673-4C8D-8B9E-DD6BC90F069E}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{1799D95D-E51D-4D0C-9678-4F1A37C54FB2}"
-	ProjectSection(SolutionItems) = preProject
-		.editorconfig = .editorconfig
-	EndProjectSection
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Celeste64.HookGen", "Celeste64.HookGen\Celeste64.HookGen.csproj", "{202740F9-9673-4C8D-8B9E-DD6BC90F069E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

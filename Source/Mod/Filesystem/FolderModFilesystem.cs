@@ -79,7 +79,7 @@ public sealed class FolderModFilesystem : IModFilesystem
 		// Enumerate all files in the directory, using the file name as a pattern
 		// This will list all case variants of the filename even on file systems that
 		// are case sensitive
-		IEnumerable<string> foundFiles = Directory.EnumerateFiles(directory, pattern);
+		var foundFiles = Directory.EnumerateFiles(directory, pattern);
 
 		if (foundFiles.Any())
 		{

@@ -1,4 +1,3 @@
-
 using Celeste64.Mod;
 using System.Text.Json;
 using System.Text.Json.Serialization;

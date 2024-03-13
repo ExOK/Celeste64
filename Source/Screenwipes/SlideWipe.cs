@@ -1,13 +1,10 @@
-
 namespace Celeste64;
 
-public class SlideWipe : ScreenWipe
+public class SlideWipe() : ScreenWipe(Duration)
 {
 	private const int Rows = 12;
 	private const float AngleSize = 64;
 	private const float Duration = 0.20f;
-
-	public SlideWipe() : base(Duration) { }
 
 	public override void Start() { }
 

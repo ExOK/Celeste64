@@ -1,28 +1,20 @@
-﻿
-namespace Celeste64;
+﻿namespace Celeste64;
 
 public class Feather : Actor, IHaveModels, IHaveSprites, IPickup, ICastPointShadow
 {
-	public SkinnedModel Model;
-	public ParticleSystem Particles;
+	public SkinnedModel Model = new(Assets.Models["feather"]) { Flags = ModelFlags.Default, };
+	public ParticleSystem Particles = new(32, new ParticleTheme()
+	{
+		Rate = 10.0f,
+		Sprite = "particle-star",
+		Life = 0.5f,
+		Gravity = new Vec3(0, 0, 90),
+		Size = 2.5f
+	});
 	public virtual float PointShadowAlpha { get; set; } = 1.0f;
 	public virtual float PickupRadius => 16;
 
 	public float TCooldown;
-
-	public Feather()
-	{
-		Model = new(Assets.Models["feather"]);
-		Model.Flags = ModelFlags.Default;
-		Particles = new(32, new ParticleTheme()
-		{
-			Rate = 10.0f,
-			Sprite = "particle-star",
-			Life = 0.5f,
-			Gravity = new Vec3(0, 0, 90),
-			Size = 2.5f
-		});
-	}
 
 	public virtual void CollectSprites(List<Sprite> populate)
 	{

@@ -6,8 +6,8 @@ namespace Celeste64.Mod;
 internal class FujiDebugMenu : ImGuiHandler
 {
 	private bool visible = false;
-	public override bool Active { get => Save.Instance.EnableDebugMenu; }
-	public override bool Visible { get => visible; }
+	public override bool Active => Save.Instance.EnableDebugMenu;
+	public override bool Visible => visible;
 
 	public override void Update()
 	{
@@ -45,7 +45,7 @@ internal class FujiDebugMenu : ImGuiHandler
 			}
 		}
 
-		if (Game.Instance.Scene is World world && world.Get<Player>() is Player player)
+		if (Game.Instance.Scene is World world && world.Get<Player>() is { } player)
 		{
 			if (world.All<Checkpoint>().Any() && ImGui.BeginMenu("Go to Checkpoint"))
 			{

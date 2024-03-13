@@ -13,7 +13,7 @@ public sealed class ModManager
 
 	internal List<GameMod> Mods = [];
 
-	internal IEnumerable<GameMod> EnabledMods { get { return Mods.Where(mod => mod.Enabled); } }
+	internal IEnumerable<GameMod> EnabledMods => Mods.Where(mod => mod.Enabled);
 
 	internal VanillaGameMod? VanillaGameMod { get; set; }
 
