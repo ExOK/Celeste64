@@ -71,7 +71,7 @@ public sealed class ZipModFilesystem : IModFilesystem
 	public Stream OpenFile(string path)
 	{
 		var zip = OpenZipIfNeeded();
-		var entry = zip.GetEntry(path) ?? throw new FileNotFoundException($"Couldn't find zip entry for mod '{Mod?.ModInfo.Id}'", path);
+		var entry = zip.GetEntry(modRoot + path) ?? throw new FileNotFoundException($"Couldn't find zip entry for mod '{Mod?.ModInfo.Id}'", modRoot + path);
 		var stream = entry.Open();
 		openedFiles.Add(stream);
 		return stream;
@@ -79,7 +79,7 @@ public sealed class ZipModFilesystem : IModFilesystem
 
 	private Stream? OpenFile(string path, ZipArchive zip)
 	{
-		var entry = GetZipEntryCaseInsensitive(path, zip);
+		var entry = GetZipEntryCaseInsensitive(modRoot + path, zip);
 		var stream = entry?.Open();
 		if (stream is { })
 		{
@@ -101,7 +101,7 @@ public sealed class ZipModFilesystem : IModFilesystem
 		{
 			var zip = OpenZipIfNeeded();
 
-			var stream = OpenFile(modRoot + path, zip);
+			var stream = OpenFile(path, zip);
 			if (stream is null)
 			{
 				value = default;

@@ -274,14 +274,34 @@ internal sealed class ModAssemblyLoadContext : AssemblyLoadContext
 			using var assemblyStream = _fs.OpenFile(assemblyPath);
 			using var symbolStream = _fs.FileExists(symbolPath) ? _fs.OpenFile(symbolPath) : null;
 
-			var module = ModuleDefinition.ReadModule(assemblyStream);
+			// If we load from a zipped mod, stream will be deflated, so we have to copy it to a memory stream in that case.
+			Stream updatedAssemblyStream = assemblyStream;
+			using var memStream = new MemoryStream();
+			if (!assemblyStream.CanSeek)
+			{
+				assemblyStream.CopyTo(memStream);
+				memStream.Position = 0;
+				updatedAssemblyStream = memStream;
+			}
+
+			using var memSymbolStream = new MemoryStream();
+			Stream? updatedSymbolStream = symbolStream;
+			if (symbolStream != null && !assemblyStream.CanSeek)
+			{
+				symbolStream?.CopyTo(memSymbolStream);
+				memSymbolStream.Position = 0;
+				updatedSymbolStream = memSymbolStream;
+			}
+
+
+			var module = ModuleDefinition.ReadModule(updatedAssemblyStream);
 			if (AssemblyLoadBlackList.Contains(module.Assembly.Name.Name, StringComparer.OrdinalIgnoreCase))
 				throw new Exception($"Attempted load of blacklisted assembly {module.Assembly.Name} from mod '{_info.Id}'");
 
 			// Reset stream back to beginning
-			assemblyStream.Position = 0;
+			updatedAssemblyStream.Position = 0;
 
-			var assembly = LoadFromStream(assemblyStream, symbolStream);
+			var assembly = LoadFromStream(updatedAssemblyStream, updatedSymbolStream);
 			var asmName = assembly.GetName().Name!;
 
 			if (_assemblyModules.TryAdd(asmName, module))
