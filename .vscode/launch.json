@@ -1,0 +1,20 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            // running this uses a debugger. press "ctrl+f5" by default to just run with no debugger
+            "name": "Build and Run Game",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build",
+            "program": "${workspaceFolder}/Celeste64.Launcher/bin/Debug/net8.0/Celeste64-Fuji.exe",
+            "args": [],
+            "cwd": "${workspaceFolder}/Celeste64.Launcher",
+            "console": "internalConsole",
+            "stopAtEntry": false
+        }
+    ]
+}

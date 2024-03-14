@@ -15,3 +15,6 @@ Content/FMOD/celeste64/.unsaved
 Mods
 -Mods/DefaultSkins
 -Mods/TestLevel
+
+# trash that we dont want
+Celeste64.Launcher/imgui.ini
