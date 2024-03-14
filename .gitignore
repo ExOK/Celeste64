@@ -1,15 +1,11 @@
-.vs
-.idea
+# build artifacts
 bin
 obj
 build
-Celeste64-Fuji
-*.user
-Content/Map_Test/autosave
-Content/Maps/autosave
-Content/FMOD/celeste64/.cache
-Content/FMOD/celeste64/.user
-Content/FMOD/celeste64/.unsaved
+
+# editors
+.vs
+.idea
 
 # ignore mods, except for the built in included ones
 Mods
@@ -18,3 +14,10 @@ Mods
 
 # trash that we dont want
 Celeste64.Launcher/imgui.ini
+Content/Map_Test/autosave
+Content/Maps/autosave
+Content/FMOD/celeste64/.cache
+Content/FMOD/celeste64/.user
+Content/FMOD/celeste64/.unsaved
+Celeste64-Fuji
+*.user
