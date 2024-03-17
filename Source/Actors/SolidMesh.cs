@@ -3,7 +3,7 @@ namespace Celeste64;
 public class SolidMesh : Solid
 {
 	public readonly SkinnedModel ObjectModel;
-	public readonly float Scale = 6;
+	public readonly float Scale = 5;
 	public Vec3 SpawnPoint;
 
 	public SolidMesh(SkinnedTemplate model, float scale)
@@ -62,7 +62,6 @@ public class SolidMesh : Solid
 	public override void Added()
 	{
 		base.Added();
-		Position += -Vec3.UnitZ * 1.3f;
 		SpawnPoint = Position;
 	}
 
