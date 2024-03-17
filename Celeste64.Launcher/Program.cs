@@ -16,6 +16,7 @@ public class Program
 		}
 		Version loaderVersion = typeof(Program).Assembly.GetName().Version!;
 		Game.LoaderVersion = $"Fuji: v.{loaderVersion.Major}.{loaderVersion.Minor}.{loaderVersion.Build}";
+		Game.IsDynamicRes = args.Contains("--dynamic-res");
 		if (!string.IsNullOrEmpty(BuildProperties.ModVersion()))
 		{
 			Game.LoaderVersion += "-" + BuildProperties.ModVersion();

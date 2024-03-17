@@ -63,8 +63,12 @@ public class Game : Module
 		}
 	}
 
-	public static int Width => (int)(DefaultWidth * _resolutionScale);
-	public static int Height => (int)(DefaultHeight * _resolutionScale);
+	public static bool IsDynamicRes;
+
+	public static int Width => IsDynamicRes ? App.WidthInPixels : (int)(DefaultWidth * _resolutionScale);
+	public static int Height => IsDynamicRes ? App.HeightInPixels : (int)(DefaultHeight * _resolutionScale);
+	private int Height_old = (int)(DefaultHeight * _resolutionScale);
+	private int Width_old = (int)(DefaultWidth * _resolutionScale);
 
 	/// <summary>
 	/// Used by various rendering elements to proportionally scale if you change the default game resolution
@@ -98,6 +102,11 @@ public class Game : Module
 
 	public Game()
 	{
+		if (IsDynamicRes)
+		{
+			Log.Warning("Dynamic resolution is an experimental feature. Certain UI elements may not be adjusted correctly.");
+		}
+
 		OnResolutionChanged += () =>
 		{
 			target.Dispose();
@@ -163,6 +172,17 @@ public class Game : Module
 
 	public override void Update()
 	{
+		if (IsDynamicRes)
+		{
+			if (Height_old != Height || Width_old != Width)
+			{
+				OnResolutionChanged.Invoke();
+			}
+
+			Height_old = Height;
+			Width_old = Width;
+		}
+
 		imGuiManager.UpdateHandlers();
 
 		// update top scene
