@@ -1,4 +1,5 @@
 using System.Text.Json;
+using Celeste64.Mod.Data;
 
 namespace Celeste64;
 
@@ -14,13 +15,7 @@ public class Startup : Scene
 	{
 		// load save file
 		{
-			var saveFile = Path.Join(App.UserPath, Save.FileName);
-
-			if (File.Exists(saveFile))
-				Save.Instance = Save.Deserialize(File.ReadAllText(saveFile)) ?? new();
-			else
-				Save.Instance = new();
-			Save.Instance.SyncSettings();
+			SaveManager.Instance.LoadSaveByFileName(SaveManager.Instance.GetLastLoadedSave());
 		}
 
 		// load assets

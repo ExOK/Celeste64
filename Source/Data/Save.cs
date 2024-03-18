@@ -7,7 +7,7 @@ namespace Celeste64;
 
 public class Save
 {
-	public const string FileName = "save.json";
+	public string FileName = "save.json";
 
 	public enum InvertCameraOptions
 	{
@@ -189,6 +189,11 @@ public class Save
 		record = new LevelRecord() { ID = levelID };
 		Records.Add(record);
 		return record;
+	}
+
+	public void SetFileName(string file_name)
+	{
+		FileName = file_name;
 	}
 
 	/// <summary>
