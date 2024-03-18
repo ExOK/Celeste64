@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using Celeste64.Mod;
 using Celeste64.Mod.Data;
 
 namespace Celeste64;
@@ -156,6 +157,42 @@ public class SaveSelectionMenu : Menu
                 });
             }
             Controls.Consume();
+        }
+
+        if (Controls.CreateFile.Pressed)
+        {
+            SaveManager.Instance.NewSave();
+            Game.Instance.Goto(new Transition()
+            {
+                Mode = Transition.Modes.Replace,
+                Scene = () => new SelectSaveScene(),
+                ToBlack = new AngledWipe(),
+                ToPause = true
+            });
+        }
+
+        if (Controls.DeleteFile.Pressed)
+        {
+            SaveManager.Instance.DeleteSave(saves[CurrentPageStart + CurrentIndex]);
+            Game.Instance.Goto(new Transition()
+            {
+                Mode = Transition.Modes.Replace,
+                Scene = () => new SelectSaveScene(),
+                ToBlack = new AngledWipe(),
+                ToPause = true
+            });
+        }
+
+        if (Controls.CopyFile.Pressed)
+        {
+            SaveManager.Instance.CopySave(saves[CurrentPageStart + CurrentIndex]);
+            Game.Instance.Goto(new Transition()
+            {
+                Mode = Transition.Modes.Replace,
+                Scene = () => new SelectSaveScene(),
+                ToBlack = new AngledWipe(),
+                ToPause = true
+            });
         }
     }
 

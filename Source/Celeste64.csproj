@@ -82,8 +82,4 @@
             <PackagePath>\</PackagePath>
         </None>
     </ItemGroup>
-
-    <ItemGroup>
-      <Folder Include="Mod\Data\" />
-    </ItemGroup>
 </Project>
