@@ -9,15 +9,15 @@ public static class ModLoader
 {
 	public const string ModsFolder = "Mods";
 
-	private static string? modsFolderPath = null;
+	private static string[]? modsFolderPaths = null;
 
 	internal static List<string> FailedToLoadMods = [];
 
-	public static string ModFolderPath
+	public static string[] ModFolderPaths
 	{
 		get
 		{
-			if (modsFolderPath == null)
+			if (modsFolderPaths == null)
 			{
 				var baseFolder = AppContext.BaseDirectory;
 				var searchUpPath = "";
@@ -26,10 +26,17 @@ public static class ModLoader
 					searchUpPath = Path.Join(searchUpPath, "..");
 				if (!Directory.Exists(Path.Join(baseFolder, searchUpPath, ModsFolder)))
 					throw new Exception($"Unable to find {ModsFolder} Directory from '{baseFolder}'");
-				modsFolderPath = Path.Join(baseFolder, searchUpPath, ModsFolder);
+				var modsFolderPath = Path.Join(baseFolder, searchUpPath, ModsFolder);
+				var userModsFolderPath = Path.Join(App.UserPath, ModsFolder);
+				try {
+					Directory.CreateDirectory(userModsFolderPath);
+					modsFolderPaths = [modsFolderPath, userModsFolderPath];
+				} catch {
+					modsFolderPaths = [modsFolderPath];
+				}
 			}
 
-			return modsFolderPath;
+			return modsFolderPaths;
 		}
 	}
 
@@ -51,7 +58,7 @@ public static class ModLoader
 		List<(ModInfo, IModFilesystem)> modInfos = [];
 
 		// Find all mods in directories:
-		foreach (var modDir in Directory.EnumerateDirectories(ModFolderPath))
+		foreach (var modDir in ModFolderPaths.SelectMany(path => Directory.EnumerateDirectories(path, "*.zip")))
 		{
 			var modName = Path.GetFileNameWithoutExtension(modDir)!; // Todo: read from some metadata file
 			var fs = new FolderModFilesystem(modDir);
@@ -73,7 +80,7 @@ public static class ModLoader
 		}
 
 		// Find all mods in zips:
-		foreach (var modZip in Directory.EnumerateFiles(ModFolderPath, "*.zip"))
+		foreach (var modZip in ModFolderPaths.SelectMany(path => Directory.EnumerateFiles(path, "*.zip")))
 		{
 			var modName = Path.GetFileNameWithoutExtension(modZip)!; // Todo: read from some metadata file
 			var fs = new ZipModFilesystem(modZip);
