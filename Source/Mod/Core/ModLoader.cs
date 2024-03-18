@@ -52,8 +52,8 @@ public static class ModLoader
 			ModInfo = new ModInfo
 			{
 				Id = "Celeste64Vanilla",
-				Name = "Celese 64: Fragments of the Mountains",
-				VersionString = "1.0.0",
+				Name = "Celeste 64: Fragments of the Mountain",
+				VersionString = "1.1.1",
 			},
 			Filesystem = new FolderModFilesystem(Assets.ContentPath)
 		};
