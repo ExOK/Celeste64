@@ -2459,6 +2459,8 @@ public class Player : Actor, IHaveModels, IHaveSprites, IRidePlatforms, ICastPoi
 	{
 		THoldJump = 0;
 		TFootstep = FootstepInterval;
+		Model.Rate = 0;
+		Velocity = Vec3.Zero;
 	}
 
 	public virtual void StDebugFlyExit()
@@ -2505,11 +2507,11 @@ public class Player : Actor, IHaveModels, IHaveSprites, IRidePlatforms, ICastPoi
 
 		if (Controls.Jump.Down)
 		{
-			Position = new Vector3(Position.X, Position.Y, Position.Z + 1);
+			Position = new Vector3(Position.X, Position.Y, Position.Z + 1.5f);
 		}
 		if (Controls.Dash.Down)
 		{
-			Position = new Vector3(Position.X, Position.Y, Position.Z - 1);
+			Position = new Vector3(Position.X, Position.Y, Position.Z - 1.5f);
 		}
 
 		if (Controls.Move.Value != Vec2.Zero && TNoMove <= 0)
