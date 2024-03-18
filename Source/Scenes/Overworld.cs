@@ -4,14 +4,19 @@ namespace Celeste64;
 
 public class Overworld : Scene
 {
+	#region Static Properties
 	public const int DefaultCardWidth = 480;
 	public const int DefaultCardHeight = 320;
 	public static int CardWidth => (int)(DefaultCardWidth * Game.RelativeScale);
 	public static int CardHeight => (int)(DefaultCardHeight * Game.RelativeScale);
+	public const int ModIconSizeLarge = 48;
+	public const int ModIconSize = 40;
+	public const int ModIconLeftMargin = 16;
+	public const int ModIconSpacing = 52;
+	public const int ModIconVertAdjust = 20;
+	#endregion
 
-	public bool Paused;
-	public Menu? pauseMenu;
-
+	#region Level Entry
 	public class Entry
 	{
 		public readonly LevelInfo Level;
@@ -57,7 +62,7 @@ public class Overworld : Scene
 			}
 		}
 
-		public void Redraw(Batcher batch, float shine)
+		public void Redraw(Batcher batch, float shine, bool selected)
 		{
 			float Padding = 16 * Game.RelativeScale;
 
@@ -67,6 +72,16 @@ public class Overworld : Scene
 			var bounds = Target.Bounds;
 			var font = Language.Current.SpriteFont;
 			var img = (SelectionEase < 0.50f ? Image : new(Assets.Textures["postcards/back"]));
+
+			int strawbs = 0, deaths = 0;
+			TimeSpan time = new();
+
+			if (selected && Save.Instance.TryGetRecord(Level.ID) is { } record) // only the selected item should have its save queried
+			{
+				strawbs = record.Strawberries.Count;
+				deaths = record.Deaths;
+				time = record.Time;
+			}
 
 			if (img.Texture != null)
 			{
@@ -87,7 +102,14 @@ public class Overworld : Scene
 				}
 
 				batch.PushMatrix(Matrix3x2.CreateScale(2.0f) * Matrix3x2.CreateTranslation(bounds.BottomLeft + new Vec2(Padding, -Padding)));
-				UI.Text(batch, Level.Name, Vec2.Zero, new Vec2(0, 1), Color.White);
+				UI.Text(batch, Level.Name, Vec2.Zero, selected ? new Vec2(0, 1.75f) : new Vec2(0, 1), Color.White);
+				if (selected)
+				{
+					batch.PopMatrix();
+					batch.PushMatrix(Matrix3x2.CreateScale(1.5f) * Matrix3x2.CreateTranslation(bounds.BottomLeft + new Vec2(Padding, -Padding)));
+					UI.Strawberries(batch, strawbs, new Vec2(-4, -20));
+					UI.Deaths(batch, deaths, new Vec2(64, -20));
+				}
 				batch.PopMatrix();
 			}
 			else
@@ -100,16 +122,6 @@ public class Overworld : Scene
 				// stats
 				batch.PushMatrix(Matrix3x2.CreateScale(1.3f) * Matrix3x2.CreateTranslation(bounds.Center + new Vec2(0, -Padding)));
 				{
-					int strawbs = 0, deaths = 0;
-					TimeSpan time = new();
-
-					if (Save.Instance.TryGetRecord(Level.ID) is { } record)
-					{
-						strawbs = record.Strawberries.Count;
-						deaths = record.Deaths;
-						time = record.Time;
-					}
-
 					UI.Strawberries(batch, strawbs, new Vec2(-8 * Game.RelativeScale, -UI.IconSize / 2 - 4 * Game.RelativeScale), 1);
 					UI.Deaths(batch, deaths, new Vec2(8 * Game.RelativeScale, -UI.IconSize / 2 - 4 * Game.RelativeScale), 0);
 					UI.Timer(batch, time, new Vec2(0 * Game.RelativeScale, UI.IconSize / 2 + 4 * Game.RelativeScale), 0.5f);
@@ -136,7 +148,9 @@ public class Overworld : Scene
 			batch.Render(Target);
 		}
 	}
+	#endregion
 
+	#region Overworld Properties
 	private enum States
 	{
 		Selecting,
@@ -146,29 +160,32 @@ public class Overworld : Scene
 	}
 
 	private States state = States.Selecting;
+
+	public bool Paused;
+	public Menu? pauseMenu;
+
 	private int index = 0;
 	private float slide = 0;
 	private float selectedEase = 0;
 	private float cameraCloseUpEase = 0;
 	private Vec2 wobble = new Vec2(0, -1);
-	private readonly List<Entry> entries = [];
+	private readonly List<GameMod> modsWithLevels = ModManager.Instance.EnabledModsWithLevels.ToList();
+	// Entries must be cached. Getting them every frame is not only a stutterfest,
+	// but also introduces bugs.
+	private List<Entry> entries = [];
+	private int selectedModIdx = 0;
+	public GameMod selectedMod => modsWithLevels[selectedModIdx];
 	private readonly Batcher batch = new();
 	private readonly Mesh mesh = new();
 	private readonly Material material = new(Assets.Shaders["Sprite"]);
+	private Subtexture strawberryImage = Assets.Subtextures["icon_strawberry"];
 	private readonly Menu restartConfirmMenu = new();
+	#endregion
 
+	#region Overworld Constructor
 	public Overworld(bool startOnLastSelected)
 	{
 		Music = "event:/music/mus_title";
-
-		foreach (var level in Assets.Levels)
-		{
-			var mod = ModManager.Instance.Mods.FirstOrDefault(mod => mod.Levels.Contains(level));
-			if (mod is { Enabled: true })
-			{
-				entries.Add(new(level, mod));
-			}
-		}
 
 		var cardWidth = DefaultCardWidth / 6.0f;
 		var cardHeight = DefaultCardHeight / 6.0f;
@@ -199,8 +216,58 @@ public class Overworld : Scene
 		}
 
 		cameraCloseUpEase = 1.0f;
+
+		entries = GetCurrentModEntries();
+	}
+	#endregion
+
+	#region Overworld Methods
+	public List<Entry> GetCurrentModEntries()
+	{
+		List<Entry> entriesTemp = [];
+
+		// We treat the vanilla "mod" as a catch-all option (because it only has one level anyway). 
+		// It will return every available item.
+		if (selectedMod is VanillaGameMod)
+		{
+			foreach (var level in Assets.Levels)
+			{
+				var mod = ModManager.Instance.Mods.FirstOrDefault(mod => mod.Levels.Contains(level));
+				if (mod is { Enabled: true })
+				{
+					entriesTemp.Add(new(level, mod));
+				}
+			}
+		}
+		else
+		{
+			foreach (var level in selectedMod.Levels)
+			{
+				entriesTemp.Add(new(level, selectedMod));
+			}
+		}
+
+		return entriesTemp;
 	}
 
+	// this function also takes care of resetting the entries, as well as visual and audio flair, for convenience
+	public void SlideSelectedMod(int dir)
+	{
+		dir = Calc.Clamp(dir, -1, 1);
+
+		if (modsWithLevels.Count > 1) selectedModIdx = (selectedModIdx + dir) % modsWithLevels.Count;
+
+		if (selectedModIdx < 0) selectedModIdx = modsWithLevels.Count - 1;
+
+		entries = GetCurrentModEntries();
+
+		Audio.Play(Sfx.main_menu_postcard_flip);
+
+		wobble = new Vec2(0, dir * 0.25f);
+	}
+	#endregion
+
+	#region Update & Render
 	public override void Update()
 	{
 		slide += (index - slide) * (1 - MathF.Pow(.001f, Time.Delta));
@@ -224,6 +291,8 @@ public class Overworld : Scene
 
 		if (state == States.Selecting && !Paused)
 		{
+			// Currently, the QOL feature that lets you skip to the first/last item no longer exists :(
+			// Todo: reimplement it. (Home/End keys? Bumpers on controller?)
 			var was = index;
 			if (Controls.Menu.Horizontal.Negative.Pressed)
 			{
@@ -238,12 +307,12 @@ public class Overworld : Scene
 			if (Controls.Menu.Vertical.Positive.Pressed)
 			{
 				Controls.Menu.ConsumePress();
-				index = entries.Count - 1;
+				SlideSelectedMod(1);
 			}
 			if (Controls.Menu.Vertical.Negative.Pressed)
 			{
 				Controls.Menu.ConsumePress();
-				index = 0;
+				SlideSelectedMod(-1);
 			}
 			index = Calc.Clamp(index, 0, entries.Count - 1);
 
@@ -293,6 +362,8 @@ public class Overworld : Scene
 						}
 						Paused = false;
 					}));
+
+					Audio.Play(Sfx.ui_pause);
 				}
 			}
 		}
@@ -366,6 +437,7 @@ public class Overworld : Scene
 					Game.Instance.NeedsReload = false;
 					Game.Instance.ReloadAssets();
 				}
+				Audio.Play(Sfx.ui_unpause);
 				Paused = false;
 			}
 		}
@@ -375,12 +447,14 @@ public class Overworld : Scene
 	{
 		target.Clear(0x0b090d, 1, 0, ClearMask.All);
 
+		var bounds = new Rect(0, 0, target.Width, target.Height);
+
 		// update entry textures
 		foreach (var entry in entries)
 		{
 			var flip = (entry.SelectionEase > 0.50f ? 1 : -1);
 			var shine = MathF.Max(0, MathF.Max(-wobble.X, flip * wobble.Y)) * entry.HighlightEase;
-			entry.Redraw(batch, shine);
+			entry.Redraw(batch, shine, entries[index] == entry);
 			batch.Clear();
 		}
 
@@ -388,120 +462,163 @@ public class Overworld : Scene
 		var camera = new Camera
 		{
 			Target = target,
-			Position = new Vec3(0, -100 + 30 * Ease.Cube.In(cameraCloseUpEase), 0),
+			Position = new Vec3(0, -125 + 30 * Ease.Cube.In(cameraCloseUpEase), 0),
 			LookAt = new Vec3(0, 0, 0),
 			NearPlane = 1,
 			FarPlane = 1000
 		};
 
+		for (int i = 0; i < entries.Count; i++)
+		{
+			var it = entries[i];
+			var shift = Ease.Cube.In(1.0f - it.HighlightEase) * 30 - Ease.Cube.In(it.SelectionEase) * 30;
+			if (i != index)
+				shift += Ease.Cube.InOut(selectedEase) * 50;
+			var position = new Vec3((i - slide) * 60, shift, 0);
+			var rotation = Ease.Cube.InOut(it.SelectionEase);
+			var matrix =
+				Matrix.CreateScale(new Vec3(it.SelectionEase >= 0.50f ? -1 : 1, 1, 1)) *
+				Matrix.CreateRotationX(wobble.Y * it.HighlightEase) *
+				Matrix.CreateRotationZ(wobble.X * it.HighlightEase) *
+				Matrix.CreateRotationZ((state == States.Entering ? -1 : 1) * rotation * MathF.PI) *
+				Matrix.CreateTranslation(position);
+
+			if (material.Shader?.Has("u_matrix") ?? false)
+				material.Set("u_matrix", matrix * camera.ViewProjection);
+			if (material.Shader?.Has("u_near") ?? false)
+				material.Set("u_near", camera.NearPlane);
+			if (material.Shader?.Has("u_far") ?? false)
+				material.Set("u_far", camera.FarPlane);
+			if (material.Shader?.Has("u_texture") ?? false)
+				material.Set("u_texture", it.Target);
+			if (material.Shader?.Has("u_texture_sampler") ?? false)
+				material.Set("u_texture_sampler", new TextureSampler(TextureFilter.Linear, TextureWrap.ClampToEdge, TextureWrap.ClampToEdge));
+
+			var cmd = new DrawCommand(target, mesh, material)
+			{
+				DepthMask = true,
+				DepthCompare = DepthCompare.Less,
+				CullMode = CullMode.None
+			};
+			cmd.Submit();
+		}
+
+		// mod icons
+		if (selectedModIdx > 0) // don't render if not filtering
+		{
+			for (int i = 0; i < modsWithLevels.Count; i++)
+			{
+				if (i == 0) continue; // don't render the vanilla "mod"
+
+				GameMod mod = modsWithLevels[i];
+
+				bool sel = i == selectedModIdx;
+				int relativeIndex = i - selectedModIdx;
+
+				var modIcon = mod.Subtextures.TryGetValue(mod.ModInfo.Icon ?? "", out var value) ? value : strawberryImage;
+				var modIconSelectedSize = sel ? ModIconSizeLarge : ModIconSize;
+				var modIconSize = new Vec2(modIconSelectedSize / modIcon.Width, modIconSelectedSize / modIcon.Height);
+
+				batch.Image(
+					modIcon,
+					new Vec2(
+						(sel ? -(ModIconSizeLarge - ModIconSize) : 0) + ModIconLeftMargin, // Horizontal
+						(sel ? -(ModIconSizeLarge - ModIconSize) : 0) + (ModIconSpacing * relativeIndex) + (bounds.Height / 2) - ModIconVertAdjust // Vertical
+					),
+					Vec2.Zero, modIconSize, 0, Color.White);
+			}
+		}
+
+		// overlay
+		{
+			batch.SetSampler(new TextureSampler(TextureFilter.Linear, TextureWrap.ClampToEdge, TextureWrap.ClampToEdge));
+			var scroll = -new Vec2(1.25f, 0.9f) * (float)(Time.Duration.TotalSeconds) * 0.05f;
+
+			// confirmation
+			if (state == States.Restarting)
+			{
+				batch.Rect(bounds, Color.Black * 0.90f);
+				restartConfirmMenu.Render(batch, bounds.Center);
+			}
+
+			batch.PushBlend(BlendMode.Add);
+			batch.PushSampler(new TextureSampler(TextureFilter.Linear, TextureWrap.Repeat, TextureWrap.Repeat));
+			batch.Image(Assets.Textures["overworld/overlay"],
+				bounds.TopLeft, bounds.TopRight, bounds.BottomRight, bounds.BottomLeft,
+				scroll + new Vec2(0, 0), scroll + new Vec2(1, 0), scroll + new Vec2(1, 1), scroll + new Vec2(0, 1),
+				Color.White * 0.10f);
+			batch.PopBlend();
+			batch.PopSampler();
+			batch.Image(Assets.Textures["overworld/vignette"],
+				bounds.TopLeft, bounds.TopRight, bounds.BottomRight, bounds.BottomLeft,
+				new Vec2(0, 0), new Vec2(1, 0), new Vec2(1, 1), new Vec2(0, 1),
+				Color.White * 0.30f);
+
+			// button prompts
+			if (state != States.Entering && !Paused)
+			{
+				var cancelPrompt = Loc.Str(state == States.Selecting ? "Back" : "Cancel");
+				var at = bounds.BottomRight + new Vec2(-16, -4) * Game.RelativeScale + new Vec2(0, -UI.PromptSize);
+				var width = 0.0f;
+				var width2 = 0.0f;
+				UI.Prompt(batch, Controls.Cancel, cancelPrompt, at, out width, 1.0f);
+				at.X -= width + 8 * Game.RelativeScale;
+				UI.Prompt(batch, Controls.Confirm, Loc.Str("Confirm"), at, out width2, 1.0f);
+
+				if (state == States.Selecting)
+				{
+					at.X -= width2 + 8 * Game.RelativeScale;
+					UI.Prompt(batch, Controls.Pause, Loc.Str("OptionsTitle"), at, out _, 1.0f);
+				}
+			}
+
+			if (cameraCloseUpEase > 0)
+			{
+				batch.PushBlend(BlendMode.Subtract);
+				batch.Rect(bounds, Color.White * Ease.Cube.In(cameraCloseUpEase));
+				batch.PopBlend();
+			}
+
+			var promptPos = bounds.TopCenter + new Vec2(1, 16) * Game.RelativeScale;
+
+			if (selectedModIdx == 0 && state == States.Selecting)
+			{
+				UI.Text(batch, new Loc.Localized("FujiOverworldModSlideNote"), promptPos, new Vec2(0.5f, 0), Color.Gray);
+			}
+			else if (state == States.Selecting)
+			{
+				UI.Text(batch, modsWithLevels[selectedModIdx].ModInfo.Name, promptPos, new Vec2(0.5f, 0), Color.White);
+			}
+		}
+
 		if (Paused && pauseMenu != null)
 		{
 			pauseMenu.Update();
 
-			var bounds = new Rect(0, 0, target.Width, target.Height);
+			batch.Rect(bounds, Color.Black * 0.70f);
 
 			pauseMenu.Render(batch, bounds.Center);
-			batch.Render(target);
-			batch.Clear();
 		}
-		else
+
+		// show version number on Overworld as well
+		// Logic breakdown:
+		// If paused
+		//  -> Display if the pause menu is in the top-level.
+		// Else
+		//  -> Display if no level is selected.
+		if (Paused ? (pauseMenu is { IsInMainMenu: true }) : (state == States.Selecting))
 		{
-			for (int i = 0; i < entries.Count; i++)
+			UI.Text(batch, Game.VersionString, bounds.BottomLeft + new Vec2(4, -4) * Game.RelativeScale, new Vec2(0, 1), Color.CornflowerBlue * 0.75f);
+			UI.Text(batch, Game.LoaderVersion, bounds.BottomLeft + new Vec2(4, -24) * Game.RelativeScale, new Vec2(0, 1), new Color(12326399) * 0.75f);
+
+			if (ModLoader.FailedToLoadMods.Any())
 			{
-				var it = entries[i];
-				var shift = Ease.Cube.In(1.0f - it.HighlightEase) * 30 - Ease.Cube.In(it.SelectionEase) * 20;
-				if (i != index)
-					shift += Ease.Cube.InOut(selectedEase) * 50;
-				var position = new Vec3((i - slide) * 60, shift, 0);
-				var rotation = Ease.Cube.InOut(it.SelectionEase);
-				var matrix =
-					Matrix.CreateScale(new Vec3(it.SelectionEase >= 0.50f ? -1 : 1, 1, 1)) *
-					Matrix.CreateRotationX(wobble.Y * it.HighlightEase) *
-					Matrix.CreateRotationZ(wobble.X * it.HighlightEase) *
-					Matrix.CreateRotationZ((state == States.Entering ? -1 : 1) * rotation * MathF.PI) *
-					Matrix.CreateTranslation(position);
-
-				if (material.Shader?.Has("u_matrix") ?? false)
-					material.Set("u_matrix", matrix * camera.ViewProjection);
-				if (material.Shader?.Has("u_near") ?? false)
-					material.Set("u_near", camera.NearPlane);
-				if (material.Shader?.Has("u_far") ?? false)
-					material.Set("u_far", camera.FarPlane);
-				if (material.Shader?.Has("u_texture") ?? false)
-					material.Set("u_texture", it.Target);
-				if (material.Shader?.Has("u_texture_sampler") ?? false)
-					material.Set("u_texture_sampler", new TextureSampler(TextureFilter.Linear, TextureWrap.ClampToEdge, TextureWrap.ClampToEdge));
-
-				var cmd = new DrawCommand(target, mesh, material)
-				{
-					DepthMask = true,
-					DepthCompare = DepthCompare.Less,
-					CullMode = CullMode.None
-				};
-				cmd.Submit();
-			}
-
-			// overlay
-			{
-				batch.SetSampler(new TextureSampler(TextureFilter.Linear, TextureWrap.ClampToEdge, TextureWrap.ClampToEdge));
-				var bounds = new Rect(0, 0, target.Width, target.Height);
-				var scroll = -new Vec2(1.25f, 0.9f) * (float)(Time.Duration.TotalSeconds) * 0.05f;
-
-				// confirmation
-				if (state == States.Restarting)
-				{
-					batch.Rect(bounds, Color.Black * 0.90f);
-					restartConfirmMenu.Render(batch, bounds.Center);
-				}
-
-				batch.PushBlend(BlendMode.Add);
-				batch.PushSampler(new TextureSampler(TextureFilter.Linear, TextureWrap.Repeat, TextureWrap.Repeat));
-				batch.Image(Assets.Textures["overworld/overlay"],
-					bounds.TopLeft, bounds.TopRight, bounds.BottomRight, bounds.BottomLeft,
-					scroll + new Vec2(0, 0), scroll + new Vec2(1, 0), scroll + new Vec2(1, 1), scroll + new Vec2(0, 1),
-					Color.White * 0.10f);
-				batch.PopBlend();
-				batch.PopSampler();
-				batch.Image(Assets.Textures["overworld/vignette"],
-					bounds.TopLeft, bounds.TopRight, bounds.BottomRight, bounds.BottomLeft,
-					new Vec2(0, 0), new Vec2(1, 0), new Vec2(1, 1), new Vec2(0, 1),
-					Color.White * 0.30f);
-
-				// button prompts
-				if (state != States.Entering)
-				{
-					var cancelPrompt = Loc.Str(state == States.Selecting ? "Back" : "Cancel");
-					var at = bounds.BottomRight + new Vec2(-16, -4) * Game.RelativeScale + new Vec2(0, -UI.PromptSize);
-					var width = 0.0f;
-					var width2 = 0.0f;
-					UI.Prompt(batch, Controls.Cancel, cancelPrompt, at, out width, 1.0f);
-					at.X -= width + 8 * Game.RelativeScale;
-					UI.Prompt(batch, Controls.Confirm, Loc.Str("Confirm"), at, out width2, 1.0f);
-
-					if (state == States.Selecting)
-					{
-						at.X -= width2 + 8 * Game.RelativeScale;
-						UI.Prompt(batch, Controls.Pause, Loc.Str("OptionsTitle"), at, out _, 1.0f);
-					}
-
-					// show version number on Overworld as well
-					UI.Text(batch, Game.VersionString, bounds.BottomLeft + new Vec2(4, -4) * Game.RelativeScale, new Vec2(0, 1), Color.CornflowerBlue * 0.75f);
-					UI.Text(batch, Game.LoaderVersion, bounds.BottomLeft + new Vec2(4, -24) * Game.RelativeScale, new Vec2(0, 1), new Color(12326399) * 0.75f);
-					if (ModLoader.FailedToLoadMods.Any())
-					{
-						UI.Text(batch, string.Format(Loc.Str("FailedToLoadMods"), ModLoader.FailedToLoadMods.Count), bounds.BottomLeft + new Vec2(4, -44) * Game.RelativeScale, new Vec2(0, 1), Color.Red * 0.75f);
-					}
-				}
-
-				if (cameraCloseUpEase > 0)
-				{
-					batch.PushBlend(BlendMode.Subtract);
-					batch.Rect(bounds, Color.White * Ease.Cube.In(cameraCloseUpEase));
-					batch.PopBlend();
-				}
-				batch.Render(target);
-				batch.Clear();
+				UI.Text(batch, string.Format(Loc.Str("FailedToLoadMods"), ModLoader.FailedToLoadMods.Count), bounds.BottomLeft + new Vec2(4, -44) * Game.RelativeScale, new Vec2(0, 1), Color.Red * 0.75f);
 			}
 		}
+
+		batch.Render(target);
+		batch.Clear();
 	}
+	#endregion
 }

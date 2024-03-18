@@ -49,6 +49,7 @@
 		"FujiOpenLogFile.desc": "Open the Game's Log File for more information",
 		"FujiContinueToMods": "Continue",
 		"FujiContinueToMods.desc": "Continue to the Mods Menu",
+		"FujiOverworldModSlideNote": "Use Up/Down to filter by mod",
 		"FailedToLoadMods": "Failed to load {0} mods. Check Mods Menu for details.",
 		"Mods": "Mods",
 		"Mods.desc": "Access Mod Info and Settings",
