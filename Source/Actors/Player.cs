@@ -1207,7 +1207,7 @@ public class Player : Actor, IHaveModels, IHaveSprites, IRidePlatforms, ICastPoi
 	public virtual bool WallJumpCheck()
 	{
 		if (Controls.Jump.Pressed
-		&& World.SolidWallCheckClosestToNormal(SolidWaistTestPos, ClimbCheckDist, -new Vec3(TargetFacing, 0), out var hit))
+		&& World.SolidWallCheckClosestToNormal(SolidWaistTestPos, ClimbCheckDist, -new Vec3(TargetFacing, 0), out var hit) && hit.Actor is Solid { CanWallJump: true })
 		{
 			Controls.Jump.ConsumePress();
 			Position += (hit.Pushout * (WallPushoutDist / ClimbCheckDist));

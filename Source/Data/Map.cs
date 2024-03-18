@@ -365,9 +365,17 @@ public class Map
 				GenerateSolid(solid, collection);
 			}
 			if (entity.Properties.ContainsKey("climbable"))
-				solid.Climbable = entity.GetStringProperty("climbable", "true") != "false";
-		}
+			{
+				string climbable = entity.GetStringProperty("climbable", "true").ToLower();
+				solid.Climbable = climbable != "false" && climbable != "0";
+			}
 
+			if (entity.Properties.ContainsKey("canwalljump"))
+			{
+				string canwalljump = entity.GetStringProperty("canwalljump", "true").ToLower();
+				solid.AllowWallJumps = canwalljump != "false" && canwalljump != "0";
+			}
+		}
 
 		if (entity.Properties.ContainsKey("origin"))
 			it.Position = Vec3.Transform(entity.GetVectorProperty("origin", Vec3.Zero), baseTransform);

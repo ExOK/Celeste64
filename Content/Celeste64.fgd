@@ -93,30 +93,35 @@
 @SolidClass = TrafficBlock : "Moves to the node when the player is riding it"
 [
     target(string) : "Target Node"
-    climbable(string)  : "Is this climbable"
+    climbable(string)  : "Is this climbable" : "true"
+    canwalljump(string)  : "Can the player wall jump off of this" : "true"
 ]
 
 @SolidClass = FallingBlock : "Falls when player rides it"
 [
-    climbable(string)  : "Is this climbable"
+    climbable(string)  : "Is this climbable" : "true"
+    canwalljump(string)  : "Can the player wall jump off of this" : "true"
 ]
 
 @SolidClass = FloatyBlock : "Moves when player lands on it"
 [
-   climbable(string)  : "Is this climbable"
+    climbable(string)  : "Is this climbable" : "true"
+    canwalljump(string)  : "Can the player wall jump off of this" : "true"
 ]
 
 @SolidClass = GateBlock : "Opens when the player gets all the switches"
 [
-   target(string) : "Target Node"
-   climbable(string)  : "Is this climbable"
+    target(string) : "Target Node"
+    climbable(string)  : "Is this climbable" : "true"
+    canwalljump(string)  : "Can the player wall jump off of this" : "true"
 ]
 
 @SolidClass = MovingBlock : "Moves back and forth constantly"
 [
-   target(string) : "Target Node"
-   slow(integer) : "Go Slower"
-   climbable(string)  : "Is this climbable"
+    target(string) : "Target Node"
+    slow(integer) : "Go Slower"
+    climbable(string)  : "Is this climbable" : "true"
+    canwalljump(string)  : "Can the player wall jump off of this" : "true"
 ]
 
 @SolidClass = DoubleDashPuzzleBlock : "Stand on with 2 dashes to solve puzzle"
@@ -133,20 +138,22 @@
 
 @SolidClass = BreakBlock : "Dash to Break it"
 [
-	bounces(integer) : "Bounces" : : "If this block Bounces the player when broken"
-	transparent(integer) : "Transparent" : : "Has transparent elements"
-	climbable(string)  : "Is this climbable"
+    bounces(integer) : "Bounces" : : "If this block Bounces the player when broken"
+    transparent(integer) : "Transparent" : : "Has transparent elements"
+    climbable(string)  : "Is this climbable" : "true"
+    canwalljump(string)  : "Can the player wall jump off of this" : "true"
 ]
 
 @SolidClass = CassetteBlock : "Toggles to the Music"
 [
-	startOn(integer) : "Start On" : : "If this block should start toggled on"
-	climbable(string)  : "Is this climbable"
+    startOn(integer) : "Start On" : : "If this block should start toggled on"
+    climbable(string)  : "Is this climbable" : "true"
+    canwalljump(string)  : "Can the player wall jump off of this" : "true"
 ]
 
 @SolidClass = NonClimbableBlock : "Used for blocks that should never be climbable"
 [
-
+    canwalljump(string)  : "Can the player wall jump off of this" : "true"
 ]
 
 @SolidClass = EndingArea : "Where the game ends"
@@ -169,5 +176,6 @@
     model(String) : "Model file path" : : "Set this to a 3D model file."
     scale(float) : "Scale"
     angle(integer) : "Object Rotation"
-    climbable(string)  : "Is this climbable"
+    climbable(string)  : "Is this climbable" : "true"
+    canwalljump(string)  : "Can the player wall jump off of this" : "true"
 ]
