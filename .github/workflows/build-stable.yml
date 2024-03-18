@@ -12,77 +12,38 @@ on:
 permissions:
   contents: write
 
+defaults:
+  run:
+    shell: bash
+
 jobs:
-  build:    
-    strategy:
-      matrix:
-        include:
-          - platform: macos-latest
-            arch: x64
-          - platform: macos-latest
-            arch: arm64
-          - platform: ubuntu-latest
-            arch: x64
-          - platform: ubuntu-latest
-            arch: arm64
-          - platform: ubuntu-latest
-            arch: arm
-          - platform: windows-latest
-            arch: x64
-    
-    runs-on: ${{ matrix.platform }}
+  release_info:
+    name: Create release
+    runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
-    - name: Fetch all tags
-      run: git fetch --depth=1 origin +refs/tags/*:refs/tags/*
-    - name: Get current short hash
-      id: vars
-      run: echo "SHORT_SHA=$(echo ${{ github.sha }} | cut -c1-7)" >> "$env:GITHUB_OUTPUT"
-      if: runner.os == 'Windows'
-    - name : Get Short Hash Linux
-      run: |
-        calculatedSha=$(git rev-parse --short ${{ github.sha }})
-        echo "SHORT_SHA=$calculatedSha" >> $GITHUB_ENV
-      if: runner.os != 'Windows'
-    - name: echo short hash
-      run: echo "Short SHA is ${{ env.SHORT_SHA }}"
-      if: runner.os == 'Windows'
-    - name: echo short hash
-      run: echo "Short SHA is $SHORT_SHA"
-      if: runner.os != 'Windows'
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v3
       with:
-        dotnet-version: 8.0.x
+        fetch-tags: true
+    # release commits should have a subject with `release X.Y.Z` in them, and
+    # the commit message body will be the body text of the github release.
+    - name: Get release version number
+      id: release_info
+      run: |
+        ver=$(git log -n1 --format=%s | grep -oP 'release\s+v?\K[0-9\.]+') || \
+          ver=stable-$(git rev-parse --short HEAD)
+        echo "version=$ver" >> "$GITHUB_OUTPUT"
+        echo "COMMIT_BODY<<VERSIONEOF
+        $(git log -n1 --format=%b)
+        VERSIONEOF" >> "$GITHUB_ENV"
 
-    - name: Build (linux and mac)
-      env:
-        os: ${{ runner.os == 'Windows' && 'win' || runner.os == 'macOS' && 'osx' || 'linux' }}
-      run: |
-        dotnet publish Celeste64.Launcher/Celeste64.Launcher.csproj -c Release -r ${{env.os}}-${{ matrix.arch }} -p:ImportByWildcardBeforeSolution=false -o build && cp -r Content Mods build
-      if: runner.os != 'Windows'
-    - name: Build (windows)
-      env:
-        os: ${{ runner.os == 'Windows' && 'win' || runner.os == 'macOS' && 'osx' || 'linux' }}
-      run: |
-        dotnet publish Celeste64.Launcher/Celeste64.Launcher.csproj -c Release -r win-${{ matrix.arch }} -p:ImportByWildcardBeforeSolution=false -o build && xcopy Mods build\Mods /s /e /h /i /y && xcopy Content build\Content /s /e /h /i /y
-      if: runner.os == 'Windows'
-    - name: Compress (Windows)
-      run: |
-        Compress-Archive build/* Celeste64-Fuji-${{ runner.os }}-${{ matrix.arch }}.zip
-      if: runner.os == 'Windows'
-    
-    - name: Compress (macOS and Linux)
-      run: |
-        cd build && zip -r ../Celeste64-Fuji-${{ runner.os }}-${{ matrix.arch }}.zip *
-      if: runner.os != 'Windows'
-      
-    - name: Publish Github Release Windows
+    - name: Create draft release
       uses: ncipollo/release-action@v1
       with:
-        artifacts: Celeste64-Fuji-${{ runner.os }}-${{ matrix.arch }}.zip
-        tag: "stable-${{steps.vars.outputs.SHORT_SHA}}"
+        tag: ${{ steps.release_info.outputs.version }}
+        commit: "${{ github.sha }}"
         body: |
+          ${{ env.COMMIT_BODY }}
+
           # Instructions:
 
           - Download and extract the zip file below according to your computer
@@ -94,33 +55,81 @@ jobs:
           - **Linux:** [Distro support list](https://github.com/dotnet/core/blob/main/release-notes/8.0/supported-os.md), x64 or arm
           - **macOS:** Monterey or later, x64 or arm Intel-based or Apple Silicon with Rosetta
         allowUpdates: true
-        name: "Fuji ${{steps.vars.outputs.SHORT_SHA}}"
+        name: "Fuji ${{ steps.release_info.outputs.version }}"
         prerelease: false
         makeLatest: true
         draft: true
-        commit: "${{ github.sha }}"
-      if: runner.os == 'Windows'
 
-    - name: Publish Github Release Linux and Mac
+    outputs:
+      version: ${{ steps.release_info.outputs.version }}
+
+  build:
+    name: Build artifacts
+
+    needs: release_info
+
+    strategy:
+      matrix:
+        include:
+          - { platform: macos-latest, rid: osx-arm64 }
+          - { platform: macos-latest, rid: osx-x64 }
+          - { platform: ubuntu-latest, rid: linux-arm }
+          - { platform: ubuntu-latest, rid: linux-arm64 }
+          - { platform: ubuntu-latest, rid: linux-x64 }
+          - { platform: windows-latest, rid: win-x64 }
+
+    runs-on: ${{ matrix.platform }}
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        fetch-tags: true
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: 8.0.x
+
+    - name: Build
+      run: >
+        dotnet publish Celeste64.Launcher/Celeste64.Launcher.csproj
+          -c Release
+          -r ${{ matrix.rid }}
+          -p:ImportByWildcardBeforeSolution=false
+          -o build
+          && cp -r Content Mods build
+
+    - name: Compress
+      if: runner.os == 'Windows'
+      shell: pwsh
+      run: |
+        cd build && Compress-Archive * ../Celeste64-Fuji-${{ matrix.rid }}.zip
+
+    - name: Compress
+      if: runner.os != 'Windows'
+      run: |
+        cd build && zip -r ../Celeste64-Fuji-${{ matrix.rid }}.zip *
+
+    - name: Upload artifact to release
       uses: ncipollo/release-action@v1
       with:
-        artifacts: Celeste64-Fuji-${{ runner.os }}-${{ matrix.arch }}.zip
-        tag: "stable-${{ env.SHORT_SHA }}"
-        body: |
-          # Instructions:
-
-          - Download and extract the zip file below according to your computer
-          - Run the Celeste64-Fuji application from the extracted files
-
-          # Requirements:
-
-          - **Windows:** 10 or later, x64
-          - **Linux:** [Distro support list](https://github.com/dotnet/core/blob/main/release-notes/8.0/supported-os.md), x64 pr arm
-          - **macOS:** Monterey or later, x64 or arm Intel-based or Apple Silicon with Rosetta
-        allowUpdates: true
-        name: "Fuji ${{ env.SHORT_SHA }}"
-        prerelease: false
-        makeLatest: true
-        draft: true
+        artifacts: Celeste64-Fuji-${{ matrix.rid }}.zip
         commit: "${{ github.sha }}"
-      if: runner.os != 'Windows'
+        tag: ${{ needs.release_info.outputs.version }}
+        allowUpdates: true
+        omitNameDuringUpdate: true
+        omitBodyDuringUpdate: true
+
+  publish:
+    name: Publish release
+    needs: [release_info, build]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Publish Github Release
+        uses: ncipollo/release-action@v1
+        with:
+          tag: ${{ needs.release_info.outputs.version }}
+          commit: "${{ github.sha }}"
+          allowUpdates: true
+          omitBodyDuringUpdate: true
+          omitNameDuringUpdate: true
+          draft: false
