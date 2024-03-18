@@ -157,7 +157,6 @@ public class SaveSelectionMenu : Menu
             }
             Controls.Consume();
         }
-
     }
 
 
