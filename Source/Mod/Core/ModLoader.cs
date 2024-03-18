@@ -28,10 +28,13 @@ public static class ModLoader
 					throw new Exception($"Unable to find {ModsFolder} Directory from '{baseFolder}'");
 				var modsFolderPath = Path.Join(baseFolder, searchUpPath, ModsFolder);
 				var userModsFolderPath = Path.Join(App.UserPath, ModsFolder);
-				try {
+				try
+				{
 					Directory.CreateDirectory(userModsFolderPath);
 					modsFolderPaths = [modsFolderPath, userModsFolderPath];
-				} catch {
+				}
+				catch
+				{
 					modsFolderPaths = [modsFolderPath];
 				}
 			}
@@ -55,10 +58,12 @@ public static class ModLoader
 			Filesystem = new FolderModFilesystem(Assets.ContentPath)
 		};
 
+		Log.Info($"Loading mods from: \n- {String.Join("\n- ", ModFolderPaths)}");
+
 		List<(ModInfo, IModFilesystem)> modInfos = [];
 
 		// Find all mods in directories:
-		foreach (var modDir in ModFolderPaths.SelectMany(path => Directory.EnumerateDirectories(path, "*.zip")))
+		foreach (var modDir in ModFolderPaths.SelectMany(path => Directory.EnumerateDirectories(path)))
 		{
 			var modName = Path.GetFileNameWithoutExtension(modDir)!; // Todo: read from some metadata file
 			var fs = new FolderModFilesystem(modDir);
