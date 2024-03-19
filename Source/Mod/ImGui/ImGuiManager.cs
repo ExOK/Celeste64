@@ -4,58 +4,58 @@ namespace Celeste64.Mod;
 
 public class ImGuiManager
 {
-    /// <summary>
-    /// Whether the keyboard input was consumed by Dear ImGui. 
-    /// </summary>
-    public static bool WantCaptureKeyboard { get; private set; }
-    
-    /// <summary>
-    /// Whether the mouse input  was consumed by Dear ImGui. 
-    /// </summary>
-    public static bool WantCaptureMouse { get; private set; }
-    
-    private readonly ImGuiRenderer renderer;
-    private static FujiDebugMenu debugMenu = new FujiDebugMenu();
-    private static IEnumerable<ImGuiHandler> Handlers => ModManager.Instance.EnabledMods.SelectMany(mod => mod.ImGuiHandlers);
+	/// <summary>
+	/// Whether the keyboard input was consumed by Dear ImGui. 
+	/// </summary>
+	public static bool WantCaptureKeyboard { get; private set; }
 
-    internal ImGuiManager()
-    {
-        renderer = new ImGuiRenderer();
-        renderer.RebuildFontAtlas();
-    }
+	/// <summary>
+	/// Whether the mouse input  was consumed by Dear ImGui. 
+	/// </summary>
+	public static bool WantCaptureMouse { get; private set; }
 
-    internal void UpdateHandlers()
-    {
-        renderer.Update();
+	private readonly ImGuiRenderer renderer;
+	private static FujiDebugMenu debugMenu = new FujiDebugMenu();
+	private static IEnumerable<ImGuiHandler> Handlers => ModManager.Instance.EnabledMods.SelectMany(mod => mod.ImGuiHandlers);
 
-        if(debugMenu.Active)
-    		debugMenu.Update();
+	internal ImGuiManager()
+	{
+		renderer = new ImGuiRenderer();
+		renderer.RebuildFontAtlas();
+	}
+
+	internal void UpdateHandlers()
+	{
+		renderer.Update();
+
+		if (debugMenu.Active)
+			debugMenu.Update();
 
 		foreach (var handler in Handlers)
-        {
-            if (handler.Active) handler.Update();
-        }
-    }
+		{
+			if (handler.Active) handler.Update();
+		}
+	}
 
-    internal void RenderHandlers()
-    {
-        renderer.BeforeRender();
+	internal void RenderHandlers()
+	{
+		renderer.BeforeRender();
 		if (debugMenu.Visible)
 			debugMenu.Render();
 		foreach (var handler in Handlers)
-        {
-            if (handler.Visible) handler.Render();
-        }
-        renderer.AfterRender();
+		{
+			if (handler.Visible) handler.Render();
+		}
+		renderer.AfterRender();
 
-        var io = ImGui.GetIO();
-        WantCaptureKeyboard = io.WantCaptureKeyboard;
-        WantCaptureMouse = io.WantCaptureMouse;
-    }
+		var io = ImGui.GetIO();
+		WantCaptureKeyboard = io.WantCaptureKeyboard;
+		WantCaptureMouse = io.WantCaptureMouse;
+	}
 
-    internal void RenderTexture(Batcher batch)
-    {
-        if (renderer.target == null) return;
-        batch.Image(renderer.target, Vec2.Zero, Color.White);
-    }
+	internal void RenderTexture(Batcher batch)
+	{
+		if (renderer.target == null) return;
+		batch.Image(renderer.target, Vec2.Zero, Color.White);
+	}
 }

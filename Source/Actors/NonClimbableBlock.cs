@@ -1,12 +1,6 @@
-﻿
-namespace Celeste64;
+﻿namespace Celeste64;
 
-public class NonClimbableBlock : Solid {
-	public override bool IsClimbable
-	{
-		get
-		{
-			return false;
-		}
-	}
+public class NonClimbableBlock : Solid
+{
+	public override bool IsClimbable => false;
 }

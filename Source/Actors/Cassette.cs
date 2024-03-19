@@ -1,4 +1,3 @@
-
 namespace Celeste64;
 
 public class Cassette : Actor, IHaveModels, IPickup, IHaveSprites, ICastPointShadow
@@ -16,16 +15,15 @@ public class Cassette : Actor, IHaveModels, IPickup, IHaveSprites, ICastPointSha
 		Map = map;
 		LocalBounds = new BoundingBox(Vec3.Zero, 3);
 		Model = new(Assets.Models["tape_1"]);
-		CollectedModel = new(Assets.Models["tape_2"]);
-		CollectedModel.Flags = ModelFlags.Transparent;
+		CollectedModel = new(Assets.Models["tape_2"]) { Flags = ModelFlags.Transparent };
 		foreach (var mat in CollectedModel.Materials)
 			mat.Color = Color.White * 0.50f;
 	}
 
 	public virtual float PickupRadius => 10;
 
-	public virtual bool IsCollected => 
-		!string.IsNullOrEmpty(Map) && 
+	public virtual bool IsCollected =>
+		!string.IsNullOrEmpty(Map) &&
 		Save.CurrentRecord.CompletedSubMaps.Contains(Map);
 
 	public override void Added()
@@ -56,7 +54,7 @@ public class Cassette : Actor, IHaveModels, IPickup, IHaveSprites, ICastPointSha
 			Matrix.CreateTranslation(Vec3.UnitZ * MathF.Sin(World.GeneralTimer * 2.0f) * 2) *
 			Matrix.CreateRotationZ(World.GeneralTimer * 3.0f);
 
-		populate.Add((this, IsCollected? CollectedModel : Model));
+		populate.Add((this, IsCollected ? CollectedModel : Model));
 	}
 
 	public virtual void Pickup(Player player)

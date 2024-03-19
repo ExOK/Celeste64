@@ -1,8 +1,8 @@
+using Mono.Cecil;
 using System.Collections.Concurrent;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Runtime.Loader;
-using Mono.Cecil;
 
 namespace Celeste64.Mod;
 
@@ -19,7 +19,7 @@ internal sealed class ModAssemblyLoadContext : AssemblyLoadContext
 		.Append("Mono.Cecil.Pdb").Append("Mono.Cecil.Mdb") // These two aren't picked up by default for some reason
 		.ToArray()!;
 	private static string[]? _assemblyLoadBlackList = null;
-	
+
 	/// <summary>
 	/// The folder name where mod unmanaged assemblies will be loaded from.
 	/// </summary>
@@ -36,28 +36,28 @@ internal sealed class ModAssemblyLoadContext : AssemblyLoadContext
 			throw new PlatformNotSupportedException());
 	private static string? _unmanagedLibraryFolder = null;
 
-	
+
 	private static readonly ReaderWriterLockSlim _allContextsLock = new();
 	private static readonly LinkedList<ModAssemblyLoadContext> _allContexts = [];
 	private static readonly Dictionary<string, ModAssemblyLoadContext> _contextsByModID = new();
 
 	// All modules loaded by the context.
 	private readonly Dictionary<string, ModuleDefinition> _assemblyModules = new();
-	
+
 	// Cache for this mod including dependencies.
 	private readonly ConcurrentDictionary<string, Assembly> _assemblyLoadCache = new();
 	private readonly ConcurrentDictionary<string, IntPtr> _assemblyUnmanagedLoadCache = new();
-	
+
 	// Cache for this mod specifically. Also used when loading from this mod as a dependency.
 	private readonly ConcurrentDictionary<string, Assembly> _localLoadCache = new();
 	private readonly ConcurrentDictionary<string, IntPtr> _localUnmanagedLoadCache = new();
-	
+
 	private readonly object LOCK = new();
-	
+
 	private readonly ModInfo _info;
 	private readonly IModFilesystem _fs;
 	private readonly List<ModAssemblyLoadContext> _dependencyContexts = [];
-	
+
 	// Our node in the all ALCs list.
 	private LinkedListNode<ModAssemblyLoadContext>? listNode;
 	private bool isDisposed = false;
@@ -66,7 +66,7 @@ internal sealed class ModAssemblyLoadContext : AssemblyLoadContext
 	{
 		_info = info;
 		_fs = fs;
-		
+
 		// Resolve dependencies
 		foreach (var (modId, _) in info.Dependencies)
 		{
@@ -74,33 +74,37 @@ internal sealed class ModAssemblyLoadContext : AssemblyLoadContext
 				_dependencyContexts.Add(alc);
 		}
 		_contextsByModID.TryAdd(info.Id, this);
-		
+
 		// Load all assemblies
 		foreach (var assemblyPath in fs.FindFilesInDirectoryRecursive(Assets.LibrariesFolder, Assets.LibrariesExtensionAssembly))
 		{
 			LoadAssemblyFromModPath(assemblyPath);
 		}
 	}
-	
+
 	public void Dispose()
 	{
-		lock (LOCK) {
+		lock (LOCK)
+		{
 			if (isDisposed)
 				return;
 			isDisposed = true;
 
 			// Remove from mod ALC list
 			_allContextsLock.EnterWriteLock();
-			try {
+			try
+			{
 				_allContexts.Remove(listNode!);
 				_contextsByModID.Remove(_info.Id);
 				listNode = null;
-			} finally {
+			}
+			finally
+			{
 				_allContextsLock.ExitWriteLock();
 			}
 
 			// Unload all assemblies loaded in the context
-			foreach (ModuleDefinition module in _assemblyModules.Values)
+			foreach (var module in _assemblyModules.Values)
 				module.Dispose();
 			_assemblyModules.Clear();
 
@@ -114,7 +118,7 @@ internal sealed class ModAssemblyLoadContext : AssemblyLoadContext
 		// Lookup in the cache
 		if (_assemblyLoadCache.TryGetValue(asmName.Name!, out var cachedAsm))
 			return cachedAsm;
-		
+
 		// Try to load the assembly locally (from this or dependency ALCs)
 		// // If that fails, try to load the assembly globally (game assemblies)
 		var asm = LoadManagedLocal(asmName) ?? LoadManagedGlobal(asmName);
@@ -133,7 +137,7 @@ internal sealed class ModAssemblyLoadContext : AssemblyLoadContext
 		// Lookup in the cache
 		if (_assemblyUnmanagedLoadCache.TryGetValue(name, out var cachedHandle))
 			return cachedHandle;
-		
+
 		// Try to load the unmanaged assembly locally (from this or dependency ALCs)
 		// If that fails, don't fallback to loading it globally - unmanaged dependencies have to be explicitly specified
 		var handle = LoadUnmanaged(name);
@@ -146,26 +150,26 @@ internal sealed class ModAssemblyLoadContext : AssemblyLoadContext
 		Log.Warning($"Failed to load native library '{name}' for mod '{_info.Id}'");
 		return IntPtr.Zero;
 	}
-	
+
 	private Assembly? LoadManagedLocal(AssemblyName asmName)
 	{
 		// Try to load the assembly from this mod
 		if (LoadManagedFromThisMod(asmName) is { } asm)
 			return asm;
-		
+
 		// Try to load the assembly from dependency assembly contexts
 		foreach (var depCtx in _dependencyContexts)
 		{
 			if (depCtx.LoadManagedFromThisMod(asmName) is { } depAsm)
 				return depAsm;
 		}
-		
+
 		return null;
 	}
-	
+
 	private Assembly? LoadManagedGlobal(AssemblyName asmName)
 	{
-		try 
+		try
 		{
 			// Try to load the assembly from the default assembly load context
 			if (AssemblyLoadContext.Default.LoadFromAssemblyName(asmName) is { } globalAsm)
@@ -175,42 +179,42 @@ internal sealed class ModAssemblyLoadContext : AssemblyLoadContext
 		{
 			// ignored
 		}
-		
+
 		return null;
 	}
-	
+
 	private IntPtr? LoadUnmanaged(string name)
 	{
 		// Try to load the assembly from this mod
 		if (LoadUnmanagedFromThisMod(name) is { } handle)
 			return handle;
-		
+
 		// Try to load the assembly from dependency assembly contexts
 		foreach (var depCtx in _dependencyContexts)
 		{
 			if (depCtx.LoadUnmanagedFromThisMod(name) is { } depHandle)
 				return depHandle;
 		}
-		
+
 		return null;
 	}
-	
+
 	private Assembly? LoadManagedFromThisMod(AssemblyName asmName)
 	{
 		// Lookup in the cache
 		if (_localLoadCache.TryGetValue(asmName.Name!, out var asm))
 			return asm;
-		
+
 		// Try to load the assembly from the same library directory
 		return LoadAssemblyFromModPath(Path.Combine(Assets.LibrariesFolder, $"{asmName.Name!}.{Assets.LibrariesExtensionAssembly}"));
 	}
-	
+
 	private IntPtr? LoadUnmanagedFromThisMod(string name)
 	{
 		// Lookup in the cache
 		if (_localUnmanagedLoadCache.TryGetValue(name, out var handle))
 			return handle;
-		
+
 		// Determine the OS-specific name of the assembly
 		string osName =
 			RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? $"{name}.dll" :
@@ -219,47 +223,48 @@ internal sealed class ModAssemblyLoadContext : AssemblyLoadContext
 			name;
 
 		// Try multiple paths to load the library from
-        foreach (string libName in new[] { name, osName }) {
-	        string libraryPath = Path.Combine(Assets.LibrariesFolder, UnmanagedLibraryFolder, libName);
-	        
-	        if (_fs is FolderModFilesystem folderFs)
-	        {
-		        // We can load the library directly in this case
-		        if (NativeLibrary.TryLoad(Path.Combine(folderFs.Root, libraryPath), out handle))
-		        {
-			        _localUnmanagedLoadCache.TryAdd(name, handle);
-			        return handle;
-		        }
-	        }
-	        
-	        // Otherwise, we need to extract the library into a temporary file
-	        // TODO: Store this in a consistent cache file inside the install?
-	        var tempFilePath = Path.GetTempFileName();
-	        using (var tempFile = File.OpenWrite(tempFilePath))
-	        {
-		        try
-		        {
+		foreach (string libName in new[] { name, osName })
+		{
+			string libraryPath = Path.Combine(Assets.LibrariesFolder, UnmanagedLibraryFolder, libName);
+
+			if (_fs is FolderModFilesystem folderFs)
+			{
+				// We can load the library directly in this case
+				if (NativeLibrary.TryLoad(Path.Combine(folderFs.Root, libraryPath), out handle))
+				{
+					_localUnmanagedLoadCache.TryAdd(name, handle);
+					return handle;
+				}
+			}
+
+			// Otherwise, we need to extract the library into a temporary file
+			// TODO: Store this in a consistent cache file inside the install?
+			var tempFilePath = Path.GetTempFileName();
+			using (var tempFile = File.OpenWrite(tempFilePath))
+			{
+				try
+				{
 					using var libraryStream = _fs.OpenFile(libraryPath);
 					libraryStream.CopyTo(tempFile);
-		        } 
-		        catch
-		        {
-			        // Not found
-			        continue;
-		        }
-	        }
+				}
+				catch
+				{
+					// Not found
+					continue;
+				}
+			}
 
-            // Try to load the native library from the temporary file
-            if (NativeLibrary.TryLoad(tempFilePath, out handle))
-            {
-	            _localUnmanagedLoadCache.TryAdd(name, handle);
-                return handle;
-            }
-        }
-		
+			// Try to load the native library from the temporary file
+			if (NativeLibrary.TryLoad(tempFilePath, out handle))
+			{
+				_localUnmanagedLoadCache.TryAdd(name, handle);
+				return handle;
+			}
+		}
+
 		return null;
 	}
-	
+
 	private Assembly? LoadAssemblyFromModPath(string assemblyPath)
 	{
 		try
@@ -268,27 +273,47 @@ internal sealed class ModAssemblyLoadContext : AssemblyLoadContext
 
 			using var assemblyStream = _fs.OpenFile(assemblyPath);
 			using var symbolStream = _fs.FileExists(symbolPath) ? _fs.OpenFile(symbolPath) : null;
-		
-			var module = ModuleDefinition.ReadModule(assemblyStream);
+
+			// If we load from a zipped mod, stream will be deflated, so we have to copy it to a memory stream in that case.
+			Stream updatedAssemblyStream = assemblyStream;
+			using var memStream = new MemoryStream();
+			if (!assemblyStream.CanSeek)
+			{
+				assemblyStream.CopyTo(memStream);
+				memStream.Position = 0;
+				updatedAssemblyStream = memStream;
+			}
+
+			using var memSymbolStream = new MemoryStream();
+			Stream? updatedSymbolStream = symbolStream;
+			if (symbolStream != null && !assemblyStream.CanSeek)
+			{
+				symbolStream?.CopyTo(memSymbolStream);
+				memSymbolStream.Position = 0;
+				updatedSymbolStream = memSymbolStream;
+			}
+
+
+			var module = ModuleDefinition.ReadModule(updatedAssemblyStream);
 			if (AssemblyLoadBlackList.Contains(module.Assembly.Name.Name, StringComparer.OrdinalIgnoreCase))
 				throw new Exception($"Attempted load of blacklisted assembly {module.Assembly.Name} from mod '{_info.Id}'");
 
 			// Reset stream back to beginning
-			assemblyStream.Position = 0;
-			
-			var assembly = LoadFromStream(assemblyStream, symbolStream);
+			updatedAssemblyStream.Position = 0;
+
+			var assembly = LoadFromStream(updatedAssemblyStream, updatedSymbolStream);
 			var asmName = assembly.GetName().Name!;
-			
+
 			if (_assemblyModules.TryAdd(asmName, module))
 			{
 				_assemblyLoadCache.TryAdd(asmName, assembly);
 				_localLoadCache.TryAdd(asmName, assembly);
-			} 
+			}
 			else
 			{
 				Log.Warning($"Assembly name conflict for name '{asmName}' in mod '{_info.Id}'!");
 			}
-		
+
 			return assembly;
 		}
 		catch

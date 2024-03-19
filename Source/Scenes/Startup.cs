@@ -51,7 +51,7 @@ public class Startup : Scene
 				JsonSerializer.Serialize(stream, ControlsConfig.Defaults, ControlsConfigContext.Default.ControlsConfig);
 				stream.Flush();
 			}
-			
+
 			Controls.Load(controls);
 		}
 
@@ -66,18 +66,18 @@ public class Startup : Scene
 		});
 	}
 
-    public override void Update()
-    {
+	public override void Update()
+	{
 		if (loadDelay > 0)
 		{
 			loadDelay--;
 			if (loadDelay <= 0)
 				BeginGame();
 		}
-    }
+	}
 
-    public override void Render(Target target)
-    {
+	public override void Render(Target target)
+	{
 		target.Clear(Color.Black);
-    }
+	}
 }

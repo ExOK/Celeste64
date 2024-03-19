@@ -1,10 +1,8 @@
-using System.Diagnostics;
-using System.Reflection;
-using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using MonoMod.Cil;
 using MonoMod.Core;
 using MonoMod.RuntimeDetour;
+using System.Diagnostics;
+using System.Reflection;
 
 namespace Celeste64.Mod.Patches;
 
@@ -15,14 +13,14 @@ internal static class Hooks
 {
 	private static ILHook? hook_Hook_ctor;
 	private static ILHook? hook_ILHook_ctor;
-	
+
 	public static void Load()
 	{
 		// Using MonoMod to hook MonoMod :)
 		hook_Hook_ctor = new ILHook(typeof(Hook).GetConstructor(BindingFlags.Public | BindingFlags.Instance, [typeof(MethodBase), typeof(MethodInfo), typeof(object), typeof(IDetourFactory), typeof(DetourConfig), typeof(bool)])!, IL_CheckHook, applyByDefault: false);
 		hook_ILHook_ctor = new ILHook(typeof(ILHook).GetConstructor(BindingFlags.Public | BindingFlags.Instance, [typeof(MethodBase), typeof(ILContext.Manipulator), typeof(IDetourFactory), typeof(DetourConfig), typeof(bool)])!, IL_CheckHook, applyByDefault: false);
 	}
-	
+
 	public static void AfterLoad()
 	{
 		hook_Hook_ctor?.Apply();
@@ -34,17 +32,17 @@ internal static class Hooks
 		hook_Hook_ctor?.Dispose();
 		hook_ILHook_ctor?.Dispose();
 	}
-	
+
 	private static void IL_CheckHook(ILContext il)
 	{
 		var cur = new ILCursor(il);
 		cur.EmitLdarg1(); // 'MethodBase method'
 		cur.EmitDelegate(ThrowIfInvalidHook);
 	}
-	
+
 	private static readonly Dictionary<Assembly, GameMod> _assemblyLookup = [];
 	private static readonly Assembly _monomodAsm = typeof(Hook).Assembly;
-	
+
 	private static void ThrowIfInvalidHook(MethodBase method)
 	{
 		var stacktrace = new StackTrace();
@@ -60,22 +58,22 @@ internal static class Hooks
 				gameMod = ModManager.Instance.Mods.Find(mod => mod.GetType().Assembly == asm);
 				_assemblyLookup.Add(asm, gameMod!);
 			}
-		
+
 			if (gameMod == null)
 				Log.Warning($"Registering hook from non-mod assembly '{asm}'");
 			// Mods can opt-out of this, but then they are on their own.
 			else if (method.DeclaringType?.Namespace is { } ns && gameMod.PreventHookProtectionYesIKnowThisIsDangerousAndCanBreak.Contains(ns))
 				return;
 		}
-		
+
 		if (method.DeclaringType != null && method.DeclaringType.Namespace != "Celeste64" && method.DeclaringType.Namespace != "Foster.Framework" ||
-		    method.HasAttr<DisallowHooksAttribute>())
+			method.HasAttr<DisallowHooksAttribute>())
 		{
 			throw new InvalidOperationException($"Tried to hook the method '{method}'. " +
 												"Hooking methods outside of the 'Celeste64' / 'Foster.Framework' namespace is not allowed! " +
-			                                    "Those methods might change their implementation, causing the hook to break! " +
-			                                    "Please consider reaching out to the authors first, before trying to avoid this protection. " +
-			                                    "If you are aware of the risks but need to do it anyway, you can enable the required namespace in 'PreventHookProtectionYesIKnowThisIsDangerousAndCanBreak' list inside your 'GameMod'.");
+												"Those methods might change their implementation, causing the hook to break! " +
+												"Please consider reaching out to the authors first, before trying to avoid this protection. " +
+												"If you are aware of the risks but need to do it anyway, you can enable the required namespace in 'PreventHookProtectionYesIKnowThisIsDangerousAndCanBreak' list inside your 'GameMod'.");
 		}
 	}
 }

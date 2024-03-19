@@ -7,7 +7,7 @@ public static class Audio
 {
 	private class Module : Foster.Framework.Module
 	{
-		public override void Update() 
+		public override void Update()
 			=> Audio.Update();
 
 		public override void Shutdown()
@@ -29,9 +29,9 @@ public static class Audio
 		// live upate allows FMOD UI to interact with sounds in-game in real time
 		var flags = FMOD.INITFLAGS.NORMAL;
 		var studioFlags = INITFLAGS.NORMAL;
-		#if DEBUG
-			studioFlags |= INITFLAGS.LIVEUPDATE;
-		#endif
+#if DEBUG
+		studioFlags |= INITFLAGS.LIVEUPDATE;
+#endif
 
 		Log.Info($"FMOD Bindings: v{FMOD.VERSION.number:x}");
 
@@ -52,9 +52,9 @@ public static class Audio
 
 		// Initialize FMOD
 		Check(system.initialize(1024, studioFlags, flags, IntPtr.Zero));
-		Check(core.createChannelGroup("SoundEffects", out FMOD.ChannelGroup soundGroup));
+		Check(core.createChannelGroup("SoundEffects", out var soundGroup));
 		SoundEffectGroup = soundGroup;
-		Check(core.createChannelGroup("Music", out FMOD.ChannelGroup musicGroup));
+		Check(core.createChannelGroup("Music", out var musicGroup));
 		MusicGroup = musicGroup;
 		App.Register<Module>();
 	}
@@ -67,11 +67,11 @@ public static class Audio
 			return;
 		isResolverSet = true;
 
-		var path 
-			=  Path.GetDirectoryName(AppContext.BaseDirectory) 
+		var path
+			= Path.GetDirectoryName(AppContext.BaseDirectory)
 			?? Directory.GetCurrentDirectory();
 
-		NativeLibrary.SetDllImportResolver(typeof(FMOD.Studio.System).Assembly, 
+		NativeLibrary.SetDllImportResolver(typeof(FMOD.Studio.System).Assembly,
 			(name, assembly, dllImportSearchPath) =>
 			{
 				name = Path.GetFileNameWithoutExtension(name);
@@ -160,12 +160,12 @@ public static class Audio
 		var exinfo = new FMOD.CREATESOUNDEXINFO();
 		exinfo.cbsize = Marshal.SizeOf(exinfo);
 		exinfo.length = (uint)stream.Length;
-		Check(core.createSound(stream.ReadAllToByteArray(), FMOD.MODE.OPENMEMORY, ref exinfo, out FMOD.Sound sound));
+		Check(core.createSound(stream.ReadAllToByteArray(), FMOD.MODE.OPENMEMORY, ref exinfo, out var sound));
 		return sound;
 	}
 
 	// Fuji Custom
-	public static SoundHandle? PlaySound(string name, int loopCount = 0, int loopStart=0, int loopEnd = int.MaxValue)
+	public static SoundHandle? PlaySound(string name, int loopCount = 0, int loopStart = 0, int loopEnd = int.MaxValue)
 	{
 		if (Assets.Sounds.TryGetValue(name, out var sound))
 		{
@@ -200,7 +200,7 @@ public static class Audio
 	private static SoundHandle? PlaySoundInChannel(FMOD.Sound sound, FMOD.ChannelGroup group, int loopCount = 0, int loopStart = 0, int loopEnd = 1000)
 	{
 		Check(system.getCoreSystem(out var core));
-		Check(core.playSound(sound, group, false, out FMOD.Channel channel));
+		Check(core.playSound(sound, group, false, out var channel));
 		if (loopCount != 0)
 		{
 			Check(channel.setMode(FMOD.MODE.LOOP_NORMAL));
@@ -249,9 +249,9 @@ public static class Audio
 	// Fuji Custom
 	public static void StopSounds()
 	{
-		foreach(var sound in playingSounds)
+		foreach (var sound in playingSounds)
 		{
-			if(sound.IsPlaying)
+			if (sound.IsPlaying)
 				sound.Stop();
 		}
 		playingSounds.Clear();
@@ -298,7 +298,7 @@ public static class Audio
 			Log.Warning($"Failed to create Audio Event Instance: {result}");
 			return new AudioHandle();
 		}
-		
+
 		return new AudioHandle(instance);
 	}
 
@@ -382,9 +382,9 @@ public static class Audio
 	}
 
 	internal static void Check(FMOD.RESULT result)
-	{	
-		if(result != FMOD.RESULT.OK)
-			throw new Exception( $"FMOD Failed: {result} ({FMOD.Error.String(result)})");
+	{
+		if (result != FMOD.RESULT.OK)
+			throw new Exception($"FMOD Failed: {result} ({FMOD.Error.String(result)})");
 	}
 }
 

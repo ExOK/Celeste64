@@ -1,19 +1,20 @@
-
 namespace Celeste64;
 
 public class SolidMesh : Solid
 {
 	public readonly SkinnedModel ObjectModel;
-	public readonly float Scale = 6;
+	public readonly float Scale = 5;
 	public Vec3 SpawnPoint;
 
 	public SolidMesh(SkinnedTemplate model, float scale)
 	{
 		Scale = scale * 0.2f;
 
-		ObjectModel = new(model);
-		ObjectModel.Flags = ModelFlags.Terrain;
-		ObjectModel.Transform = Matrix.CreateScale(0.2f);
+		ObjectModel = new(model)
+		{
+			Flags = ModelFlags.Terrain,
+			Transform = Matrix.CreateScale(0.2f),
+		};
 
 		// create solids out of mesh ....?
 		{
@@ -24,9 +25,8 @@ public class SolidMesh : Solid
 			var meshIndices = collider.Template.Indices;
 			var mat = SkinnedModel.BaseTranslation * collider.Transform * Matrix.CreateScale(Scale);
 
-			for (int i = 0; i < collider.Instance.Count; i++)
+			foreach (var drawable in collider.Instance)
 			{
-				var drawable = collider.Instance[i];
 				if (drawable.Transform is not SharpGLTF.Transforms.RigidTransform statXform)
 					continue;
 
@@ -36,7 +36,7 @@ public class SolidMesh : Solid
 				foreach (var primitive in meshPart)
 				{
 					int v = vertices.Count;
-					for (int n = 0; n < primitive.Count; n ++)
+					for (int n = 0; n < primitive.Count; n++)
 						vertices.Add(Vec3.Transform(meshVertices[meshIndices[primitive.Index + n + 0]].Pos, meshMatrix));
 					for (int n = 0; n < primitive.Count; n += 3)
 					{
@@ -59,22 +59,21 @@ public class SolidMesh : Solid
 		}
 	}
 
-    public override void Added()
-    {
-        base.Added();
-		Position += -Vec3.UnitZ * 1.3f;
+	public override void Added()
+	{
+		base.Added();
 		SpawnPoint = Position;
-    }
+	}
 
-    public override void Update()
-    {
-        base.Update();
-    }
+	public override void Update()
+	{
+		base.Update();
+	}
 
-    public override void CollectModels(List<(Actor Actor, Model Model)> populate)
-    {
+	public override void CollectModels(List<(Actor Actor, Model Model)> populate)
+	{
 		ObjectModel.Transform = Matrix.CreateScale(Scale);
 
 		populate.Add((this, ObjectModel));
-    }
+	}
 }

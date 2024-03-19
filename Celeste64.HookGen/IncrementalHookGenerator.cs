@@ -1,10 +1,10 @@
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Text;
-using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace Celeste64.HookGen;
 
@@ -16,7 +16,7 @@ public class IncrementalHookGenerator : IIncrementalGenerator
 	private const string GameNamespace = "Celeste64";
 	private const string OnHookNamespace = $"On.{GameNamespace}";
 	private const string ILHookNamespace = $"IL.{GameNamespace}";
-	
+
 	private const string BindingFlags = "global::System.Reflection.BindingFlags";
 	private const string MethodBase = "global::System.Reflection.MethodBase";
 	private const string OnHookGenTargetAttribute = "global::Celeste64.Mod.InternalOnHookGenTargetAttribute";
@@ -28,7 +28,7 @@ public class IncrementalHookGenerator : IIncrementalGenerator
 	{
 		OnHook, ILHook
 	}
-	
+
 	public void Initialize(IncrementalGeneratorInitializationContext context)
 	{
 		// Get all classes from the 'Celeste64' namespace
@@ -55,7 +55,7 @@ public class IncrementalHookGenerator : IIncrementalGenerator
 	}
 
 	private static readonly SymbolDisplayFormat namespaceAndTypeFormat = new(typeQualificationStyle: SymbolDisplayTypeQualificationStyle.NameAndContainingTypesAndNamespaces);
-	
+
 	private static void GenerateCode(SourceProductionContext context, Compilation compilation, ImmutableArray<ClassDeclarationSyntax> classDeclarations, HookType hookType)
 	{
 		StringBuilder code = new();
@@ -80,7 +80,7 @@ public class IncrementalHookGenerator : IIncrementalGenerator
 				// We don't want to hook non-public types
 				classSymbol.DeclaredAccessibility != Accessibility.Public ||
 				// We don't want to hook disallowed types
-			    classSymbol.GetAttributes().Any(attr => attr.AttributeClass is { } attrType && attrType.ToDisplayString(namespaceAndTypeFormat) == DisallowHooksAttribute))
+				classSymbol.GetAttributes().Any(attr => attr.AttributeClass is { } attrType && attrType.ToDisplayString(namespaceAndTypeFormat) == DisallowHooksAttribute))
 			{
 				continue;
 			}
@@ -145,7 +145,7 @@ public class IncrementalHookGenerator : IIncrementalGenerator
 					else
 						code.AppendLine(
 							$"{Indent}public delegate {returnType} orig_{methodName}({classSymbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)} self, {string.Join(", ", parameters)});");
-					
+
 					// m_ MethodInfo
 					// NOTE: Only public methods can be hooked anyway
 					var bindingFlags = method.IsStatic
@@ -166,7 +166,7 @@ public class IncrementalHookGenerator : IIncrementalGenerator
 					}
 					code.AppendLine($"{Indent}public static readonly {MethodBase} m_{methodName} = {methodBase};");
 				}
-				
+
 				// Hook attribute
 				code.AppendLine(hookType switch
 				{

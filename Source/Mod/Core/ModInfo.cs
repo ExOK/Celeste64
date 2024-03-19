@@ -13,18 +13,18 @@ public class ModInfo
 	/// The mod's unique identifier. Must only be alpha-numeric + underscore.
 	/// </summary>
 	public string Id { get; set; } = "";
-	
+
 	/// <summary>
 	/// The mod's display name.
 	/// </summary>
 	public string Name { get; set; } = "";
-	
+
 	/// <summary>
 	/// The mod's version.
 	/// </summary>
 	[JsonIgnore]
 	public Version Version { get; internal set; } = null!;
-	
+
 	/// <summary>
 	/// The mod's version string. Can contain an optional suffix after a hyphen (-).
 	/// </summary>
@@ -49,27 +49,27 @@ public class ModInfo
 	/// (Optional) The mod's author.
 	/// </summary>
 	public string? ModAuthor { get; set; }
-	
+
 	/// <summary>
 	/// (Optional) The mod's description.
 	/// </summary>
 	public string? Description { get; set; }
-	
+
 	/// <summary>
 	/// (Optional) The mod's icon path.
 	/// </summary>
 	public string? Icon { get; set; }
-	
+
 	/// <summary>
 	/// (Optional) The mod's minimum Fuji version.
 	/// </summary>
 	public string? FujiRequiredVersion { get; set; }
-	
+
 	/// <summary>
 	/// (Optional) The mod's dependencies with ModID -> MinimumVersion.
 	/// </summary>
 	public Dictionary<string, string> Dependencies { get; set; } = new();
-	
+
 	/// <summary>
 	/// (Optional) The mod's asset replacements with Original -> Overwrite.
 	/// </summary>
@@ -77,13 +77,13 @@ public class ModInfo
 
 	[JsonIgnore]
 	internal ModAssemblyLoadContext? AssemblyContext = null;
-	
+
 	private static readonly Regex IdRegex = new("[a-zA-z0-9_]", RegexOptions.Compiled);
-	
+
 	public bool IsValid()
 	{
-		return !string.IsNullOrEmpty(Id) && !string.IsNullOrEmpty(Name) && !string.IsNullOrEmpty(VersionString) && 
-		       IdRegex.IsMatch(Id) && Id != "_";
+		return !string.IsNullOrEmpty(Id) && !string.IsNullOrEmpty(Name) && !string.IsNullOrEmpty(VersionString) &&
+			   IdRegex.IsMatch(Id) && Id != "_";
 	}
 }
 

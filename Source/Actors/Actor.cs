@@ -1,4 +1,3 @@
-
 namespace Celeste64;
 
 public class Actor
@@ -6,7 +5,7 @@ public class Actor
 	protected World? world = null;
 	protected Vec3 position;
 	protected Vec2 facing = -Vec2.UnitY;
-	protected Vec2 tilt = Vec2.Zero; 
+	protected Vec2 tilt = Vec2.Zero;
 	protected Vec3 forward;
 	protected Matrix matrix;
 	protected BoundingBox localBounds;
@@ -83,7 +82,7 @@ public class Actor
 		get => new Vec3(tilt.X, tilt.Y, facing.Angle());
 		set
 		{
-			if(RotationXYZ != value)
+			if (RotationXYZ != value)
 			{
 				tilt.X = value.X;
 				tilt.Y = value.Y;
@@ -149,7 +148,7 @@ public class Actor
 		matrix =
 			Matrix.CreateRotationY(tilt.Y) *
 			Matrix.CreateRotationX(tilt.X) *
-			Matrix.CreateRotationZ(facing.Angle() + MathF.PI/2) *
+			Matrix.CreateRotationZ(facing.Angle() + MathF.PI / 2) *
 			Matrix.CreateTranslation(position);
 		worldBounds = BoundingBox.Transform(localBounds, matrix);
 		forward = Vec3.TransformNormal(-Vec3.UnitY, matrix);
@@ -157,14 +156,14 @@ public class Actor
 		Transformed();
 	}
 
-	public virtual void Created() {}
+	public virtual void Created() { }
 	public virtual void Added() { }
-	public virtual void Update() {}
-	public virtual void LateUpdate() {}
-	public virtual void Destroyed() {}
+	public virtual void Update() { }
+	public virtual void LateUpdate() { }
+	public virtual void Destroyed() { }
 
 	/// <summary>
 	/// Called when we move
 	/// </summary>
-	public virtual void Transformed() {}
+	public virtual void Transformed() { }
 }

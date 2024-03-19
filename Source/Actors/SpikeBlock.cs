@@ -1,5 +1,4 @@
-﻿
-namespace Celeste64;
+﻿namespace Celeste64;
 
 public class SpikeBlock : Attacher, IHaveModels
 {
@@ -69,14 +68,14 @@ public class SpikeBlock : Attacher, IHaveModels
 					Flags = ModelFlags.Terrain,
 					Transform =
 					Matrix.CreateScale(2.5f) *
-					rotation * 
+					rotation *
 					Matrix.CreateTranslation(
 						horizontal * ((x + 0.5f) * step - width / 2) +
 						vertical * ((y + 0.5f) * step - height / 2) +
 						-forward * (step / 2))
 				});
 			}
-			
+
 		Model = new SimpleModel(models);
 		Direction = forward;
 

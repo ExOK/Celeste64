@@ -13,7 +13,7 @@ public class Skybox
 		Texture = texture;
 
 		var block = Texture.Width / 4;
-		
+
 		var u = new Subtexture(Texture, new Rect(block * 0, block * 0, block, block));
 		var d = new Subtexture(Texture, new Rect(block * 0, block * 2, block, block));
 		var n = new Subtexture(Texture, new Rect(block * 0, block * 1, block, block));
@@ -29,7 +29,7 @@ public class Skybox
 		var v5 = new Vec3(1, -1, -1);
 		var v6 = new Vec3(1, 1, -1);
 		var v7 = new Vec3(-1, 1, -1);
-		
+
 		var verts = new List<SpriteVertex>();
 		var indices = new List<int>();
 
@@ -53,21 +53,21 @@ public class Skybox
 		verts.Add(new SpriteVertex(c, v2, Color.White));
 		verts.Add(new SpriteVertex(d, v3, Color.White));
 
-		indices.Add(n + 0);indices.Add(n + 1);indices.Add(n + 2);
-		indices.Add(n + 0);indices.Add(n + 2);indices.Add(n + 3);
+		indices.Add(n + 0); indices.Add(n + 1); indices.Add(n + 2);
+		indices.Add(n + 0); indices.Add(n + 2); indices.Add(n + 3);
 	}
 
 	public void Render(in Camera camera, in Matrix transform, float size)
 	{
 		var mat = Matrix.CreateScale(size) * transform * camera.ViewProjection;
-        if (material.Shader?.Has("u_matrix") ?? false)
-		    material.Set("u_matrix", mat);
-        if (material.Shader?.Has("u_near") ?? false)
-		    material.Set("u_near", camera.NearPlane);
-        if (material.Shader?.Has("u_far") ?? false)
-		    material.Set("u_far", camera.FarPlane);
-        if (material.Shader?.Has("u_texture") ?? false)
-		    material.Set("u_texture", Texture);
+		if (material.Shader?.Has("u_matrix") ?? false)
+			material.Set("u_matrix", mat);
+		if (material.Shader?.Has("u_near") ?? false)
+			material.Set("u_near", camera.NearPlane);
+		if (material.Shader?.Has("u_far") ?? false)
+			material.Set("u_far", camera.FarPlane);
+		if (material.Shader?.Has("u_texture") ?? false)
+			material.Set("u_texture", Texture);
 
 		DrawCommand cmd = new(camera.Target, mesh, material)
 		{

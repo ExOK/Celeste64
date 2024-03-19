@@ -16,13 +16,13 @@ public class MovingBlock : Solid
 		End = end;
 	}
 
-    public override void Added()
-    {
+	public override void Added()
+	{
 		Start = Position;
-        base.Added();
-    }
+		base.Added();
+	}
 
-    public override void Update()
+	public override void Update()
 	{
 		base.Update();
 

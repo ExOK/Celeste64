@@ -5,7 +5,7 @@ namespace Celeste64;
 
 public class ControlsConfig
 {
-    public const string FileName = "controls.json";
+	public const string FileName = "controls.json";
 
     public class Binding
     {

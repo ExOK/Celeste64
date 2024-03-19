@@ -1,20 +1,12 @@
-﻿using Sledge.Formats.Map.Objects;
-using System.Collections;
+﻿using System.Collections;
 using System.Diagnostics.CodeAnalysis;
 using Path = System.IO.Path;
 
 namespace Celeste64.Mod;
 
-public class ModAssetDictionary<V> : IEnumerable<KeyValuePair<string, V>>
+public class ModAssetDictionary<V>(ModAssetDictionary<V>.GetDictionary getDictionary) : IEnumerable<KeyValuePair<string, V>>
 {
 	public delegate Dictionary<string, V> GetDictionary(GameMod mod);
-
-	private GetDictionary getDictionary;
-
-	public ModAssetDictionary(GetDictionary getDictionary)
-	{
-		this.getDictionary = getDictionary;
-	}
 
 	/// <summary>
 	/// Clear out all the assets of this type for every mod.
@@ -32,13 +24,7 @@ public class ModAssetDictionary<V> : IEnumerable<KeyValuePair<string, V>>
 	/// </summary>
 	/// <param name="key">The key we're trying to match to.</param>
 	/// <returns></returns>
-	public V this[string key]
-	{
-		get
-		{
-			return Get(key);
-		}
-	}
+	public V this[string key] => Get(key);
 
 	/// <summary>
 	/// This function gets a given asset base on a given string key following some complicated matching logic.
@@ -62,18 +48,18 @@ public class ModAssetDictionary<V> : IEnumerable<KeyValuePair<string, V>>
 		string? modName = null;
 		string key = stringKey;
 
-		if(splitkey.Length == 2)
+		if (splitkey.Length == 2)
 		{
 			modName = splitkey[0];
 			key = splitkey[1];
 		}
 
-		if(modName != null)
+		if (modName != null)
 		{
 			if (
 				modName == "" &&
-				ModManager.Instance.CurrentLevelMod != null && 
-				getDictionary(ModManager.Instance.CurrentLevelMod).TryGetValue(key, out V? currentModValue) &&
+				ModManager.Instance.CurrentLevelMod != null &&
+				getDictionary(ModManager.Instance.CurrentLevelMod).TryGetValue(key, out var currentModValue) &&
 				currentModValue != null
 			)
 			{
@@ -82,7 +68,7 @@ public class ModAssetDictionary<V> : IEnumerable<KeyValuePair<string, V>>
 			else if (
 				modName == "_" &&
 				ModManager.Instance.VanillaGameMod != null
-				&& getDictionary(ModManager.Instance.VanillaGameMod).TryGetValue(key, out V? vanillaValue) &&
+				&& getDictionary(ModManager.Instance.VanillaGameMod).TryGetValue(key, out var vanillaValue) &&
 				vanillaValue != null
 			)
 			{
@@ -90,9 +76,9 @@ public class ModAssetDictionary<V> : IEnumerable<KeyValuePair<string, V>>
 			}
 			else
 			{
-				GameMod? targetMod = ModManager.Instance.EnabledMods.FirstOrDefault(mod => mod.ModInfo.Id == modName);
-				if (targetMod != null 
-					&& getDictionary(targetMod).TryGetValue(key, out V? targetModValue)
+				var targetMod = ModManager.Instance.EnabledMods.FirstOrDefault(mod => mod.ModInfo.Id == modName);
+				if (targetMod != null
+					&& getDictionary(targetMod).TryGetValue(key, out var targetModValue)
 					&& targetModValue != null)
 				{
 					return targetModValue;
@@ -100,14 +86,14 @@ public class ModAssetDictionary<V> : IEnumerable<KeyValuePair<string, V>>
 			}
 		}
 
-		if (TryGetAssetReplaceForKey(key, out V? assetReplaceValue) && assetReplaceValue != null)
+		if (TryGetAssetReplaceForKey(key, out var assetReplaceValue) && assetReplaceValue != null)
 		{
 			return assetReplaceValue;
 		}
 
 		if (
 			ModManager.Instance.CurrentLevelMod != null &&
-			getDictionary(ModManager.Instance.CurrentLevelMod).TryGetValue(key, out V? currentModAsset) &&
+			getDictionary(ModManager.Instance.CurrentLevelMod).TryGetValue(key, out var currentModAsset) &&
 			currentModAsset != null
 		)
 		{
@@ -116,9 +102,9 @@ public class ModAssetDictionary<V> : IEnumerable<KeyValuePair<string, V>>
 		else
 		{
 			// Note: This assumes the vanilla game will always be loaded as the first mod, so vanilla game assets take priority
-			foreach (GameMod mod in ModManager.Instance.EnabledMods)
+			foreach (var mod in ModManager.Instance.EnabledMods)
 			{
-				if (getDictionary(mod).TryGetValue(key, out V? modValue) && modValue != null)
+				if (getDictionary(mod).TryGetValue(key, out var modValue) && modValue != null)
 				{
 					return modValue;
 				}
@@ -139,7 +125,7 @@ public class ModAssetDictionary<V> : IEnumerable<KeyValuePair<string, V>>
 	/// <returns></returns>
 	private bool TryGetAssetReplaceForKey(string key, [MaybeNullWhen(false)] out V asset)
 	{
-		if (TryGetAssetReplaceForKeyInMod(key, ModManager.Instance.CurrentLevelMod, out V? currentModAsset))
+		if (TryGetAssetReplaceForKeyInMod(key, ModManager.Instance.CurrentLevelMod, out var currentModAsset))
 		{
 			asset = currentModAsset;
 			return true;
@@ -150,7 +136,7 @@ public class ModAssetDictionary<V> : IEnumerable<KeyValuePair<string, V>>
 			if (
 				mod != ModManager.Instance.CurrentLevelMod
 				&& mod != ModManager.Instance.VanillaGameMod
-				&& TryGetAssetReplaceForKeyInMod(key, mod, out V? modAsset)
+				&& TryGetAssetReplaceForKeyInMod(key, mod, out var modAsset)
 			)
 			{
 				asset = modAsset;
@@ -172,18 +158,18 @@ public class ModAssetDictionary<V> : IEnumerable<KeyValuePair<string, V>>
 	/// </summary>
 	private bool TryGetAssetReplaceForKeyInMod(string key, GameMod? mod, [MaybeNullWhen(false)] out V asset)
 	{
-		if (mod != null && mod.ModInfo != null
+		if (mod is { ModInfo: not null }
 			&& mod.ModInfo.AssetReplaceItems.TryGetValue(key, out string? modKey)
 			&& modKey != null
 		)
 		{
-			if (getDictionary(mod).TryGetValue(modKey, out V? modAsset) && modAsset != null)
+			if (getDictionary(mod).TryGetValue(modKey, out var modAsset) && modAsset != null)
 			{
 				asset = modAsset;
 				return true;
 			}
 			else if (ModManager.Instance.VanillaGameMod != null
-				&& getDictionary(ModManager.Instance.VanillaGameMod).TryGetValue(modKey, out V? vanillaValue)
+				&& getDictionary(ModManager.Instance.VanillaGameMod).TryGetValue(modKey, out var vanillaValue)
 				&& vanillaValue != null)
 			{
 				asset = vanillaValue;
@@ -204,9 +190,9 @@ public class ModAssetDictionary<V> : IEnumerable<KeyValuePair<string, V>>
 	public bool ContainsKey(string key)
 	{
 		string[] split = key.Split(":");
-		foreach (GameMod mod in ModManager.Instance.EnabledMods)
+		foreach (var mod in ModManager.Instance.EnabledMods)
 		{
-			if(getDictionary(mod).ContainsKey(key) || (split.Length == 2 && getDictionary(mod).ContainsKey(split[1])))
+			if (getDictionary(mod).ContainsKey(key) || (split.Length == 2 && getDictionary(mod).ContainsKey(split[1])))
 			{
 				return true;
 			}
@@ -249,7 +235,7 @@ public class ModAssetDictionary<V> : IEnumerable<KeyValuePair<string, V>>
 	/// <returns></returns>
 	public bool TryGetValue(string key, [MaybeNullWhen(false)] out V value)
 	{
-		if(ContainsKey(key))
+		if (ContainsKey(key))
 		{
 			value = this[key];
 			return true;
@@ -278,7 +264,7 @@ public class ModAssetDictionary<V> : IEnumerable<KeyValuePair<string, V>>
 		{
 			prop = Path.GetFileNameWithoutExtension(path);
 		}
-		if (TryGetValue(prop, out V? asset))
+		if (TryGetValue(prop, out var asset))
 		{
 			value = asset;
 			return true;
@@ -304,7 +290,7 @@ public class ModAssetDictionary<V> : IEnumerable<KeyValuePair<string, V>>
 		return default;
 	}
 
-	public int Count { get { return ModManager.Instance.EnabledMods.SelectMany(mod => getDictionary(mod)).Count(); } }
+	public int Count => ModManager.Instance.EnabledMods.SelectMany(mod => getDictionary(mod)).Count();
 
 	/// <summary>
 	/// Used to iterate through all assets for this type in all mods.

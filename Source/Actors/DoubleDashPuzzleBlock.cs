@@ -1,16 +1,15 @@
-
 namespace Celeste64;
 
 public class DoubleDashPuzzleBlock : Solid, IUnlockStrawberry, IHaveSprites
 {
-    public bool Satisfied { get; protected set; }
+	public bool Satisfied { get; protected set; }
 
 	public bool Ready = false;
 	public float Pulse = 0;
 	public Color PulseColor;
 
-    public virtual void CollectSprites(List<Sprite> populate)
-    {
+	public virtual void CollectSprites(List<Sprite> populate)
+	{
 		if (Ready && !Satisfied && Pulse > 0)
 		{
 			var haloPos = Position + Vec3.UnitZ * 2 + Vec3.Transform(Vec3.Zero, Model.Transform);
@@ -18,13 +17,13 @@ public class DoubleDashPuzzleBlock : Solid, IUnlockStrawberry, IHaveSprites
 			populate.Add(Sprite.CreateBillboard(World, Position, "ring", Pulse * Pulse * 40, PulseColor * .4f) with { Post = true });
 			populate.Add(Sprite.CreateBillboard(World, Position, "ring", Pulse * 50, PulseColor * .4f) with { Post = true });
 		}
-    }
+	}
 
-    public override void Update()
-    {
+	public override void Update()
+	{
 		base.Update();
 
-		if (!Satisfied && !Ready && World.Get<Player>() is {} player && player.Dashes >= 2 && HasPlayerRider())
+		if (!Satisfied && !Ready && World.Get<Player>() is { Dashes: >= 2 } player && HasPlayerRider())
 		{
 			PulseColor = player.Hair.Color;
 			Ready = true;
@@ -39,5 +38,5 @@ public class DoubleDashPuzzleBlock : Solid, IUnlockStrawberry, IHaveSprites
 			if (Pulse <= 0)
 				Satisfied = true;
 		}
-    }
+	}
 }

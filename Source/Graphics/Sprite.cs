@@ -34,7 +34,7 @@ public struct Sprite
 
 		return default;
 	}
-	
+
 	public static Sprite CreateFlat(World world, Vec3 at, string subtex, float size, Color color)
 	{
 		return new Sprite

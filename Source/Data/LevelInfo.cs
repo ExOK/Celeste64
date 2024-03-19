@@ -1,4 +1,3 @@
-
 using System.Text.Json.Serialization;
 
 namespace Celeste64;
@@ -26,10 +25,10 @@ public class LevelInfo
 			FromBlack = new SpotlightWipe(),
 			StopMusic = true,
 			HoldOnBlackFor = holdTime
-        });
+		});
 	}
 }
 
 [JsonSourceGenerationOptions(WriteIndented = true, AllowTrailingCommas = true)]
 [JsonSerializable(typeof(List<LevelInfo>))]
-internal partial class LevelInfoListContext : JsonSerializerContext {}
+internal partial class LevelInfoListContext : JsonSerializerContext { }

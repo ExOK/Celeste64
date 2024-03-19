@@ -6,8 +6,8 @@ namespace Celeste64.Mod;
 internal class FujiDebugMenu : ImGuiHandler
 {
 	private bool visible = false;
-	public override bool Active { get => Save.Instance.EnableDebugMenu; }
-	public override bool Visible { get => visible; }
+	public override bool Active => Save.Instance.EnableDebugMenu;
+	public override bool Visible => visible;
 
 	public override void Update()
 	{
@@ -17,7 +17,8 @@ internal class FujiDebugMenu : ImGuiHandler
 		}
 	}
 
-	public override void Render() {
+	public override void Render()
+	{
 		ImGui.SetNextWindowSizeConstraints(new Vec2(300, 300), new Vec2(float.PositiveInfinity, float.PositiveInfinity));
 		ImGui.Begin("Celeste 64 - Debug Menu");
 
@@ -44,14 +45,14 @@ internal class FujiDebugMenu : ImGuiHandler
 			}
 		}
 
-		if (Game.Instance.Scene is World world && world.Get<Player>() is Player player)
+		if (Game.Instance.Scene is World world && world.Get<Player>() is { } player)
 		{
 			if (world.All<Checkpoint>().Any() && ImGui.BeginMenu("Go to Checkpoint"))
 			{
 				int i = 0;
 				foreach (var actor in world.All<Checkpoint>())
 				{
-					if(actor is Checkpoint checkpoint)
+					if (actor is Checkpoint checkpoint)
 					{
 						string checkpointName = string.IsNullOrEmpty(checkpoint.CheckpointName) ? $"Checkpoint {i}" : checkpoint.CheckpointName;
 						if (ImGui.MenuItem(checkpointName))
@@ -59,7 +60,7 @@ internal class FujiDebugMenu : ImGuiHandler
 							player.Position = checkpoint.Position;
 						}
 						i++;
-					} 
+					}
 				}
 				ImGui.EndMenu();
 			}
@@ -76,7 +77,7 @@ internal class FujiDebugMenu : ImGuiHandler
 				}
 				if (ImGui.MenuItem("Toggle Debug Fly"))
 				{
-					if(player.StateMachine.State != Player.States.DebugFly)
+					if (player.StateMachine.State != Player.States.DebugFly)
 					{
 						player.StateMachine.State = Player.States.DebugFly;
 					}

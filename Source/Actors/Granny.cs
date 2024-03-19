@@ -1,5 +1,4 @@
-﻿
-namespace Celeste64;
+﻿namespace Celeste64;
 
 public class Granny : NPC
 {
@@ -30,7 +29,7 @@ public class Granny : NPC
 	}
 
 	public virtual void CheckForDialog()
-	{ 
+	{
 		InteractEnabled = Loc.HasLines($"Granny{Save.CurrentRecord.GetFlag(TALK_FLAG) + 1}");
 	}
 }

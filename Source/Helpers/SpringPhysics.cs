@@ -1,4 +1,3 @@
-
 namespace Celeste64;
 
 /// <summary>
@@ -16,7 +15,7 @@ public static class SpringPhysics
 
 	private static float FrequencyToStiffness(float frequency)
 	{
-		return Calc.Squared(2.0f * Calc.PI * frequency);
+		return (2.0f * Calc.PI * frequency).Squared();
 	}
 
 	private static float FastAtan(float x)
@@ -54,7 +53,7 @@ public static class SpringPhysics
 		else if (s - (d * d) / 4.0f > 0.0) // Under Damped
 		{
 			float w = MathF.Sqrt(s - (d * d) / 4.0f);
-			float j = MathF.Sqrt(Calc.Squared(vel + y * (x - c)) / (w * w + Epsilon) + Calc.Squared(x - c));
+			float j = MathF.Sqrt((vel + y * (x - c)).Squared() / (w * w + Epsilon) + (x - c).Squared());
 			float p = FastAtan((vel + (x - c) * y) / (-(x - c) * w + Epsilon));
 
 			j = (x - c) > 0.0f ? j : -j;

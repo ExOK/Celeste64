@@ -1,7 +1,7 @@
-﻿using System.Reflection;
-using System.Text.Json;
-using MonoMod.Cil;
+﻿using MonoMod.Cil;
 using MonoMod.RuntimeDetour;
+using System.Reflection;
+using System.Text.Json;
 
 namespace Celeste64.Mod;
 
@@ -9,15 +9,15 @@ public static class ModLoader
 {
 	public const string ModsFolder = "Mods";
 
-	private static string? modsFolderPath = null;
+	private static string[]? modsFolderPaths = null;
 
 	internal static List<string> FailedToLoadMods = [];
 
-	public static string ModFolderPath
+	public static string[] ModFolderPaths
 	{
 		get
 		{
-			if (modsFolderPath == null)
+			if (modsFolderPaths == null)
 			{
 				var baseFolder = AppContext.BaseDirectory;
 				var searchUpPath = "";
@@ -26,10 +26,20 @@ public static class ModLoader
 					searchUpPath = Path.Join(searchUpPath, "..");
 				if (!Directory.Exists(Path.Join(baseFolder, searchUpPath, ModsFolder)))
 					throw new Exception($"Unable to find {ModsFolder} Directory from '{baseFolder}'");
-				modsFolderPath = Path.Join(baseFolder, searchUpPath, ModsFolder);
+				var modsFolderPath = Path.Join(baseFolder, searchUpPath, ModsFolder);
+				var userModsFolderPath = Path.Join(App.UserPath, ModsFolder);
+				try
+				{
+					Directory.CreateDirectory(userModsFolderPath);
+					modsFolderPaths = [modsFolderPath, userModsFolderPath];
+				}
+				catch
+				{
+					modsFolderPaths = [modsFolderPath];
+				}
 			}
 
-			return modsFolderPath;
+			return modsFolderPaths;
 		}
 	}
 
@@ -42,24 +52,26 @@ public static class ModLoader
 			ModInfo = new ModInfo
 			{
 				Id = "Celeste64Vanilla",
-				Name = "Celese 64: Fragments of the Mountains",
-				VersionString = "1.0.0",
+				Name = "Celeste 64: Fragments of the Mountain",
+				VersionString = "1.1.1",
 			},
 			Filesystem = new FolderModFilesystem(Assets.ContentPath)
 		};
 
+		Log.Info($"Loading mods from: \n- {String.Join("\n- ", ModFolderPaths)}");
+
 		List<(ModInfo, IModFilesystem)> modInfos = [];
 
 		// Find all mods in directories:
-		foreach (var modDir in Directory.EnumerateDirectories(ModFolderPath))
+		foreach (var modDir in ModFolderPaths.SelectMany(path => Directory.EnumerateDirectories(path)))
 		{
 			var modName = Path.GetFileNameWithoutExtension(modDir)!; // Todo: read from some metadata file
 			var fs = new FolderModFilesystem(modDir);
 
-			ModInfo? info = LoadModInfo(modName, fs);
-			if(info != null)
+			var info = LoadModInfo(modName, fs);
+			if (info != null)
 			{
-				if(info.Id == "Celeste64Vanilla" || modInfos.Any(data => data.Item1.Id == info.Id))
+				if (info.Id == "Celeste64Vanilla" || modInfos.Any(data => data.Item1.Id == info.Id))
 				{
 					FailedToLoadMods.Add(modName);
 					Log.Error($"Fuji Error: Could not load mod from directory: {modName}, because a mod with that id already exists");
@@ -73,12 +85,12 @@ public static class ModLoader
 		}
 
 		// Find all mods in zips:
-		foreach (var modZip in Directory.EnumerateFiles(ModFolderPath, "*.zip"))
+		foreach (var modZip in ModFolderPaths.SelectMany(path => Directory.EnumerateFiles(path, "*.zip")))
 		{
 			var modName = Path.GetFileNameWithoutExtension(modZip)!; // Todo: read from some metadata file
 			var fs = new ZipModFilesystem(modZip);
 
-			ModInfo? info = LoadModInfo(modName, fs);
+			var info = LoadModInfo(modName, fs);
 			if (info != null)
 			{
 				if (info.Id == "Celeste64Vanilla" || modInfos.Any(data => data.Item1.Id == info.Id))
@@ -116,9 +128,9 @@ public static class ModLoader
 					var version = new Version(versionString);
 
 					if (loaded.FirstOrDefault(loadedInfo => loadedInfo.Id == modID) is { } dep &&
-					    dep.Version.Major == version.Major &&
-					    (dep.Version.Minor > version.Minor ||
-					     dep.Version.Minor == version.Minor && dep.Version.Build >= version.Build))
+						dep.Version.Major == version.Major &&
+						(dep.Version.Minor > version.Minor ||
+						 dep.Version.Minor == version.Minor && dep.Version.Build >= version.Build))
 					{
 						continue;
 					}
@@ -138,7 +150,7 @@ public static class ModLoader
 				{
 					FindAndRegisterHooks(type);
 				}
-				
+
 				modInfos.RemoveAt(i);
 				loaded.Add(info);
 				loadedModInIteration = true;
@@ -251,14 +263,14 @@ public static class ModLoader
 				Filesystem = fs
 			};
 		}
-		
-		if(loadedModSettings != null && loadedModSettingsType != null)
+
+		if (loadedModSettings != null && loadedModSettingsType != null)
 		{
 			loadedMod.SettingsType = loadedModSettingsType;
 			loadedMod.Settings = loadedModSettings;
 			loadedMod.LoadSettings();
 		}
-		
+
 		return loadedMod;
 	}
 
@@ -275,7 +287,7 @@ public static class ModLoader
 			Log.Info($"Registering On-hook for method '{attr.Target}' in type '{attr.Target.DeclaringType}' with hook method '{info}' in type '{info.DeclaringType}'");
 			HookManager.Instance.RegisterHook(new Hook(attr.Target, info));
 		}
-		
+
 		// IL. hooks
 		var ilHookMethods = type.GetMethods(BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic)
 			.Select(m => (m, m.GetCustomAttribute<InternalILHookGenTargetAttribute>()))

@@ -6,7 +6,7 @@ namespace Celeste64.Mod;
 public abstract class GameMod
 {
 	#region Internally Used Data
-	internal Save.ModRecord ModSaveData { get { return Save.Instance.GetOrMakeMod(ModInfo.Id); } }
+	internal Save.ModRecord ModSaveData => Save.Instance.GetOrMakeMod(ModInfo.Id);
 
 	// They get set as part of the Mod Loading step, not the constructor.
 	internal IModFilesystem Filesystem { get; set; } = null!;
@@ -52,13 +52,13 @@ public abstract class GameMod
 
 	// This is here to give mods easier access to these objects, so they don't have to get them themselves
 	// Warning, these may be null if they haven't been initialized yet, so you should always do a null check before using them.
-	public Game? Game { get { return Game.Instance; } }
-	public World? World { get { return Game != null ? Game.World : null; } }
-	public Map? Map { get { return World != null ? World.Map : null; } }
-	public Player? Player { get { return World != null ? World.Get<Player>() : null; } }
+	public Game? Game => Game.Instance;
+	public World? World => Game?.World;
+	public Map? Map => World?.Map;
+	public Player? Player => World?.Get<Player>();
 
 	// Common Metadata about this mod.
-	public bool Enabled { get { return this is VanillaGameMod || ModSaveData.Enabled; } }
+	public bool Enabled => this is VanillaGameMod || ModSaveData.Enabled;
 	public virtual Type? SettingsType { get; set; }
 	public virtual GameModSettings? Settings { get; set; }
 
@@ -71,7 +71,7 @@ public abstract class GameMod
 	/// List of skins added by this mod.
 	/// </summary>
 	public readonly List<SkinInfo> Skins = [];
-	
+
 	/// <summary>
 	/// List of namespaces for which hook protections should be disabled.
 	/// Hooking Fuji or other mods can break and cause issues when they update.
@@ -89,7 +89,7 @@ public abstract class GameMod
 	{
 		return ModSaveData.SetString(key, value);
 	}
-	public string GetString(string key, string defaultValue="")
+	public string GetString(string key, string defaultValue = "")
 	{
 		return ModSaveData.GetString(key, defaultValue);
 	}
@@ -107,7 +107,7 @@ public abstract class GameMod
 	}
 	public float GetFloat(string key, float defaultValue = 0.0f)
 	{
-		return ModSaveData.GetFloat(key, defaultValue);	
+		return ModSaveData.GetFloat(key, defaultValue);
 	}
 	public bool SaveBool(string key, bool value)
 	{
@@ -147,8 +147,8 @@ public abstract class GameMod
 		if (type == null || instance == null)
 			return false;
 
-		PropertyInfo[] props = type.GetProperties();
-		foreach (PropertyInfo prop in props)
+		var props = type.GetProperties();
+		foreach (var prop in props)
 		{
 			object? propValue = prop.GetValue(instance);
 			if (propValue is int propInt)
@@ -206,8 +206,8 @@ public abstract class GameMod
 		if (type == null || instance == null)
 			return false;
 
-		PropertyInfo[] props = type.GetProperties();
-		foreach (PropertyInfo prop in props)
+		var props = type.GetProperties();
+		foreach (var prop in props)
 		{
 			object? propValue = prop.GetValue(instance);
 			if (propValue is int propInt)
@@ -265,10 +265,10 @@ public abstract class GameMod
 		if (type == null || instance == null)
 			return;
 
-		PropertyInfo[] props = type.GetProperties();
-		foreach (PropertyInfo prop in props)
+		var props = type.GetProperties();
+		foreach (var prop in props)
 		{
-			Type propType = prop.PropertyType;
+			var propType = prop.PropertyType;
 
 			if (prop.GetCustomAttribute<SettingIgnoreAttribute>() != null)
 				continue;
@@ -317,8 +317,8 @@ public abstract class GameMod
 					(int value) =>
 					{
 						object? newValue = propType.GetEnumValues().GetValue(value);
-						OnModSettingChanged(propName, newValue, changingNeedsReload);
 						prop.SetValue(instance, propType.GetEnumValues().GetValue(value));
+						OnModSettingChanged(prop.Name, newValue, changingNeedsReload);
 					}
 				);
 			}
@@ -326,7 +326,7 @@ public abstract class GameMod
 			{
 				int min = 0;
 				int max = 10;
-				SettingRangeAttribute? settingRangeAttribute = prop.GetCustomAttribute<SettingRangeAttribute>();
+				var settingRangeAttribute = prop.GetCustomAttribute<SettingRangeAttribute>();
 				if (settingRangeAttribute != null && settingRangeAttribute.Max > settingRangeAttribute.Min)
 				{
 					min = settingRangeAttribute.Min;
@@ -339,8 +339,8 @@ public abstract class GameMod
 					() => prop.GetValue(instance) as int? ?? 0,
 					(int value) =>
 					{
-						OnModSettingChanged(propName, value, changingNeedsReload);
 						prop.SetValue(instance, value);
+						OnModSettingChanged(prop.Name, value, changingNeedsReload);
 					}
 				);
 			}
@@ -348,10 +348,11 @@ public abstract class GameMod
 			{
 				newItem = new Menu.Toggle(
 					(Loc.Unlocalized)propName,
-					() => {
+					() =>
+					{
 						bool newValue = !(prop.GetValue(instance) as bool? ?? false);
 						prop.SetValue(instance, newValue);
-						OnModSettingChanged(propName, newValue, changingNeedsReload);
+						OnModSettingChanged(prop.Name, newValue, changingNeedsReload);
 					},
 					() => prop.GetValue(instance) as bool? ?? false
 				);
@@ -361,8 +362,7 @@ public abstract class GameMod
 				object? value = prop.GetValue(instance);
 				if (value != null)
 				{
-					Menu subMenu = new Menu(menu.RootMenu);
-					subMenu.Title = propName;
+					var subMenu = new Menu(menu.RootMenu) { Title = propName };
 					AddMenuSettingsForType(subMenu, prop.PropertyType, value);
 					subMenu.Add(new Menu.Option((Loc.Unlocalized)"Back", () =>
 						{
@@ -415,9 +415,9 @@ public abstract class GameMod
 	/// </summary>
 	public List<GameMod> GetDependents()
 	{
-		List<GameMod> depMods = new List<GameMod>();
+		var depMods = new List<GameMod>();
 
-		foreach (GameMod mod in ModManager.Instance.Mods)
+		foreach (var mod in ModManager.Instance.Mods)
 		{
 			if (mod.ModInfo.Dependencies.ContainsKey(ModInfo.Id) && mod.Enabled)
 			{
@@ -439,7 +439,7 @@ public abstract class GameMod
 	{
 		bool shouldEvac = false;
 
-		foreach (GameMod dependent in this.GetDependents())
+		foreach (var dependent in this.GetDependents())
 		{
 			if (!simulate)
 			{
@@ -502,7 +502,7 @@ public abstract class GameMod
 	public static void RegisterILHook(ILHook iLHook) => HookManager.Instance.RegisterILHook(iLHook);
 	public static void RemoveHook(Hook hook) => HookManager.Instance.RemoveHook(hook);
 	public static void RemoveILHook(ILHook iLHook) => HookManager.Instance.RemoveILHook(iLHook);
-	
+
 	/// <summary>
 	/// Registers the provided custom player state,
 	/// and ensures it will be deregistered once the mod unloads.
@@ -522,24 +522,24 @@ public abstract class GameMod
 	/// <summary>
 	/// Called when the Mod is first loaded, or when it becomes enabled
 	/// </summary>
-	public virtual void OnModLoaded(){}
+	public virtual void OnModLoaded() { }
 
 	/// <summary>
 	/// Called when a mod is unloaded, or when it becomes disabled
 	/// </summary>
-	public virtual void OnModUnloaded(){}
+	public virtual void OnModUnloaded() { }
 
 	/// <summary>
 	/// Called once every frame
 	/// </summary>
 	/// <param name="deltaTime">How much time passed since the previous update</param>
-	public virtual void Update(float deltaTime) {}
+	public virtual void Update(float deltaTime) { }
 
 	/// <summary>
 	/// Called at the very beginning of when the game is loaded
 	/// </summary>
 	/// <param name="game"></param>
-	public virtual void OnGameLoaded(Game game){}
+	public virtual void OnGameLoaded(Game game) { }
 
 	/// <summary>
 	/// Called after all assets have been loaded or reloaded.
@@ -552,55 +552,55 @@ public abstract class GameMod
 	/// </summary>
 	/// <param name="world">A reference to the world</param>
 	/// <param name="map">A reference to the map that was loaded</param>
-	public virtual void OnPreMapLoaded(World world, Map map){}
+	public virtual void OnPreMapLoaded(World world, Map map) { }
 
 	/// <summary>
 	/// Called after a map is finished loading.
 	/// </summary>
 	/// <param name="map">A reference to the map that was loaded</param>
-	public virtual void OnMapLoaded(Map map){}
+	public virtual void OnMapLoaded(Map map) { }
 
 	/// <summary>
 	/// Called after a scene transistion either when a scene is first loaded, or reloaded.
 	/// </summary>
 	/// <param name="scene">A reference to the Scene that was entered</param>
-	public virtual void OnSceneEntered(Scene scene){}
+	public virtual void OnSceneEntered(Scene scene) { }
 
 	/// <summary>
 	/// Called after the world finishes loading.
 	/// </summary>
 	/// <param name="world">A reference to the World object that was created</param>
-	public virtual void OnWorldLoaded(World world){}
+	public virtual void OnWorldLoaded(World world) { }
 
 	/// <summary>
 	/// Called whenever a new actor is first created.
 	/// </summary>
 	/// <param name="actor">A reference to the Actor that was created.</param>
-	public virtual void OnActorCreated(Actor actor){}
+	public virtual void OnActorCreated(Actor actor) { }
 
 	/// <summary>
 	/// Called after an actor is actually added to the world.
 	/// </summary>
 	/// <param name="actor">A reference to the Actor that was added</param>
-	public virtual void OnActorAdded(Actor actor){}
+	public virtual void OnActorAdded(Actor actor) { }
 
 	/// <summary>
 	/// Called when an actor is destroyed.
 	/// </summary>
 	/// <param name="actor">A reference to the actor that was destroyed</param>
-	public virtual void OnActorDestroyed(Actor actor){}
+	public virtual void OnActorDestroyed(Actor actor) { }
 
 	/// <summary>
 	/// Called when the player is killed
 	/// </summary>
 	/// <param name="player">A reference to the player</param>
-	public virtual void OnPlayerKilled(Player player) {}
+	public virtual void OnPlayerKilled(Player player) { }
 
 	/// <summary>
 	/// Called whenever a player lands on the ground.
 	/// </summary>
 	/// <param name="player">A reference to the player</param>
-	public virtual void OnPlayerLanded(Player player) {}
+	public virtual void OnPlayerLanded(Player player) { }
 
 	/// <summary>
 	/// Called whenever a player jumps.
@@ -613,21 +613,21 @@ public abstract class GameMod
 	/// </summary>
 	/// <param name="player">A reference to the player</param>
 	/// <param name="state">The new state</param>
-	public virtual void OnPlayerStateChanged(Player player, Player.States? state){}
+	public virtual void OnPlayerStateChanged(Player player, Player.States? state) { }
 
 	/// <summary>
 	/// Called when the current skin is changed.
 	/// </summary>
 	/// <param name="player">A reference to the player</param>
 	/// <param name="skin">The new skin that this changed to</param>
-	public virtual void OnPlayerSkinChange(Player player, SkinInfo skin){}
+	public virtual void OnPlayerSkinChange(Player player, SkinInfo skin) { }
 
 	/// <summary>
 	/// Called whenever an item is pickuped up by the player
 	/// </summary>
 	/// <param name="player">The player that picked up the item</param>
 	/// <param name="item">The IPickup item that was picked up</param>
-	public virtual void OnItemPickup(Player player, IPickup item){}
+	public virtual void OnItemPickup(Player player, IPickup item) { }
 
 	#endregion
 }

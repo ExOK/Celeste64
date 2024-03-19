@@ -1,4 +1,3 @@
-
 using Celeste64.Mod;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -26,17 +25,17 @@ public class Save
 		public string Checkpoint { get; set; } = string.Empty;
 		public HashSet<string> Strawberries { get; set; } = [];
 		public HashSet<string> CompletedSubMaps { get; set; } = [];
-		public Dictionary<string, int> Flags { get; set; } = []; 
+		public Dictionary<string, int> Flags { get; set; } = [];
 		public int Deaths { get; set; } = 0;
 		public TimeSpan Time { get; set; } = new();
 
-		public int GetFlag(string name, int defaultValue = 0) 
+		public int GetFlag(string name, int defaultValue = 0)
 			=> Flags.TryGetValue(name, out int value) ? value : defaultValue;
 
-		public int SetFlag(string name, int value = 1) 
+		public int SetFlag(string name, int value = 1)
 			=> Flags[name] = value;
 
-		public int IncFlag(string name) 
+		public int IncFlag(string name)
 			=> Flags[name] = GetFlag(name) + 1;
 	}
 
@@ -212,7 +211,7 @@ public class Save
 	/// </summary>
 	public void EraseRecord(string levelID)
 	{
-		for (int i = 0; i < Records.Count; i ++)
+		for (int i = 0; i < Records.Count; i++)
 		{
 			if (Records[i].ID == levelID)
 			{
@@ -310,8 +309,13 @@ public class Save
 		SyncSettings();
 	}
 
+	public void SetLanguage(string language)
+	{
+		Language = language;
+	}
+
 	public SkinInfo GetSkin()
-	{ 
+	{
 		return Assets.EnabledSkins.FirstOrDefault(s => s.Name == SkinName) ??
 			ModManager.Instance.VanillaGameMod?.Skins.FirstOrDefault() ??
 			new SkinInfo
@@ -325,7 +329,7 @@ public class Save
 				HairRefillFlash = 0xffffff,
 				HairFeather = 0xf2d450
 			};
-}
+	}
 
 	public void SyncSettings()
 	{
@@ -378,4 +382,4 @@ public class Save
 
 [JsonSourceGenerationOptions(WriteIndented = true, AllowTrailingCommas = true, UseStringEnumConverter = true)]
 [JsonSerializable(typeof(Save))]
-internal partial class SaveContext : JsonSerializerContext {}
+internal partial class SaveContext : JsonSerializerContext { }

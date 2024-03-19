@@ -1,4 +1,3 @@
-
 namespace Celeste64;
 
 public class Checkpoint : Actor, IHaveModels, IPickup, IHaveSprites

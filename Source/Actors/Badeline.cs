@@ -1,4 +1,3 @@
-
 namespace Celeste64;
 
 public class Badeline : NPC
@@ -19,28 +18,28 @@ public class Badeline : NPC
 				mat.Color = HairColor;
 				mat.Effects = 0;
 			}
-            mat.SilhouetteColor = HairColor;
+			mat.SilhouetteColor = HairColor;
 		}
 
-        Hair = new()
-        {
-            Color = HairColor,
+		Hair = new()
+		{
+			Color = HairColor,
 			ForwardOffsetPerNode = 0,
-            Nodes = 10
-        };
+			Nodes = 10
+		};
 
-        InteractHoverOffset = new Vec3(0, -2, 16);
+		InteractHoverOffset = new Vec3(0, -2, 16);
 		InteractRadius = 32;
 		CheckForDialog();
 	}
 
-    public override void Update()
-    {
-        base.Update();
-		
+	public override void Update()
+	{
+		base.Update();
+
 		// update model
-		Model.Transform = 
-			Matrix.CreateScale(3) * 
+		Model.Transform =
+			Matrix.CreateScale(3) *
 			Matrix.CreateTranslation(0, 0, MathF.Sin(World.GeneralTimer * 2) * 1.0f - 1.5f);
 
 		// update hair
@@ -50,14 +49,14 @@ public class Badeline : NPC
 				if (it.Name == "Head")
 					hairMatrix = it.ModelMatrix * SkinnedModel.BaseTranslation * Model.Transform * Matrix;
 			Hair.Flags = Model.Flags;
-			Hair.Forward = -new Vec3(Facing, 0); 
+			Hair.Forward = -new Vec3(Facing, 0);
 			Hair.Materials[0].Effects = 0;
 			Hair.Update(hairMatrix);
 		}
-		
-    }
 
-    public override void Interact(Player player)
+	}
+
+	public override void Interact(Player player)
 	{
 		World.Add(new Cutscene(Conversation));
 	}
@@ -73,14 +72,14 @@ public class Badeline : NPC
 		CheckForDialog();
 	}
 
-    public override void CollectModels(List<(Actor Actor, Model Model)> populate)
-    {
+	public override void CollectModels(List<(Actor Actor, Model Model)> populate)
+	{
 		populate.Add((this, Hair));
-        base.CollectModels(populate);
-    }
+		base.CollectModels(populate);
+	}
 
 	public virtual void CheckForDialog()
-	{ 
+	{
 		InteractEnabled = Loc.HasLines($"Baddy{Save.CurrentRecord.GetFlag(TALK_FLAG) + 1}");
 	}
 }

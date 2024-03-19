@@ -1,5 +1,4 @@
-﻿
-namespace Celeste64;
+﻿namespace Celeste64;
 
 public class FloatingDecoration : Actor, IHaveModels
 {
@@ -7,14 +6,14 @@ public class FloatingDecoration : Actor, IHaveModels
 	public float Rate;
 	public float Offset;
 
-    public override void Added()
-    {
+	public override void Added()
+	{
 		Rate = World.Rng.Float(1, 3);
 		Offset = World.Rng.Float(MathF.Tau);
 		UpdateOffScreen = true;
-    }
+	}
 
-    public virtual void CollectModels(List<(Actor Actor, Model Model)> populate)
+	public virtual void CollectModels(List<(Actor Actor, Model Model)> populate)
 	{
 		var time = World.GeneralTimer * Rate * 0.25f + Offset;
 		Model.Transform = Matrix.CreateTranslation(0, 0, MathF.Sin(time) * 12);

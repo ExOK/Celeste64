@@ -12,7 +12,7 @@ public class ModOptionsMenu : Menu
 	public override void Closed()
 	{
 		base.Closed();
-		if(Mod != null )
+		if (Mod != null)
 		{
 			Mod.SaveSettings();
 			Save.Instance.SaveToFile();
@@ -30,7 +30,7 @@ public class ModOptionsMenu : Menu
 
 		mod.AddModSettings(this);
 
-		if(RootMenu != null)
+		if (RootMenu != null)
 		{
 			Add(new Option("Back", () =>
 			{

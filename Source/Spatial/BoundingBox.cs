@@ -1,4 +1,3 @@
-
 namespace Celeste64;
 
 /// <summary>
@@ -10,8 +9,8 @@ public record struct BoundingBox(Vec3 Min, Vec3 Max)
 	public readonly Vec3 Center => (Min + Max) / 2;
 	public readonly Vec3 Size => Max - Min;
 
-	public BoundingBox(Vec3 position, float size) 
-		: this(position - Vec3.One * size / 2, position + Vec3.One * size) {}
+	public BoundingBox(Vec3 position, float size)
+		: this(position - Vec3.One * size / 2, position + Vec3.One * size) { }
 
 	public readonly PlaneIntersectionType Intersects(in Plane plane)
 	{
@@ -66,14 +65,14 @@ public record struct BoundingBox(Vec3 Min, Vec3 Max)
 
 	public readonly bool Contains(in Vec3 point)
 	{
-		return 
+		return
 			point.X >= Min.X && point.Y >= Min.Y && point.Z >= Min.Z &&
 			point.X <= Max.X && point.Y <= Max.Y && point.Z <= Max.Z;
 	}
 
 	public readonly bool Intersects(in BoundingBox box)
 	{
-		return 
+		return
 			Max.X >= box.Min.X && Max.Y >= box.Min.Y && Max.Z >= box.Min.Z &&
 			Min.X <= box.Max.X && Min.Y <= box.Max.Y && Min.Z <= box.Max.Z;
 	}
@@ -88,17 +87,17 @@ public record struct BoundingBox(Vec3 Min, Vec3 Max)
 	public readonly BoundingBox Conflate(in BoundingBox other)
 		=> new(Vec3.Min(Min, other.Min), Vec3.Max(Max, other.Max));
 
-	public static BoundingBox operator+(BoundingBox a, Vec3 offset)
+	public static BoundingBox operator +(BoundingBox a, Vec3 offset)
 		=> new(a.Min + offset, a.Max + offset);
-		
-	public static BoundingBox operator-(BoundingBox a, Vec3 offset)
+
+	public static BoundingBox operator -(BoundingBox a, Vec3 offset)
 		=> new(a.Min - offset, a.Max - offset);
 
 	public static BoundingBox Transform(in BoundingBox a, in Matrix matrix)
 	{
 		var corners = a.GetCorners();
 		var min = Vec3.Transform(corners[0], matrix); var max = Vec3.Transform(corners[0], matrix);
-		for (int i = 1; i < corners.Count; i ++)
+		for (int i = 1; i < corners.Count; i++)
 		{
 			var it = Vec3.Transform(corners[i], matrix);
 			min = Vec3.Min(min, it);
@@ -110,10 +109,10 @@ public record struct BoundingBox(Vec3 Min, Vec3 Max)
 	public readonly StackList8<Vec3> GetCorners()
 	{
 		return [
-			new Vec3(Min.X, Max.Y, Max.Z), 
+			new Vec3(Min.X, Max.Y, Max.Z),
 			new Vec3(Max.X, Max.Y, Max.Z),
-			new Vec3(Max.X, Min.Y, Max.Z), 
-			new Vec3(Min.X, Min.Y, Max.Z), 
+			new Vec3(Max.X, Min.Y, Max.Z),
+			new Vec3(Min.X, Min.Y, Max.Z),
 			new Vec3(Min.X, Max.Y, Min.Z),
 			new Vec3(Max.X, Max.Y, Min.Z),
 			new Vec3(Max.X, Min.Y, Min.Z),

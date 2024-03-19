@@ -1,10 +1,9 @@
-﻿
-namespace Celeste64;
+﻿namespace Celeste64;
 
 public struct Camera()
 {
 	private Target? target = null;
-	private Vec3 position =  Vec3.Zero;
+	private Vec3 position = Vec3.Zero;
 	private Vec3 lookAt = new(0, 1, 0);
 	private float nearPlane = 0.01f;
 	private float farPlane = 100f;
@@ -101,8 +100,7 @@ public struct Camera()
 	{
 		get
 		{
-			if (!normal.HasValue)
-				normal = (LookAt - Position).Normalized();
+			normal ??= (LookAt - Position).Normalized();
 			return normal.Value;
 		}
 	}
@@ -111,8 +109,7 @@ public struct Camera()
 	{
 		get
 		{
-			if (!view.HasValue)
-				view = Matrix.CreateLookAt(Position, LookAt, Vec3.UnitZ);
+			view ??= Matrix.CreateLookAt(Position, LookAt, Vec3.UnitZ);
 			return view.Value;
 		}
 	}
@@ -135,8 +132,7 @@ public struct Camera()
 	{
 		get
 		{
-			if (!viewProjection.HasValue)
-				viewProjection = View * Projection;
+			viewProjection ??= View * Projection;
 			return viewProjection.Value;
 		}
 	}
@@ -145,8 +141,7 @@ public struct Camera()
 	{
 		get
 		{
-			if (!rotation.HasValue)
-				rotation = Quaternion.CreateFromRotationMatrix(View);
+			rotation ??= Quaternion.CreateFromRotationMatrix(View);
 			return rotation.Value;
 		}
 	}
@@ -155,8 +150,7 @@ public struct Camera()
 	{
 		get
 		{
-			if (!frustum.HasValue)
-				frustum = new BoundingFrustum(ViewProjection);
+			frustum ??= new BoundingFrustum(ViewProjection);
 			return frustum.Value;
 		}
 	}
@@ -167,8 +161,7 @@ public struct Camera()
 	{
 		get
 		{
-			if (!upwards.HasValue)
-				upwards = Vec3.Transform(Vec3.UnitY, Rotation.Conjugated());
+			upwards ??= Vec3.Transform(Vec3.UnitY, Rotation.Conjugated());
 			return upwards.Value;
 		}
 	}
@@ -177,8 +170,7 @@ public struct Camera()
 	{
 		get
 		{
-			if (!leftwards.HasValue)
-				leftwards = Vec3.Transform(-Vec3.UnitX, Rotation.Conjugated());
+			leftwards ??= Vec3.Transform(-Vec3.UnitX, Rotation.Conjugated());
 			return leftwards.Value;
 		}
 	}

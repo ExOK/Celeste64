@@ -1,5 +1,4 @@
-﻿
-namespace Celeste64;
+﻿namespace Celeste64;
 
 public readonly struct ParticleTheme
 {
@@ -41,7 +40,7 @@ public class ParticleSystem
 		{
 			if (Particles.Count >= MaxParticles)
 				Particles.RemoveAt(0);
-				
+
 			Particles.Add(new Particle() with
 			{
 				Position = position,
@@ -52,7 +51,7 @@ public class ParticleSystem
 			Accumulator--;
 		}
 	}
-		
+
 	public void Update(float deltaTime)
 	{
 		for (int i = Particles.Count - 1; i >= 0; i--)
@@ -65,7 +64,7 @@ public class ParticleSystem
 
 			if (it.Life <= 0)
 				Particles.RemoveAt(i);
-			else	
+			else
 				Particles[i] = it;
 		}
 	}
@@ -79,7 +78,7 @@ public class ParticleSystem
 		{
 			if (Particles[i].Life <= 0)
 				continue;
-				
+
 			populate.Add(Sprite.CreateBillboard(world, Particles[i].Position, Theme.Sprite, Theme.Size * Particles[i].Life / Theme.Life, Color.White));
 		}
 	}
