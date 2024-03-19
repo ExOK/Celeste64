@@ -63,20 +63,20 @@ public class SelectSaveScene : Scene
         saveSelectionMenu.Render(batch, new Vec2(bounds.Center.X, bounds.Center.Y - 16f));
 
 
-        var at = bounds.BottomRight + new Vec2(-188/6, -4) * Game.RelativeScale + new Vec2(0, -UI.PromptSize);
-        UI.Prompt(batch, Controls.Cancel, Loc.Str("Exit"), at, out var width, 1.0f);
+        var at = bounds.BottomRight + new Vec2(-32, -4) * Game.RelativeScale + new Vec2(0, -UI.PromptSize);
+        UI.Prompt(batch, Controls.Cancel, "Back", at, out var width, 1.0f);
         at.X -= width + 8 * Game.RelativeScale;
 
-        UI.Prompt(batch, Controls.Confirm, Loc.Str("Confirm"), at, out _, 1.0f);
-        at.X -= width + 40 * Game.RelativeScale;
+        UI.Prompt(batch, Controls.Confirm, "Load File", at, out width, 1.0f);
+        at.X -= width + 8 * Game.RelativeScale;
 
-        UI.Prompt(batch, Controls.DeleteFile, "Delete File", at, out _, 1.0f);
-        at.X -= width + 75 * Game.RelativeScale;
+        UI.Prompt(batch, Controls.CreateFile, "Create File", at, out width, 1.0f);
+        at.X -= width + 8 * Game.RelativeScale;
 
-        UI.Prompt(batch, Controls.CopyFile, "Copy File", at, out _, 1.0f);
-        at.X -= width + 65 * Game.RelativeScale;
+        UI.Prompt(batch, Controls.DeleteFile, "Delete File", at, out width, 1.0f);
+        at.X -= width + 8 * Game.RelativeScale;
 
-        UI.Prompt(batch, Controls.CreateFile, "Create File", at, out _, 1.0f);
+        UI.Prompt(batch, Controls.CopyFile, "Copy File", at, out width, 1.0f);
 
         batch.Render(target);
         batch.Clear();
