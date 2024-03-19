@@ -352,7 +352,7 @@ public class Overworld : Scene
 					};
 
 					pauseMenu.Add(new Menu.Submenu("PauseOptions", pauseMenu, optionsMenu));
-					pauseMenu.Add(new Menu.LegacyOption("Saves", () =>
+					pauseMenu.Add(new Menu.Option("PauseSaves", () =>
 					{
 						Game.Instance.Goto(new Transition()
 						{

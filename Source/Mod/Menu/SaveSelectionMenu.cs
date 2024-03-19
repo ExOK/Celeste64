@@ -185,7 +185,7 @@ public class SaveSelectionMenu : Menu
 		{
 			Menu newMenu = new Menu(this);
 			newMenu.Title = "Create new file?";
-			newMenu.Add(new LegacyOption("Yes", () =>
+			newMenu.Add(new Option("OptionsYes", () =>
 			{
 				if (Game.Instance.IsMidTransition) return;
 				SaveManager.Instance.NewSave();
@@ -198,7 +198,7 @@ public class SaveSelectionMenu : Menu
 				});
 				PopSubMenu();
 			}));
-			newMenu.Add(new LegacyOption("No", () => PopSubMenu()));
+			newMenu.Add(new Option("OptionsNo", () => PopSubMenu()));
 			PushSubMenu(newMenu);
 
 		}
@@ -207,7 +207,7 @@ public class SaveSelectionMenu : Menu
 		{
 			Menu newMenu = new Menu(this);
 			newMenu.Title = $"Delete this file? {saves[CurrentPageStart + CurrentIndex]}";
-			newMenu.Add(new LegacyOption("Yes", () =>
+			newMenu.Add(new Option("OptionsYes", () =>
 			{
 				if (Game.Instance.IsMidTransition) return;
 				SaveManager.Instance.DeleteSave(saves[CurrentPageStart + CurrentIndex]);
@@ -220,7 +220,7 @@ public class SaveSelectionMenu : Menu
 				});
 				PopSubMenu();
 			}));
-			newMenu.Add(new LegacyOption("No", () => PopSubMenu()));
+			newMenu.Add(new Option("OptionsNo", () => PopSubMenu()));
 			PushSubMenu(newMenu);
 		}
 
@@ -228,7 +228,7 @@ public class SaveSelectionMenu : Menu
 		{
 			Menu newMenu = new Menu(this);
 			newMenu.Title = $"Copy this file? {saves[CurrentPageStart + CurrentIndex]}";
-			newMenu.Add(new LegacyOption("Yes", () =>
+			newMenu.Add(new Option("OptionsYes", () =>
 			{
 				if (Game.Instance.IsMidTransition) return;
 				SaveManager.Instance.CopySave(saves[CurrentPageStart + CurrentIndex]);
@@ -242,7 +242,7 @@ public class SaveSelectionMenu : Menu
 				PopSubMenu();
 			}));
 			PushSubMenu(newMenu);
-			newMenu.Add(new LegacyOption("No", () => PopSubMenu()));
+			newMenu.Add(new Option("OptionsNo", () => PopSubMenu()));
 		}
 	}
 

@@ -20,6 +20,8 @@
 		"PauseOptions.desc": "Update the Game Options",
 		"PauseSaveQuit": "Save & Quit",
 		"PauseSaveQuit.desc": "Save & Quit to the Title Screen",
+		"PauseSaves": "Saves",
+		"PauseSaves.desc": "Open the Save Select Menu",
 		"OptionsTitle": "Options",
 		"OptionsFullscreen": "Fullscreen",
 		"OptionsFullscreen.desc": "Control if the Game is Fullscreen or Windowed",
@@ -35,6 +37,8 @@
 		"OptionsInvertCamera.desc": "Control if the Camera X and Y axes are inverted",
 		"OptionsToggleOn": "ON",
 		"OptionsToggleOff": "OFF",
+		"OptionsYes": "Yes",
+		"OptionsNo": "No",
 
 		"Skin": "Skin",
 		"Skin.desc": "Choose a Skin to Wear",
