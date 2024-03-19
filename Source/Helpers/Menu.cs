@@ -153,22 +153,22 @@ public class Menu
 		}
 	}
 
-    public class LegacyOption(string label, Action? action = null) : Item
-    {
-        public override string Label => label;
-        public override bool Pressed()
-        {
-            if (action != null)
-            {
-                Audio.Play(Sfx.ui_select);
-                action();
-                return true;
-            }
-            return false;
-        }
-    }
+	public class LegacyOption(string label, Action? action = null) : Item
+	{
+		public override string Label => label;
+		public override bool Pressed()
+		{
+			if (action != null)
+			{
+				Audio.Play(Sfx.ui_select);
+				action();
+				return true;
+			}
+			return false;
+		}
+	}
 
-    public class Toggle(Loc.Localized locString, Action action, Func<bool> get) : Item
+	public class Toggle(Loc.Localized locString, Action action, Func<bool> get) : Item
 	{
 		private string labelOff => $"{locString} : {Loc.Str("OptionsToggleOff")}";
 		private string labelOn => $"{locString} :  {Loc.Str("OptionsToggleOn")}";

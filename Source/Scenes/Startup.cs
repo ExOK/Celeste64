@@ -1,5 +1,5 @@
-using System.Text.Json;
 using Celeste64.Mod.Data;
+using System.Text.Json;
 
 namespace Celeste64;
 

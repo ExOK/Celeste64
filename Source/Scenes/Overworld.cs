@@ -354,14 +354,14 @@ public class Overworld : Scene
 					pauseMenu.Add(new Menu.Submenu("PauseOptions", pauseMenu, optionsMenu));
 					pauseMenu.Add(new Menu.LegacyOption("Saves", () =>
 					{
-                        Game.Instance.Goto(new Transition()
-                        {
-                            Mode = Transition.Modes.Replace,
-                            Scene = () => new SelectSaveScene(),
-                            ToBlack = new AngledWipe(),
-                            ToPause = true
-                        });
-                    }));
+						Game.Instance.Goto(new Transition()
+						{
+							Mode = Transition.Modes.Replace,
+							Scene = () => new SelectSaveScene(),
+							ToBlack = new AngledWipe(),
+							ToPause = true
+						});
+					}));
 					pauseMenu.Add(new Menu.Submenu("Mods", pauseMenu, modMenu));
 					pauseMenu.Add(new Menu.Option("Exit", () =>
 					{
