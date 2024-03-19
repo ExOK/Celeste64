@@ -136,6 +136,13 @@
 [
 ]
 
+@SolidClass = LoadingZone : "Invisible; Teleports the player to a different map"
+[
+    map(string) : "Map"
+    checkpointname(string) : "Name of the checkpoint the player should spawn at. Leave blank to spawn at start"
+    issubmap(integer) : "Are we going to a submap" : 0
+]
+
 @SolidClass = BreakBlock : "Dash to Break it"
 [
     bounces(integer) : "Bounces" : : "If this block Bounces the player when broken"
