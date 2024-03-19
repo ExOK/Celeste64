@@ -1,0 +1,37 @@
+name: Submit a feature request
+description: Submit a request for a new Fuji mod loader feature
+labels: ["enhancement", "fr-pending-review"]
+assignees:
+  - axiand
+body:
+  - type: checkboxes
+    id: confirmation
+    attributes:
+      label: Please confirm the following
+      options:
+        - label: I have searched to ensure that my feature request is not a duplicate
+          required: true
+        - label: My feature request will benefit the general community (i.e. it is not better off as a standalone mod)
+          required: true
+  - type: textarea
+    id: impl
+    attributes:
+      label: Describe your feature
+      description: Requests that are too vague may be rejected.
+      placeholder: Please describe the implementation of your feature. Add as much detail as you think is necessary.
+    validations:
+      required: true
+  - type: textarea
+    id: argue_in_favour
+    attributes:
+      label: Why should we implement this?
+      placeholder: Present a strong but concise argument for adding your feature, this will make it more likely to be considered.
+    validations:
+      required: true
+  - type: checkboxes
+    id: teamwork
+    attributes:
+      label: Optional
+      options:
+        - label: I will open (or have already opened) a pull request that implements this feature.
+          required: false

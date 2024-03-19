@@ -1,0 +1,32 @@
+name: Submit a bug report
+description: Submit a bug report for the Fuji mod loader
+labels: ["bug"]
+body:
+  - type: checkboxes
+    id: confirmation
+    attributes:
+      label: Please confirm the following
+      options:
+        - label: I am using the latest stable/beta version of Fuji
+          required: true
+        - label: I have confirmed that this issue is not caused by a faulty mod
+          required: true
+        - label: I have searched and confirmed that this issue is not a duplicate
+          required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: What were you doing?
+      description: What were you trying to accomplish when this issue happened? How can we reproduce this issue?
+      placeholder: Add context
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Your logs
+      description: Please paste your logs so we can diagnose this issue in more detail.
+      placeholder: Paste here
+      render: shell
+    validations:
+      required: true
