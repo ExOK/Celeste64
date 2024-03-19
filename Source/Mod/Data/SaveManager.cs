@@ -51,9 +51,9 @@ public class SaveManager
 
     public void NewSave()
     {
-        Save.Instance.FileName = $"save_{GetSaveCount()}.json";
-        var savePath = Path.Join(App.UserPath, Save.Instance.FileName);
-        var tempPath = Path.Join(App.UserPath, Save.Instance.FileName + ".backup");
+        string name = $"save_{GetSaveCount()}.json";
+        var savePath = Path.Join(App.UserPath, name);
+        var tempPath = Path.Join(App.UserPath, name + ".backup");
 
         // first save to a temporary file
         {
@@ -72,6 +72,7 @@ public class SaveManager
 
     public void DeleteSave(string save)
     {
+        if (save == "save.json") return;
         if (File.Exists(Path.Join(App.UserPath, save)))
         {
             File.Delete(Path.Join(App.UserPath, save));
@@ -88,5 +89,7 @@ public class SaveManager
         else
             Save.Instance = new();
         Save.Instance.SyncSettings();
+        Save.Instance.FileName = file_name;
+        SetLastLoadedSave(file_name);
     }
 }

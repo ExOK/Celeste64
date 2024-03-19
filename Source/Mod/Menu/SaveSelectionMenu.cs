@@ -51,22 +51,42 @@ public class SaveSelectionMenu : Menu
         float imgScale = 0.7f;
         Subtexture image = strawberryImage;
         Vec2 imageSize = new Vec2(size.X / image.Width, size.Y / image.Height);
-        batch.Rect((pos - (size * imgScale) / 2) * Game.RelativeScale, size * imgScale * Game.RelativeScale, Color.White);
         batch.Image(image, (pos - (size * imgScale) / 2) * Game.RelativeScale, imageSize * imgScale * Game.RelativeScale, imageSize * imgScale * Game.RelativeScale, 0, Color.White);
         batch.PushMatrix(Matrix3x2.CreateScale(.6f) * Matrix3x2.CreateTranslation((pos + new Vec2(0, size.Y * 0.4f)) * Game.RelativeScale));
         batch.Text(Language.Current.SpriteFont, save, Vec2.Zero, new Vec2(0.5f, 0), Color.Black * 0.7f);
         batch.PopMatrix();
     }
 
-    private void RenderCurrentSave(Batcher batch, string save, Vec2 pos, Vec2 size)
+    private void RenderSelectedSave(Batcher batch, string save, Vec2 pos, Vec2 size)
     {
         float imgScale = 0.8f;
         Subtexture image = strawberryImage;
         Vec2 imageSize = new Vector2(size.X / image.Width, size.Y / image.Height);
-        batch.Rect((pos - (size * imgScale) / 2) * Game.RelativeScale, size * imgScale * Game.RelativeScale, Color.LightGray);
         batch.Image(image, (pos - (size * imgScale) / 2) * Game.RelativeScale, imageSize * imgScale * Game.RelativeScale, imageSize * imgScale * Game.RelativeScale, 0, Color.White);
         batch.PushMatrix(Matrix3x2.CreateScale(.7f) * Matrix3x2.CreateTranslation((pos + new Vec2(0, size.Y * 0.4f)) * Game.RelativeScale));
-        batch.Text(Language.Current.SpriteFont, save, Vec2.Zero, new Vec2(0.5f, 0), Color.Black);
+        batch.Text(Language.Current.SpriteFont, save, Vec2.Zero, new Vec2(0.5f, 0), new Color(0x98d3ae));
+        batch.PopMatrix();
+    }
+
+    private void RenderCurrentSelectedSave(Batcher batch, string save, Vec2 pos, Vec2 size)
+    {
+        float imgScale = 0.95f;
+        Subtexture image = strawberryImage;
+        Vec2 imageSize = new Vector2(size.X / image.Width, size.Y / image.Height);
+        batch.Image(image, (pos - (size * imgScale) / 2) * Game.RelativeScale, imageSize * imgScale * Game.RelativeScale, imageSize * imgScale * Game.RelativeScale, 0, Color.White);
+        batch.PushMatrix(Matrix3x2.CreateScale(.7f) * Matrix3x2.CreateTranslation((pos + new Vec2(0, size.Y * 0.4f)) * Game.RelativeScale));
+        batch.Text(Language.Current.SpriteFont, save, Vec2.Zero, new Vec2(0.5f, 0), new Color(0x98d3ae));
+        batch.PopMatrix();
+    }
+
+    private void RenderCurrentSave(Batcher batch, string save, Vec2 pos, Vec2 size)
+    {
+        float imgScale = 0.95f;
+        Subtexture image = strawberryImage;
+        Vec2 imageSize = new Vector2(size.X / image.Width, size.Y / image.Height);
+        batch.Image(image, (pos - (size * imgScale) / 2) * Game.RelativeScale, imageSize * imgScale * Game.RelativeScale, imageSize * imgScale * Game.RelativeScale, 0, Color.White);
+        batch.PushMatrix(Matrix3x2.CreateScale(.7f) * Matrix3x2.CreateTranslation((pos + new Vec2(0, size.Y * 0.4f)) * Game.RelativeScale));
+        batch.Text(Language.Current.SpriteFont, save, Vec2.Zero, new Vec2(0.5f, 0), Color.CornflowerBlue);
         batch.PopMatrix();
     }
 
@@ -84,7 +104,9 @@ public class SaveSelectionMenu : Menu
         {
             for (int j = 0; j < columns && CurrentPageStart + index < saves.Count; j++)
             {
-                if (index == currentRow * columns + currentColumn)
+                if (saves[CurrentPageStart + index] == Save.Instance.FileName && index == currentRow * columns + currentColumn) RenderCurrentSelectedSave(batch, saves[CurrentPageStart + index], new Vec2(sizeMin * j * 1.1f, sizeMin * i * 1.1f) + offset, size);
+                else if (saves[CurrentPageStart + index] == Save.Instance.FileName) RenderSelectedSave(batch, saves[CurrentPageStart + index], new Vec2(sizeMin * j * 1.1f, sizeMin * i * 1.1f) + offset, size);
+                else if (index == currentRow * columns + currentColumn)
                 {
                     RenderCurrentSave(batch, saves[CurrentPageStart + index], new Vec2(sizeMin * j * 1.1f, sizeMin * i * 1.1f) + offset, size);
                 }
@@ -152,7 +174,7 @@ public class SaveSelectionMenu : Menu
                 {
                     Mode = Transition.Modes.Replace,
                     Scene = () => new Overworld(false),
-                    ToBlack = new SlideWipe(),
+                    ToBlack = new AngledWipe(),
                     ToPause = true
                 });
             }
@@ -161,38 +183,66 @@ public class SaveSelectionMenu : Menu
 
         if (Controls.CreateFile.Pressed)
         {
-            SaveManager.Instance.NewSave();
-            Game.Instance.Goto(new Transition()
+            Menu newMenu = new Menu(this);
+            newMenu.Title = "Create new file?";
+            newMenu.Add(new LegacyOption("Yes", () =>
             {
-                Mode = Transition.Modes.Replace,
-                Scene = () => new SelectSaveScene(),
-                ToBlack = new AngledWipe(),
-                ToPause = true
-            });
+                if (Game.Instance.IsMidTransition) return;
+                SaveManager.Instance.NewSave();
+                Game.Instance.Goto(new Transition()
+                {
+                    Mode = Transition.Modes.Replace,
+                    Scene = () => new SelectSaveScene(),
+                    ToBlack = new SlideWipe(),
+                    ToPause = true
+                });
+                PopSubMenu();
+            }));
+            newMenu.Add(new LegacyOption("No", () => PopSubMenu()));
+            PushSubMenu(newMenu);
+
         }
 
         if (Controls.DeleteFile.Pressed)
         {
-            SaveManager.Instance.DeleteSave(saves[CurrentPageStart + CurrentIndex]);
-            Game.Instance.Goto(new Transition()
+            Menu newMenu = new Menu(this);
+            newMenu.Title = $"Delete this file? {saves[CurrentPageStart + CurrentIndex]}";
+            newMenu.Add(new LegacyOption("Yes", () =>
             {
-                Mode = Transition.Modes.Replace,
-                Scene = () => new SelectSaveScene(),
-                ToBlack = new AngledWipe(),
-                ToPause = true
-            });
+                if (Game.Instance.IsMidTransition) return;
+                SaveManager.Instance.DeleteSave(saves[CurrentPageStart + CurrentIndex]);
+                Game.Instance.Goto(new Transition()
+                {
+                    Mode = Transition.Modes.Replace,
+                    Scene = () => new SelectSaveScene(),
+                    ToBlack = new SlideWipe(),
+                    ToPause = true
+                });
+                PopSubMenu();
+            }));
+            newMenu.Add(new LegacyOption("No", () => PopSubMenu()));
+            PushSubMenu(newMenu);
         }
 
         if (Controls.CopyFile.Pressed)
         {
-            SaveManager.Instance.CopySave(saves[CurrentPageStart + CurrentIndex]);
-            Game.Instance.Goto(new Transition()
+            Menu newMenu = new Menu(this);
+            newMenu.Title = $"Copy this file? {saves[CurrentPageStart + CurrentIndex]}";
+            newMenu.Add(new LegacyOption("Yes", () =>
             {
-                Mode = Transition.Modes.Replace,
-                Scene = () => new SelectSaveScene(),
-                ToBlack = new AngledWipe(),
-                ToPause = true
-            });
+                if (Game.Instance.IsMidTransition) return;
+                SaveManager.Instance.CopySave(saves[CurrentPageStart + CurrentIndex]);
+                Game.Instance.Goto(new Transition()
+                {
+                    Mode = Transition.Modes.Replace,
+                    Scene = () => new SelectSaveScene(),
+                    ToBlack = new SlideWipe(),
+                    ToPause = true
+                });
+                PopSubMenu();
+            }));
+            PushSubMenu(newMenu);
+            newMenu.Add(new LegacyOption("No", () => PopSubMenu()));
         }
     }
 
