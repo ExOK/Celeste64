@@ -14,7 +14,7 @@ public class GameOptionsMenu : Menu
 
 		FujiOptionsMenu.Add(new Toggle("FujiEnableDebugMenu", Save.Instance.ToggleEnableDebugMenu, () => Save.Instance.EnableDebugMenu));
 		FujiOptionsMenu.Add(new Toggle("FujiWriteLog", Save.Instance.ToggleWriteLog, () => Save.Instance.WriteLog));
-		FujiOptionsMenu.Add(new Slider("Resolution scale", 1, 5, () => (int)Game.ResolutionScale, Game.Instance.SetResolutionScale));
+		FujiOptionsMenu.Add(new Slider("OptionsResolution", 1, 5, () => (int)Game.ResolutionScale, Game.Instance.SetResolutionScale));
 		FujiOptionsMenu.Add(new Option("Exit", () =>
 		{
 			PopSubMenu();

@@ -63,7 +63,7 @@ public class Game : Module
 		}
 	}
 
-	public static bool IsDynamicRes = true;
+	public static bool IsDynamicRes;
 
 	public static int Width => IsDynamicRes ? App.WidthInPixels : (int)(DefaultWidth * _resolutionScale);
 	public static int Height => IsDynamicRes ? App.HeightInPixels : (int)(DefaultHeight * _resolutionScale);

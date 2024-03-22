@@ -41,7 +41,8 @@
 		"OptionsToggleOff": "OFF",
 		"OptionsYes": "Yes",
 		"OptionsNo": "No",
-
+		"OptionsResolution": "Resolution Scale",
+		"OptionsResolution.desc": "Change the Resolution Scale",
 		"Skin": "Skin",
 		"Skin.desc": "Choose a Skin to Wear",
 		"FujiOptions": "Fuji Options...",
