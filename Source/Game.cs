@@ -63,7 +63,7 @@ public class Game : Module
 		}
 	}
 
-	public static bool IsDynamicRes;
+	public static bool IsDynamicRes = true;
 
 	public static int Width => IsDynamicRes ? App.WidthInPixels : (int)(DefaultWidth * _resolutionScale);
 	public static int Height => IsDynamicRes ? App.HeightInPixels : (int)(DefaultHeight * _resolutionScale);
@@ -116,6 +116,12 @@ public class Game : Module
 		// If this isn't stored, the delegate will get GC'd and everything will crash :)
 		audioEventCallback = MusicTimelineCallback;
 		imGuiManager = new ImGuiManager();
+	}
+
+	public void SetResolutionScale(int scale)
+	{
+		ResolutionScale = scale;
+		Save.Instance.SetResolutionScale(scale);
 	}
 
 	public override void Startup()

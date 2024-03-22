@@ -13,6 +13,8 @@
 		"RestartLevel": "Clear Save & Restart Level",
 		"PauseTitle": "Paused",
 		"PauseResume": "Resume",
+		"SkipCutscene": "Skip Cutscene",
+		"SkipCutscene.desc": "Skips the Current Cutscene",
 		"PauseResume.desc": "Continue Playing",
 		"PauseRetry": "Retry",
 		"PauseRetry.desc": "Restart the Current Map",

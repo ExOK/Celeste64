@@ -107,8 +107,8 @@ public class Overworld : Scene
 				{
 					batch.PopMatrix();
 					batch.PushMatrix(Matrix3x2.CreateScale(1.5f) * Matrix3x2.CreateTranslation(bounds.BottomLeft + new Vec2(Padding, -Padding)));
-					UI.Strawberries(batch, strawbs, new Vec2(-4, -20));
-					UI.Deaths(batch, deaths, new Vec2(64, -20));
+					UI.Strawberries(batch, strawbs, new Vec2(-4, -20) * Game.RelativeScale);
+					UI.Deaths(batch, deaths, new Vec2(64, -20) * Game.RelativeScale);
 				}
 				batch.PopMatrix();
 			}
@@ -627,8 +627,11 @@ public class Overworld : Scene
 			}
 		}
 
-		batch.Render(target);
-		batch.Clear();
+		if (!target.IsDisposed)
+		{
+			batch.Render(target);
+			batch.Clear();
+		}
 	}
 	#endregion
 }

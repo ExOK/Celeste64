@@ -1,4 +1,5 @@
 using Celeste64.Mod;
+using System.Diagnostics;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -142,6 +143,7 @@ public class Save
 	/// </summary>
 	public int SfxVolume { get; set; } = 10;
 
+
 	/// <summary>
 	/// Invert the camera in given directions
 	/// </summary>
@@ -166,6 +168,8 @@ public class Save
 	/// Fuji Custom - Whether we should write to the log file or not.
 	/// </summary>
 	public bool WriteLog { get; set; } = true;
+
+	public int ResScale { get; set; } = 1;
 
 	/// <summary>
 	/// Fuji Custom - Whether The debug menu should be enabled
@@ -314,6 +318,13 @@ public class Save
 		Language = language;
 	}
 
+	public void SetResolutionScale(int scale)
+	{
+		Debug.WriteLine("Here!");
+		ResScale = scale;
+		SyncSettings();
+	}
+
 	public SkinInfo GetSkin()
 	{
 		return Assets.EnabledSkins.FirstOrDefault(s => s.Name == SkinName) ??
@@ -334,6 +345,7 @@ public class Save
 	public void SyncSettings()
 	{
 		App.Fullscreen = Fullscreen;
+		Game.ResolutionScale = ResScale;
 		Audio.SetVCAVolume("vca:/music", Calc.Clamp(MusicVolume / 10.0f, 0, 1));
 		Audio.SetVCAVolume("vca:/sfx", Calc.Clamp(SfxVolume / 10.0f, 0, 1));
 
