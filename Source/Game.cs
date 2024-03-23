@@ -219,7 +219,11 @@ public class Game : Module
 				if (!pausing)
 					scene.Update();
 			}
-			ModManager.Instance.Update(Time.Delta);
+
+			if (!(scene is GameErrorMessage))
+			{
+				ModManager.Instance.Update(Time.Delta);
+			}
 		}
 		catch (Exception e)
 		{
