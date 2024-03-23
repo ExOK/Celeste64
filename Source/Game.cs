@@ -165,6 +165,7 @@ public class Game : Module
 
 	public void Goto(Transition next)
 	{
+		if (IsMidTransition) return;
 		Debug.Assert(
 			transitionStep == TransitionStep.None ||
 			transitionStep == TransitionStep.FadeIn);
