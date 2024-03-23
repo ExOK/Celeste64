@@ -35,7 +35,6 @@
 		"OptionsInvertCamera.desc": "Control if the Camera X and Y axes are inverted",
 		"OptionsToggleOn": "ON",
 		"OptionsToggleOff": "OFF",
-
 		"Skin": "Skin",
 		"Skin.desc": "Choose a Skin to Wear",
 		"FujiOptions": "Fuji Options...",
@@ -56,10 +55,10 @@
 		"ModEnabled": "Enabled",
 		"ModOptions": "Mod Options",
 		"ConfirmDisableMod": "Continue & Disable Mod",
-		"ModSafeDisableErrorMessage": "This mod can't be disabled because it would disable the level you're currently in.\nTry going to the main menu first."
+		"ModSafeDisableErrorMessage": "This mod can't be disabled because it would disable the level you're currently in.\nTry going to the main menu first.",
+		"QuitToMainMenu": "Quit to Main Menu"
 	},
-	"Dialog":
-	{
+	"Dialog": {
 		"Granny1": [
 			{
 				"Face": "granny/Laugh",
@@ -205,7 +204,6 @@
 				"Text": "That's not how I remember it."
 			}
 		],
-
 		"Theo1": [
 			{
 				"Face": "theo/Default",
@@ -380,7 +378,6 @@
 				"Text": "..."
 			}
 		],
-
 		"Baddy1": [
 			{
 				"Face": "madeline/Default",
@@ -588,7 +585,6 @@
 				"Text": "Maybe... maybe it'll be okay."
 			}
 		],
-
 		"Sign1": [
 			{
 				"Face": "signpost",
@@ -737,7 +733,6 @@
 				"Text": "I surely don't know, for\nI am but a humble signpost."
 			}
 		],
-
 		"CreditsSign": [
 			{
 				"Face": "signpost",

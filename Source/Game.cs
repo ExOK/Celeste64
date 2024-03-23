@@ -170,6 +170,26 @@ public class Game : Module
 			Music.Stop();
 	}
 
+	public void UnsafelySetScene(Scene next)
+	{
+		scenes.Clear();
+		scenes.Push(next);
+	}
+
+	private void HandleError(Exception e)
+	{
+		if (scenes.Peek() is GameErrorMessage)
+		{
+			throw e; // If we're already on the error message screen, accept our fate: it's a fatal crash!
+		}
+
+		scenes.Clear();
+		Log.Error("== ERROR ==\n\n" + e.ToString());
+		WriteToLog();
+		UnsafelySetScene(new GameErrorMessage(e));
+		return;
+	}
+
 	public override void Update()
 	{
 		if (IsDynamicRes)
@@ -185,15 +205,25 @@ public class Game : Module
 
 		imGuiManager.UpdateHandlers();
 
-		// update top scene
-		if (scenes.TryPeek(out var scene))
-		{
-			var pausing =
-				transitionStep == TransitionStep.FadeIn && transition.FromPause ||
-				transitionStep == TransitionStep.FadeOut && transition.ToPause;
+		scenes.TryPeek(out var scene); // gets the top scene
 
-			if (!pausing)
-				scene.Update();
+		// update top scene
+		try
+		{
+			if (scene != null)
+			{
+				var pausing =
+					transitionStep == TransitionStep.FadeIn && transition.FromPause ||
+					transitionStep == TransitionStep.FadeOut && transition.ToPause;
+
+				if (!pausing)
+					scene.Update();
+			}
+			ModManager.Instance.Update(Time.Delta);
+		}
+		catch (Exception e)
+		{
+			HandleError(e);
 		}
 
 		// handle transitions
@@ -260,17 +290,25 @@ public class Game : Module
 					break;
 			}
 
-			// don't let the game sit in a sceneless place
-			if (scenes.Count <= 0)
-				scenes.Push(new Overworld(false));
-
 			// run a single update when transition happens so stuff gets established
 			if (scenes.TryPeek(out var nextScene))
 			{
-				nextScene.Entered();
-				ModManager.Instance.OnSceneEntered(nextScene);
-				nextScene.Update();
+				try
+				{
+					nextScene.Entered();
+					ModManager.Instance.OnSceneEntered(nextScene);
+					nextScene.Update();
+				}
+				catch (Exception e)
+				{
+					transitionStep = TransitionStep.None;
+					HandleError(e);
+				}
 			}
+
+			// don't let the game sit in a sceneless place
+			if (scenes.Count <= 0)
+				scenes.Push(new Overworld(false));
 
 			// switch music
 			{
@@ -368,7 +406,6 @@ public class Game : Module
 				ReloadAssets();
 			}
 		}
-		ModManager.Instance.Update(Time.Delta);
 	}
 
 	internal void ReloadAssets()
@@ -413,7 +450,14 @@ public class Game : Module
 		{
 			// draw the world to the target
 			if (scenes.TryPeek(out var scene))
-				scene.Render(target);
+				try
+				{
+					scene.Render(target);
+				}
+				catch (Exception e)
+				{
+					HandleError(e);
+				}
 
 			// draw screen wipe over top
 			if (transitionStep != TransitionStep.None && transition.ToBlack != null)
