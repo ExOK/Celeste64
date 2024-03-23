@@ -1,6 +1,6 @@
 ﻿
 using ImGuiNET;
-
+using System.Diagnostics;
 namespace Celeste64.Mod;
 
 internal class FujiDebugMenu : ImGuiHandler
@@ -8,6 +8,9 @@ internal class FujiDebugMenu : ImGuiHandler
 	private bool visible = false;
 	public override bool Active => Save.Instance.EnableDebugMenu;
 	public override bool Visible => visible;
+
+	bool playerDataVisible;
+	Vec3 newPlayerPos = new Vec3();
 
 	public override void Update()
 	{
@@ -21,7 +24,7 @@ internal class FujiDebugMenu : ImGuiHandler
 	{
 		ImGui.SetNextWindowSizeConstraints(new Vec2(300, 300), new Vec2(float.PositiveInfinity, float.PositiveInfinity));
 		ImGui.Begin("Celeste 64 - Debug Menu");
-
+		Debug.WriteLine(Path.GetFullPath(Path.Join(Assets.ContentPath, "RenogareTrue.ttf")));
 		if (Game.Instance.Scene is World && ModManager.Instance.CurrentLevelMod != null)
 		{
 			if (ImGui.BeginMenu("Open Map"))
@@ -88,7 +91,21 @@ internal class FujiDebugMenu : ImGuiHandler
 				}
 				ImGui.EndMenu();
 			}
+
+			if (playerDataVisible)
+			{
+				ImGui.Begin("Player Data");
+				newPlayerPos = player.Position;
+				ImGui.DragFloat3("Position", ref newPlayerPos);
+				player.Position = newPlayerPos;
+				ImGui.End();
+			}
+			if (ImGui.Button("Player Data"))
+				playerDataVisible = !playerDataVisible;
+
+
 		}
+
 
 		ImGui.End();
 	}

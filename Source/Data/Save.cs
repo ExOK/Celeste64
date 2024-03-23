@@ -170,6 +170,7 @@ public class Save
 	public bool WriteLog { get; set; } = true;
 
 	public int ResScale { get; set; } = 1;
+	public bool QuickStart { get; set; } = true;
 
 	/// <summary>
 	/// Fuji Custom - Whether The debug menu should be enabled
@@ -278,6 +279,11 @@ public class Save
 	public void ToggleEnableDebugMenu()
 	{
 		EnableDebugMenu = !EnableDebugMenu;
+	}
+
+	public void ToggleQuickStart()
+	{
+		QuickStart = !QuickStart;
 	}
 
 	public void ToggleZGuide()
