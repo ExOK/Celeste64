@@ -22,15 +22,10 @@ public class GameErrorMessage : Scene
 			Game.OpenLog();
 		}));
 
-		menu.Add(new Menu.Option("QuitToMainMenu", () => Game.Instance.Goto(new Transition()
+		menu.Add(new Menu.Option("QuitToMainMenu", () =>
 		{
-			Mode = Transition.Modes.Replace,
-			Scene = () => new Overworld(true),
-			FromPause = true,
-			ToPause = true,
-			ToBlack = new SlideWipe(),
-			Saving = false
-		})));
+			Game.Instance.ReloadAssets();
+		}));
 
 		menu.Add(new Menu.Option("Exit", () => throw e)); // This exits the game and forwards the error to the fatal crash handler.
 	}
