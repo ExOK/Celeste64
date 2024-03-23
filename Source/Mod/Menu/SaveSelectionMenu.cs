@@ -1,12 +1,11 @@
-﻿using Celeste64.Mod;
-using Celeste64.Mod.Data;
-using System.Diagnostics;
+﻿using Celeste64.Mod.Data;
 
 namespace Celeste64;
 
 public class SaveSelectionMenu : Menu
 {
 	public Target Target;
+	public Target GameTarget;
 
 	private int currentPage = 0;
 	private int currentRow = 0;
@@ -21,21 +20,28 @@ public class SaveSelectionMenu : Menu
 	private Subtexture postcardImage;
 	private Subtexture strawberryImage;
 
-	public Menu? RootMenu;
 	private List<string> saves;
 
-	internal SaveSelectionMenu()
+	internal SaveSelectionMenu(Menu? rootMenu)
 	{
 		Target = new Target(Overworld.CardWidth, Overworld.CardHeight);
 		Game.OnResolutionChanged += () => Target = new Target(Overworld.CardWidth, Overworld.CardHeight);
+		GameTarget = new Target(Game.Width, Game.Height);
+		Game.OnResolutionChanged += () => GameTarget = new Target(Game.Width, Game.Height);
+
+		RootMenu = rootMenu;
 
 		postcardImage = new(Assets.Textures["postcards/back-empty"]);
 		strawberryImage = Assets.Subtextures["icon_strawberry"];
-
 		saves = SaveManager.Instance.GetSaves();
-		foreach (string s in saves)
-			Debug.WriteLine(s);
+	}
 
+	private void ResetSaves()
+	{
+		saves = SaveManager.Instance.GetSaves();
+		currentColumn = 0;
+		currentRow = 0;
+		currentPage = 0;
 	}
 
 	public override void Initialized()
@@ -92,8 +98,6 @@ public class SaveSelectionMenu : Menu
 
 	private void RenderSaves(Batcher batch)
 	{
-		var bounds = Target.Bounds;
-		var scale = MathF.Max(bounds.Width / postcardImage.Width, bounds.Height / postcardImage.Height);
 		float sizeMin = MathF.Min(postcardImage.Width, postcardImage.Height) / 6;
 		var size = new Vec2(sizeMin, sizeMin);
 
@@ -175,7 +179,8 @@ public class SaveSelectionMenu : Menu
 					Mode = Transition.Modes.Replace,
 					Scene = () => new Overworld(false),
 					ToBlack = new AngledWipe(),
-					ToPause = true
+					ToPause = true,
+					PerformAssetReload = true
 				});
 			}
 			Controls.Consume();
@@ -189,18 +194,11 @@ public class SaveSelectionMenu : Menu
 			{
 				if (Game.Instance.IsMidTransition) return;
 				SaveManager.Instance.NewSave();
-				Game.Instance.Goto(new Transition()
-				{
-					Mode = Transition.Modes.Replace,
-					Scene = () => new SelectSaveScene(),
-					ToBlack = new SlideWipe(),
-					ToPause = true
-				});
+				ResetSaves();
 				PopSubMenu();
 			}));
 			newMenu.Add(new Option("OptionsNo", () => PopSubMenu()));
 			PushSubMenu(newMenu);
-
 		}
 
 		if (Controls.DeleteFile.Pressed)
@@ -211,13 +209,7 @@ public class SaveSelectionMenu : Menu
 			{
 				if (Game.Instance.IsMidTransition) return;
 				SaveManager.Instance.DeleteSave(saves[CurrentPageStart + CurrentIndex]);
-				Game.Instance.Goto(new Transition()
-				{
-					Mode = Transition.Modes.Replace,
-					Scene = () => new SelectSaveScene(),
-					ToBlack = new SlideWipe(),
-					ToPause = true
-				});
+				ResetSaves();
 				PopSubMenu();
 			}));
 			newMenu.Add(new Option("OptionsNo", () => PopSubMenu()));
@@ -232,13 +224,7 @@ public class SaveSelectionMenu : Menu
 			{
 				if (Game.Instance.IsMidTransition) return;
 				SaveManager.Instance.CopySave(saves[CurrentPageStart + CurrentIndex]);
-				Game.Instance.Goto(new Transition()
-				{
-					Mode = Transition.Modes.Replace,
-					Scene = () => new SelectSaveScene(),
-					ToBlack = new SlideWipe(),
-					ToPause = true
-				});
+				ResetSaves();
 				PopSubMenu();
 			}));
 			PushSubMenu(newMenu);
@@ -246,17 +232,35 @@ public class SaveSelectionMenu : Menu
 		}
 	}
 
-
 	protected override void RenderItems(Batcher batch)
 	{
 		if (postcardImage.Texture != null)
 		{
+			batch.PushMatrix(new Vec2(GameTarget.Bounds.Center.X, GameTarget.Bounds.Center.Y - 16f), false);
 			var bounds = Target.Bounds;
 			var scale = MathF.Max(bounds.Width / postcardImage.Width, bounds.Height / postcardImage.Height);
 			var size = new Vec2(postcardImage.Width, postcardImage.Height);
 			batch.Image(postcardImage, bounds.TopLeft, size / 2, Vec2.One * scale, 0, Color.White);
 			batch.Text(Language.Current.SpriteFont, Title, bounds.TopLeft + (-size / 4 + new Vec2(16, 12)) * Game.RelativeScale, Color.Black * 0.7f);
 			RenderSaves(batch);
+			batch.PopMatrix();
+
+			batch.PushMatrix(Vec2.Zero, false);
+			var at = GameTarget.Bounds.BottomRight + new Vec2(-32, -4) * Game.RelativeScale + new Vec2(0, -UI.PromptSize);
+			UI.Prompt(batch, Controls.Cancel, "Back", at, out var width, 1.0f);
+			at.X -= width + 8 * Game.RelativeScale;
+
+			UI.Prompt(batch, Controls.Confirm, "Load File", at, out width, 1.0f);
+			at.X -= width + 8 * Game.RelativeScale;
+
+			UI.Prompt(batch, Controls.CreateFile, "Create File", at, out width, 1.0f);
+			at.X -= width + 8 * Game.RelativeScale;
+
+			UI.Prompt(batch, Controls.DeleteFile, "Delete File", at, out width, 1.0f);
+			at.X -= width + 8 * Game.RelativeScale;
+
+			UI.Prompt(batch, Controls.CopyFile, "Copy File", at, out width, 1.0f);
+			batch.PopMatrix();
 		}
 	}
 }

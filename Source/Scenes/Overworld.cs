@@ -346,22 +346,17 @@ public class Overworld : Scene
 					pauseMenu = new() { Title = Loc.Str("PauseOptions") };
 
 					Menu optionsMenu = new GameOptionsMenu(pauseMenu);
+					var savesMenu = new SaveSelectionMenu(pauseMenu)
+					{
+						Title = Loc.Str("PauseSaves")
+					};
 					var modMenu = new ModSelectionMenu(pauseMenu)
 					{
 						Title = "Mods Menu"
 					};
 
 					pauseMenu.Add(new Menu.Submenu("PauseOptions", pauseMenu, optionsMenu));
-					pauseMenu.Add(new Menu.Option("PauseSaves", () =>
-					{
-						Game.Instance.Goto(new Transition()
-						{
-							Mode = Transition.Modes.Replace,
-							Scene = () => new SelectSaveScene(),
-							ToBlack = new AngledWipe(),
-							ToPause = true
-						});
-					}));
+					pauseMenu.Add(new Menu.Submenu("PauseSaves", pauseMenu, savesMenu));
 					pauseMenu.Add(new Menu.Submenu("Mods", pauseMenu, modMenu));
 					pauseMenu.Add(new Menu.Option("Exit", () =>
 					{

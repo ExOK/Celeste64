@@ -97,18 +97,6 @@ public class ControlsConfig
 	{
 		Actions = new()
 		{
-			["CopyFile"] = [
-				new(Keys.V),
-				new(Buttons.LeftShoulder)
-			],
-			["DeleteFile"] = [
-				new(Keys.N),
-				new(Buttons.RightShoulder)
-			],
-			["CreateFile"] = [
-				new(Keys.B),
-				new(Buttons.North)
-			],
 			["Jump"] = [
 				new(Keys.C),
 				new(Buttons.South),
@@ -145,6 +133,18 @@ public class ControlsConfig
 				new(Buttons.Start),
 				new(Buttons.Select),
 				new(Buttons.Back)
+			],
+			["CopyFile"] = [
+				new(Keys.V),
+				new(Buttons.LeftShoulder)
+			],
+			["DeleteFile"] = [
+				new(Keys.N),
+				new(Buttons.RightShoulder)
+			],
+			["CreateFile"] = [
+				new(Keys.B),
+				new(Buttons.North)
 			],
 		},
 

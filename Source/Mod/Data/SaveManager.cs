@@ -1,10 +1,11 @@
 ﻿namespace Celeste64.Mod.Data;
 
-public class SaveManager
+internal sealed class SaveManager
 {
-	public static SaveManager Instance = new();
+	internal static SaveManager Instance = new();
 
-	public string GetLastLoadedSave()
+	[DisallowHooks]
+	internal string GetLastLoadedSave()
 	{
 		if (File.Exists(Path.Join(App.UserPath, "save.metadata")))
 			return File.ReadAllText(Path.Join(App.UserPath, "save.metadata"));
@@ -15,13 +16,15 @@ public class SaveManager
 		}
 	}
 
-	public void SetLastLoadedSave(string save_name)
+	[DisallowHooks]
+	internal void SetLastLoadedSave(string save_name)
 	{
 		if (File.Exists(Path.Join(App.UserPath, "save.metadata")))
 			File.WriteAllText(Path.Join(App.UserPath, "save.metadata"), save_name);
 	}
 
-	public List<string> GetSaves()
+	[DisallowHooks]
+	internal List<string> GetSaves()
 	{
 		List<string> saves = new List<string>();
 
@@ -35,7 +38,8 @@ public class SaveManager
 		return saves;
 	}
 
-	public void CopySave(string filename)
+	[DisallowHooks]
+	internal void CopySave(string filename)
 	{
 		if (File.Exists(Path.Join(App.UserPath, filename)))
 		{
@@ -44,12 +48,8 @@ public class SaveManager
 		}
 	}
 
-	int GetSaveCount()
-	{
-		return GetSaves().Count;
-	}
-
-	public void NewSave()
+	[DisallowHooks]
+	internal void NewSave()
 	{
 		string name = $"save_{GetSaveCount()}.json";
 		var savePath = Path.Join(App.UserPath, name);
@@ -67,10 +67,16 @@ public class SaveManager
 		{
 			File.Copy(tempPath, savePath, true);
 		}
-
 	}
 
-	public void DeleteSave(string save)
+	[DisallowHooks]
+	internal int GetSaveCount()
+	{
+		return GetSaves().Count;
+	}
+
+	[DisallowHooks]
+	internal void DeleteSave(string save)
 	{
 		if (save == "save.json") return;
 		if (File.Exists(Path.Join(App.UserPath, save)))
@@ -79,7 +85,8 @@ public class SaveManager
 		}
 	}
 
-	public void LoadSaveByFileName(string file_name)
+	[DisallowHooks]
+	internal void LoadSaveByFileName(string file_name)
 	{
 		if (file_name == string.Empty) file_name = "save.json";
 		var saveFile = Path.Join(App.UserPath, file_name);
