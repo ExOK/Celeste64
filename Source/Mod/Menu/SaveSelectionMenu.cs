@@ -189,7 +189,7 @@ public class SaveSelectionMenu : Menu
 		if (Controls.CreateFile.Pressed)
 		{
 			Menu newMenu = new Menu(this);
-			newMenu.Title = "Create new file?";
+			newMenu.Title = Loc.Str("SaveCreateFile");
 			newMenu.Add(new Option("OptionsYes", () =>
 			{
 				if (Game.Instance.IsMidTransition) return;
@@ -204,7 +204,7 @@ public class SaveSelectionMenu : Menu
 		if (Controls.DeleteFile.Pressed)
 		{
 			Menu newMenu = new Menu(this);
-			newMenu.Title = $"Delete this file? {saves[CurrentPageStart + CurrentIndex]}";
+			newMenu.Title = $"{Loc.Str("SaveDeleteFile")} {saves[CurrentPageStart + CurrentIndex]}";
 			newMenu.Add(new Option("OptionsYes", () =>
 			{
 				if (Game.Instance.IsMidTransition) return;
@@ -219,7 +219,7 @@ public class SaveSelectionMenu : Menu
 		if (Controls.CopyFile.Pressed)
 		{
 			Menu newMenu = new Menu(this);
-			newMenu.Title = $"Copy this file? {saves[CurrentPageStart + CurrentIndex]}";
+			newMenu.Title = $"{Loc.Str("SaveCopyFile")} {saves[CurrentPageStart + CurrentIndex]}";
 			newMenu.Add(new Option("OptionsYes", () =>
 			{
 				if (Game.Instance.IsMidTransition) return;
@@ -247,19 +247,19 @@ public class SaveSelectionMenu : Menu
 
 			batch.PushMatrix(Vec2.Zero, false);
 			var at = GameTarget.Bounds.BottomRight + new Vec2(-32, -4) * Game.RelativeScale + new Vec2(0, -UI.PromptSize);
-			UI.Prompt(batch, Controls.Cancel, "Back", at, out var width, 1.0f);
+			UI.Prompt(batch, Controls.Cancel, Loc.Str("Back"), at, out var width, 1.0f);
 			at.X -= width + 8 * Game.RelativeScale;
 
-			UI.Prompt(batch, Controls.Confirm, "Load File", at, out width, 1.0f);
+			UI.Prompt(batch, Controls.Confirm, Loc.Str("Load"), at, out width, 1.0f);
 			at.X -= width + 8 * Game.RelativeScale;
 
-			UI.Prompt(batch, Controls.CreateFile, "Create File", at, out width, 1.0f);
+			UI.Prompt(batch, Controls.CreateFile, Loc.Str("Create"), at, out width, 1.0f);
 			at.X -= width + 8 * Game.RelativeScale;
 
-			UI.Prompt(batch, Controls.DeleteFile, "Delete File", at, out width, 1.0f);
+			UI.Prompt(batch, Controls.DeleteFile, Loc.Str("Delete"), at, out width, 1.0f);
 			at.X -= width + 8 * Game.RelativeScale;
 
-			UI.Prompt(batch, Controls.CopyFile, "Copy File", at, out width, 1.0f);
+			UI.Prompt(batch, Controls.CopyFile, Loc.Str("Copy"), at, out width, 1.0f);
 			batch.PopMatrix();
 		}
 	}

@@ -135,7 +135,7 @@ public class World : Scene
 
 			var modMenu = new ModSelectionMenu(pauseMenu)
 			{
-				Title = "Mods Menu"
+				Title = Loc.Str("PauseModsMenu")
 			};
 
 			pauseMenu.Title = Loc.Str("PauseTitle");
@@ -159,7 +159,7 @@ public class World : Scene
 				);
 			}
 			pauseMenu.Add(new Menu.Submenu("PauseOptions", pauseMenu, optionsMenu));
-			pauseMenu.Add(new Menu.Submenu("Mods", pauseMenu, modMenu));
+			pauseMenu.Add(new Menu.Submenu("PauseModsMenu", pauseMenu, modMenu));
 			pauseMenu.Add(new Menu.Option("PauseSaveQuit", () => Game.Instance.Goto(new Transition()
 			{
 				Mode = Transition.Modes.Replace,

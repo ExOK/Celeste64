@@ -62,7 +62,7 @@ internal sealed class SaveManager
 			stream.Flush();
 		}
 
-		// validate that the temp path worked, and overwride existing if it did.
+		// validate that the temp path worked, and overwrite existing if it did.
 		if (File.Exists(tempPath) && Save.Deserialize(File.ReadAllText(tempPath)) != null)
 		{
 			File.Copy(tempPath, savePath, true);
