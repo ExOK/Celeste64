@@ -852,7 +852,7 @@ public class World : Scene
 
 		// render main models
 		RenderModels(ref state, models, ModelFlags.Default);
-
+	
 		// perform post processing effects
 		ApplyPostEffects();
 
