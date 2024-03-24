@@ -14,6 +14,7 @@ internal class DebugActor : ImGuiHandler
 	// Selected actor
 	Type? selectedActorType;
 	Actor? selectedActor;
+	Actor? unModifiedSelectedActor;
 
 	public override void Update()
 	{
@@ -63,6 +64,7 @@ internal class DebugActor : ImGuiHandler
 				selectedActor = null;
 				selectedActorType = actorType;
 				actorTypeListWindowVisible = true;
+				unModifiedSelectedActor = null;
 			}
 		
 		ImGui.End();
@@ -80,6 +82,7 @@ internal class DebugActor : ImGuiHandler
 				if (ImGui.Button($"{i}. {selectedActorType.Name}"))
 				{
 					selectedActor = actor;
+					unModifiedSelectedActor = actor;
 					actorPropertiesWindowVisible = true;
 				}
 				i++;
@@ -90,6 +93,7 @@ internal class DebugActor : ImGuiHandler
 			selectedActorType = null;
 			actorPropertiesWindowVisible = false;
 			selectedActor = null;
+			unModifiedSelectedActor = null;
 		}
 
 		ImGui.End();
@@ -168,6 +172,19 @@ internal class DebugActor : ImGuiHandler
 				else
 					ImGui.EndDisabled();
 			}
+			
+			// If the property is a string
+			if (property.PropertyType == typeof(string))
+			{
+				string newVar = (string)property.GetValue(selectedActor);
+
+				if (!property.CanWrite) ImGui.BeginDisabled(true);
+				ImGui.InputText(property.Name, ref newVar, 256);
+				if (property.CanWrite)
+					property.SetValue(selectedActor, newVar);
+				else 
+					ImGui.EndDisabled();
+			}
 		}
 
 		ImGui.TextColored(new Vec4(0.592f, 0.843f, 0.988f, 1f), "FIELDS");
@@ -233,10 +250,22 @@ internal class DebugActor : ImGuiHandler
 				else
 					ImGui.EndDisabled();
 			}
+			
+			// If the field is a string
+			if (field.FieldType == typeof(string))
+			{
+				string newVar = (string)field.GetValue(selectedActor);
 
+				if (field.IsInitOnly) ImGui.BeginDisabled(true);
+				ImGui.InputText(field.Name, ref newVar, 256);
+				if (!field.IsInitOnly)
+					field.SetValue(selectedActor, newVar);
+				else
+					ImGui.EndDisabled();
+			}
 		}
 
-		if (ImGui.Button("Close window") || player.Dead)
+		if (ImGui.Button("Close window") || !selectedActor.Alive || selectedActor == null)
 		{
 			actorPropertiesWindowVisible = false;
 			selectedActor = null;
