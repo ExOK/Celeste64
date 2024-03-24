@@ -4,6 +4,13 @@ public class GameOptionsMenu : Menu
 {
 	public Menu FujiOptionsMenu;
 
+
+	public override void Closed()
+	{
+		base.Closed();
+		Settings.SaveToFile();
+	}
+
 	public GameOptionsMenu(Menu? rootMenu)
 	{
 		RootMenu = rootMenu;

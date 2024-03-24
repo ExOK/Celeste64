@@ -239,7 +239,10 @@ public class Game : Module
 
 			// perform game save between transitions
 			if (transition.Saving)
+			{
 				Save.SaveToFile();
+				Settings.SaveToFile();
+			}
 
 			// perform transition
 			switch (transition.Mode)
