@@ -1,5 +1,4 @@
-﻿using Microsoft.VisualBasic;
-using MonoMod.Cil;
+﻿using MonoMod.Cil;
 using MonoMod.RuntimeDetour;
 using System.Reflection;
 using System.Text.Json;
