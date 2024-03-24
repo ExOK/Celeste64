@@ -1,6 +1,5 @@
 ﻿
 using ImGuiNET;
-using System.Diagnostics;
 namespace Celeste64.Mod;
 
 internal class FujiDebugMenu : ImGuiHandler
