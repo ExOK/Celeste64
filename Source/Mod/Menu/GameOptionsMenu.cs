@@ -12,6 +12,7 @@ public class GameOptionsMenu : Menu
 
 		FujiOptionsMenu.Add(new Toggle("FujiEnableDebugMenu", Save.Instance.ToggleEnableDebugMenu, () => Save.Instance.EnableDebugMenu));
 		FujiOptionsMenu.Add(new Toggle("FujiWriteLog", Save.Instance.ToggleWriteLog, () => Save.Instance.WriteLog));
+		FujiOptionsMenu.Add(new Toggle("FujiAdditionalLog", Save.Instance.ToggleEnableAdditionalLogs, () => Save.Instance.EnableAdditionalLogging));
 		FujiOptionsMenu.Add(new Option("Exit", () =>
 		{
 			PopSubMenu();

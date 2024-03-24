@@ -257,7 +257,7 @@ public class Game : Module
 		{
 			Debug.Assert(transition.Scene != null);
 			Scene newScene = transition.Scene();
-			Log.Info("Switching scene: " + newScene.GetType());
+			if (Save.Instance.EnableAdditionalLogging) Log.Info("Switching scene: " + newScene.GetType());
 
 			Audio.StopBus(Sfx.bus_gameplay_world, false);
 

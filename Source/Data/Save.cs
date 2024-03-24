@@ -173,6 +173,11 @@ public class Save
 	public bool EnableDebugMenu { get; set; } = false;
 
 	/// <summary>
+	/// Fuji Custom - Whether to enable additional logs
+	/// </summary>
+	public bool EnableAdditionalLogging { get; set; } = false;
+
+	/// <summary>
 	/// Fuji Custom - Records for each mod
 	/// </summary>
 	public List<ModRecord> ModRecords { get; set; } = [];
@@ -269,6 +274,11 @@ public class Save
 	public void ToggleEnableDebugMenu()
 	{
 		EnableDebugMenu = !EnableDebugMenu;
+	}
+
+	public void ToggleEnableAdditionalLogs()
+	{
+		EnableAdditionalLogging = !EnableAdditionalLogging;
 	}
 
 	public void ToggleZGuide()
