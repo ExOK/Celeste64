@@ -1,6 +1,7 @@
 ﻿using MonoMod.Cil;
 using MonoMod.RuntimeDetour;
 using System.Reflection;
+using System.Text;
 using System.Text.Json;
 
 namespace Celeste64.Mod;
@@ -60,7 +61,7 @@ public static class ModLoader
 
 		Log.Info($"Loading mods from: \n- {String.Join("\n- ", ModFolderPaths)}");
 
-		List<(ModInfo, IModFilesystem)> modInfos = [];
+		List<(ModInfo ModInfo, IModFilesystem ModFs)> modInfos = [];
 
 		// Find all mods in directories:
 		foreach (var modDir in ModFolderPaths.SelectMany(path => Directory.EnumerateDirectories(path)))
@@ -115,6 +116,11 @@ public static class ModLoader
 		// Load all mods which have their dependencies met and repeat until we're done.
 		bool loadedModInIteration = false;
 		HashSet<ModInfo> loaded = [];
+
+		// Sort the mods by their ID alphabetically before loading.
+		// This helps us ensure some level of consistency/determinism to hopefully avoid quirks in behaviour.
+		modInfos = [.. modInfos.OrderBy(mod => mod.ModInfo.Id)];
+		modInfos.Reverse(); // Reverse alphabetical -> alphabetical
 
 		while (modInfos.Count > 0)
 		{
@@ -178,6 +184,18 @@ public static class ModLoader
 		}
 
 		ModManager.Instance.InitializeFilesystemBackgroundCleanup();
+
+		// Finally, log all loaded mods to the console
+		StringBuilder modListString = new();
+
+		modListString.Append("Mods:\n\n");
+
+		foreach (GameMod mod in ModManager.Instance.Mods)
+		{
+			modListString.Append($"- [{(mod.Enabled ? "X" : " ")}] {mod.ModInfo.Id}, v{mod.ModInfo.Version}\n");
+		}
+
+		Log.Info(modListString);
 	}
 
 	private static ModInfo? LoadModInfo(string modFolder, IModFilesystem fs)

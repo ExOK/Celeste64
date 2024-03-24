@@ -62,6 +62,8 @@
 		"FujiWriteLog.desc": "Control if the Game writes to the Log File",
 		"FujiEnableDebugMenu": "Enable Debug Menu (F6)",
 		"FujiEnableDebugMenu.desc": "Enable access to the Debug Menu by pressing F6",
+		"FujiAdditionalLog": "Enable Additional Logging",
+		"FujiAdditionalLog.desc": "Outputs more info to the console which may be useful to developers",
 		"FujiFailedToLoad": "Failed to load the following mods:",
 		"FujiOpenLogFile": "Open Log File",
 		"FujiOpenLogFile.desc": "Open the Game's Log File for more information",
@@ -72,10 +74,10 @@
 		"ModEnabled": "Enabled",
 		"ModOptions": "Mod Options",
 		"ConfirmDisableMod": "Continue & Disable Mod",
-		"ModSafeDisableErrorMessage": "This mod can't be disabled because it would disable the level you're currently in.\nTry going to the main menu first."
+		"ModSafeDisableErrorMessage": "This mod can't be disabled because it would disable the level you're currently in.\nTry going to the main menu first.",
+		"QuitToMainMenu": "Quit to Main Menu"
 	},
-	"Dialog":
-	{
+	"Dialog": {
 		"Granny1": [
 			{
 				"Face": "granny/Laugh",
@@ -221,7 +223,6 @@
 				"Text": "That's not how I remember it."
 			}
 		],
-
 		"Theo1": [
 			{
 				"Face": "theo/Default",
@@ -396,7 +397,6 @@
 				"Text": "..."
 			}
 		],
-
 		"Baddy1": [
 			{
 				"Face": "madeline/Default",
@@ -604,7 +604,6 @@
 				"Text": "Maybe... maybe it'll be okay."
 			}
 		],
-
 		"Sign1": [
 			{
 				"Face": "signpost",
@@ -753,7 +752,6 @@
 				"Text": "I surely don't know, for\nI am but a humble signpost."
 			}
 		],
-
 		"CreditsSign": [
 			{
 				"Face": "signpost",
