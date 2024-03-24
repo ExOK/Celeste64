@@ -58,7 +58,7 @@ internal sealed class SaveManager
 		// first save to a temporary file
 		{
 			using var stream = File.Create(tempPath);
-			Save.Instance.Serialize(stream, new Save_V01());
+			Save.Instance.Serialize(stream, new Save_V02());
 			stream.Flush();
 		}
 

@@ -20,14 +20,14 @@ public class Save_V02 : VersionedPersistedData<Save_V01>
 	public string LevelID { get; set; } = "NONE";
 
 	/// <summary>
-	/// Records for each level
-	/// </summary>
-	public List<LevelRecord_V01> Records { get; set; } = [];
-
-	/// <summary>
 	/// Fuji Custom - Currently equipped skin name
 	/// </summary>
 	public string SkinName { get; set; } = "Madeline";
+
+	/// <summary>
+	/// Records for each level
+	/// </summary>
+	public List<LevelRecord_V01> Records { get; set; } = [];
 
 	/// <summary>
 	/// Fuji Custom - Records for each mod
