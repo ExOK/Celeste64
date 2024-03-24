@@ -1,5 +1,4 @@
 using ImGuiNET;
-using System.Diagnostics;
 using System.Runtime.InteropServices;
 using Color = Foster.Framework.Color;
 using Material = Foster.Framework.Material;
@@ -31,7 +30,7 @@ internal class ImGuiRenderer
 		io.ConfigDockingAlwaysTabBar = true;
 		io.ConfigDockingTransparentPayload = true;
 
-		io.Fonts.AddFontFromFileTTF(Path.GetFullPath(Path.Join(Assets.ContentPath, Assets.FontsFolder, "RenogareTrue.ttf")), 11);
+		io.Fonts.AddFontDefault();
 		io.FontGlobalScale = 1.5f;
 
 		Input.OnTextEvent += chr => io.AddInputCharacter(chr);

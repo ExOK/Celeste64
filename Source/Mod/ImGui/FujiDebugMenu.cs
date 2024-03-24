@@ -1,7 +1,6 @@
 ﻿
 using ImGuiNET;
-using System.Diagnostics;
-using System.Reflection;
+
 namespace Celeste64.Mod;
 
 internal class FujiDebugMenu : ImGuiHandler
@@ -21,8 +20,8 @@ internal class FujiDebugMenu : ImGuiHandler
 	public override void Render()
 	{
 		ImGui.SetNextWindowSizeConstraints(new Vec2(300, 300), new Vec2(float.PositiveInfinity, float.PositiveInfinity));
-		ImGui.Begin("Celeste 64 ~ Debug Menu");
-		Debug.WriteLine(Path.GetFullPath(Path.Join(Assets.ContentPath, "RenogareTrue.ttf")));
+		ImGui.Begin("Celeste 64 - Debug Menu");
+
 		if (Game.Instance.Scene is World && ModManager.Instance.CurrentLevelMod != null)
 		{
 			if (ImGui.BeginMenu("Open Map"))
@@ -80,7 +79,7 @@ internal class FujiDebugMenu : ImGuiHandler
 				{
 					if (player.StateMachine.State != Player.States.DebugFly)
 					{
-						player.StateMachine.State = Player.States.DebugFly;	
+						player.StateMachine.State = Player.States.DebugFly;
 					}
 					else
 					{

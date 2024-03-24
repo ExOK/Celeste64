@@ -16,7 +16,6 @@ public class ImGuiManager
 
 	private readonly ImGuiRenderer renderer;
 	private static FujiDebugMenu debugMenu = new FujiDebugMenu();
-	private static DebugActor debugActorMenu = new DebugActor();
 	private static IEnumerable<ImGuiHandler> Handlers => ModManager.Instance.EnabledMods.SelectMany(mod => mod.ImGuiHandlers);
 
 	internal ImGuiManager()
@@ -31,8 +30,6 @@ public class ImGuiManager
 
 		if (debugMenu.Active)
 			debugMenu.Update();
-		if (debugActorMenu.Active) 
-			debugActorMenu.Update();
 
 		foreach (var handler in Handlers)
 		{
@@ -45,8 +42,6 @@ public class ImGuiManager
 		renderer.BeforeRender();
 		if (debugMenu.Visible)
 			debugMenu.Render();
-		if (debugActorMenu.Visible)
-			debugActorMenu.Render();
 		foreach (var handler in Handlers)
 		{
 			if (handler.Visible) handler.Render();

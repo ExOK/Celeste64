@@ -1,5 +1,3 @@
-using System.Diagnostics;
-
 namespace Celeste64;
 
 public class GameOptionsMenu : Menu
@@ -14,8 +12,6 @@ public class GameOptionsMenu : Menu
 
 		FujiOptionsMenu.Add(new Toggle("FujiEnableDebugMenu", Save.Instance.ToggleEnableDebugMenu, () => Save.Instance.EnableDebugMenu));
 		FujiOptionsMenu.Add(new Toggle("FujiWriteLog", Save.Instance.ToggleWriteLog, () => Save.Instance.WriteLog));
-		FujiOptionsMenu.Add(new Slider("OptionsResolution", 1, 5, () => (int)Game.ResolutionScale, Game.Instance.SetResolutionScale));
-		FujiOptionsMenu.Add(new Toggle("Quick Startup on CTRL", Save.Instance.ToggleQuickStart, () => Save.Instance.QuickStart));
 		FujiOptionsMenu.Add(new Option("Exit", () =>
 		{
 			PopSubMenu();

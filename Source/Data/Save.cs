@@ -1,5 +1,4 @@
 using Celeste64.Mod;
-using System.Diagnostics;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -7,7 +6,7 @@ namespace Celeste64;
 
 public class Save
 {
-	public string FileName = "save.json";
+	public const string FileName = "save.json";
 
 	public enum InvertCameraOptions
 	{
@@ -143,7 +142,6 @@ public class Save
 	/// </summary>
 	public int SfxVolume { get; set; } = 10;
 
-
 	/// <summary>
 	/// Invert the camera in given directions
 	/// </summary>
@@ -169,9 +167,6 @@ public class Save
 	/// </summary>
 	public bool WriteLog { get; set; } = true;
 
-	public int ResScale { get; set; } = 1;
-	public bool QuickStart { get; set; } = true;
-
 	/// <summary>
 	/// Fuji Custom - Whether The debug menu should be enabled
 	/// </summary>
@@ -193,11 +188,6 @@ public class Save
 		record = new LevelRecord() { ID = levelID };
 		Records.Add(record);
 		return record;
-	}
-
-	public void SetFileName(string file_name)
-	{
-		FileName = file_name;
 	}
 
 	/// <summary>
@@ -281,11 +271,6 @@ public class Save
 		EnableDebugMenu = !EnableDebugMenu;
 	}
 
-	public void ToggleQuickStart()
-	{
-		QuickStart = !QuickStart;
-	}
-
 	public void ToggleZGuide()
 	{
 		ZGuide = !ZGuide;
@@ -324,13 +309,6 @@ public class Save
 		Language = language;
 	}
 
-	public void SetResolutionScale(int scale)
-	{
-		Debug.WriteLine("Here!");
-		ResScale = scale;
-		SyncSettings();
-	}
-
 	public SkinInfo GetSkin()
 	{
 		return Assets.EnabledSkins.FirstOrDefault(s => s.Name == SkinName) ??
@@ -351,7 +329,6 @@ public class Save
 	public void SyncSettings()
 	{
 		App.Fullscreen = Fullscreen;
-		Game.ResolutionScale = ResScale;
 		Audio.SetVCAVolume("vca:/music", Calc.Clamp(MusicVolume / 10.0f, 0, 1));
 		Audio.SetVCAVolume("vca:/sfx", Calc.Clamp(SfxVolume / 10.0f, 0, 1));
 

@@ -93,22 +93,11 @@ public class ControlsConfig
 
 	public Dictionary<string, List<Binding>> Actions { get; set; } = [];
 	public Dictionary<string, Stick> Sticks { get; set; } = [];
+
 	public static ControlsConfig Defaults = new()
 	{
 		Actions = new()
 		{
-			["CopyFile"] = [
-				new(Keys.V),
-				new(Buttons.LeftShoulder)
-			],
-			["DeleteFile"] = [
-				new(Keys.N),
-				new(Buttons.RightShoulder)
-			],
-			["CreateFile"] = [
-				new(Keys.B),
-				new(Buttons.North)
-			],
 			["Jump"] = [
 				new(Keys.C),
 				new(Buttons.South),

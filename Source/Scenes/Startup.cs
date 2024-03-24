@@ -1,5 +1,3 @@
-using Celeste64.Mod.Data;
-using System;
 using System.Text.Json;
 
 namespace Celeste64;
@@ -16,7 +14,13 @@ public class Startup : Scene
 	{
 		// load save file
 		{
-			SaveManager.Instance.LoadSaveByFileName(SaveManager.Instance.GetLastLoadedSave());
+			var saveFile = Path.Join(App.UserPath, Save.FileName);
+
+			if (File.Exists(saveFile))
+				Save.Instance = Save.Deserialize(File.ReadAllText(saveFile)) ?? new();
+			else
+				Save.Instance = new();
+			Save.Instance.SyncSettings();
 		}
 
 		// load assets
@@ -58,19 +62,13 @@ public class Startup : Scene
 
 		// enter game
 		//Assets.Levels[0].Enter(new AngledWipe());
-		if (Input.Keyboard.Down(Keys.LeftControl) && !Game.Instance.IsMidTransition && Save.Instance.QuickStart)
+		Game.Instance.Goto(new Transition()
 		{
-			var entry = new Overworld.Entry(Assets.Levels[0], null);
-			entry.Level.Enter();
-		}
-		else
-			Game.Instance.Goto(new Transition()
-			{
-				Mode = Transition.Modes.Replace,
-				Scene = () => new Titlescreen(),
-				ToBlack = null,
-				FromBlack = new AngledWipe(),
-			});
+			Mode = Transition.Modes.Replace,
+			Scene = () => new Titlescreen(),
+			ToBlack = null,
+			FromBlack = new AngledWipe(),
+		});
 	}
 
 	public override void Update()

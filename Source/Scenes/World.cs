@@ -89,7 +89,7 @@ public class World : Scene
 			Game.OpenLog();
 		}));
 
-		badMapWarningMenu.Add(new Menu.Option("Exit", () => Game.Instance.Goto(new Transition()
+		badMapWarningMenu.Add(new Menu.Option("QuitToMainMenu", () => Game.Instance.Goto(new Transition()
 		{
 			Mode = Transition.Modes.Replace,
 			Scene = () => new Overworld(true),
@@ -105,7 +105,7 @@ public class World : Scene
 
 		if (Assets.Maps.ContainsKey(entry.Map) == false)
 		{
-			Panic($"Sorry, the map {entry.Map} does not exist.\nCheck your mod's Levels.json and Maps folder.");
+			Panic(new Exception(), $"Sorry, the map {entry.Map} does not exist.\nCheck your mod's Levels.json and Maps folder.", Panicked);
 
 			return;
 		}
@@ -115,7 +115,7 @@ public class World : Scene
 
 		if (Map.isMalformed == true)
 		{
-			Panic($"Sorry, the map {entry.Map} appears to be broken/corrupted\nIt failed to load because:\n{Map.readExceptionMessage}\nMore information may be available in the logs.");
+			Panic(new Exception(), $"Sorry, the map {entry.Map} appears to be broken/corrupted\nIt failed to load because:\n{Map.readExceptionMessage}\nMore information may be available in the logs.", Panicked);
 
 			return;
 		}
@@ -502,7 +502,7 @@ public class World : Scene
 			Log.Error($"--- ERROR in the map {currentModName}:{Entry.Map}. More details below ---");
 			Log.Error(err.ToString());
 
-			Panic($"Oops, critical error :(\n{err.Message}\nYou can try to recover from this error by pressing Retry,\nbut we can't promise stability!");
+			Panic(err, $"Oops, critical error :(\n{err.Message}\nYou can try to recover from this error by pressing Retry,\nbut we can't promise stability!", Panicked);
 		} // We wrap most of Update() in a try-catch to hopefully catch errors that occur during gameplay.
 	}
 
@@ -852,7 +852,7 @@ public class World : Scene
 
 		// render main models
 		RenderModels(ref state, models, ModelFlags.Default);
-	
+
 		// perform post processing effects
 		ApplyPostEffects();
 
@@ -1019,8 +1019,13 @@ public class World : Scene
 		}
 	}
 
-	private void Panic(string reason)
+	private void Panic(Exception error, string reason, bool level)
 	{
+		if (level)
+		{
+			throw error;
+		}
+
 		Audio.Play(Sfx.main_menu_restart_cancel);
 
 		Panicked = true;

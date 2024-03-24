@@ -71,6 +71,12 @@ public class Map
 		["FloatyBlock"] = new((map, entity) => new FloatyBlock()) { IsSolidGeometry = true },
 		["DeathBlock"] = new((map, entity) => new DeathBlock()) { UseSolidsAsBounds = true },
 		["SpikeBlock"] = new((map, entity) => new SpikeBlock()) { UseSolidsAsBounds = true },
+		["LoadingZone"] = new((map, entity) => new LoadingZone(
+			entity.GetStringProperty("map", map.Name),
+			entity.GetStringProperty("checkpointname", string.Empty),
+			entity.GetIntProperty("issubmap", 0) > 0
+		))
+		{ UseSolidsAsBounds = true },
 		["Spring"] = new((map, entity) => new Spring()),
 		["Granny"] = new((map, entity) => new Granny()),
 		["Badeline"] = new((map, entity) => new Badeline()),
