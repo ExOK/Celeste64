@@ -224,7 +224,7 @@ public class World : Scene
 
 		ModManager.Instance.OnWorldLoaded(this);
 
-		Log.Info($"Loaded Map '{Entry.Map}' in {stopwatch.ElapsedMilliseconds}ms");
+		Log.Info($"Loaded Map '{ModManager.Instance.CurrentLevelMod?.ModInfo.Id}:{Entry.Map}' in {stopwatch.ElapsedMilliseconds}ms");
 	}
 
 	public override void Disposed()
