@@ -1,6 +1,7 @@
 ﻿using MonoMod.Cil;
 using MonoMod.RuntimeDetour;
 using System.Reflection;
+using System.Text;
 using System.Text.Json;
 
 namespace Celeste64.Mod;
@@ -182,6 +183,18 @@ public static class ModLoader
 		}
 
 		ModManager.Instance.InitializeFilesystemBackgroundCleanup();
+
+		// Finally, log all loaded mods to the console
+		StringBuilder modListString = new();
+
+		modListString.Append("Mods:\n\n");
+
+		foreach (GameMod mod in ModManager.Instance.Mods)
+		{
+			modListString.Append($"- [{(mod.Enabled ? "X" : " ")}] {mod.ModInfo.Id}, v{mod.ModInfo.Version}\n");
+		}
+
+		Log.Info(modListString);
 	}
 
 	private static ModInfo? LoadModInfo(string modFolder, IModFilesystem fs)
