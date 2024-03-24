@@ -120,6 +120,7 @@ public static class ModLoader
 		// Sort the mods by their ID alphabetically before loading.
 		// This helps us ensure some level of consistency/determinism to hopefully avoid quirks in behaviour.
 		modInfos = [.. modInfos.OrderBy(mod => mod.ModInfo.Id)];
+		modInfos.Reverse(); // Reverse alphabetical -> alphabetical
 
 		while (modInfos.Count > 0)
 		{
