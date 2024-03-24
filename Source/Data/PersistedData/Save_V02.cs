@@ -88,6 +88,7 @@ public class Save_V02 : VersionedPersistedData<Save_V01>
 			Settings_V01 newSettings = new Settings_V01();
 			newSettings.SfxVolume = oldSave.SfxVolume;
 			newSettings.MusicVolume = oldSave.MusicVolume;
+			newSettings.EnableAdditionalLogging = oldSave.EnableAdditionalLogging;
 			newSettings.EnableDebugMenu = oldSave.EnableDebugMenu;
 			newSettings.Fullscreen = oldSave.Fullscreen;
 			newSettings.InvertCamera = oldSave.InvertCamera;

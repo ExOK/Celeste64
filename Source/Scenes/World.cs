@@ -231,7 +231,7 @@ public class World : Scene
 		}
 		else
 		{
-			if (Save.Instance.EnableAdditionalLogging) Log.Info($"Respawned in {stopwatch.ElapsedMilliseconds}ms");
+			if (Settings.EnableAdditionalLogging) Log.Info($"Respawned in {stopwatch.ElapsedMilliseconds}ms");
 		}
 	}
 

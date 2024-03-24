@@ -57,6 +57,11 @@ public sealed class Settings
 	public static bool WriteLog => Instance.WriteLog;
 
 	/// <summary>
+	/// Fuji Custom - Whether to enable additional logs
+	/// </summary>
+	public static bool EnableAdditionalLogging => Instance.EnableAdditionalLogging;
+
+	/// <summary>
 	/// Fuji Custom - Whether The debug menu should be enabled
 	/// </summary>
 	public static bool EnableDebugMenu => Instance.EnableDebugMenu;
@@ -70,6 +75,11 @@ public sealed class Settings
 	public static void ToggleWriteLog()
 	{
 		Instance.WriteLog = !Instance.WriteLog;
+	}
+
+	public static void ToggleEnableAdditionalLogs()
+	{
+		Instance.EnableAdditionalLogging = !EnableAdditionalLogging;
 	}
 
 	public static void ToggleEnableDebugMenu()

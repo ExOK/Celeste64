@@ -56,6 +56,11 @@ public class Settings_V01 : PersistedData
 	public bool WriteLog { get; set; } = true;
 
 	/// <summary>
+	/// Fuji Custom - Whether to enable additional logs
+	/// </summary>
+	public bool EnableAdditionalLogging { get; set; } = false;
+
+	/// <summary>
 	/// Fuji Custom - Whether The debug menu should be enabled
 	/// </summary>
 	public bool EnableDebugMenu { get; set; } = false;

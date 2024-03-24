@@ -84,6 +84,11 @@ public class Save_V01 : PersistedData
 	public bool EnableDebugMenu { get; set; } = false;
 
 	/// <summary>
+	/// Fuji Custom - Whether to enable additional logs
+	/// </summary>
+	public bool EnableAdditionalLogging { get; set; } = false;
+
+	/// <summary>
 	/// Fuji Custom - Records for each mod
 	/// </summary>
 	public List<ModRecord_V01> ModRecords { get; set; } = [];
@@ -185,6 +190,11 @@ public class Save_V01 : PersistedData
 	public void ToggleEnableDebugMenu()
 	{
 		EnableDebugMenu = !EnableDebugMenu;
+	}
+
+	public void ToggleEnableAdditionalLogs()
+	{
+		EnableAdditionalLogging = !EnableAdditionalLogging;
 	}
 
 	public void ToggleZGuide()
