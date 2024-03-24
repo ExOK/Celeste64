@@ -318,7 +318,6 @@ public class Map
 		foreach (var entity in entities)
 			LoadActor(world, entity);
 
-		Log.Info($"Strawb Count: {LoadStrawberryCounter}");
 		LoadStrawberryCounter = 0;
 		LoadWorld = null;
 
