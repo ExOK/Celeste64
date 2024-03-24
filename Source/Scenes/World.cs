@@ -224,7 +224,15 @@ public class World : Scene
 
 		ModManager.Instance.OnWorldLoaded(this);
 
-		Log.Info($"Loaded Map '{ModManager.Instance.CurrentLevelMod?.ModInfo.Id}:{Entry.Map}' in {stopwatch.ElapsedMilliseconds}ms");
+		if (Entry.Reason == EntryReasons.Entered)
+		{
+			Log.Info($"Strawb Count: {adding.Where(x => x is Strawberry).Count()}");
+			Log.Info($"Loaded Map '{ModManager.Instance.CurrentLevelMod?.ModInfo.Id}:{Entry.Map}' in {stopwatch.ElapsedMilliseconds}ms");
+		}
+		else
+		{
+			Log.Info($"Respawned in {stopwatch.ElapsedMilliseconds}ms");
+		}
 	}
 
 	public override void Disposed()
