@@ -58,12 +58,12 @@ internal sealed class SaveManager
 		// first save to a temporary file
 		{
 			using var stream = File.Create(tempPath);
-			Save.Serialize(stream, new Save());
+			Save.Instance.Serialize(stream, new Save_V01());
 			stream.Flush();
 		}
 
 		// validate that the temp path worked, and overwrite existing if it did.
-		if (File.Exists(tempPath) && Save.Deserialize(File.ReadAllText(tempPath)) != null)
+		if (File.Exists(tempPath) && Save.Instance.Deserialize(File.ReadAllText(tempPath)) != null)
 		{
 			File.Copy(tempPath, savePath, true);
 		}
@@ -92,10 +92,9 @@ internal sealed class SaveManager
 		var saveFile = Path.Join(App.UserPath, file_name);
 
 		if (File.Exists(saveFile))
-			Save.Instance = Save.Deserialize(File.ReadAllText(saveFile)) ?? new();
+			Save.Instance = Save.Instance.Deserialize(File.ReadAllText(saveFile)) as Save_V02 ?? new Save_V02();
 		else
 			Save.Instance = new();
-		Save.Instance.SyncSettings();
 		Save.Instance.FileName = file_name;
 		SetLastLoadedSave(file_name);
 	}

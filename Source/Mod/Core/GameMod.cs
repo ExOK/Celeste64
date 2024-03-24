@@ -6,7 +6,7 @@ namespace Celeste64.Mod;
 public abstract class GameMod
 {
 	#region Internally Used Data
-	internal Save.ModRecord ModSaveData => Save.Instance.GetOrMakeMod(ModInfo.Id);
+	internal ModRecord_V01 ModSaveData => Save.GetOrMakeMod(ModInfo.Id);
 
 	// They get set as part of the Mod Loading step, not the constructor.
 	internal IModFilesystem Filesystem { get; set; } = null!;
@@ -443,7 +443,7 @@ public abstract class GameMod
 		{
 			if (!simulate)
 			{
-				Save.Instance.GetOrMakeMod(dependent.ModInfo.Id).Enabled = false;
+				Save.GetOrMakeMod(dependent.ModInfo.Id).Enabled = false;
 			}
 
 			if (dependent == ModManager.Instance.CurrentLevelMod)
@@ -474,7 +474,7 @@ public abstract class GameMod
 	{
 		foreach (var dep in ModInfo.Dependencies.Keys.ToList())
 		{
-			Save.Instance.GetOrMakeMod(dep).Enabled = true;
+			Save.GetOrMakeMod(dep).Enabled = true;
 		}
 	}
 

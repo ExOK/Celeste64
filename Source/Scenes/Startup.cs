@@ -18,6 +18,11 @@ public class Startup : Scene
 			SaveManager.Instance.LoadSaveByFileName(SaveManager.Instance.GetLastLoadedSave());
 		}
 
+		// load settings file
+		{
+			Settings.LoadSettingsByFileName(Settings.DefaultFileName);
+		}
+
 		// load assets
 		// this currently needs to happen after the save file loads, because this also loads mods, which get their saved settings from the save file.
 		Assets.Load();
@@ -28,14 +33,14 @@ public class Startup : Scene
 
 		// try to load controls, or overwrite with defaults if they don't exist
 		{
-			var controlsFile = Path.Join(App.UserPath, ControlsConfig.FileName);
+			var controlsFile = Path.Join(App.UserPath, ControlsConfig_V01.FileName);
 
-			ControlsConfig? controls = null;
+			ControlsConfig_V01? controls = null;
 			if (File.Exists(controlsFile))
 			{
 				try
 				{
-					controls = JsonSerializer.Deserialize(File.ReadAllText(controlsFile), ControlsConfigContext.Default.ControlsConfig);
+					controls = JsonSerializer.Deserialize(File.ReadAllText(controlsFile), ControlsConfig_V01Context.Default.ControlsConfig_V01);
 				}
 				catch
 				{
@@ -46,9 +51,9 @@ public class Startup : Scene
 			// create defaults if not found
 			if (controls == null)
 			{
-				controls = ControlsConfig.Defaults;
+				controls = ControlsConfig_V01.Defaults;
 				using var stream = File.Create(controlsFile);
-				JsonSerializer.Serialize(stream, ControlsConfig.Defaults, ControlsConfigContext.Default.ControlsConfig);
+				JsonSerializer.Serialize(stream, ControlsConfig_V01.Defaults, ControlsConfig_V01Context.Default.ControlsConfig_V01);
 				stream.Flush();
 			}
 

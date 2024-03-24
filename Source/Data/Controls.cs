@@ -15,22 +15,22 @@ public static class Controls
 	public static readonly VirtualButton DeleteFile = new("DeleteFile");
 	public static readonly VirtualButton CreateFile = new("CreateFile");
 
-	public static void Load(ControlsConfig? config = null)
+	public static void Load(ControlsConfig_V01? config = null)
 	{
-		static ControlsConfig.Stick FindStick(ControlsConfig? config, string name)
+		static ControlsConfigStick_V01 FindStick(ControlsConfig_V01? config, string name)
 		{
 			if (config != null && config.Sticks.TryGetValue(name, out var stick))
 				return stick;
-			if (ControlsConfig.Defaults.Sticks.TryGetValue(name, out stick))
+			if (ControlsConfig_V01.Defaults.Sticks.TryGetValue(name, out stick))
 				return stick;
 			throw new Exception($"Missing Stick Binding for '{name}'");
 		}
 
-		static List<ControlsConfig.Binding> FindAction(ControlsConfig? config, string name)
+		static List<ControlsConfigBinding_V01> FindAction(ControlsConfig_V01? config, string name)
 		{
 			if (config != null && config.Actions.TryGetValue(name, out var action))
 				return action;
-			if (ControlsConfig.Defaults.Actions.TryGetValue(name, out action))
+			if (ControlsConfig_V01.Defaults.Actions.TryGetValue(name, out action))
 				return action;
 			throw new Exception($"Missing Action Binding for '{name}'");
 		}

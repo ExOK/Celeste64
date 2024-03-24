@@ -155,7 +155,7 @@ public class World : Scene
 					() => Assets.EnabledSkins.Select(x => x.Name).ToList(),
 					0,
 					() => Assets.EnabledSkins.Count,
-					() => Save.Instance.GetSkin().Name, Save.Instance.SetSkinName)
+					() => Save.GetSkin().Name, Save.SetSkinName)
 				);
 			}
 			pauseMenu.Add(new Menu.Submenu("PauseOptions", pauseMenu, optionsMenu));
@@ -368,7 +368,7 @@ public class World : Scene
 	{
 		if (Get<Player>() is { } player)
 		{
-			player.SetSkin(Save.Instance.GetSkin());
+			player.SetSkin(Save.GetSkin());
 		}
 	}
 
@@ -524,10 +524,10 @@ public class World : Scene
 			var ply = Get<Player>();
 			if (ply != null)
 			{
-				if (ply.Skin != Save.Instance.GetSkin())
+				if (ply.Skin != Save.GetSkin())
 				{
-					ply.SetSkin(Save.Instance.GetSkin());
-					ModManager.Instance.OnPlayerSkinChange(ply, Save.Instance.GetSkin());
+					ply.SetSkin(Save.GetSkin());
+					ModManager.Instance.OnPlayerSkinChange(ply, Save.GetSkin());
 				}
 			}
 		}
@@ -927,7 +927,7 @@ public class World : Scene
 			// stats
 			{
 				var at = bounds.TopLeft + new Vec2(4, 8) * Game.RelativeScale;
-				if (IsInEndingArea || Save.Instance.SpeedrunTimer)
+				if (IsInEndingArea || Settings.SpeedrunTimer)
 				{
 					UI.Timer(batch, Save.CurrentRecord.Time, at);
 					at.Y += UI.IconSize + 4 * Game.RelativeScale;

@@ -239,7 +239,7 @@ public class Game : Module
 
 			// perform game save between transitions
 			if (transition.Saving)
-				Save.Instance.SaveToFile();
+				Save.SaveToFile();
 
 			// perform transition
 			switch (transition.Mode)
@@ -322,7 +322,7 @@ public class Game : Module
 			}
 
 			// in case new music was played
-			Save.Instance.SyncSettings();
+			Settings.SyncSettings();
 			transitionStep = TransitionStep.FadeIn;
 
 			WriteToLog();
@@ -360,7 +360,7 @@ public class Game : Module
 		{
 			// toggle fullsrceen
 			if ((Input.Keyboard.Alt && Input.Keyboard.Pressed(Keys.Enter)) || Input.Keyboard.Pressed(Keys.F4))
-				Save.Instance.ToggleFullscreen();
+				Settings.ToggleFullscreen();
 
 			// reload state
 			if (Input.Keyboard.Ctrl && Input.Keyboard.Pressed(Keys.R) && !IsMidTransition)
@@ -438,7 +438,7 @@ public class Game : Module
 	// Fuji Custom
 	public static void WriteToLog()
 	{
-		if (!Save.Instance.WriteLog)
+		if (!Settings.WriteLog)
 		{
 			return;
 		}
