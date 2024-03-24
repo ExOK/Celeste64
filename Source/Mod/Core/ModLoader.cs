@@ -200,7 +200,7 @@ public static class ModLoader
 
 	private static GameMod LoadGameMod(ModInfo info, IModFilesystem fs)
 	{
-		bool modEnabled = Save.GetOrMakeMod(info.Id).Enabled;
+		bool modEnabled = ModSettings.GetOrMakeModSettings(info.Id).Enabled;
 
 		GameMod? loadedMod = null;
 		GameModSettings? loadedModSettings = null;

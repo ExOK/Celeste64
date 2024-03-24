@@ -23,6 +23,11 @@ public class Startup : Scene
 			Settings.LoadSettingsByFileName(Settings.DefaultFileName);
 		}
 
+		// load mod settings file
+		{
+			ModSettings.LoadModSettingsByFileName(ModSettings.DefaultFileName);
+		}
+
 		// load assets
 		// this currently needs to happen after the save file loads, because this also loads mods, which get their saved settings from the save file.
 		Assets.Load();

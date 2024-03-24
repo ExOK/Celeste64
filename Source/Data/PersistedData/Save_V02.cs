@@ -32,22 +32,56 @@ public class Save_V02 : VersionedPersistedData<Save_V01>
 	/// <summary>
 	/// Fuji Custom - Records for each mod
 	/// </summary>
-	public List<ModRecord_V01> ModRecords { get; set; } = [];
+	public List<ModRecord_V02> ModRecords { get; set; } = [];
 
 	public void SetFileName(string file_name)
 	{
 		FileName = file_name;
 	}
 
-	public override object? UpgradeFrom(string data)
+	public override object? UpgradeFrom(Save_V01? oldSave)
 	{
-		Save_V01 oldSave = new Save_V01().Deserialize(data) as Save_V01 ?? new Save_V01();
+		if (oldSave == null) return null;
+
 		Save_V02 newSave = new Save_V02();
 
 		newSave.Records = oldSave.Records;
-		newSave.ModRecords = oldSave.ModRecords;
-		newSave.SkinName = oldSave.SkinName;
 		newSave.LevelID = oldSave.LevelID;
+		newSave.SkinName = oldSave.SkinName;
+
+		ModSettings_V01? modSettings = null;
+
+		if (!File.Exists(Path.Join(App.UserPath, Settings.DefaultFileName)))
+		{
+			modSettings = new ModSettings_V01();
+		}
+
+		foreach (var oldModRecord in oldSave.ModRecords)
+		{
+			if (new ModRecord_V02().UpgradeFrom(oldModRecord) is ModRecord_V02 newRecord)
+			{
+				newSave.ModRecords.Add(newRecord);
+			}
+
+			if (modSettings != null)
+			{
+				ModSettingsRecord_V01 newSettingsRecord = new ModSettingsRecord_V01();
+				newSettingsRecord.ID = oldModRecord.ID;
+				newSettingsRecord.Enabled = oldModRecord.Enabled;
+				newSettingsRecord.SettingsStringData = oldModRecord.SettingsStringData;
+				newSettingsRecord.SettingsIntData = oldModRecord.SettingsIntData;
+				newSettingsRecord.SettingsFloatData = oldModRecord.SettingsFloatData;
+				newSettingsRecord.SettingsBoolData = oldModRecord.SettingsBoolData;
+
+				modSettings.ModSettingsRecords.Add(newSettingsRecord);
+			}
+		}
+
+		if (modSettings != null)
+		{
+			ModSettings.Instance = modSettings;
+			ModSettings.SaveToFile();
+		}
 
 		if (!File.Exists(Path.Join(App.UserPath, Settings.DefaultFileName)))
 		{

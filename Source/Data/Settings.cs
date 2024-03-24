@@ -10,7 +10,7 @@ public enum InvertCameraOptions
 	Both
 }
 
-public class Settings
+public sealed class Settings
 {
 	public const string DefaultFileName = "settings.json";
 

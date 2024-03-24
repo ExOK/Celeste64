@@ -6,7 +6,8 @@ namespace Celeste64.Mod;
 public abstract class GameMod
 {
 	#region Internally Used Data
-	internal ModRecord_V01 ModSaveData => Save.GetOrMakeMod(ModInfo.Id);
+	internal ModRecord_V02 ModSaveData => Save.GetOrMakeMod(ModInfo.Id);
+	internal ModSettingsRecord_V01 ModSettingsData => ModSettings.GetOrMakeModSettings(ModInfo.Id);
 
 	// They get set as part of the Mod Loading step, not the constructor.
 	internal IModFilesystem Filesystem { get; set; } = null!;
@@ -58,7 +59,7 @@ public abstract class GameMod
 	public Player? Player => World?.Get<Player>();
 
 	// Common Metadata about this mod.
-	public bool Enabled => this is VanillaGameMod || ModSaveData.Enabled;
+	public bool Enabled => this is VanillaGameMod || ModSettingsData.Enabled;
 	public virtual Type? SettingsType { get; set; }
 	public virtual GameModSettings? Settings { get; set; }
 
@@ -132,7 +133,16 @@ public abstract class GameMod
 
 		try
 		{
-			return SaveSettingsForType("Settings.", SettingsType, Settings);
+			bool saved = SaveSettingsForType("Settings.", SettingsType, Settings);
+			if (saved)
+			{
+				ModSettings.SaveToFile();
+				return true;
+			}
+			else
+			{
+				return false;
+			}
 		}
 		catch (Exception e)
 		{
@@ -153,24 +163,24 @@ public abstract class GameMod
 			object? propValue = prop.GetValue(instance);
 			if (propValue is int propInt)
 			{
-				ModSaveData.SettingsSetInt($"{settingKey}{prop.Name}", propInt);
+				ModSettingsData.SetIntSetting($"{settingKey}{prop.Name}", propInt);
 			}
 			else if (propValue is bool propBool)
 			{
-				ModSaveData.SettingsSetBool($"{settingKey}{prop.Name}", propBool);
+				ModSettingsData.SetBoolSetting($"{settingKey}{prop.Name}", propBool);
 			}
 			else if (propValue is string propString)
 			{
-				ModSaveData.SettingsSetString($"{settingKey}{prop.Name}", propString);
+				ModSettingsData.SetStringSetting($"{settingKey}{prop.Name}", propString);
 			}
 			else if (propValue is float propFloat)
 			{
-				ModSaveData.SettingsSetFloat($"{settingKey}{prop.Name}", propFloat);
+				ModSettingsData.SetFloatSetting($"{settingKey}{prop.Name}", propFloat);
 			}
 			else if (prop.PropertyType.IsEnum)
 			{
 				int intVal = propValue != null ? (int)propValue : 0;
-				ModSaveData.SettingsSetInt($"{settingKey}{prop.Name}", intVal);
+				ModSettingsData.SetIntSetting($"{settingKey}{prop.Name}", intVal);
 			}
 			else if (propValue != null && prop.PropertyType.GetCustomAttribute<SettingSubMenuAttribute>() != null)
 			{
@@ -212,24 +222,24 @@ public abstract class GameMod
 			object? propValue = prop.GetValue(instance);
 			if (propValue is int propInt)
 			{
-				prop.SetValue(instance, ModSaveData.SettingsGetInt($"{settingKey}{prop.Name}", propInt));
+				prop.SetValue(instance, ModSettingsData.GetIntSetting($"{settingKey}{prop.Name}", propInt));
 			}
 			else if (propValue is bool propBool)
 			{
-				prop.SetValue(instance, ModSaveData.SettingsGetBool($"{settingKey}{prop.Name}", propBool));
+				prop.SetValue(instance, ModSettingsData.GetBoolSetting($"{settingKey}{prop.Name}", propBool));
 			}
 			else if (propValue is string propString)
 			{
-				prop.SetValue(instance, ModSaveData.SettingsGetString($"{settingKey}{prop.Name}", propString));
+				prop.SetValue(instance, ModSettingsData.GetStringSetting($"{settingKey}{prop.Name}", propString));
 			}
 			else if (propValue is float propFloat)
 			{
-				prop.SetValue(instance, ModSaveData.SettingsGetFloat($"{settingKey}{prop.Name}", propFloat));
+				prop.SetValue(instance, ModSettingsData.GetFloatSetting($"{settingKey}{prop.Name}", propFloat));
 			}
 			else if (prop.PropertyType.IsEnum)
 			{
 				int intVal = propValue != null ? (int)propValue : 0;
-				prop.SetValue(instance, prop.PropertyType.GetEnumValues().GetValue(ModSaveData.SettingsGetInt($"{settingKey}{prop.Name}", intVal)));
+				prop.SetValue(instance, prop.PropertyType.GetEnumValues().GetValue(ModSettingsData.GetIntSetting($"{settingKey}{prop.Name}", intVal)));
 			}
 			else if (propValue != null && prop.PropertyType.GetCustomAttribute<SettingSubMenuAttribute>() != null)
 			{
@@ -443,7 +453,7 @@ public abstract class GameMod
 		{
 			if (!simulate)
 			{
-				Save.GetOrMakeMod(dependent.ModInfo.Id).Enabled = false;
+				ModSettings.GetOrMakeModSettings(dependent.ModInfo.Id).Enabled = false;
 			}
 
 			if (dependent == ModManager.Instance.CurrentLevelMod)
@@ -474,7 +484,7 @@ public abstract class GameMod
 	{
 		foreach (var dep in ModInfo.Dependencies.Keys.ToList())
 		{
-			Save.GetOrMakeMod(dep).Enabled = true;
+			ModSettings.GetOrMakeModSettings(dep).Enabled = true;
 		}
 	}
 

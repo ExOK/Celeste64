@@ -1,18 +1,18 @@
 ﻿using System.Text.Json;
 
 namespace Celeste64;
-public abstract class VersionedPersistedData<T> : PersistedData where T : PersistedData
+public abstract class VersionedPersistedData<T> : PersistedData where T : PersistedData, new()
 {
 	public override object? Deserialize(string data)
 	{
 		try
 		{
 			var doc = JsonDocument.Parse(data);
-			int version = doc.RootElement.GetProperty("Version").TryGetInt32(out int result) ? result : 1;
+			int version = doc.RootElement.TryGetProperty("Version", out JsonElement prop) ? (prop.TryGetInt32(out int result) ? result : 1) : 1;
 
 			if (version != Version)
 			{
-				return UpgradeFrom(data);
+				return UpgradeFrom(new T().Deserialize(data) as T);
 			}
 			else
 			{
@@ -26,5 +26,5 @@ public abstract class VersionedPersistedData<T> : PersistedData where T : Persis
 		}
 	}
 
-	public abstract object? UpgradeFrom(string data);
+	public abstract object? UpgradeFrom(T? data);
 }

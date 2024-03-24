@@ -2,7 +2,7 @@ using Celeste64.Mod;
 
 namespace Celeste64;
 
-public class Save
+public sealed class Save
 {
 	public const string DefaultFileName = "save.json";
 
@@ -54,12 +54,12 @@ public class Save
 	/// <summary>
 	/// Finds the record associated with a specific mod, or adds it if not found
 	/// </summary>
-	public static ModRecord_V01 GetOrMakeMod(string modID)
+	public static ModRecord_V02 GetOrMakeMod(string modID)
 	{
 		if (TryGetMod(modID) is { } record)
 			return record;
 
-		record = new ModRecord_V01() { ID = modID, Enabled = true };
+		record = new ModRecord_V02() { ID = modID };
 		Instance.ModRecords.Add(record);
 		return record;
 	}
@@ -67,7 +67,7 @@ public class Save
 	/// <summary>
 	/// Tries to get a Mod Record, returns null if not found
 	/// </summary>
-	public static ModRecord_V01? TryGetMod(string modID)
+	public static ModRecord_V02? TryGetMod(string modID)
 	{
 		foreach (var record in Instance.ModRecords)
 			if (record.ID == modID)
@@ -80,11 +80,11 @@ public class Save
 	/// </summary>
 	public static void EraseModRecord(string modID)
 	{
-		for (int i = 0; i < Instance.Records.Count; i++)
+		for (int i = 0; i < Instance.ModRecords.Count; i++)
 		{
 			if (Instance.ModRecords[i].ID == modID)
 			{
-				Instance.Records.RemoveAt(i);
+				Instance.ModRecords.RemoveAt(i);
 				break;
 			}
 		}
