@@ -10,9 +10,15 @@
 		"Restart": "Restart",
 		"Start": "Start",
 		"Exit": "Exit",
+		"Load": "Load",
+		"Create": "Create",
+		"Delete": "Delete",
+		"Copy": "Copy",
 		"RestartLevel": "Clear Save & Restart Level",
 		"PauseTitle": "Paused",
 		"PauseResume": "Resume",
+		"SkipCutscene": "Skip Cutscene",
+		"SkipCutscene.desc": "Skips the Current Cutscene",
 		"PauseResume.desc": "Continue Playing",
 		"PauseRetry": "Retry",
 		"PauseRetry.desc": "Restart the Current Map",
@@ -20,6 +26,10 @@
 		"PauseOptions.desc": "Update the Game Options",
 		"PauseSaveQuit": "Save & Quit",
 		"PauseSaveQuit.desc": "Save & Quit to the Title Screen",
+		"PauseSaves": "Saves",
+		"PauseSaves.desc": "Open the Save Select Menu",
+		"PauseModsMenu" : "Mods",
+		"PauseModsMenu.desc" : "Open the Mods Menu",
 		"OptionsTitle": "Options",
 		"OptionsFullscreen": "Fullscreen",
 		"OptionsFullscreen.desc": "Control if the Game is Fullscreen or Windowed",
@@ -35,8 +45,17 @@
 		"OptionsInvertCamera.desc": "Control if the Camera X and Y axes are inverted",
 		"OptionsToggleOn": "ON",
 		"OptionsToggleOff": "OFF",
+		"OptionsYes": "Yes",
+		"OptionsNo": "No",
+		"OptionsResolution": "Resolution Scale",
+		"OptionsResolution.desc": "Change the Resolution Scale",
 		"Skin": "Skin",
 		"Skin.desc": "Choose a Skin to Wear",
+
+		"SaveCreateFile": "Create new file?" ,
+		"SaveDeleteFile": "Delete this file?" ,
+		"SaveCopyFile": "Copy this file?" ,
+		"SaveCreateFile": "Create new file?" ,
 		"FujiOptions": "Fuji Options...",
 		"FujiOptions.desc": "Configure Options for the Fuji Mod Loader",
 		"FujiWriteLog": "Write Log File",
@@ -50,15 +69,13 @@
 		"FujiContinueToMods.desc": "Continue to the Mods Menu",
 		"FujiOverworldModSlideNote": "Use Up/Down to filter by mod",
 		"FailedToLoadMods": "Failed to load {0} mods. Check Mods Menu for details.",
-		"Mods": "Mods",
-		"Mods.desc": "Access Mod Info and Settings",
 		"ModEnabled": "Enabled",
 		"ModOptions": "Mod Options",
 		"ConfirmDisableMod": "Continue & Disable Mod",
-		"ModSafeDisableErrorMessage": "This mod can't be disabled because it would disable the level you're currently in.\nTry going to the main menu first.",
-		"QuitToMainMenu": "Quit to Main Menu"
+		"ModSafeDisableErrorMessage": "This mod can't be disabled because it would disable the level you're currently in.\nTry going to the main menu first."
 	},
-	"Dialog": {
+	"Dialog":
+	{
 		"Granny1": [
 			{
 				"Face": "granny/Laugh",
@@ -204,6 +221,7 @@
 				"Text": "That's not how I remember it."
 			}
 		],
+
 		"Theo1": [
 			{
 				"Face": "theo/Default",
@@ -378,6 +396,7 @@
 				"Text": "..."
 			}
 		],
+
 		"Baddy1": [
 			{
 				"Face": "madeline/Default",
@@ -585,6 +604,7 @@
 				"Text": "Maybe... maybe it'll be okay."
 			}
 		],
+
 		"Sign1": [
 			{
 				"Face": "signpost",
@@ -733,6 +753,7 @@
 				"Text": "I surely don't know, for\nI am but a humble signpost."
 			}
 		],
+
 		"CreditsSign": [
 			{
 				"Face": "signpost",
