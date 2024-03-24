@@ -229,7 +229,7 @@ public class Player : Actor, IHaveModels, IHaveSprites, IRidePlatforms, ICastPoi
 	public static Vec3 StoredCameraForward;
 	public static float StoredCameraDistance;
 
-	public enum States { Normal, Dashing, Skidding, Climbing, StrawbGet, FeatherStart, Feather, Respawn, Dead, StrawbReveal, Cutscene, Bubble, Cassette, DebugFly };
+	public enum States { Normal, Dashing, Skidding, Climbing, StrawbGet, FeatherStart, Feather, Respawn, Dead, StrawbReveal, Cutscene, Bubble, Cassette, LoadingZone, DebugFly };
 	public enum Events { Land };
 	public enum JumpType { Jumped, WallJumped, SkidJumped, DashJumped };
 
@@ -300,6 +300,7 @@ public class Player : Actor, IHaveModels, IHaveSprites, IRidePlatforms, ICastPoi
 		=> StateMachine.State != States.StrawbGet
 		&& StateMachine.State != States.Bubble
 		&& StateMachine.State != States.Cassette
+		&& StateMachine.State != States.LoadingZone
 		&& StateMachine.State != States.StrawbReveal
 		&& StateMachine.State != States.Respawn
 		&& StateMachine.State != States.Dead
@@ -309,6 +310,7 @@ public class Player : Actor, IHaveModels, IHaveSprites, IRidePlatforms, ICastPoi
 		=> StateMachine.State != States.StrawbReveal
 		&& StateMachine.State != States.StrawbGet
 		&& StateMachine.State != States.Cassette
+		&& StateMachine.State != States.LoadingZone
 		&& StateMachine.State != States.Dead
 		&& GetCurrentCustomState() is not { IsAbleToPause: false };
 
@@ -359,6 +361,7 @@ public class Player : Actor, IHaveModels, IHaveSprites, IRidePlatforms, ICastPoi
 		StateMachine.InitState(States.Dead, StDeadUpdate, StDeadEnter);
 		StateMachine.InitState(States.Bubble, null, null, StBubbleExit, StBubbleRoutine);
 		StateMachine.InitState(States.Cassette, null, null, StCassetteExit, StCassetteRoutine);
+		StateMachine.InitState(States.LoadingZone, null, null, StLoadingZoneExit, StLoadingZoneRoutine);
 		StateMachine.InitState(States.DebugFly, StDebugFlyUpdate, StDebugFlyEnter, StDebugFlyExit);
 		// Register custom player states
 		var nextId = CustomPlayerStateRegistry.BaseId;
@@ -518,7 +521,7 @@ public class Player : Actor, IHaveModels, IHaveSprites, IRidePlatforms, ICastPoi
 	{
 		// only update camera if not dead
 		if (StateMachine.State != States.Respawn && StateMachine.State != States.Dead &&
-			StateMachine.State != States.StrawbReveal && StateMachine.State != States.Cassette)
+			StateMachine.State != States.StrawbReveal && StateMachine.State != States.Cassette && StateMachine.State != States.LoadingZone)
 		{
 			// Rotate Camera
 			{
@@ -569,6 +572,14 @@ public class Player : Actor, IHaveModels, IHaveSprites, IRidePlatforms, ICastPoi
 				Kill();
 				return;
 			}
+		}
+
+		if (StateMachine.State != States.Cassette &&
+			StateMachine.State != States.LoadingZone &&
+			World.OverlapsFirst<LoadingZone>(SolidWaistTestPos) is { } loadingZone)
+		{
+			EnterLoadingZone(loadingZone);
+			return;
 		}
 
 		// enter cutscene
@@ -2449,6 +2460,60 @@ public class Player : Actor, IHaveModels, IHaveSprites, IRidePlatforms, ICastPoi
 		DrawModel = DrawHair = true;
 		CameraOverride = null;
 		PointShadowAlpha = 1;
+	}
+
+	#endregion
+
+	// Copied from Cassette State Logic
+	#region Loading Zone State
+
+	public LoadingZone? loadingZone;
+
+	public virtual void EnterLoadingZone(LoadingZone it)
+	{
+		if (StateMachine.State != States.LoadingZone)
+		{
+			loadingZone = it;
+			StateMachine.State = States.LoadingZone;
+			Model.Rate = 0;
+			Stop();
+			Game.Instance.Ambience.Stop();
+			Audio.StopBus(Sfx.bus_gameplay_world, false);
+		}
+	}
+
+	public virtual CoEnumerator StLoadingZoneRoutine()
+	{
+		if (loadingZone != null)
+		{
+			if (Assets.Maps.ContainsKey(loadingZone.Map))
+			{
+				Game.Instance.Goto(new Transition()
+				{
+					Mode = Transition.Modes.Push,
+					Scene = () => new World(new(loadingZone.Map, loadingZone.CheckpointName, loadingZone.IsSubmap, World.EntryReasons.Entered)),
+					ToPause = true,
+					ToBlack = new SpotlightWipe(),
+					StopMusic = true
+				});
+			}
+		}
+
+		yield return 1.0f;
+
+		Audio.Play(Sfx.sfx_cassette_exit, Position);
+
+		StateMachine.State = States.Normal;
+		velocity = Vec3.UnitZ * 25;
+		HoldJumpSpeed = velocity.Z;
+		THoldJump = .1f;
+		AutoJump = true;
+	}
+
+	public virtual void StLoadingZoneExit()
+	{
+		loadingZone = null;
+		Model.Rate = 1;
 	}
 
 	#endregion
