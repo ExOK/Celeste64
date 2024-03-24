@@ -1,4 +1,5 @@
-﻿using MonoMod.Cil;
+﻿using Microsoft.VisualBasic;
+using MonoMod.Cil;
 using MonoMod.RuntimeDetour;
 using System.Reflection;
 using System.Text.Json;
@@ -60,7 +61,7 @@ public static class ModLoader
 
 		Log.Info($"Loading mods from: \n- {String.Join("\n- ", ModFolderPaths)}");
 
-		List<(ModInfo, IModFilesystem)> modInfos = [];
+		List<(ModInfo ModInfo, IModFilesystem ModFs)> modInfos = [];
 
 		// Find all mods in directories:
 		foreach (var modDir in ModFolderPaths.SelectMany(path => Directory.EnumerateDirectories(path)))
@@ -115,6 +116,10 @@ public static class ModLoader
 		// Load all mods which have their dependencies met and repeat until we're done.
 		bool loadedModInIteration = false;
 		HashSet<ModInfo> loaded = [];
+
+		// Sort the mods by their ID alphabetically before loading.
+		// This helps us ensure some level of consistency/determinism to hopefully avoid quirks in behaviour.
+		modInfos = [.. modInfos.OrderBy(mod => mod.ModInfo.Id)];
 
 		while (modInfos.Count > 0)
 		{
