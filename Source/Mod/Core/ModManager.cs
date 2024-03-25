@@ -75,8 +75,6 @@ public sealed class ModManager
 			fs.Dispose();
 		}
 
-		mod.ModInfo.AssemblyContext?.Dispose();
-
 		if (mod.Loaded)
 		{
 			mod.OnModUnloaded();
@@ -84,6 +82,8 @@ public sealed class ModManager
 		}
 
 		mod.OnUnloadedCleanup?.Invoke();
+		
+		mod.ModInfo.AssemblyContext?.Dispose();
 	}
 
 	internal void OnModFileChanged(ModFileChangedCtx ctx)
