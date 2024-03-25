@@ -268,58 +268,63 @@ internal sealed class ModAssemblyLoadContext : AssemblyLoadContext
 
 	private Assembly? LoadAssemblyFromModPath(string assemblyPath)
 	{
-		try
-		{
-			var symbolPath = Path.ChangeExtension(assemblyPath, $".{Assets.LibrariesExtensionSymbol}");
-
-			using var assemblyStream = fs.OpenFile(assemblyPath);
-			using var symbolStream = fs.FileExists(symbolPath) ? fs.OpenFile(symbolPath) : null;
-
-			// If we load from a zipped mod, stream will be deflated, so we have to copy it to a memory stream in that case.
-			Stream updatedAssemblyStream = assemblyStream;
-			using var memStream = new MemoryStream();
-			if (!assemblyStream.CanSeek)
+		lock (this) {
+			if (isDisposed)
+				throw new ObjectDisposedException(nameof(ModAssemblyLoadContext));
+		
+			try
 			{
-				assemblyStream.CopyTo(memStream);
-				memStream.Position = 0;
-				updatedAssemblyStream = memStream;
-			}
+				var symbolPath = Path.ChangeExtension(assemblyPath, $".{Assets.LibrariesExtensionSymbol}");
 
-			using var memSymbolStream = new MemoryStream();
-			Stream? updatedSymbolStream = symbolStream;
-			if (symbolStream != null && !assemblyStream.CanSeek)
+				using var assemblyStream = fs.OpenFile(assemblyPath);
+				using var symbolStream = fs.FileExists(symbolPath) ? fs.OpenFile(symbolPath) : null;
+
+				// If we load from a zipped mod, stream will be deflated, so we have to copy it to a memory stream in that case.
+				Stream updatedAssemblyStream = assemblyStream;
+				using var memStream = new MemoryStream();
+				if (!assemblyStream.CanSeek)
+				{
+					assemblyStream.CopyTo(memStream);
+					memStream.Position = 0;
+					updatedAssemblyStream = memStream;
+				}
+
+				using var memSymbolStream = new MemoryStream();
+				Stream? updatedSymbolStream = symbolStream;
+				if (symbolStream != null && !assemblyStream.CanSeek)
+				{
+					symbolStream?.CopyTo(memSymbolStream);
+					memSymbolStream.Position = 0;
+					updatedSymbolStream = memSymbolStream;
+				}
+
+
+				var module = ModuleDefinition.ReadModule(updatedAssemblyStream);
+				if (AssemblyLoadBlackList.Contains(module.Assembly.Name.Name, StringComparer.OrdinalIgnoreCase))
+					throw new Exception($"Attempted load of blacklisted assembly {module.Assembly.Name} from mod '{info.Id}'");
+
+				// Reset stream back to beginning
+				updatedAssemblyStream.Position = 0;
+
+				var assembly = LoadFromStream(updatedAssemblyStream, updatedSymbolStream);
+				var asmName = assembly.GetName().Name!;
+
+				if (assemblyModules.TryAdd(asmName, module))
+				{
+					assemblyLoadCache.TryAdd(asmName, assembly);
+					localLoadCache.TryAdd(asmName, assembly);
+				}
+				else
+				{
+					Log.Warning($"Assembly name conflict for name '{asmName}' in mod '{info.Id}'!");
+				}
+
+				return assembly;
+			}
+			catch
 			{
-				symbolStream?.CopyTo(memSymbolStream);
-				memSymbolStream.Position = 0;
-				updatedSymbolStream = memSymbolStream;
+				return null;
 			}
-
-
-			var module = ModuleDefinition.ReadModule(updatedAssemblyStream);
-			if (AssemblyLoadBlackList.Contains(module.Assembly.Name.Name, StringComparer.OrdinalIgnoreCase))
-				throw new Exception($"Attempted load of blacklisted assembly {module.Assembly.Name} from mod '{info.Id}'");
-
-			// Reset stream back to beginning
-			updatedAssemblyStream.Position = 0;
-
-			var assembly = LoadFromStream(updatedAssemblyStream, updatedSymbolStream);
-			var asmName = assembly.GetName().Name!;
-
-			if (assemblyModules.TryAdd(asmName, module))
-			{
-				assemblyLoadCache.TryAdd(asmName, assembly);
-				localLoadCache.TryAdd(asmName, assembly);
-			}
-			else
-			{
-				Log.Warning($"Assembly name conflict for name '{asmName}' in mod '{info.Id}'!");
-			}
-
-			return assembly;
-		}
-		catch
-		{
-			return null;
 		}
 	}
 }
