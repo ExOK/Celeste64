@@ -255,9 +255,8 @@ public class Game : Module
 		}
 		else if (transitionStep == TransitionStep.Perform)
 		{
-			Debug.Assert(transition.Scene != null);
-			Scene newScene = transition.Scene();
-			if (Save.Instance.EnableAdditionalLogging) Log.Info("Switching scene: " + newScene.GetType());
+			Scene? newScene = transition.Scene != null ? transition.Scene() : null;
+			if (Save.Instance.EnableAdditionalLogging && newScene != null) Log.Info("Switching scene: " + newScene.GetType());
 
 			Audio.StopBus(Sfx.bus_gameplay_world, false);
 
@@ -283,11 +282,13 @@ public class Game : Module
 			switch (transition.Mode)
 			{
 				case Transition.Modes.Replace:
+					Debug.Assert(newScene != null);
 					if (scenes.Count > 0)
 						scenes.Pop();
 					scenes.Push(newScene);
 					break;
 				case Transition.Modes.Push:
+					Debug.Assert(newScene != null);
 					scenes.Push(newScene);
 					audioBeatCounter = 0;
 					break;
