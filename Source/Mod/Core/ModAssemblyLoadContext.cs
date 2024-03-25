@@ -73,7 +73,7 @@ internal sealed class ModAssemblyLoadContext : AssemblyLoadContext
 		AllContextsLock.ExitWriteLock();
 
 		// Load all assemblies
-		foreach (var assemblyPath in fs.FindFilesInDirectoryRecursive(Assets.LibrariesFolder, Assets.LibrariesExtensionAssembly))
+		foreach (var assemblyPath in fs.FindFilesInDirectory(Assets.LibrariesFolder, Assets.LibrariesExtensionAssembly))
 		{
 			LoadAssemblyFromModPath(assemblyPath);
 		}
