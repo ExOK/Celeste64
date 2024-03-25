@@ -228,17 +228,9 @@ internal sealed class ModAssemblyLoadContext : AssemblyLoadContext
 		{
 			string libraryPath = Path.Combine(Assets.LibrariesFolder, UnmanagedLibraryFolder, libName);
 
-			if (fs is FolderModFilesystem folderFs)
-			{
-				// We can load the library directly in this case
-				if (NativeLibrary.TryLoad(Path.Combine(folderFs.Root, libraryPath), out handle))
-				{
-					localUnmanagedLoadCache.TryAdd(name, handle);
-					return handle;
-				}
-			}
-
-			// Otherwise, we need to extract the library into a temporary file
+			// Extract the library into a temporary file to be able to read it
+			// Even in the case of a directory mod, we can't use it directly, as it would be invalid to reference
+			// the library once the file has changed (which is annoying, but ehh)
 			// TODO: Store this in a consistent cache file inside the install?
 			var tempFilePath = Path.GetTempFileName();
 			using (var tempFile = File.OpenWrite(tempFilePath))
