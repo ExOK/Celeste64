@@ -107,7 +107,7 @@ public sealed class ModManager
 				(dir.StartsWith(Assets.FontsFolder) && extension is $".{Assets.FontsExtensionTTF}" or $".{Assets.FontsExtensionOTF}") ||
 				(dir.StartsWith(Assets.SpritesFolder) && extension == $".{Assets.SpritesExtension}") ||
 				(dir.StartsWith(Assets.SkinsFolder) && extension == $".{Assets.SkinsExtension}") ||
-				(dir.StartsWith(Assets.LibrariesFolder) && extension == $".{Assets.LibrariesExtensionAssembly}") ||
+				(dir.StartsWith(Assets.LibrariesFolder) && extension is $".{Assets.LibrariesExtensionAssembly}" or ".dll" or ".so" or ".dylib") ||
 				filepath.ToLower() == Assets.LevelsJSON.ToLower() ||
 				filepath.ToLower() == Assets.FujiJSON.ToLower())
 			{
