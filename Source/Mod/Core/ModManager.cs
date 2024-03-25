@@ -27,10 +27,12 @@ public sealed class ModManager
 		_modFilesystemCleanupTimerToken = new();
 		HookManager.Instance.ClearHooks();
 
-		var modsCopy = Mods.ToList();
-		foreach (var mod in modsCopy)
+		// Unload in reverse order to
+		// 1) Not need to make a copy, since entries are removed from 'Mods'
+		// 2) Respect mod dependencies, so that dependencies are unloaded after the mod which requires them
+		for (int i = Mods.Count - 1; i >= 0; i--)
 		{
-			DeregisterMod(mod);
+			DeregisterMod(Mods[i]);
 		}
 	}
 
