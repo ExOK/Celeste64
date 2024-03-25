@@ -101,6 +101,8 @@ internal sealed class ModAssemblyLoadContext : AssemblyLoadContext
 			localLoadCache.Clear();
 			
 			assemblyUnmanagedLoadCache.Clear();
+			foreach (var handle in localUnmanagedLoadCache.Values)
+				NativeLibrary.Free(handle);
 			localUnmanagedLoadCache.Clear();
 		}
 	}
