@@ -38,7 +38,6 @@ internal sealed class ModAssemblyLoadContext : AssemblyLoadContext
 
 
 	private static readonly ReaderWriterLockSlim AllContextsLock = new();
-	private static readonly LinkedList<ModAssemblyLoadContext> AllContexts = [];
 	private static readonly Dictionary<string, ModAssemblyLoadContext> ContextsByModId = new();
 
 	// All modules loaded by the context.
@@ -56,8 +55,6 @@ internal sealed class ModAssemblyLoadContext : AssemblyLoadContext
 	private readonly IModFilesystem fs;
 	private readonly List<ModAssemblyLoadContext> dependencyContexts = [];
 
-	// Our node in the all ALCs list.
-	private LinkedListNode<ModAssemblyLoadContext>? listNode;
 	private bool isDisposed = false;
 
 	internal ModAssemblyLoadContext(ModInfo info, IModFilesystem fs) : base(info.Id, isCollectible: true)
@@ -71,7 +68,9 @@ internal sealed class ModAssemblyLoadContext : AssemblyLoadContext
 			if (ContextsByModId.TryGetValue(modId, out var alc))
 				dependencyContexts.Add(alc);
 		}
+		AllContextsLock.EnterWriteLock();
 		ContextsByModId.TryAdd(info.Id, this);
+		AllContextsLock.ExitWriteLock();
 
 		// Load all assemblies
 		foreach (var assemblyPath in fs.FindFilesInDirectoryRecursive(Assets.LibrariesFolder, Assets.LibrariesExtensionAssembly))
@@ -90,16 +89,8 @@ internal sealed class ModAssemblyLoadContext : AssemblyLoadContext
 
 			// Remove from mod ALC list
 			AllContextsLock.EnterWriteLock();
-			try
-			{
-				AllContexts.Remove(listNode!);
-				ContextsByModId.Remove(info.Id);
-				listNode = null;
-			}
-			finally
-			{
-				AllContextsLock.ExitWriteLock();
-			}
+			ContextsByModId.Remove(info.Id);
+			AllContextsLock.ExitWriteLock();
 
 			// Unload all assemblies loaded in the context
 			foreach (var module in assemblyModules.Values)
@@ -116,21 +107,25 @@ internal sealed class ModAssemblyLoadContext : AssemblyLoadContext
 
 	protected override Assembly? Load(AssemblyName asmName)
 	{
-		// Lookup in the cache
-		if (assemblyLoadCache.TryGetValue(asmName.Name!, out var cachedAsm))
-			return cachedAsm;
-
-		// Try to load the assembly locally (from this or dependency ALCs)
-		// // If that fails, try to load the assembly globally (game assemblies)
-		var asm = LoadManagedLocal(asmName) ?? LoadManagedGlobal(asmName);
-		if (asm != null)
+		lock (this)
 		{
-			assemblyLoadCache.TryAdd(asmName.Name!, asm);
-			return asm;
-		}
+			// Lookup in the cache
+			if (assemblyLoadCache.TryGetValue(asmName.Name!, out var cachedAsm))
+				return cachedAsm;
 
-		Log.Warning($"Failed to load assembly '{asmName.FullName}' for mod '{info.Id}'");
-		return null;
+			// Try to load the assembly locally (from this or dependency ALCs)
+			// // If that fails, try to load the assembly globally (game assemblies)
+			var asm = LoadManagedLocal(asmName) ?? LoadManagedGlobal(asmName);
+			if (asm != null)
+			{
+				assemblyLoadCache.TryAdd(asmName.Name!, asm);
+
+				return asm;
+			}
+
+			Log.Warning($"Failed to load assembly '{asmName.FullName}' for mod '{info.Id}'");
+			return null;
+		}
 	}
 
 	protected override IntPtr LoadUnmanagedDll(string name)
@@ -202,12 +197,15 @@ internal sealed class ModAssemblyLoadContext : AssemblyLoadContext
 
 	private Assembly? LoadManagedFromThisMod(AssemblyName asmName)
 	{
-		// Lookup in the cache
-		if (localLoadCache.TryGetValue(asmName.Name!, out var asm))
-			return asm;
+		lock (this)
+		{
+			// Lookup in the cache
+			if (localLoadCache.TryGetValue(asmName.Name!, out var asm))
+				return asm;
 
-		// Try to load the assembly from the same library directory
-		return LoadAssemblyFromModPath(Path.Combine(Assets.LibrariesFolder, $"{asmName.Name!}.{Assets.LibrariesExtensionAssembly}"));
+			// Try to load the assembly from the same library directory
+			return LoadAssemblyFromModPath(Path.Combine(Assets.LibrariesFolder, $"{asmName.Name!}.{Assets.LibrariesExtensionAssembly}"));
+		}
 	}
 
 	private IntPtr? LoadUnmanagedFromThisMod(string name)
@@ -293,7 +291,7 @@ internal sealed class ModAssemblyLoadContext : AssemblyLoadContext
 				Stream? updatedSymbolStream = symbolStream;
 				if (symbolStream != null && !assemblyStream.CanSeek)
 				{
-					symbolStream?.CopyTo(memSymbolStream);
+					symbolStream.CopyTo(memSymbolStream);
 					memSymbolStream.Position = 0;
 					updatedSymbolStream = memSymbolStream;
 				}
