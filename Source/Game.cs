@@ -263,9 +263,17 @@ public class Game : Module
 			// exit last scene
 			if (scenes.TryPeek(out var lastScene))
 			{
-				lastScene?.Exited();
-				if (transition.Mode != Transition.Modes.Push)
-					lastScene?.Disposed();
+				try
+				{
+					lastScene?.Exited();
+					if (transition.Mode != Transition.Modes.Push)
+						lastScene?.Disposed();
+				}
+				catch (Exception e)
+				{
+					transitionStep = TransitionStep.None;
+					HandleError(e);
+				}
 			}
 
 			// reload assets if requested
