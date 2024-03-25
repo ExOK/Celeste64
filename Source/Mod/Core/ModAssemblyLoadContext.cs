@@ -37,9 +37,9 @@ internal sealed class ModAssemblyLoadContext : AssemblyLoadContext
 	private static string? _unmanagedLibraryFolder = null;
 
 
-	private static readonly ReaderWriterLockSlim allContextsLock = new();
-	private static readonly LinkedList<ModAssemblyLoadContext> allContexts = [];
-	private static readonly Dictionary<string, ModAssemblyLoadContext> contextsByModID = new();
+	private static readonly ReaderWriterLockSlim AllContextsLock = new();
+	private static readonly LinkedList<ModAssemblyLoadContext> AllContexts = [];
+	private static readonly Dictionary<string, ModAssemblyLoadContext> ContextsByModId = new();
 
 	// All modules loaded by the context.
 	private readonly Dictionary<string, ModuleDefinition> assemblyModules = new();
@@ -68,10 +68,10 @@ internal sealed class ModAssemblyLoadContext : AssemblyLoadContext
 		// Resolve dependencies
 		foreach (var (modId, _) in info.Dependencies)
 		{
-			if (contextsByModID.TryGetValue(modId, out var alc))
+			if (ContextsByModId.TryGetValue(modId, out var alc))
 				dependencyContexts.Add(alc);
 		}
-		contextsByModID.TryAdd(info.Id, this);
+		ContextsByModId.TryAdd(info.Id, this);
 
 		// Load all assemblies
 		foreach (var assemblyPath in fs.FindFilesInDirectoryRecursive(Assets.LibrariesFolder, Assets.LibrariesExtensionAssembly))
@@ -89,16 +89,16 @@ internal sealed class ModAssemblyLoadContext : AssemblyLoadContext
 			isDisposed = true;
 
 			// Remove from mod ALC list
-			allContextsLock.EnterWriteLock();
+			AllContextsLock.EnterWriteLock();
 			try
 			{
-				allContexts.Remove(listNode!);
-				contextsByModID.Remove(info.Id);
+				AllContexts.Remove(listNode!);
+				ContextsByModId.Remove(info.Id);
 				listNode = null;
 			}
 			finally
 			{
-				allContextsLock.ExitWriteLock();
+				AllContextsLock.ExitWriteLock();
 			}
 
 			// Unload all assemblies loaded in the context
