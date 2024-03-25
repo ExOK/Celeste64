@@ -255,7 +255,6 @@ public class Game : Module
 		}
 		else if (transitionStep == TransitionStep.Perform)
 		{
-			Debug.Assert(transition.Scene != null);
 			Scene newScene = transition.Scene();
 			if (Save.Instance.EnableAdditionalLogging) Log.Info("Switching scene: " + newScene.GetType());
 
@@ -283,11 +282,13 @@ public class Game : Module
 			switch (transition.Mode)
 			{
 				case Transition.Modes.Replace:
+					Debug.Assert(transition.Scene != null);
 					if (scenes.Count > 0)
 						scenes.Pop();
 					scenes.Push(newScene);
 					break;
 				case Transition.Modes.Push:
+					Debug.Assert(transition.Scene != null);
 					scenes.Push(newScene);
 					audioBeatCounter = 0;
 					break;
