@@ -1,20 +1,14 @@
 ﻿using System.Text.Json;
 using System.Text.Json.Serialization;
-using System.Text.Json.Serialization.Metadata;
 
 namespace Celeste64;
 
 /// <summary>
 /// Stored data associated with a single level
 /// </summary>
-public class LevelRecord_V01 : PersistedData
+public sealed class LevelRecord_V01 : PersistedData
 {
 	public override int Version => 1;
-
-	public override JsonTypeInfo GetTypeInfo()
-	{
-		return LevelRecord_V01Context.Default.LevelRecord_V01;
-	}
 
 	public string ID { get; set; } = string.Empty;
 	public string Checkpoint { get; set; } = string.Empty;

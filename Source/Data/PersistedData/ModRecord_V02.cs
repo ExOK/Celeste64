@@ -1,20 +1,14 @@
 ﻿using System.Text.Json;
 using System.Text.Json.Serialization;
-using System.Text.Json.Serialization.Metadata;
 
 namespace Celeste64;
 
 /// <summary>
 /// Stored data associated with a mod
 /// </summary>
-public class ModRecord_V02 : VersionedPersistedData<ModRecord_V01>
+public sealed class ModRecord_V02 : VersionedPersistedData<ModRecord_V01>
 {
 	public override int Version => 1;
-
-	public override JsonTypeInfo GetTypeInfo()
-	{
-		return ModRecord_V01Context.Default.ModRecord_V01;
-	}
 
 	public string ID { get; set; } = string.Empty;
 	public Dictionary<string, string> StringData { get; set; } = [];
@@ -46,7 +40,7 @@ public class ModRecord_V02 : VersionedPersistedData<ModRecord_V01>
 	public bool SetBool(string name, bool value = false)
 		=> BoolData[name] = value;
 
-	public override object? UpgradeFrom(ModRecord_V01? oldRecord)
+	public override PersistedData? UpgradeFrom(ModRecord_V01? oldRecord)
 	{
 		if (oldRecord == null) return null;
 		ModRecord_V02 newRecord = new ModRecord_V02();

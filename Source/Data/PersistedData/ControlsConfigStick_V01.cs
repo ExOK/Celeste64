@@ -1,10 +1,9 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using System.Text.Json.Serialization.Metadata;
 
 namespace Celeste64;
 
-public class ControlsConfigStick_V01 : PersistedData
+public sealed class ControlsConfigStick_V01 : PersistedData
 {
 	public float Deadzone { get; set; } = 0;
 	public List<ControlsConfigBinding_V01> Up { get; set; } = [];
@@ -27,11 +26,6 @@ public class ControlsConfigStick_V01 : PersistedData
 			it.BindTo(stick.Horizontal.Negative);
 		foreach (var it in Right)
 			it.BindTo(stick.Horizontal.Positive);
-	}
-
-	public override JsonTypeInfo GetTypeInfo()
-	{
-		return ControlsConfigStick_V01Context.Default.ControlsConfigStick_V01;
 	}
 }
 

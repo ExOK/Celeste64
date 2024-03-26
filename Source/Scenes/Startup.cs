@@ -1,5 +1,4 @@
 using Celeste64.Mod.Data;
-using System.Text.Json;
 
 namespace Celeste64;
 
@@ -38,31 +37,7 @@ public class Startup : Scene
 
 		// try to load controls, or overwrite with defaults if they don't exist
 		{
-			var controlsFile = Path.Join(App.UserPath, ControlsConfig_V01.FileName);
-
-			ControlsConfig_V01? controls = null;
-			if (File.Exists(controlsFile))
-			{
-				try
-				{
-					controls = JsonSerializer.Deserialize(File.ReadAllText(controlsFile), ControlsConfig_V01Context.Default.ControlsConfig_V01);
-				}
-				catch
-				{
-					controls = null;
-				}
-			}
-
-			// create defaults if not found
-			if (controls == null)
-			{
-				controls = ControlsConfig_V01.Defaults;
-				using var stream = File.Create(controlsFile);
-				JsonSerializer.Serialize(stream, ControlsConfig_V01.Defaults, ControlsConfig_V01Context.Default.ControlsConfig_V01);
-				stream.Flush();
-			}
-
-			Controls.Load(controls);
+			Controls.LoadControlsByFileName(Controls.DefaultFileName);
 		}
 
 		// enter game

@@ -72,10 +72,10 @@ public sealed class ModSettings
 	}
 
 	[DisallowHooks]
-	internal static void LoadModSettingsByFileName(string file_name)
+	internal static void LoadModSettingsByFileName(string fileName)
 	{
-		if (file_name == string.Empty) file_name = DefaultFileName;
-		var settingsFile = Path.Join(App.UserPath, file_name);
+		if (fileName == string.Empty) fileName = DefaultFileName;
+		var settingsFile = Path.Join(App.UserPath, fileName);
 
 		if (File.Exists(settingsFile))
 			Instance = Instance.Deserialize(File.ReadAllText(settingsFile)) as ModSettings_V01 ?? Instance;

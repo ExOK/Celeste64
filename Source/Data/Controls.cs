@@ -1,3 +1,6 @@
+using Celeste64.Mod;
+using System.Text.Json;
+
 namespace Celeste64;
 
 public static class Controls
@@ -15,7 +18,42 @@ public static class Controls
 	public static readonly VirtualButton DeleteFile = new("DeleteFile");
 	public static readonly VirtualButton CreateFile = new("CreateFile");
 
-	public static void Load(ControlsConfig_V01? config = null)
+	public static ControlsConfig_V01 Instance = new();
+
+	public const string DefaultFileName = "controls.json";
+
+	[DisallowHooks]
+	internal static void LoadControlsByFileName(string file_name)
+	{
+		if (file_name == string.Empty) file_name = DefaultFileName;
+		var controlsFile = Path.Join(App.UserPath, file_name);
+
+		ControlsConfig_V01? controls = null;
+		if (File.Exists(controlsFile))
+		{
+			try
+			{
+				controls = Instance.Deserialize(File.ReadAllText(controlsFile)) as ControlsConfig_V01 ?? Instance;
+			}
+			catch
+			{
+				controls = null;
+			}
+		}
+
+		if (controls == null)
+		{
+			controls = ControlsConfig_V01.Defaults;
+			using var stream = File.Create(controlsFile);
+			JsonSerializer.Serialize(stream, ControlsConfig_V01.Defaults, ControlsConfig_V01Context.Default.ControlsConfig_V01);
+			stream.Flush();
+		}
+
+		Instance = controls;
+		LoadConfig(Instance);
+	}
+
+	public static void LoadConfig(ControlsConfig_V01? config = null)
 	{
 		static ControlsConfigStick_V01 FindStick(ControlsConfig_V01? config, string name)
 		{

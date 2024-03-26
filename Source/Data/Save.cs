@@ -131,4 +131,16 @@ public sealed class Save
 			File.Copy(tempPath, savePath, true);
 		}
 	}
+
+	internal static void LoadSaveByFileName(string fileName)
+	{
+		if (fileName == string.Empty) fileName = "save.json";
+		var saveFile = Path.Join(App.UserPath, fileName);
+
+		if (File.Exists(saveFile))
+			Instance = Instance.Deserialize(File.ReadAllText(saveFile)) as Save_V02 ?? new Save_V02();
+		else
+			Instance = new();
+		Instance.FileName = fileName;
+	}
 }

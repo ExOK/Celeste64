@@ -1,10 +1,9 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using System.Text.Json.Serialization.Metadata;
 
 namespace Celeste64;
 
-public class ControlsConfigBinding_V01 : PersistedData
+public sealed class ControlsConfigBinding_V01 : PersistedData
 {
 	public Keys? Key { get; set; }
 	public MouseButtons? MouseButton { get; set; }
@@ -64,14 +63,8 @@ public class ControlsConfigBinding_V01 : PersistedData
 		if (Axis.HasValue)
 			button.Add(Condition, 0, Axis.Value, AxisInverted ? -1 : 1, AxisDeadzone);
 	}
-
-	public override JsonTypeInfo GetTypeInfo()
-	{
-		return ControlsConfigBinding_V01Context.Default.ControlsConfigBinding_V01;
-	}
 }
 
-// All of this is just so the Binding values are on a single line to increase readability
 public class ControlsConfigBinding_V01Converter : JsonConverter<ControlsConfigBinding_V01>
 {
 	public override ControlsConfigBinding_V01? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
@@ -84,12 +77,12 @@ public class ControlsConfigBinding_V01Converter : JsonConverter<ControlsConfigBi
 
 	public override void Write(Utf8JsonWriter writer, ControlsConfigBinding_V01 value, JsonSerializerOptions options)
 	{
-		//var data =
-		//	"\n" +
-		//	new string(' ', writer.CurrentDepth * 2) +
-		//	JsonSerializer.Serialize(value, ControlsConfigBinding_V01Context.Default.ControlsConfigBinding_V01);
-		//writer.WriteRawValue(data);
-		value.Serialize(writer, value);
+		// All of this is just so the Binding values are on a single line to increase readability
+		var data =
+			"\n" +
+			new string(' ', writer.CurrentDepth * 2) +
+			JsonSerializer.Serialize(value, ControlsConfigBinding_V01Context.Default.ControlsConfigBinding_V01);
+		writer.WriteRawValue(data);
 	}
 }
 

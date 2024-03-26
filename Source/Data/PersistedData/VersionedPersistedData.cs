@@ -3,7 +3,7 @@
 namespace Celeste64;
 public abstract class VersionedPersistedData<T> : PersistedData where T : PersistedData, new()
 {
-	public override object? Deserialize(string data)
+	public override PersistedData? Deserialize(string data)
 	{
 		try
 		{
@@ -26,5 +26,5 @@ public abstract class VersionedPersistedData<T> : PersistedData where T : Persis
 		}
 	}
 
-	public abstract object? UpgradeFrom(T? data);
+	public abstract PersistedData? UpgradeFrom(T? data);
 }

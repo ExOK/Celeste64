@@ -150,10 +150,10 @@ public sealed class Settings
 	}
 
 	[DisallowHooks]
-	internal static void LoadSettingsByFileName(string file_name)
+	internal static void LoadSettingsByFileName(string fileName)
 	{
-		if (file_name == string.Empty) file_name = DefaultFileName;
-		var settingsFile = Path.Join(App.UserPath, file_name);
+		if (fileName == string.Empty) fileName = DefaultFileName;
+		var settingsFile = Path.Join(App.UserPath, fileName);
 
 		if (File.Exists(settingsFile))
 			Instance = Instance.Deserialize(File.ReadAllText(settingsFile)) as Settings_V01 ?? Instance;

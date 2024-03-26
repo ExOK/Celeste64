@@ -2,11 +2,13 @@ using System.Text.Json.Serialization;
 
 namespace Celeste64;
 
-public class ControlsConfig_V01
+public class ControlsConfig_V01 : PersistedData
 {
-	public const string FileName = "controls.json";
 	public Dictionary<string, List<ControlsConfigBinding_V01>> Actions { get; set; } = [];
 	public Dictionary<string, ControlsConfigStick_V01> Sticks { get; set; } = [];
+
+	public override int Version => 1;
+
 	public static ControlsConfig_V01 Defaults = new()
 	{
 		Actions = new()

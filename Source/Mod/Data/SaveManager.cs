@@ -86,16 +86,9 @@ internal sealed class SaveManager
 	}
 
 	[DisallowHooks]
-	internal void LoadSaveByFileName(string file_name)
+	internal void LoadSaveByFileName(string fileName)
 	{
-		if (file_name == string.Empty) file_name = "save.json";
-		var saveFile = Path.Join(App.UserPath, file_name);
-
-		if (File.Exists(saveFile))
-			Save.Instance = Save.Instance.Deserialize(File.ReadAllText(saveFile)) as Save_V02 ?? new Save_V02();
-		else
-			Save.Instance = new();
-		Save.Instance.FileName = file_name;
-		SetLastLoadedSave(file_name);
+		Save.LoadSaveByFileName(fileName);
+		Instance.SetLastLoadedSave(fileName);
 	}
 }

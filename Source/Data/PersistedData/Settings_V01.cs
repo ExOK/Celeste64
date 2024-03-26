@@ -1,16 +1,10 @@
 using System.Text.Json.Serialization;
-using System.Text.Json.Serialization.Metadata;
 
 namespace Celeste64;
 
-public class Settings_V01 : PersistedData
+public sealed class Settings_V01 : PersistedData
 {
 	public override int Version => 1;
-
-	public override JsonTypeInfo GetTypeInfo()
-	{
-		return Settings_V01Context.Default.Settings_V01;
-	}
 
 	public static Settings_V01 Instance = new();
 
