@@ -110,7 +110,7 @@ public sealed class ModManager
 				(dir.StartsWith(Assets.SpritesFolder) && extension == $".{Assets.SpritesExtension}") ||
 				(dir.StartsWith(Assets.SkinsFolder) && extension == $".{Assets.SkinsExtension}") ||
 				(dir == Assets.LibrariesFolder && extension is $".{Assets.LibrariesExtensionAssembly}") ||
-				(dir == $"{Assets.LibrariesFolder}/lib" && extension is ".dll" or ".so" or ".dylib") ||
+				(dir.StartsWith(Path.Combine(Assets.LibrariesFolder, "lib")) && extension is ".dll" or ".so" or ".dylib") ||
 				filepath.ToLower() == Assets.LevelsJSON.ToLower() ||
 				filepath.ToLower() == Assets.FujiJSON.ToLower())
 			{
