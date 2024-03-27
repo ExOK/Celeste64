@@ -1,5 +1,6 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Text.Json.Serialization.Metadata;
 
 namespace Celeste64;
 
@@ -27,6 +28,11 @@ public sealed class ControlsConfigStick_V01 : PersistedData
 		foreach (var it in Right)
 			it.BindTo(stick.Horizontal.Positive);
 	}
+
+	public override JsonTypeInfo GetTypeInfo()
+	{
+		return ControlsConfigStick_V01Context.Default.ControlsConfigStick_V01;
+	}
 }
 
 public class ControlsConfigStick_V01Converter : JsonConverter<ControlsConfigStick_V01>
@@ -35,7 +41,7 @@ public class ControlsConfigStick_V01Converter : JsonConverter<ControlsConfigStic
 	{
 		using (var jsonDoc = JsonDocument.ParseValue(ref reader))
 		{
-			return new ControlsConfigStick_V01().Deserialize(jsonDoc.RootElement.GetRawText()) as ControlsConfigStick_V01;
+			return new ControlsConfigStick_V01().Deserialize<ControlsConfigStick_V01>(jsonDoc.RootElement.GetRawText());
 		}
 	}
 

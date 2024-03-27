@@ -33,7 +33,7 @@ public static class Controls
 		{
 			try
 			{
-				controls = Instance.Deserialize(File.ReadAllText(controlsFile)) as ControlsConfig_V01 ?? Instance;
+				controls = Instance.Deserialize<ControlsConfig_V01>(File.ReadAllText(controlsFile)) ?? null;
 			}
 			catch
 			{

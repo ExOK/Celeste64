@@ -126,7 +126,7 @@ public sealed class Save
 
 		// validate that the temp path worked, and overwrite existing if it did.
 		if (File.Exists(tempPath) &&
-			Instance.Deserialize(File.ReadAllText(tempPath)) != null)
+			Instance.Deserialize<Save_V02>(File.ReadAllText(tempPath)) != null)
 		{
 			File.Copy(tempPath, savePath, true);
 		}
@@ -138,7 +138,7 @@ public sealed class Save
 		var saveFile = Path.Join(App.UserPath, fileName);
 
 		if (File.Exists(saveFile))
-			Instance = Instance.Deserialize(File.ReadAllText(saveFile)) as Save_V02 ?? new Save_V02();
+			Instance = Instance.Deserialize<Save_V02>(File.ReadAllText(saveFile)) ?? new();
 		else
 			Instance = new();
 		Instance.FileName = fileName;

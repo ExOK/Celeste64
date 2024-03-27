@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using System.Text.Json.Serialization.Metadata;
 
 namespace Celeste64;
 
@@ -33,7 +34,7 @@ public sealed class Save_V02 : VersionedPersistedData<Save_V01>
 		FileName = file_name;
 	}
 
-	public override PersistedData? UpgradeFrom(Save_V01? oldSave)
+	public override Save_V02? UpgradeFrom(Save_V01? oldSave)
 	{
 		if (oldSave == null) return null;
 
@@ -95,6 +96,11 @@ public sealed class Save_V02 : VersionedPersistedData<Save_V01>
 		}
 
 		return newSave;
+	}
+
+	public override JsonTypeInfo GetTypeInfo()
+	{
+		return Save_V02Context.Default.Save_V02;
 	}
 }
 

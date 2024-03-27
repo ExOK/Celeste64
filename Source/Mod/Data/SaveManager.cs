@@ -63,7 +63,7 @@ internal sealed class SaveManager
 		}
 
 		// validate that the temp path worked, and overwrite existing if it did.
-		if (File.Exists(tempPath) && Save.Instance.Deserialize(File.ReadAllText(tempPath)) != null)
+		if (File.Exists(tempPath) && Save.Instance.Deserialize<Save_V02>(File.ReadAllText(tempPath)) != null)
 		{
 			File.Copy(tempPath, savePath, true);
 		}

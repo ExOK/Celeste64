@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using System.Text.Json.Serialization.Metadata;
 
 namespace Celeste64;
 
@@ -58,6 +59,11 @@ public sealed class Settings_V01 : PersistedData
 	/// Fuji Custom - Whether The debug menu should be enabled
 	/// </summary>
 	public bool EnableDebugMenu { get; set; } = false;
+
+	public override JsonTypeInfo GetTypeInfo()
+	{
+		return Settings_V01Context.Default.Settings_V01;
+	}
 }
 
 [JsonSourceGenerationOptions(

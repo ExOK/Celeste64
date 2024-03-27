@@ -1,5 +1,6 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Text.Json.Serialization.Metadata;
 
 namespace Celeste64;
 
@@ -63,6 +64,11 @@ public sealed class ControlsConfigBinding_V01 : PersistedData
 		if (Axis.HasValue)
 			button.Add(Condition, 0, Axis.Value, AxisInverted ? -1 : 1, AxisDeadzone);
 	}
+
+	public override JsonTypeInfo GetTypeInfo()
+	{
+		return ControlsConfigBinding_V01Context.Default.ControlsConfigBinding_V01;
+	}
 }
 
 public class ControlsConfigBinding_V01Converter : JsonConverter<ControlsConfigBinding_V01>
@@ -71,7 +77,7 @@ public class ControlsConfigBinding_V01Converter : JsonConverter<ControlsConfigBi
 	{
 		using (var jsonDoc = JsonDocument.ParseValue(ref reader))
 		{
-			return new ControlsConfigBinding_V01().Deserialize(jsonDoc.RootElement.GetRawText()) as ControlsConfigBinding_V01;
+			return new ControlsConfigBinding_V01().Deserialize<ControlsConfigBinding_V01>(jsonDoc.RootElement.GetRawText());
 		}
 	}
 

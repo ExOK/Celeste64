@@ -1,13 +1,14 @@
 using System.Text.Json.Serialization;
+using System.Text.Json.Serialization.Metadata;
 
 namespace Celeste64;
 
 public class ControlsConfig_V01 : PersistedData
 {
+	public override int Version => 1;
+
 	public Dictionary<string, List<ControlsConfigBinding_V01>> Actions { get; set; } = [];
 	public Dictionary<string, ControlsConfigStick_V01> Sticks { get; set; } = [];
-
-	public override int Version => 1;
 
 	public static ControlsConfig_V01 Defaults = new()
 	{
@@ -136,6 +137,11 @@ public class ControlsConfig_V01 : PersistedData
 			},
 		}
 	};
+
+	public override JsonTypeInfo GetTypeInfo()
+	{
+		return ControlsConfig_V01Context.Default.ControlsConfig_V01;
+	}
 }
 
 [JsonSourceGenerationOptions(

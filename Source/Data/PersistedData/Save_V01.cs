@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using System.Text.Json.Serialization.Metadata;
 
 namespace Celeste64;
 
@@ -80,6 +81,11 @@ public sealed class Save_V01 : PersistedData
 	/// Fuji Custom - Records for each mod
 	/// </summary>
 	public List<ModRecord_V01> ModRecords { get; set; } = [];
+
+	public override JsonTypeInfo GetTypeInfo()
+	{
+		return Save_V01Context.Default.Save_V01;
+	}
 }
 
 [JsonSourceGenerationOptions(

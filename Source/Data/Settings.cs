@@ -143,7 +143,7 @@ public sealed class Settings
 
 		// validate that the temp path worked, and overwrite existing if it did.
 		if (File.Exists(tempPath) &&
-			Instance.Deserialize(File.ReadAllText(tempPath)) != null)
+			Instance.Deserialize<Settings_V01>(File.ReadAllText(tempPath)) != null)
 		{
 			File.Copy(tempPath, savePath, true);
 		}
@@ -156,7 +156,7 @@ public sealed class Settings
 		var settingsFile = Path.Join(App.UserPath, fileName);
 
 		if (File.Exists(settingsFile))
-			Instance = Instance.Deserialize(File.ReadAllText(settingsFile)) as Settings_V01 ?? Instance;
+			Instance = Instance.Deserialize<Settings_V01>(File.ReadAllText(settingsFile)) ?? new();
 		else
 			Instance = new();
 		SyncSettings();

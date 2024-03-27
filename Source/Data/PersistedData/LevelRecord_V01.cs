@@ -1,5 +1,6 @@
 ﻿using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Text.Json.Serialization.Metadata;
 
 namespace Celeste64;
 
@@ -26,6 +27,11 @@ public sealed class LevelRecord_V01 : PersistedData
 
 	public int IncFlag(string name)
 		=> Flags[name] = GetFlag(name) + 1;
+
+	public override JsonTypeInfo GetTypeInfo()
+	{
+		return LevelRecord_V01Context.Default.LevelRecord_V01;
+	}
 }
 
 internal class LevelRecord_V01Converter : JsonConverter<LevelRecord_V01>
@@ -34,7 +40,7 @@ internal class LevelRecord_V01Converter : JsonConverter<LevelRecord_V01>
 	{
 		using (var jsonDoc = JsonDocument.ParseValue(ref reader))
 		{
-			return new LevelRecord_V01().Deserialize(jsonDoc.RootElement.GetRawText()) as LevelRecord_V01;
+			return new LevelRecord_V01().Deserialize<LevelRecord_V01>(jsonDoc.RootElement.GetRawText());
 		}
 	}
 

@@ -1,5 +1,6 @@
 ﻿using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Text.Json.Serialization.Metadata;
 
 namespace Celeste64;
 
@@ -40,6 +41,11 @@ public sealed class ModSettingsRecord_V01 : PersistedData
 
 	public bool SetBoolSetting(string name, bool value = false)
 		=> SettingsBoolData[name] = value;
+
+	public override JsonTypeInfo GetTypeInfo()
+	{
+		return ModSettingsRecord_V01Context.Default.ModSettingsRecord_V01;
+	}
 }
 
 internal class ModSettingsRecord_V01Converter : JsonConverter<ModSettingsRecord_V01>
@@ -48,7 +54,7 @@ internal class ModSettingsRecord_V01Converter : JsonConverter<ModSettingsRecord_
 	{
 		using (var jsonDoc = JsonDocument.ParseValue(ref reader))
 		{
-			return new ModSettingsRecord_V01().Deserialize(jsonDoc.RootElement.GetRawText()) as ModSettingsRecord_V01;
+			return new ModSettingsRecord_V01().Deserialize<ModSettingsRecord_V01>(jsonDoc.RootElement.GetRawText());
 		}
 	}
 
