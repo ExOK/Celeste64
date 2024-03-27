@@ -134,7 +134,7 @@ public sealed class Save
 
 	internal static void LoadSaveByFileName(string fileName)
 	{
-		if (fileName == string.Empty) fileName = "save.json";
+		if (fileName == string.Empty) fileName = DefaultFileName;
 		var saveFile = Path.Join(App.UserPath, fileName);
 
 		if (File.Exists(saveFile))

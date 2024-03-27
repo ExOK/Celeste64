@@ -204,11 +204,31 @@ public class SaveSelectionMenu : Menu
 		if (Controls.DeleteFile.Pressed)
 		{
 			Menu newMenu = new Menu(this);
-			newMenu.Title = $"{Loc.Str("SaveDeleteFile")} {saves[CurrentPageStart + CurrentIndex]}";
+			if (saves[CurrentPageStart + CurrentIndex] == Save.DefaultFileName)
+			{
+				newMenu.Title = string.Format(Loc.Str("SaveDeleteDefaultFile"), saves[CurrentPageStart + CurrentIndex]);
+			}
+			else
+			{
+				newMenu.Title = $"{Loc.Str("SaveDeleteFile")} {saves[CurrentPageStart + CurrentIndex]}";
+			}
 			newMenu.Add(new Option("OptionsYes", () =>
 			{
 				if (Game.Instance.IsMidTransition) return;
 				SaveManager.Instance.DeleteSave(saves[CurrentPageStart + CurrentIndex]);
+				if (saves[CurrentPageStart + CurrentIndex] == Save.Instance.FileName)
+				{
+					// If we delete the current save, load default and force a reload
+					SaveManager.Instance.LoadSaveByFileName(Save.DefaultFileName);
+					Game.Instance.Goto(new Transition()
+					{
+						Mode = Transition.Modes.Replace,
+						Scene = () => new Overworld(false),
+						ToBlack = new AngledWipe(),
+						ToPause = true,
+						PerformAssetReload = true
+					});
+				}
 				ResetSaves();
 				PopSubMenu();
 			}));

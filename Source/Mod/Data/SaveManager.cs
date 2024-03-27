@@ -11,8 +11,8 @@ internal sealed class SaveManager
 			return File.ReadAllText(Path.Join(App.UserPath, "save.metadata"));
 		else
 		{
-			File.WriteAllText(Path.Join(App.UserPath, "save.metadata"), "save.json");
-			return "save.json";
+			File.WriteAllText(Path.Join(App.UserPath, "save.metadata"), Save.DefaultFileName);
+			return Save.DefaultFileName;
 		}
 	}
 
@@ -49,9 +49,9 @@ internal sealed class SaveManager
 	}
 
 	[DisallowHooks]
-	internal void NewSave()
+	internal void NewSave(string? name = null)
 	{
-		string name = $"save_{GetSaveCount()}.json";
+		if (string.IsNullOrEmpty(name)) name = $"save_{GetSaveCount()}.json";
 		var savePath = Path.Join(App.UserPath, name);
 		var tempPath = Path.Join(App.UserPath, name + ".backup");
 
@@ -78,10 +78,14 @@ internal sealed class SaveManager
 	[DisallowHooks]
 	internal void DeleteSave(string save)
 	{
-		if (save == "save.json") return;
 		if (File.Exists(Path.Join(App.UserPath, save)))
 		{
 			File.Delete(Path.Join(App.UserPath, save));
+		}
+
+		if (save == Save.DefaultFileName)
+		{
+			NewSave(Save.DefaultFileName);
 		}
 	}
 
