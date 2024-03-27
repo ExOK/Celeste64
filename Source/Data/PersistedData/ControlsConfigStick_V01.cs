@@ -6,13 +6,13 @@ namespace Celeste64;
 
 public sealed class ControlsConfigStick_V01 : PersistedData
 {
+	public override int Version => 1;
+
 	public float Deadzone { get; set; } = 0;
 	public List<ControlsConfigBinding_V01> Up { get; set; } = [];
 	public List<ControlsConfigBinding_V01> Down { get; set; } = [];
 	public List<ControlsConfigBinding_V01> Left { get; set; } = [];
 	public List<ControlsConfigBinding_V01> Right { get; set; } = [];
-
-	public override int Version => 1;
 
 	public void BindTo(VirtualStick stick)
 	{

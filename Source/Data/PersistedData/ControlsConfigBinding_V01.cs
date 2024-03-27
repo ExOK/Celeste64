@@ -6,6 +6,8 @@ namespace Celeste64;
 
 public sealed class ControlsConfigBinding_V01 : PersistedData
 {
+	public override int Version => 1;
+
 	public Keys? Key { get; set; }
 	public MouseButtons? MouseButton { get; set; }
 	public Buttons? Button { get; set; }
@@ -14,8 +16,6 @@ public sealed class ControlsConfigBinding_V01 : PersistedData
 	public bool AxisInverted { get; set; }
 	public Gamepads? OnlyFor { get; set; }
 	public Gamepads? NotFor { get; set; }
-
-	public override int Version => 1;
 
 	public ControlsConfigBinding_V01() { }
 	public ControlsConfigBinding_V01(Keys input) => Key = input;

@@ -9,7 +9,7 @@ namespace Celeste64;
 /// </summary>
 public sealed class ModRecord_V02 : VersionedPersistedData<ModRecord_V01>
 {
-	public override int Version => 1;
+	public override int Version => 2;
 
 	public string ID { get; set; } = string.Empty;
 	public Dictionary<string, string> StringData { get; set; } = [];
