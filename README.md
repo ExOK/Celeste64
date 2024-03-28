@@ -22,11 +22,7 @@ It also implements some new functionality like custom skins, and the ability to 
 Fuji does not require the original game's files to run - it is a standalone client. Your vanilla Celeste 64 installation and Fuji installation(s) should not be mixed up.
 
 # Contributing
-Make sure you fork the `dev` branch. The `main` branch is for stable builds and `beta` for beta builds, so they can't be pushed to directly.
-
-Do not modify the vanilla gameplay. We'd like Fuji to hopefully be a speedrun/TAS-compatible mod loader. Stuff like visual/critical bug fixes is fine.
-
-Otherwise, feel free to submit PRs for pretty much anything. If you're looking for inspiration, look at currently open feature requests without implementation progress.
+See the [Contributor's Guide](https://github.com/FujiAPI/Fuji/wiki/Contributing-Guide) for a quick start.
 
 # Building
 See [SETUP.md](SETUP.md) for build instructions.
