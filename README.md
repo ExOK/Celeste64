@@ -19,6 +19,8 @@ It also implements some new functionality like custom skins, and the ability to 
 - Put your mods into the Mods folder that comes with Fuji.
 - Open `Celeste64-Fuji` to start playing!
 
+Fuji does not require the original game's files to run - it is a standalone client. Your vanilla Celeste 64 installation and Fuji installation(s) should not be mixed up.
+
 # Contributing
 Make sure you fork the `dev` branch. The `main` branch is for stable builds and `beta` for beta builds, so they can't be pushed to directly.
 
