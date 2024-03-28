@@ -276,17 +276,18 @@ public class Game : Module
 				}
 			}
 
-			// reload assets if requested
-			if (transition.PerformAssetReload)
-			{
-				Assets.Load();
-			}
-
 			// perform game save between transitions
 			if (transition.Saving)
 			{
 				Save.SaveToFile();
 				Settings.SaveToFile();
+				ModSettings.SaveToFile();
+			}
+
+			// reload assets if requested
+			if (transition.PerformAssetReload)
+			{
+				Assets.Load();
 			}
 
 			// perform transition
