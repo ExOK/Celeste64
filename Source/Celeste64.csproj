@@ -16,12 +16,12 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="FosterFramework" Version="0.1.18-alpha"/>
-        <PackageReference Include="SharpGLTF.Runtime" Version="1.0.0-alpha0031"/>
-        <PackageReference Include="Sledge.Formats.Map" Version="1.1.5"/>
+        <PackageReference Include="FosterFramework" Version="0.1.18-alpha" />
+        <PackageReference Include="SharpGLTF.Runtime" Version="1.0.0-alpha0031" />
+        <PackageReference Include="Sledge.Formats.Map" Version="1.1.5" />
 
-        <PackageReference Include="MonoMod.RuntimeDetour" Version="25.1.0-prerelease.2"/>
-        <PackageReference Include="ImGui.NET" Version="1.90.1.1"/>
+        <PackageReference Include="MonoMod.RuntimeDetour" Version="25.1.0-prerelease.2" />
+        <PackageReference Include="ImGui.NET" Version="1.90.1.1" />
 
         <ProjectReference Include="..\Celeste64.HookGen\Celeste64.HookGen.csproj" OutputItemType="Analyzer" Private="false" PrivateAssets="All" />
     </ItemGroup>
@@ -53,23 +53,23 @@
     </PropertyGroup>
 
     <ItemGroup Condition="$(IsLinux) == 'true' and $(IsArm64) == 'true'">
-        <Content Include="Audio/FMOD/libs/libarm64/**" CopyToOutputDirectory="PreserveNewest" Link="%(Filename)%(Extension)"/>
+        <Content Include="Audio/FMOD/libs/libarm64/**" CopyToOutputDirectory="PreserveNewest" Link="%(Filename)%(Extension)" />
     </ItemGroup>
 
     <ItemGroup Condition="$(IsLinux) == 'true' and $(IsArm) == 'true'">
-        <Content Include="Audio/FMOD/libs/libarm/**" CopyToOutputDirectory="PreserveNewest" Link="%(Filename)%(Extension)"/>
+        <Content Include="Audio/FMOD/libs/libarm/**" CopyToOutputDirectory="PreserveNewest" Link="%(Filename)%(Extension)" />
     </ItemGroup>
 
     <ItemGroup Condition="$(IsLinux) == 'true' and $(IsArm64) != 'true' and $(IsArm) != 'true'">
-        <Content Include="Audio/FMOD/libs/lib64/**" CopyToOutputDirectory="PreserveNewest" Link="%(Filename)%(Extension)"/>
+        <Content Include="Audio/FMOD/libs/lib64/**" CopyToOutputDirectory="PreserveNewest" Link="%(Filename)%(Extension)" />
     </ItemGroup>
 
     <ItemGroup Condition="$(IsWindows) == 'true'">
-        <Content Include="Audio/FMOD/libs/x64/**" CopyToOutputDirectory="PreserveNewest" Link="%(Filename)%(Extension)"/>
+        <Content Include="Audio/FMOD/libs/x64/**" CopyToOutputDirectory="PreserveNewest" Link="%(Filename)%(Extension)" />
     </ItemGroup>
 
     <ItemGroup Condition="$(IsMacOS) == 'true'">
-        <Content Include="Audio/FMOD/libs/osx/**" CopyToOutputDirectory="PreserveNewest" Link="%(Filename)%(Extension)"/>
+        <Content Include="Audio/FMOD/libs/osx/**" CopyToOutputDirectory="PreserveNewest" Link="%(Filename)%(Extension)" />
     </ItemGroup>
 
     <ItemGroup>

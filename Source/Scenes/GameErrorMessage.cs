@@ -1,6 +1,4 @@
-﻿using Celeste64.Mod;
-
-namespace Celeste64;
+﻿namespace Celeste64;
 
 public class GameErrorMessage : Scene
 {

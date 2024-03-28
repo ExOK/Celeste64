@@ -15,7 +15,7 @@ public class ModOptionsMenu : Menu
 		if (Mod != null)
 		{
 			Mod.SaveSettings();
-			Save.Instance.SaveToFile();
+			Save.SaveToFile();
 		}
 	}
 

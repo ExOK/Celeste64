@@ -324,7 +324,7 @@ public class Player : Actor, IHaveModels, IHaveSprites, IRidePlatforms, ICastPoi
 		PointShadowAlpha = 1.0f;
 		LocalBounds = new BoundingBox(new Vec3(0, 0, 10), 10);
 		UpdateOffScreen = true;
-		Skin = Save.Instance.GetSkin();
+		Skin = Save.GetSkin();
 
 		// setup model
 		{
@@ -525,7 +525,7 @@ public class Player : Actor, IHaveModels, IHaveSprites, IRidePlatforms, ICastPoi
 		{
 			// Rotate Camera
 			{
-				var invertX = Save.Instance.InvertCamera == Save.InvertCameraOptions.X || Save.Instance.InvertCamera == Save.InvertCameraOptions.Both;
+				var invertX = Settings.InvertCamera == InvertCameraOptions.X || Settings.InvertCamera == InvertCameraOptions.Both;
 				var rot = new Vec2(CameraTargetForward.X, CameraTargetForward.Y).Angle();
 				rot -= Controls.Camera.Value.X * Time.Delta * 4 * (invertX ? -1 : 1);
 
@@ -536,7 +536,7 @@ public class Player : Actor, IHaveModels, IHaveSprites, IRidePlatforms, ICastPoi
 			// Move Camera in / out
 			if (Controls.Camera.Value.Y != 0)
 			{
-				var invertY = Save.Instance.InvertCamera == Save.InvertCameraOptions.Y || Save.Instance.InvertCamera == Save.InvertCameraOptions.Both;
+				var invertY = Settings.InvertCamera == InvertCameraOptions.Y || Settings.InvertCamera == InvertCameraOptions.Both;
 				CameraTargetDistance += Controls.Camera.Value.Y * Time.Delta * (invertY ? -1 : 1);
 				CameraTargetDistance = Calc.Clamp(CameraTargetDistance, 0, 1);
 			}
@@ -2640,7 +2640,7 @@ public class Player : Actor, IHaveModels, IHaveSprites, IRidePlatforms, ICastPoi
 			}
 		}
 
-		if (!OnGround && !Dead && PointShadowAlpha > 0 && !InBubble && Save.Instance.ZGuide)
+		if (!OnGround && !Dead && PointShadowAlpha > 0 && !InBubble && Settings.ZGuide)
 		{
 			var distance = 1000.0f;
 			if (World.SolidRayCast(Position, -Vec3.UnitZ, distance, out var hit))
