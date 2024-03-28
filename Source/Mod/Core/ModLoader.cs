@@ -147,19 +147,28 @@ public static class ModLoader
 
 				if (!dependenciesSatisfied) continue;
 
-				var mod = LoadGameMod(info, fs);
-				mod.Filesystem?.AssociateWithMod(mod);
-				ModManager.Instance.RegisterMod(mod);
-
-				// Load hooks after the mod has been registered
-				foreach (var type in mod.GetType().Assembly.GetTypes())
+				try
 				{
-					FindAndRegisterHooks(type);
+					var mod = LoadGameMod(info, fs);
+					mod.Filesystem?.AssociateWithMod(mod);
+					ModManager.Instance.RegisterMod(mod);
+
+					// Load hooks after the mod has been registered
+					foreach (var type in mod.GetType().Assembly.GetTypes())
+					{
+						FindAndRegisterHooks(type);
+					}
+					loaded.Add(info);
+					loadedModInIteration = true;
+				}
+				catch (Exception ex)
+				{
+					FailedToLoadMods.Add(info.Name);
+					Log.Error($"Fuji Error: An error occurred while trying to load mod: {info.Name}");
+					Log.Error(ex.ToString());
 				}
 
 				modInfos.RemoveAt(i);
-				loaded.Add(info);
-				loadedModInIteration = true;
 			}
 
 			if (!loadedModInIteration)
