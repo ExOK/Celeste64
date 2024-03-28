@@ -15,15 +15,15 @@ internal sealed class ModAssemblyLoadContext : AssemblyLoadContext
 	/// <summary>
 	/// A list of assembly names which must not be loaded by a mod. The list will be initialized upon first access (which is before any mods will have loaded).
 	/// </summary>
-	private static string[] AssemblyLoadBlackList => _assemblyLoadBlackList ??= AssemblyLoadContext.Default.Assemblies.Select(asm => asm.GetName().Name)
+	private static string[] AssemblyLoadBlackList => assemblyLoadBlackList ??= AssemblyLoadContext.Default.Assemblies.Select(asm => asm.GetName().Name)
 		.Append("Mono.Cecil.Pdb").Append("Mono.Cecil.Mdb") // These two aren't picked up by default for some reason
 		.ToArray()!;
-	private static string[]? _assemblyLoadBlackList = null;
+	private static string[]? assemblyLoadBlackList = null;
 
 	/// <summary>
 	/// The folder name where mod unmanaged assemblies will be loaded from.
 	/// </summary>
-	private static string UnmanagedLibraryFolder => _unmanagedLibraryFolder ??= (
+	private static string UnmanagedLibraryFolder => unmanagedLibraryFolder ??= (
 			RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "lib-win-x64" :
 			RuntimeInformation.IsOSPlatform(OSPlatform.Linux) ? RuntimeInformation.OSArchitecture switch
 			{
@@ -34,11 +34,11 @@ internal sealed class ModAssemblyLoadContext : AssemblyLoadContext
 			} :
 			RuntimeInformation.IsOSPlatform(OSPlatform.OSX) ? "lib-osx-x64" :
 			throw new PlatformNotSupportedException());
-	private static string? _unmanagedLibraryFolder = null;
+	private static string? unmanagedLibraryFolder = null;
 
 
-	private static readonly ReaderWriterLockSlim AllContextsLock = new();
-	private static readonly Dictionary<string, ModAssemblyLoadContext> ContextsByModId = new();
+	private static readonly ReaderWriterLockSlim allContextsLock = new();
+	private static readonly Dictionary<string, ModAssemblyLoadContext> contextsByModId = new();
 
 	// All modules loaded by the context.
 	private readonly Dictionary<string, ModuleDefinition> assemblyModules = new();
@@ -65,12 +65,12 @@ internal sealed class ModAssemblyLoadContext : AssemblyLoadContext
 		// Resolve dependencies
 		foreach (var (modId, _) in info.Dependencies)
 		{
-			if (ContextsByModId.TryGetValue(modId, out var alc))
+			if (contextsByModId.TryGetValue(modId, out var alc))
 				dependencyContexts.Add(alc);
 		}
-		AllContextsLock.EnterWriteLock();
-		ContextsByModId.TryAdd(info.Id, this);
-		AllContextsLock.ExitWriteLock();
+		allContextsLock.EnterWriteLock();
+		contextsByModId.TryAdd(info.Id, this);
+		allContextsLock.ExitWriteLock();
 
 		// Load all assemblies
 		foreach (var assemblyPath in fs.FindFilesInDirectory(Assets.LibrariesFolder, Assets.LibrariesExtensionAssembly))
@@ -88,9 +88,9 @@ internal sealed class ModAssemblyLoadContext : AssemblyLoadContext
 			isDisposed = true;
 
 			// Remove from mod ALC list
-			AllContextsLock.EnterWriteLock();
-			ContextsByModId.Remove(info.Id);
-			AllContextsLock.ExitWriteLock();
+			allContextsLock.EnterWriteLock();
+			contextsByModId.Remove(info.Id);
+			allContextsLock.ExitWriteLock();
 
 			// Unload all assemblies loaded in the context
 			foreach (var module in assemblyModules.Values)
@@ -99,7 +99,7 @@ internal sealed class ModAssemblyLoadContext : AssemblyLoadContext
 
 			assemblyLoadCache.Clear();
 			localLoadCache.Clear();
-			
+
 			assemblyUnmanagedLoadCache.Clear();
 			foreach (var handle in localUnmanagedLoadCache.Values)
 				NativeLibrary.Free(handle);
@@ -260,10 +260,11 @@ internal sealed class ModAssemblyLoadContext : AssemblyLoadContext
 
 	private Assembly? LoadAssemblyFromModPath(string assemblyPath)
 	{
-		lock (this) {
+		lock (this)
+		{
 			if (isDisposed)
 				throw new ObjectDisposedException(nameof(ModAssemblyLoadContext));
-		
+
 			try
 			{
 				var symbolPath = Path.ChangeExtension(assemblyPath, $".{Assets.LibrariesExtensionSymbol}");
