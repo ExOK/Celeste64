@@ -255,18 +255,25 @@ public class Game : Module
 		}
 		else if (transitionStep == TransitionStep.Perform)
 		{
-			Debug.Assert(transition.Scene != null);
-			Scene newScene = transition.Scene();
-			if (Save.Instance.EnableAdditionalLogging) Log.Info("Switching scene: " + newScene.GetType());
+			Scene? newScene = transition.Scene != null ? transition.Scene() : null;
+			if (Settings.EnableAdditionalLogging && newScene != null) Log.Info("Switching scene: " + newScene.GetType());
 
 			Audio.StopBus(Sfx.bus_gameplay_world, false);
 
 			// exit last scene
 			if (scenes.TryPeek(out var lastScene))
 			{
-				lastScene?.Exited();
-				if (transition.Mode != Transition.Modes.Push)
-					lastScene?.Disposed();
+				try
+				{
+					lastScene?.Exited();
+					if (transition.Mode != Transition.Modes.Push)
+						lastScene?.Disposed();
+				}
+				catch (Exception e)
+				{
+					transitionStep = TransitionStep.None;
+					HandleError(e);
+				}
 			}
 
 			// reload assets if requested
@@ -277,17 +284,22 @@ public class Game : Module
 
 			// perform game save between transitions
 			if (transition.Saving)
-				Save.Instance.SaveToFile();
+			{
+				Save.SaveToFile();
+				Settings.SaveToFile();
+			}
 
 			// perform transition
 			switch (transition.Mode)
 			{
 				case Transition.Modes.Replace:
+					Debug.Assert(newScene != null);
 					if (scenes.Count > 0)
 						scenes.Pop();
 					scenes.Push(newScene);
 					break;
 				case Transition.Modes.Push:
+					Debug.Assert(newScene != null);
 					scenes.Push(newScene);
 					audioBeatCounter = 0;
 					break;
@@ -366,7 +378,7 @@ public class Game : Module
 			}
 
 			// in case new music was played
-			Save.Instance.SyncSettings();
+			Settings.SyncSettings();
 			transitionStep = TransitionStep.FadeIn;
 
 			WriteToLog();
@@ -404,7 +416,7 @@ public class Game : Module
 		{
 			// toggle fullsrceen
 			if ((Input.Keyboard.Alt && Input.Keyboard.Pressed(Keys.Enter)) || Input.Keyboard.Pressed(Keys.F4))
-				Save.Instance.ToggleFullscreen();
+				Settings.ToggleFullscreen();
 
 			// reload state
 			if (Input.Keyboard.Ctrl && Input.Keyboard.Pressed(Keys.R) && !IsMidTransition)
@@ -488,7 +500,7 @@ public class Game : Module
 	// Fuji Custom
 	public static void WriteToLog()
 	{
-		if (!Save.Instance.WriteLog)
+		if (!Settings.WriteLog)
 		{
 			return;
 		}

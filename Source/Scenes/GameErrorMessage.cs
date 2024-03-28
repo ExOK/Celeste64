@@ -1,18 +1,12 @@
-﻿using Celeste64.Mod;
-
-namespace Celeste64;
+﻿namespace Celeste64;
 
 public class GameErrorMessage : Scene
 {
 	private Menu menu = new();
-	private Exception exception;
 
 	public GameErrorMessage(Exception e)
 	{
-		exception = e;
-
-		Audio.StopBus(Sfx.bus_gameplay_world, false);
-		Game.Instance.Music.Stop();
+		Audio.StopSounds();
 
 		menu.Title = "Uh-oh! You've caught a super rare error!\nCheck your log file for more details.\nIf this error was caused by a mod, you might want to report the issue to the mod author.";
 
@@ -24,7 +18,10 @@ public class GameErrorMessage : Scene
 
 		menu.Add(new Menu.Option("QuitToMainMenu", () =>
 		{
-			Game.Instance.ReloadAssets();
+			Assets.Load();
+
+			Overworld ovw = new(false);
+			Game.Instance.UnsafelySetScene(ovw);
 		}));
 
 		menu.Add(new Menu.Option("Exit", () => throw e)); // This exits the game and forwards the error to the fatal crash handler.
