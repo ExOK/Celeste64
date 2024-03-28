@@ -119,17 +119,6 @@ jobs:
         omitNameDuringUpdate: true
         omitBodyDuringUpdate: true
 
-  publish:
-    name: Publish release
-    needs: [release_info, build]
-    runs-on: ubuntu-latest
-    steps:
-      - name: Publish Github Release
-        uses: ncipollo/release-action@v1
-        with:
-          tag: ${{ needs.release_info.outputs.version }}
-          commit: "${{ github.sha }}"
-          allowUpdates: true
-          omitBodyDuringUpdate: true
-          omitNameDuringUpdate: true
-          draft: false
+    - name: Cancel release
+      if: ${{ failure() }}
+      run: gh release delete --cleanup-tag -y ${{ needs.release_info.outputs.version }}
