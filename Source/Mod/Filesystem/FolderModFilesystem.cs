@@ -120,6 +120,20 @@ public sealed class FolderModFilesystem : IModFilesystem
 		return false;
 	}
 
+	public IEnumerable<string> FindFilesInDirectory(string directory, string extension)
+	{
+		var realPath = VirtToRealPath(directory);
+		if (!Directory.Exists(realPath))
+		{
+			return Array.Empty<string>();
+		}
+
+		var searchFilter = string.IsNullOrWhiteSpace(extension) ? "*" : $"*.{extension}";
+
+		return Directory.EnumerateFiles(realPath, searchFilter, SearchOption.TopDirectoryOnly)
+			.Select(f => Path.GetRelativePath(Root, f).Unbackslash());
+	}
+	
 	public IEnumerable<string> FindFilesInDirectoryRecursive(string directory, string extension)
 	{
 		var realPath = VirtToRealPath(directory);

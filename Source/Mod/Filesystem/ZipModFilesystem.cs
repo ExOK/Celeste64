@@ -128,6 +128,29 @@ public sealed class ZipModFilesystem : IModFilesystem
 			return true;
 		}
 	}
+	
+	public IEnumerable<string> FindFilesInDirectory(string directory, string extension)
+	{
+		List<string> files;
+
+		lock (_lock)
+		{
+			var zip = OpenZipIfNeeded();
+
+			files = zip.Entries.Select(e =>
+			{
+				var fullName = e.FullName;
+				var relativePath = fullName.Substring(modRoot.Length); 
+				var valid = !fullName.EndsWith('/')
+				            && fullName.StartsWith(modRoot + directory, StringComparison.Ordinal)
+				            && fullName.EndsWith(extension, StringComparison.Ordinal)
+					        && !relativePath.Substring(directory.Length + 1).Contains('/'); // Check that there are no other directories in-between    
+				return valid ? relativePath : null;
+			}).Where(x => x is { }).ToList()!;
+		}
+
+		return files;
+	}
 
 	public IEnumerable<string> FindFilesInDirectoryRecursive(string directory, string extension)
 	{
