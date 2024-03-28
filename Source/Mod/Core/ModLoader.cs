@@ -163,8 +163,8 @@ public static class ModLoader
 				}
 				catch (Exception ex)
 				{
-					FailedToLoadMods.Add(info.Name);
-					Log.Error($"Fuji Error: An error occurred while trying to load mod: {info.Name}");
+					FailedToLoadMods.Add(info.Id);
+					Log.Error($"Fuji Error: An error occurred while trying to load mod: {info.Id}");
 					Log.Error(ex.ToString());
 				}
 
@@ -173,10 +173,12 @@ public static class ModLoader
 
 			if (!loadedModInIteration)
 			{
-				// This means that all infos left infos don't have their dependencies met
-				// TODO: Gracefully handle this case
+				// This means that all infos left don't have their dependencies met
+				// Handle this by adding them to the FailedToLoadMods list and logging an error.
+				// Then break out of the loop so we can continue.
 				foreach (var (info, _) in modInfos)
 				{
+					FailedToLoadMods.Add(info.Id);
 					Log.Error($"Mod '{info.Id} is missing following dependencies:");
 
 					var missingDependencies = info.Dependencies.Where(dep =>
@@ -189,6 +191,7 @@ public static class ModLoader
 						Log.Error($" - ModID: '{modID}' Version: '{version}' ");
 					}
 				}
+				break;
 			}
 		}
 
