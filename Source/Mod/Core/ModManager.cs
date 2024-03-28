@@ -27,10 +27,12 @@ public sealed class ModManager
 		_modFilesystemCleanupTimerToken = new();
 		HookManager.Instance.ClearHooks();
 
-		var modsCopy = Mods.ToList();
-		foreach (var mod in modsCopy)
+		// Unload in reverse order to
+		// 1) Not need to make a copy, since entries are removed from 'Mods'
+		// 2) Respect mod dependencies, so that dependencies are unloaded after the mod which requires them
+		for (int i = Mods.Count - 1; i >= 0; i--)
 		{
-			DeregisterMod(mod);
+			DeregisterMod(Mods[i]);
 		}
 	}
 
@@ -75,8 +77,6 @@ public sealed class ModManager
 			fs.Dispose();
 		}
 
-		mod.ModInfo.AssemblyContext?.Dispose();
-
 		if (mod.Loaded)
 		{
 			mod.OnModUnloaded();
@@ -84,6 +84,8 @@ public sealed class ModManager
 		}
 
 		mod.OnUnloadedCleanup?.Invoke();
+		
+		mod.ModInfo.AssemblyContext?.Dispose();
 	}
 
 	internal void OnModFileChanged(ModFileChangedCtx ctx)
@@ -107,7 +109,8 @@ public sealed class ModManager
 				(dir.StartsWith(Assets.FontsFolder) && extension is $".{Assets.FontsExtensionTTF}" or $".{Assets.FontsExtensionOTF}") ||
 				(dir.StartsWith(Assets.SpritesFolder) && extension == $".{Assets.SpritesExtension}") ||
 				(dir.StartsWith(Assets.SkinsFolder) && extension == $".{Assets.SkinsExtension}") ||
-				(dir.StartsWith(Assets.LibrariesFolder) && extension == $".{Assets.LibrariesExtensionAssembly}") ||
+				(dir == Assets.LibrariesFolder && extension is $".{Assets.LibrariesExtensionAssembly}") ||
+				(dir.StartsWith(Path.Combine(Assets.LibrariesFolder, "lib")) && extension is ".dll" or ".so" or ".dylib") ||
 				filepath.ToLower() == Assets.LevelsJSON.ToLower() ||
 				filepath.ToLower() == Assets.FujiJSON.ToLower())
 			{

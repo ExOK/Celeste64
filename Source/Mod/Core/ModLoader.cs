@@ -225,8 +225,8 @@ public static class ModLoader
 		Type? loadedModSettingsType = null;
 		var anyDllFile = false;
 
-		var assemblyContext = new ModAssemblyLoadContext(info, fs);
-		foreach (var assembly in assemblyContext.Assemblies)
+		info.AssemblyContext = new ModAssemblyLoadContext(info, fs);
+		foreach (var assembly in info.AssemblyContext.Assemblies)
 		{
 			Log.Info($"Loaded assembly file '{assembly}' for mod {info.Id}");
 			anyDllFile = true;
