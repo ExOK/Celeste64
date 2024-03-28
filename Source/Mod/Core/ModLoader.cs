@@ -147,19 +147,28 @@ public static class ModLoader
 
 				if (!dependenciesSatisfied) continue;
 
-				var mod = LoadGameMod(info, fs);
-				mod.Filesystem?.AssociateWithMod(mod);
-				ModManager.Instance.RegisterMod(mod);
-
-				// Load hooks after the mod has been registered
-				foreach (var type in mod.GetType().Assembly.GetTypes())
+				try
 				{
-					FindAndRegisterHooks(type);
+					var mod = LoadGameMod(info, fs);
+					mod.Filesystem?.AssociateWithMod(mod);
+					ModManager.Instance.RegisterMod(mod);
+
+					// Load hooks after the mod has been registered
+					foreach (var type in mod.GetType().Assembly.GetTypes())
+					{
+						FindAndRegisterHooks(type);
+					}
+					loaded.Add(info);
+					loadedModInIteration = true;
+				}
+				catch (Exception ex)
+				{
+					FailedToLoadMods.Add(info.Name);
+					Log.Error($"Fuji Error: An error occurred while trying to load mod: {info.Name}");
+					Log.Error(ex.ToString());
 				}
 
 				modInfos.RemoveAt(i);
-				loaded.Add(info);
-				loadedModInIteration = true;
 			}
 
 			if (!loadedModInIteration)
@@ -218,15 +227,15 @@ public static class ModLoader
 
 	private static GameMod LoadGameMod(ModInfo info, IModFilesystem fs)
 	{
-		bool modEnabled = Save.Instance.GetOrMakeMod(info.Id).Enabled;
+		bool modEnabled = ModSettings.GetOrMakeModSettings(info.Id).Enabled;
 
 		GameMod? loadedMod = null;
 		GameModSettings? loadedModSettings = null;
 		Type? loadedModSettingsType = null;
 		var anyDllFile = false;
 
-		var assemblyContext = new ModAssemblyLoadContext(info, fs);
-		foreach (var assembly in assemblyContext.Assemblies)
+		info.AssemblyContext = new ModAssemblyLoadContext(info, fs);
+		foreach (var assembly in info.AssemblyContext.Assemblies)
 		{
 			Log.Info($"Loaded assembly file '{assembly}' for mod {info.Id}");
 			anyDllFile = true;

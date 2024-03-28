@@ -50,7 +50,7 @@ public class Overworld : Scene
 				DownSound = Sfx.main_menu_roll_down,
 			};
 
-			if (Save.Instance.TryGetRecord(Level.ID) is { } record)
+			if (Save.TryGetRecord(Level.ID) is { } record)
 			{
 				Menu.Add(new Menu.Option("Continue"));
 				Menu.Add(new Menu.Option("Restart"));
@@ -76,7 +76,7 @@ public class Overworld : Scene
 			int strawbs = 0, deaths = 0;
 			TimeSpan time = new();
 
-			if (selected && Save.Instance.TryGetRecord(Level.ID) is { } record) // only the selected item should have its save queried
+			if (selected && Save.TryGetRecord(Level.ID) is { } record) // only the selected item should have its save queried
 			{
 				strawbs = record.Strawberries.Count;
 				deaths = record.Deaths;
@@ -346,12 +346,17 @@ public class Overworld : Scene
 					pauseMenu = new() { Title = Loc.Str("PauseOptions") };
 
 					Menu optionsMenu = new GameOptionsMenu(pauseMenu);
+					var savesMenu = new SaveSelectionMenu(pauseMenu)
+					{
+						Title = Loc.Str("PauseSaves")
+					};
 					var modMenu = new ModSelectionMenu(pauseMenu)
 					{
-						Title = "Mods Menu"
+						Title = Loc.Str("PauseModsMenu")
 					};
 
 					pauseMenu.Add(new Menu.Submenu("PauseOptions", pauseMenu, optionsMenu));
+					pauseMenu.Add(new Menu.Submenu("PauseSaves", pauseMenu, savesMenu));
 					pauseMenu.Add(new Menu.Submenu("PauseModsMenu", pauseMenu, modMenu));
 					pauseMenu.Add(new Menu.Option("Exit", () =>
 					{
@@ -402,7 +407,7 @@ public class Overworld : Scene
 					Audio.Play(Sfx.main_menu_start_game);
 					Game.Instance.Music.Stop();
 					Game.Instance.MusicWav?.Stop();
-					Save.Instance.EraseRecord(entries[index].Level.ID);
+					Save.EraseRecord(entries[index].Level.ID);
 					state = States.Entering;
 				}
 				else
@@ -426,6 +431,11 @@ public class Overworld : Scene
 		}
 		else if (Paused)
 		{
+			if (pauseMenu != null)
+			{
+				pauseMenu.Update();
+			}
+
 			if (Controls.Pause.ConsumePress() || (pauseMenu is { IsInMainMenu: true } && Controls.Cancel.ConsumePress()))
 			{
 				if (pauseMenu != null)
@@ -593,8 +603,6 @@ public class Overworld : Scene
 
 		if (Paused && pauseMenu != null)
 		{
-			pauseMenu.Update();
-
 			batch.Rect(bounds, Color.Black * 0.70f);
 
 			pauseMenu.Render(batch, bounds.Center);

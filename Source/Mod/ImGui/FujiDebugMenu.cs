@@ -7,7 +7,7 @@ namespace Celeste64.Mod;
 internal class FujiDebugMenu : ImGuiHandler
 {
 	private bool visible = false;
-	public override bool Active => Save.Instance.EnableDebugMenu;
+	public override bool Active => Settings.EnableDebugMenu;
 	public override bool Visible => visible;
 
 	public override void Update()

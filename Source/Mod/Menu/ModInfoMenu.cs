@@ -39,9 +39,9 @@ public class ModInfoMenu : Menu
 				//If we are trying to disable the current mod, don't
 				if (Mod != null && Mod != ModManager.Instance.CurrentLevelMod)
 				{
-					Save.Instance.GetOrMakeMod(Mod.ModInfo.Id).Enabled = !Save.Instance.GetOrMakeMod(Mod.ModInfo.Id).Enabled;
+					ModSettings.GetOrMakeModSettings(Mod.ModInfo.Id).Enabled = !ModSettings.GetOrMakeModSettings(Mod.ModInfo.Id).Enabled;
 
-					if (Save.Instance.GetOrMakeMod(Mod.ModInfo.Id).Enabled)
+					if (ModSettings.GetOrMakeModSettings(Mod.ModInfo.Id).Enabled)
 					{
 						Mod.EnableDependencies(); // Also enable dependencies of the mod being enabled (if any).
 					}
@@ -52,7 +52,7 @@ public class ModInfoMenu : Menu
 							safeDisableErrorMenu = new Menu { Title = Loc.Str("ModSafeDisableErrorMessage") };
 							safeDisableErrorMenu.Add(new Option("Exit", () =>
 							{
-								Save.Instance.GetOrMakeMod(Mod.ModInfo.Id).Enabled = true; // Override the toggle if the operation can't be done.
+								ModSettings.GetOrMakeModSettings(Mod.ModInfo.Id).Enabled = true; // Override the toggle if the operation can't be done.
 
 								PopRootSubMenu();
 							}));
@@ -75,7 +75,7 @@ public class ModInfoMenu : Menu
 							}));
 							depWarningMenu.Add(new Option("Exit", () =>
 							{
-								Save.Instance.GetOrMakeMod(Mod.ModInfo.Id).Enabled = true; // Override the toggle if the operation was cancelled.
+								ModSettings.GetOrMakeModSettings(Mod.ModInfo.Id).Enabled = true; // Override the toggle if the operation was cancelled.
 
 								RootMenu?.PopSubMenu();
 							}));
@@ -94,7 +94,7 @@ public class ModInfoMenu : Menu
 					{
 						if (Mod != null)
 						{
-							Save.Instance.GetOrMakeMod(Mod.ModInfo.Id).Enabled = true; // Override the toggle if the operation can't be done.
+							ModSettings.GetOrMakeModSettings(Mod.ModInfo.Id).Enabled = true; // Override the toggle if the operation can't be done.
 						}
 
 						RootMenu?.PopSubMenu();
@@ -103,7 +103,7 @@ public class ModInfoMenu : Menu
 					RootMenu?.PushSubMenu(safeDisableErrorMenu);
 				}
 			},
-			() => Mod != null ? Save.Instance.GetOrMakeMod(Mod.ModInfo.Id).Enabled : false)
+			() => Mod != null ? ModSettings.GetOrMakeModSettings(Mod.ModInfo.Id).Enabled : false)
 		);
 		if (modOptionsMenu.ShouldDisplay)
 		{

@@ -87,6 +87,20 @@ public sealed class LayeredFilesystem : IModFilesystem
 		return false;
 	}
 
+	public IEnumerable<string> FindFilesInDirectory(string directory, string extension)
+	{
+		foreach (var mod in mods)
+		{
+			if (mod.Filesystem != null)
+			{
+				foreach (var item in mod.Filesystem.FindFilesInDirectory(directory, extension))
+				{
+					yield return item;
+				}
+			}
+		}
+	}
+	
 	public IEnumerable<string> FindFilesInDirectoryRecursive(string directory, string extension)
 	{
 		foreach (var mod in mods)

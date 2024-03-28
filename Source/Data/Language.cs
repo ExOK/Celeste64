@@ -207,7 +207,7 @@ public class Language
 	{
 		get
 		{
-			if (Assets.Languages.TryGetValue(Save.Instance.Language, out var lang))
+			if (Assets.Languages.TryGetValue(Settings.Language, out var lang))
 				return lang;
 
 			if (Assets.Languages.TryGetValue("English", out lang))

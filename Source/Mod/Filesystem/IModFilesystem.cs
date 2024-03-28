@@ -35,7 +35,15 @@ public interface IModFilesystem : IDisposable
 	public bool TryOpenFile<T>(string path, Func<Stream, T> callback, [NotNullWhen(true)] out T? value);
 
 	/// <summary>
-	/// Finds all files that are contained in the <paramref name="directory"/> with the file extension <paramref name="extension"/>.
+	/// Finds all files that are contained in the <paramref name="directory"/> with the file <paramref name="extension"/>.
+	/// Returned paths use forward slashes, and contain the file extension.
+	/// If extension is an empty string, extensions are ignored.
+	/// Calling OpenFile(path) using paths returned by this function allows you to access the file.
+	/// </summary>
+	public IEnumerable<string> FindFilesInDirectory(string directory, string extension);
+	
+	/// <summary>
+	/// Finds all files that are contained in the <paramref name="directory"/> and in sub-directories, with the file <paramref name="extension"/>.
 	/// Returned paths use forward slashes, and contain the file extension.
 	/// If extension is an empty string, extensions are ignored.
 	/// Calling OpenFile(path) using paths returned by this function allows you to access the file.
