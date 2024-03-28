@@ -229,7 +229,7 @@ public static class Loc
 	public static bool TryGetModString(GameMod mod, string key, out string value) => Language.Current.TryGetModString(mod, key, out value);
 
 	public static List<Language.Line> Lines(string key) => Language.Current.GetLines(key);
-	public static bool HasLines(string key) => Language.Current.Dialog.ContainsKey(key);
+	public static bool HasLines(string key) => Language.Current.Dialog.ContainsKey(key) || Language.Current.ModDialog.ContainsKey(key);
 	public static bool HasKey(string key) => Language.Current.Strings.ContainsKey(key) || Language.Current.ModStrings.ContainsKey(key);
 
 	public class Localized(string key)
