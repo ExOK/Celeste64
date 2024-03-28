@@ -121,7 +121,7 @@ public class Game : Module
 	public void SetResolutionScale(int scale)
 	{
 		ResolutionScale = scale;
-		Save.Instance.SetResolutionScale(scale);
+		Settings.SetResolutionScale(scale);
 	}
 
 	public override void Startup()

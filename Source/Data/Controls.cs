@@ -14,6 +14,9 @@ public static class Controls
 	public static readonly VirtualButton Confirm = new("Confirm");
 	public static readonly VirtualButton Cancel = new("Cancel");
 	public static readonly VirtualButton Pause = new("Pause");
+	public static readonly VirtualButton CopyFile = new("CopyFile");
+	public static readonly VirtualButton DeleteFile = new("DeleteFile");
+	public static readonly VirtualButton CreateFile = new("CreateFile");
 
 	public static ControlsConfig_V01 Instance = new();
 
@@ -88,6 +91,12 @@ public static class Controls
 			it.BindTo(Cancel);
 		foreach (var it in FindAction(config, "Pause"))
 			it.BindTo(Pause);
+		foreach (var it in FindAction(config, "CopyFile"))
+			it.BindTo(CopyFile);
+		foreach (var it in FindAction(config, "DeleteFile"))
+			it.BindTo(DeleteFile);
+		foreach (var it in FindAction(config, "CreateFile"))
+			it.BindTo(CreateFile);
 
 	}
 
@@ -102,6 +111,9 @@ public static class Controls
 		Confirm.Clear();
 		Cancel.Clear();
 		Pause.Clear();
+		CopyFile.Clear();
+		DeleteFile.Clear();
+		CreateFile.Clear();
 	}
 
 	public static void Consume()
@@ -115,6 +127,9 @@ public static class Controls
 		Confirm.Consume();
 		Cancel.Consume();
 		Pause.Consume();
+		CopyFile.Consume();
+		DeleteFile.Consume();
+		CreateFile.Consume();
 	}
 
 	private static readonly Dictionary<string, Dictionary<string, string>> prompts = [];
@@ -151,6 +166,12 @@ public static class Controls
 			return GetPromptLocation("confirm");
 		else if (button == Cancel)
 			return GetPromptLocation("cancel");
+		else if (button == CreateFile)
+			return GetPromptLocation("createfile");
+		else if (button == DeleteFile)
+			return GetPromptLocation("deletefile");
+		else if (button == CopyFile)
+			return GetPromptLocation("copyfile");
 		else
 			return GetPromptLocation("pause");
 	}
