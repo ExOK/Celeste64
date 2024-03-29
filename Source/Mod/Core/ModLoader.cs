@@ -151,13 +151,24 @@ public static class ModLoader
 				{
 					var mod = LoadGameMod(info, fs);
 					mod.Filesystem?.AssociateWithMod(mod);
-					ModManager.Instance.RegisterMod(mod);
-
-					// Load hooks after the mod has been registered
-					foreach (var type in mod.GetType().Assembly.GetTypes())
+					
+					try
 					{
-						FindAndRegisterHooks(type);
+						ModManager.Instance.RegisterMod(mod);
+
+						// Load hooks after the mod has been registered
+						foreach (var type in mod.GetType().Assembly.GetTypes())
+						{
+							FindAndRegisterHooks(type);
+						}
 					}
+					catch
+					{
+						// Perform cleanup
+						ModManager.Instance.DeregisterMod(mod);
+						throw;
+					}
+					
 					loaded.Add(info);
 					loadedModInIteration = true;
 				}
