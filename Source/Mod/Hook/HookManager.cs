@@ -57,7 +57,10 @@ public sealed class HookManager
 			Log.Info($"Registering On-hook for method '{hook.Source}' in type '{hook.Source.DeclaringType}' with hook method '{hook.Target}' in type '{hook.Target.DeclaringType}' for mod '{mod.Id}'");
 		
 		if (!hooksByMod.TryGetValue(mod.Id, out var hooks))
+		{
 			hooks = [];
+			hooksByMod.Add(mod.Id, hooks);
+		}
 		hooks.Add(hook);
 	}
 	public void RegisterILHook(ILHook ilHook, ModInfo mod)
@@ -66,7 +69,10 @@ public sealed class HookManager
 			Log.Info($"Registering IL-hook for method '{ilHook.Method}' in type '{ilHook.Method.DeclaringType}' with hook method '{ilHook.Manipulator.Method}' in type '{ilHook.Manipulator.Method.DeclaringType}' for mod '{mod.Id}'");
 			
 		if (!ilHooksByMod.TryGetValue(mod.Id, out var ilHooks))
+		{
 			ilHooks = [];
+			ilHooksByMod.Add(mod.Id, ilHooks);
+		}
 		ilHooks.Add(ilHook);
 	}
 
