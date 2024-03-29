@@ -306,28 +306,47 @@ public static class ModLoader
 
 	private static void FindAndRegisterHooks(Type type)
 	{
-		// On. hooks
-		var onHookMethods = type.GetMethods(BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic)
-			.Select(m => (m, m.GetCustomAttribute<InternalOnHookGenTargetAttribute>()))
-			.Where(t => t.Item2 != null)
-			.Cast<(MethodInfo, InternalOnHookGenTargetAttribute)>();
-
-		foreach (var (info, attr) in onHookMethods)
+		List<IDisposable> hooks = [];
+		
+		try
 		{
-			Log.Info($"Registering On-hook for method '{attr.Target}' in type '{attr.Target.DeclaringType}' with hook method '{info}' in type '{info.DeclaringType}'");
-			HookManager.Instance.RegisterHook(new Hook(attr.Target, info));
+			// On. hooks
+			var onHookMethods = type.GetMethods(BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic)
+				.Select(m => (m, m.GetCustomAttribute<InternalOnHookGenTargetAttribute>()))
+				.Where(t => t.Item2 != null)
+				.Cast<(MethodInfo, InternalOnHookGenTargetAttribute)>();
+			
+			foreach (var (info, attr) in onHookMethods)
+			{
+				Log.Info($"Registering On-hook for method '{attr.Target}' in type '{attr.Target.DeclaringType}' with hook method '{info}' in type '{info.DeclaringType}'");
+			
+				var onHook = new Hook(attr.Target, info);
+				hooks.Add(onHook);
+				HookManager.Instance.RegisterHook(onHook);
+			}
+			
+			// IL. hooks
+			var ilHookMethods = type.GetMethods(BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic)
+				.Select(m => (m, m.GetCustomAttribute<InternalILHookGenTargetAttribute>()))
+				.Where(t => t.Item2 != null)
+				.Cast<(MethodInfo, InternalILHookGenTargetAttribute)>();
+			
+			foreach (var (info, attr) in ilHookMethods)
+			{
+				Log.Info($"Registering IL-hook for method '{attr.Target}' in type '{attr.Target.DeclaringType}' with hook method '{info}' in type '{info.DeclaringType}'");
+			
+				var ilHook = new ILHook(attr.Target, info.CreateDelegate<ILContext.Manipulator>());
+				hooks.Add(ilHook);
+				HookManager.Instance.RegisterILHook(ilHook);
+			}
 		}
-
-		// IL. hooks
-		var ilHookMethods = type.GetMethods(BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic)
-			.Select(m => (m, m.GetCustomAttribute<InternalILHookGenTargetAttribute>()))
-			.Where(t => t.Item2 != null)
-			.Cast<(MethodInfo, InternalILHookGenTargetAttribute)>();
-
-		foreach (var (info, attr) in ilHookMethods)
+		catch
 		{
-			Log.Info($"Registering IL-hook for method '{attr.Target}' in type '{attr.Target.DeclaringType}' with hook method '{info}' in type '{info.DeclaringType}'");
-			HookManager.Instance.RegisterILHook(new ILHook(attr.Target, info.CreateDelegate<ILContext.Manipulator>()));
+			// Some hook failed. Need to dispose all previous ones
+			foreach (var hook in hooks)
+				hook.Dispose();
+			
+			throw;
 		}
 	}
 }
