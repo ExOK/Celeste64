@@ -159,13 +159,14 @@ public static class ModLoader
 						// Load hooks after the mod has been registered
 						foreach (var type in mod.GetType().Assembly.GetTypes())
 						{
-							FindAndRegisterHooks(type);
+							FindAndRegisterHooks(info, type);
 						}
 					}
 					catch
 					{
 						// Perform cleanup
 						ModManager.Instance.DeregisterMod(mod);
+						HookManager.Instance.ClearHooksOfMod(info);
 						throw;
 					}
 					
@@ -315,7 +316,7 @@ public static class ModLoader
 		return loadedMod;
 	}
 
-	private static void FindAndRegisterHooks(Type type)
+	private static void FindAndRegisterHooks(ModInfo modInfo, Type type)
 	{
 		List<IDisposable> hooks = [];
 		
@@ -331,7 +332,7 @@ public static class ModLoader
 			{
 				var onHook = new Hook(attr.Target, info);
 				hooks.Add(onHook);
-				HookManager.Instance.RegisterHook(onHook);
+				HookManager.Instance.RegisterHook(onHook, modInfo);
 			}
 			
 			// IL. hooks
@@ -344,7 +345,7 @@ public static class ModLoader
 			{
 				var ilHook = new ILHook(attr.Target, info.CreateDelegate<ILContext.Manipulator>());
 				hooks.Add(ilHook);
-				HookManager.Instance.RegisterILHook(ilHook);
+				HookManager.Instance.RegisterILHook(ilHook, modInfo);
 			}
 		}
 		catch
