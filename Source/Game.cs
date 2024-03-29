@@ -187,7 +187,6 @@ public class Game : Module
 		Log.Error("== ERROR ==\n\n" + e.ToString());
 		WriteToLog();
 		UnsafelySetScene(new GameErrorMessage(e));
-		return;
 	}
 
 	public override void Update()
@@ -255,9 +254,6 @@ public class Game : Module
 		}
 		else if (transitionStep == TransitionStep.Perform)
 		{
-			Scene? newScene = transition.Scene != null ? transition.Scene() : null;
-			if (Settings.EnableAdditionalLogging && newScene != null) Log.Info("Switching scene: " + newScene.GetType());
-
 			Audio.StopBus(Sfx.bus_gameplay_world, false);
 
 			// exit last scene
@@ -294,14 +290,14 @@ public class Game : Module
 			switch (transition.Mode)
 			{
 				case Transition.Modes.Replace:
-					Debug.Assert(newScene != null);
+					Debug.Assert(transition.Scene != null);
 					if (scenes.Count > 0)
 						scenes.Pop();
-					scenes.Push(newScene);
+					scenes.Push(transition.Scene());
 					break;
 				case Transition.Modes.Push:
-					Debug.Assert(newScene != null);
-					scenes.Push(newScene);
+					Debug.Assert(transition.Scene != null);
+					scenes.Push(transition.Scene());
 					audioBeatCounter = 0;
 					break;
 				case Transition.Modes.Pop:
@@ -312,6 +308,8 @@ public class Game : Module
 			// run a single update when transition happens so stuff gets established
 			if (scenes.TryPeek(out var nextScene))
 			{
+				if (Settings.EnableAdditionalLogging) Log.Info("Switching scene: " + nextScene.GetType());
+				
 				try
 				{
 					nextScene.Entered();
