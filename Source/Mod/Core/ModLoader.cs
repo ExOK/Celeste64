@@ -318,8 +318,6 @@ public static class ModLoader
 			
 			foreach (var (info, attr) in onHookMethods)
 			{
-				Log.Info($"Registering On-hook for method '{attr.Target}' in type '{attr.Target.DeclaringType}' with hook method '{info}' in type '{info.DeclaringType}'");
-			
 				var onHook = new Hook(attr.Target, info);
 				hooks.Add(onHook);
 				HookManager.Instance.RegisterHook(onHook);
@@ -333,8 +331,6 @@ public static class ModLoader
 			
 			foreach (var (info, attr) in ilHookMethods)
 			{
-				Log.Info($"Registering IL-hook for method '{attr.Target}' in type '{attr.Target.DeclaringType}' with hook method '{info}' in type '{info.DeclaringType}'");
-			
 				var ilHook = new ILHook(attr.Target, info.CreateDelegate<ILContext.Manipulator>());
 				hooks.Add(ilHook);
 				HookManager.Instance.RegisterILHook(ilHook);

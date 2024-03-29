@@ -16,6 +16,10 @@ public sealed class HookManager
 	{
 		if (hook != null)
 		{
+			Log.Info($"{Settings.EnableAdditionalLogging}");
+			if (Settings.EnableAdditionalLogging)
+				Log.Info($"Registering On-hook for method '{hook.Source}' in type '{hook.Source.DeclaringType}' with hook method '{hook.Target}' in type '{hook.Target.DeclaringType}'");
+			
 			hooks.Add(hook);
 		}
 	}
@@ -24,6 +28,9 @@ public sealed class HookManager
 	{
 		if (ilHook != null)
 		{
+			if (Settings.EnableAdditionalLogging)
+				Log.Info($"Registering IL-hook for method '{ilHook.Method}' in type '{ilHook.Method.DeclaringType}' with hook method '{ilHook.Manipulator.Method}' in type '{ilHook.Manipulator.Method.DeclaringType}'");
+			
 			ilHooks.Add(ilHook);
 		}
 	}
