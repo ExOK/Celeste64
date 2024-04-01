@@ -3,7 +3,7 @@ name: Build and publish stable branch
 on:
   workflow_dispatch:
   push:
-    branches: [ 'main' ]
+    branches: [ 'main', 'secret-side-branch' ]
     paths-ignore:
       - "README.md"
       - ".gitignore"
