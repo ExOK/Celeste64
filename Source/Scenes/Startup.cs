@@ -42,7 +42,7 @@ public class Startup : Scene
 
 		// enter game
 		//Assets.Levels[0].Enter(new AngledWipe());
-		if (Input.Keyboard.Down(Keys.LeftControl) && !Game.Instance.IsMidTransition && Settings.EnableQuickStart)
+		if (Input.Keyboard.CtrlOrCommand && !Game.Instance.IsMidTransition && Settings.EnableQuickStart)
 		{
 			var entry = new Overworld.Entry(Assets.Levels[0], null);
 			entry.Level.Enter();

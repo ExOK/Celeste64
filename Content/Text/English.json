@@ -45,6 +45,8 @@
 		"OptionsInvertCamera.desc": "Control if the Camera X and Y axes are inverted",
 		"OptionsResolution": "Resolution Scale",
 		"OptionsResolution.desc": "Change the Resolution Scale",
+		"OptionsQuickStart": "Enable Quick Start",
+		"OptionsQuickStart.desc": "While enabled, hold CTRL during startup to load the last played level",
 		"OptionsToggleOn": "ON",
 		"OptionsToggleOff": "OFF",
 		"OptionsYes": "Yes",

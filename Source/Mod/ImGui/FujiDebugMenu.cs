@@ -1,7 +1,6 @@
 ﻿
 using ImGuiNET;
 using System.Diagnostics;
-using System.Reflection;
 namespace Celeste64.Mod;
 
 internal class FujiDebugMenu : ImGuiHandler
@@ -80,7 +79,7 @@ internal class FujiDebugMenu : ImGuiHandler
 				{
 					if (player.StateMachine.State != Player.States.DebugFly)
 					{
-						player.StateMachine.State = Player.States.DebugFly;	
+						player.StateMachine.State = Player.States.DebugFly;
 					}
 					else
 					{

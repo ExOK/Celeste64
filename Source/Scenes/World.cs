@@ -19,7 +19,7 @@ public class World : Scene
 	public float DeathPlane = -100;
 
 	public readonly List<Actor> Actors = [];
-	public readonly List<Actor> adding = [];
+	private readonly List<Actor> adding = [];
 	private readonly List<Actor> destroying = [];
 	private readonly Dictionary<Type, List<Actor>> tracked = [];
 	private readonly Dictionary<Type, Queue<Actor>> recycled = [];
