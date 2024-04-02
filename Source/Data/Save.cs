@@ -1,7 +1,4 @@
 using Celeste64.Mod;
-using System.Diagnostics;
-using System.Text.Json;
-using System.Text.Json.Serialization;
 
 namespace Celeste64;
 

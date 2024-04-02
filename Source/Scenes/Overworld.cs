@@ -28,7 +28,7 @@ public class Overworld : Scene
 		public float HighlightEase;
 		public float SelectionEase;
 
-		public Entry(LevelInfo level, GameMod mod)
+		public Entry(LevelInfo level, GameMod? mod)
 		{
 			Level = level;
 			Target = new Target(CardWidth, CardHeight);
