@@ -3,7 +3,7 @@ name: Build and publish beta branch
 on:
   workflow_dispatch:
   push:
-    branches: [ 'beta', 'secret-side-branch' ]
+    branches: [ 'beta' ]
     paths-ignore:
       - "README.md"
       - ".gitignore"
