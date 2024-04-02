@@ -630,7 +630,7 @@ public class World : Scene
 		return closest.HasValue;
 	}
 
-	public StackList8<WallHit> SolidWallCheck(in Vec3 point, float radius)
+	public StackList8<WallHit> SolidWallCheck(in Vec3 point, float radius, Func<Solid, bool>? predicate = null)
 	{
 		var radiusSquared = radius * radius;
 		var flatPlane = new Plane(Vec3.UnitZ, point.Z);
@@ -645,6 +645,9 @@ public class World : Scene
 				continue;
 
 			if (!solid.WorldBounds.Inflate(radius).Contains(point))
+				continue;
+
+			if (predicate != null && !predicate(solid))
 				continue;
 
 			var verts = solid.WorldVertices;
@@ -704,9 +707,9 @@ public class World : Scene
 		return hits;
 	}
 
-	public bool SolidWallCheckNearest(in Vec3 point, float radius, out WallHit hit)
+	public bool SolidWallCheckNearest(in Vec3 point, float radius, out WallHit hit, Func<Solid, bool>? predicate = null)
 	{
-		var hits = SolidWallCheck(point, radius);
+		var hits = SolidWallCheck(point, radius, predicate);
 		if (hits.Count > 0)
 		{
 			var closest = hits[0];
@@ -725,9 +728,9 @@ public class World : Scene
 		}
 	}
 
-	public bool SolidWallCheckClosestToNormal(in Vec3 point, float radius, Vec3 normal, out WallHit hit)
+	public bool SolidWallCheckClosestToNormal(in Vec3 point, float radius, Vec3 normal, out WallHit hit, Func<Solid, bool>? predicate = null)
 	{
-		var hits = SolidWallCheck(point, radius);
+		var hits = SolidWallCheck(point, radius, predicate);
 		if (hits.Count > 0)
 		{
 			hit = hits[0];

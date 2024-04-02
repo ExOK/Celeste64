@@ -1,6 +1,8 @@
 using Mono.Cecil;
 using System.Collections.Concurrent;
+using System.Diagnostics;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Runtime.Loader;
 
@@ -36,9 +38,9 @@ internal sealed class ModAssemblyLoadContext : AssemblyLoadContext
 			throw new PlatformNotSupportedException());
 	private static string? unmanagedLibraryFolder = null;
 
-
 	private static readonly ReaderWriterLockSlim allContextsLock = new();
 	private static readonly Dictionary<string, ModAssemblyLoadContext> contextsByModId = new();
+	private static readonly Dictionary<Assembly, ModAssemblyLoadContext> contextsByAssembly = new();
 
 	// All modules loaded by the context.
 	private readonly Dictionary<string, ModuleDefinition> assemblyModules = new();
@@ -90,6 +92,8 @@ internal sealed class ModAssemblyLoadContext : AssemblyLoadContext
 			// Remove from mod ALC list
 			allContextsLock.EnterWriteLock();
 			contextsByModId.Remove(info.Id);
+			foreach (var assembly in localLoadCache.Values)
+				contextsByAssembly.Remove(assembly);
 			allContextsLock.ExitWriteLock();
 
 			// Unload all assemblies loaded in the context
@@ -105,6 +109,28 @@ internal sealed class ModAssemblyLoadContext : AssemblyLoadContext
 				NativeLibrary.Free(handle);
 			localUnmanagedLoadCache.Clear();
 		}
+	}
+	
+	private static readonly Assembly celeste64Asm = typeof(Game).Assembly;
+	internal static ModInfo? GetInfoForCallingAssembly()
+	{
+		var asm = new StackTrace()
+			.GetFrames()
+			.Select(frame => frame.GetMethod()?.DeclaringType?.Assembly)
+			.FirstOrDefault(asm => asm != celeste64Asm);
+		
+		return asm == null ? null : GetInfoForAssembly(asm);
+	}
+	
+	internal static ModInfo? GetInfoForAssembly(Assembly asm)
+	{
+		allContextsLock.EnterWriteLock();
+		ModAssemblyLoadContext? alc = null;
+		if (contextsByAssembly.TryGetValue(asm, out var ctx))
+			alc = ctx;
+		allContextsLock.ExitWriteLock();
+		
+		return alc?.info;
 	}
 
 	protected override Assembly? Load(AssemblyName asmName)
@@ -306,6 +332,10 @@ internal sealed class ModAssemblyLoadContext : AssemblyLoadContext
 				{
 					assemblyLoadCache.TryAdd(asmName, assembly);
 					localLoadCache.TryAdd(asmName, assembly);
+					
+					allContextsLock.EnterWriteLock();
+					contextsByAssembly.Add(assembly, this);
+					allContextsLock.ExitWriteLock();
 				}
 				else
 				{

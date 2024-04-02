@@ -50,8 +50,7 @@ public sealed class ModSettings
 		}
 	}
 
-	[DisallowHooks]
-	internal static void SaveToFile()
+	public static void SaveToFile()
 	{
 		var savePath = Path.Join(App.UserPath, DefaultFileName);
 		var tempPath = Path.Join(App.UserPath, DefaultFileName + ".backup");

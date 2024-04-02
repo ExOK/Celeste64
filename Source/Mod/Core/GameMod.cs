@@ -508,10 +508,10 @@ public abstract class GameMod
 
 
 	// Passthrough functions to simplify adding Hooks to the Hook Manager.
-	public static void RegisterHook(Hook hook) => HookManager.Instance.RegisterHook(hook);
-	public static void RegisterILHook(ILHook iLHook) => HookManager.Instance.RegisterILHook(iLHook);
-	public static void RemoveHook(Hook hook) => HookManager.Instance.RemoveHook(hook);
-	public static void RemoveILHook(ILHook iLHook) => HookManager.Instance.RemoveILHook(iLHook);
+	public void RegisterHook(Hook hook) => HookManager.Instance.RegisterHook(hook, ModInfo);
+	public void RegisterILHook(ILHook iLHook) => HookManager.Instance.RegisterILHook(iLHook, ModInfo);
+	public void DeregisterHook(Hook hook) => HookManager.Instance.DeregisterHook(hook, ModInfo);
+	public void DeregisterILHook(ILHook iLHook) => HookManager.Instance.DeregisterILHook(iLHook, ModInfo);
 
 	/// <summary>
 	/// Registers the provided custom player state,

@@ -151,20 +151,32 @@ public static class ModLoader
 				{
 					var mod = LoadGameMod(info, fs);
 					mod.Filesystem?.AssociateWithMod(mod);
-					ModManager.Instance.RegisterMod(mod);
-
-					// Load hooks after the mod has been registered
-					foreach (var type in mod.GetType().Assembly.GetTypes())
+					
+					try
 					{
-						FindAndRegisterHooks(type);
+						ModManager.Instance.RegisterMod(mod);
+
+						// Load hooks after the mod has been registered
+						foreach (var type in mod.GetType().Assembly.GetTypes())
+						{
+							FindAndRegisterHooks(info, type);
+						}
 					}
+					catch
+					{
+						// Perform cleanup
+						ModManager.Instance.DeregisterMod(mod);
+						HookManager.Instance.ClearHooksOfMod(info);
+						throw;
+					}
+					
 					loaded.Add(info);
 					loadedModInIteration = true;
 				}
 				catch (Exception ex)
 				{
-					FailedToLoadMods.Add(info.Name);
-					Log.Error($"Fuji Error: An error occurred while trying to load mod: {info.Name}");
+					FailedToLoadMods.Add(info.Id);
+					Log.Error($"Fuji Error: An error occurred while trying to load mod: {info.Id}");
 					Log.Error(ex.ToString());
 				}
 
@@ -173,10 +185,12 @@ public static class ModLoader
 
 			if (!loadedModInIteration)
 			{
-				// This means that all infos left infos don't have their dependencies met
-				// TODO: Gracefully handle this case
+				// This means that all infos left don't have their dependencies met
+				// Handle this by adding them to the FailedToLoadMods list and logging an error.
+				// Then break out of the loop so we can continue.
 				foreach (var (info, _) in modInfos)
 				{
+					FailedToLoadMods.Add(info.Id);
 					Log.Error($"Mod '{info.Id} is missing following dependencies:");
 
 					var missingDependencies = info.Dependencies.Where(dep =>
@@ -189,6 +203,7 @@ public static class ModLoader
 						Log.Error($" - ModID: '{modID}' Version: '{version}' ");
 					}
 				}
+				break;
 			}
 		}
 
@@ -301,30 +316,45 @@ public static class ModLoader
 		return loadedMod;
 	}
 
-	private static void FindAndRegisterHooks(Type type)
+	private static void FindAndRegisterHooks(ModInfo modInfo, Type type)
 	{
-		// On. hooks
-		var onHookMethods = type.GetMethods(BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic)
-			.Select(m => (m, m.GetCustomAttribute<InternalOnHookGenTargetAttribute>()))
-			.Where(t => t.Item2 != null)
-			.Cast<(MethodInfo, InternalOnHookGenTargetAttribute)>();
-
-		foreach (var (info, attr) in onHookMethods)
+		List<IDisposable> hooks = [];
+		
+		try
 		{
-			Log.Info($"Registering On-hook for method '{attr.Target}' in type '{attr.Target.DeclaringType}' with hook method '{info}' in type '{info.DeclaringType}'");
-			HookManager.Instance.RegisterHook(new Hook(attr.Target, info));
+			// On. hooks
+			var onHookMethods = type.GetMethods(BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic)
+				.Select(m => (m, m.GetCustomAttribute<InternalOnHookGenTargetAttribute>()))
+				.Where(t => t.Item2 != null)
+				.Cast<(MethodInfo, InternalOnHookGenTargetAttribute)>();
+			
+			foreach (var (info, attr) in onHookMethods)
+			{
+				var onHook = new Hook(attr.Target, info);
+				hooks.Add(onHook);
+				HookManager.Instance.RegisterHook(onHook, modInfo);
+			}
+			
+			// IL. hooks
+			var ilHookMethods = type.GetMethods(BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic)
+				.Select(m => (m, m.GetCustomAttribute<InternalILHookGenTargetAttribute>()))
+				.Where(t => t.Item2 != null)
+				.Cast<(MethodInfo, InternalILHookGenTargetAttribute)>();
+			
+			foreach (var (info, attr) in ilHookMethods)
+			{
+				var ilHook = new ILHook(attr.Target, info.CreateDelegate<ILContext.Manipulator>());
+				hooks.Add(ilHook);
+				HookManager.Instance.RegisterILHook(ilHook, modInfo);
+			}
 		}
-
-		// IL. hooks
-		var ilHookMethods = type.GetMethods(BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic)
-			.Select(m => (m, m.GetCustomAttribute<InternalILHookGenTargetAttribute>()))
-			.Where(t => t.Item2 != null)
-			.Cast<(MethodInfo, InternalILHookGenTargetAttribute)>();
-
-		foreach (var (info, attr) in ilHookMethods)
+		catch
 		{
-			Log.Info($"Registering IL-hook for method '{attr.Target}' in type '{attr.Target.DeclaringType}' with hook method '{info}' in type '{info.DeclaringType}'");
-			HookManager.Instance.RegisterILHook(new ILHook(attr.Target, info.CreateDelegate<ILContext.Manipulator>()));
+			// Some hook failed. Need to dispose all previous ones
+			foreach (var hook in hooks)
+				hook.Dispose();
+			
+			throw;
 		}
 	}
 }
