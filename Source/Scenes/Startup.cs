@@ -42,13 +42,21 @@ public class Startup : Scene
 
 		// enter game
 		//Assets.Levels[0].Enter(new AngledWipe());
-		Game.Instance.Goto(new Transition()
+		if (Input.Keyboard.CtrlOrCommand && !Game.Instance.IsMidTransition && Settings.EnableQuickStart)
 		{
-			Mode = Transition.Modes.Replace,
-			Scene = () => new Titlescreen(),
-			ToBlack = null,
-			FromBlack = new AngledWipe(),
-		});
+			var entry = new Overworld.Entry(Assets.Levels[0], null);
+			entry.Level.Enter();
+		}
+		else
+		{
+			Game.Instance.Goto(new Transition()
+			{
+				Mode = Transition.Modes.Replace,
+				Scene = () => new Titlescreen(),
+				ToBlack = null,
+				FromBlack = new AngledWipe(),
+			});
+		}
 	}
 
 	public override void Update()

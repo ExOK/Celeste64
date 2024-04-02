@@ -42,6 +42,7 @@ public class ImGuiManager
 		renderer.BeforeRender();
 		if (debugMenu.Visible)
 			debugMenu.Render();
+
 		foreach (var handler in Handlers)
 		{
 			if (handler.Visible) handler.Render();

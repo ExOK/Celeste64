@@ -118,6 +118,12 @@ public class Game : Module
 		imGuiManager = new ImGuiManager();
 	}
 
+	public void SetResolutionScale(int scale)
+	{
+		ResolutionScale = scale;
+		Settings.SetResolutionScale(scale);
+	}
+
 	public override void Startup()
 	{
 		instance = this;
@@ -159,6 +165,7 @@ public class Game : Module
 
 	public void Goto(Transition next)
 	{
+		if (IsMidTransition) return;
 		Debug.Assert(
 			transitionStep == TransitionStep.None ||
 			transitionStep == TransitionStep.FadeIn);

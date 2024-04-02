@@ -66,6 +66,16 @@ public sealed class Settings
 	/// </summary>
 	public static bool EnableDebugMenu => Instance.EnableDebugMenu;
 
+	/// <summary>
+	/// Fuji Custom - The Current Game Resolution Scale.
+	/// </summary>
+	public static int ResolutionScale => Instance.ResolutionScale;
+
+	/// <summary>
+	/// Fuji Custom - Whether the QuickStart feature is enabled
+	/// </summary>
+	public static bool EnableQuickStart => Instance.EnableQuickStart;
+
 	public static void ToggleFullscreen()
 	{
 		Instance.Fullscreen = !Instance.Fullscreen;
@@ -85,6 +95,11 @@ public sealed class Settings
 	public static void ToggleEnableDebugMenu()
 	{
 		Instance.EnableDebugMenu = !Instance.EnableDebugMenu;
+	}
+
+	public static void ToggleQuickStart()
+	{
+		Instance.EnableQuickStart = !Instance.EnableQuickStart;
 	}
 
 	public static void ToggleZGuide()
@@ -119,8 +134,16 @@ public sealed class Settings
 		Instance.Language = language;
 	}
 
+	public static void SetResolutionScale(int scale)
+	{
+		Instance.ResolutionScale = scale;
+		SyncSettings();
+	}
+
 	public static void SyncSettings()
 	{
+		App.Fullscreen = Fullscreen;
+		Game.ResolutionScale = ResolutionScale;
 		App.Fullscreen = Instance.Fullscreen;
 		Audio.SetVCAVolume("vca:/music", Calc.Clamp(Instance.MusicVolume / 10.0f, 0, 1));
 		Audio.SetVCAVolume("vca:/sfx", Calc.Clamp(Instance.SfxVolume / 10.0f, 0, 1));

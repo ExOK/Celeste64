@@ -19,6 +19,8 @@ public class GameOptionsMenu : Menu
 
 		FujiOptionsMenu.Add(new Toggle("FujiEnableDebugMenu", Settings.ToggleEnableDebugMenu, () => Settings.EnableDebugMenu));
 		FujiOptionsMenu.Add(new Toggle("FujiWriteLog", Settings.ToggleWriteLog, () => Settings.WriteLog));
+		FujiOptionsMenu.Add(new Slider("OptionsResolution", 1, 5, () => Settings.ResolutionScale, Settings.SetResolutionScale));
+		FujiOptionsMenu.Add(new Toggle("OptionsQuickStart", Settings.ToggleQuickStart, () => Settings.EnableQuickStart));
 		FujiOptionsMenu.Add(new Toggle("FujiAdditionalLog", Settings.ToggleEnableAdditionalLogs, () => Settings.EnableAdditionalLogging));
 		FujiOptionsMenu.Add(new Option("Exit", () =>
 		{

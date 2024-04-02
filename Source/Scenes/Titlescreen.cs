@@ -31,6 +31,12 @@ public class Titlescreen : Scene
 			});
 		}
 
+		if (Input.Keyboard.CtrlOrCommand && !Game.Instance.IsMidTransition && Settings.EnableQuickStart)
+		{
+			var entry = new Overworld.Entry(Assets.Levels[0], null);
+			entry.Level.Enter();
+		}
+
 		if (Controls.Cancel.Pressed)
 		{
 			App.Exit();

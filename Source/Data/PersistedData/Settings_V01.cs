@@ -60,6 +60,17 @@ public sealed class Settings_V01 : PersistedData
 	/// </summary>
 	public bool EnableDebugMenu { get; set; } = false;
 
+	/// <summary>
+	/// Fuji Custom - The Current Game Resolution Scale.
+	/// </summary>
+	public int ResolutionScale { get; set; } = 1;
+	
+	/// <summary>
+	/// Fuji Custom - Whether the QuickStart feature is enabled
+	/// </summary>
+	public bool EnableQuickStart { get; set; } = true;
+
+
 	public override JsonTypeInfo GetTypeInfo()
 	{
 		return Settings_V01Context.Default.Settings_V01;
