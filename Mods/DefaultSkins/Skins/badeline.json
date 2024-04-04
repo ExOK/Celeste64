@@ -2,9 +2,9 @@
     "Model": "badeline",
     "HideHair": false,
     "Name": "Badeline",
-    "HairNormal" : 10174389,
-    "HairNoDash" : 7258367,
-    "HairTwoDash" : 16421375,
-    "HairRefillFlash" : 16777215,
-    "HairFeather" : 15914064
+    "HairNormal" : "9B3FB5",
+    "HairNoDash" : "6EC0FF",
+    "HairTwoDash" : "FA91FF",
+    "HairRefillFlash" : "FFFFFF",
+    "HairFeather" : "F2D450"
 }
