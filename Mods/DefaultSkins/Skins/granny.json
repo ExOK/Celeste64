@@ -2,9 +2,9 @@
     "Model": "granny",
     "HideHair": true,
     "Name": "Granny",
-    "HairNormal" : 16777215,
-    "HairNoDash" : 7258367,
-    "HairTwoDash" : 16421375,
-    "HairRefillFlash" : 16777215,
-    "HairFeather" : 15914064
+    "HairNormal" : "FFFFFF",
+    "HairNoDash" : "6EC0FF",
+    "HairTwoDash" : "FA91FF",
+    "HairRefillFlash" : "FFFFFF",
+    "HairFeather" : "F2D450"
 }

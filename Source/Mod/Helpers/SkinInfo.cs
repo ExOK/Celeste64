@@ -25,7 +25,6 @@ public class SkinInfo
 	[JsonConverter(typeof(DecimalOrHexConverter))]
 	public virtual int HairFeather { get; set; } = 0xf2d450;
 
-
 	public bool IsValid()
 	{
 		return !string.IsNullOrEmpty(Name) && !string.IsNullOrEmpty(Model);
