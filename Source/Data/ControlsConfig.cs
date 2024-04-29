@@ -109,9 +109,16 @@ public class ControlsConfig
 			],
 			["Climb"] = [
 				new(Keys.Z),new(Keys.V),new(Keys.LeftShift),new(Keys.RightShift),
-				new(Buttons.LeftShoulder),new(Buttons.RightShoulder),
 				new(Axes.LeftTrigger, 0.4f, false),
 				new(Axes.RightTrigger, 0.4f, false),
+			],
+			["CameraLeftStep"] = [
+				new(Keys.Q),
+				new(Buttons.LeftShoulder),
+			],
+			["CameraRightStep"] = [
+				new(Keys.E),
+				new(Buttons.RightShoulder),
 			],
 			["Confirm"] = [
 				new(Keys.C),
