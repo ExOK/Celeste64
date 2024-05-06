@@ -213,7 +213,7 @@ public class Cutscene : Actor, IHaveUI
 		batch.Rect(new Rect(bounds.X, bounds.Y, bounds.Width, BarSize * ease), Color.Black);
 		batch.Rect(new Rect(bounds.X, bounds.Bottom - BarSize * ease, bounds.Width, BarSize * ease), Color.Black);
 
-		if (saying.Ease > 0 && !string.IsNullOrEmpty(saying.Text) && !World.Paused)
+		if (saying.Ease > 0 && !string.IsNullOrEmpty(saying.Text))
 		{
 			var ease = Ease.Cube.Out(saying.Ease);
 			var font = Language.Current.SpriteFont;
