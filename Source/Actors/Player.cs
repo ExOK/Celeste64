@@ -493,7 +493,7 @@ public class Player : Actor, IHaveModels, IHaveSprites, IRidePlatforms, ICastPoi
 			Model.Update(Time);
 			Model.Transform = Matrix.CreateScale(ModelScale * 3);
 
-			if (stateMachine.State != States.Feather && stateMachine.State != States.FeatherStart)
+			if (!Dead && stateMachine.State != States.Feather && stateMachine.State != States.FeatherStart)
 			{
 				Color color;
 				if (tDashResetFlash > 0)
