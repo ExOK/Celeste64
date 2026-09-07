@@ -1,0 +1,783 @@
+{
+	"ID": "german",
+	"Label": "Deutsch",
+	"Font": "Renogare",
+	"Strings":
+	{
+		"Confirm": "Bestätigen",
+		"Cancel": "Abbrechen",
+		"Back": "Zurück",
+		"Continue": "Weiter",
+		"Restart": "Neustart",
+		"Start": "Start",
+		"Exit": "Beenden",
+		"RestartLevel": "Spielstand löschen & Level neu starten",
+		"PauseTitle": "Pausiert",
+		"PauseResume": "Weiter",
+		"PauseRetry": "Erneut versuchen",
+		"PauseOptions": "Optionen",
+		"PauseSaveQuit": "Speichern & Beenden",
+		"OptionsTitle": "Optionen",
+		"OptionsLanguage": "Sprache",
+		"OptionsFullscreen": "Vollbildschirm",
+		"OptionsZGuide": "Z-Guide",
+		"OptionsTimer": "Timer",
+		"OptionsBGM": "Hintergrundmusik",
+		"OptionsSFX": "Soundeffekte",
+		"OptionsInvertCamera": "Invertierte Kamera",
+		"CameraInvertNone": "Keine",
+		"CameraInvertX": "X",
+		"CameraInvertY": "Y",
+		"CameraInvertBoth": "Beide",
+		"Level.0_FORSAKEN_CITY.Name": "Forsaken City",
+		"Level.0_FORSAKEN_CITY.Label": "Erstellt zum 6. Jahrestag\nvom Celeste-Team"
+	},
+	"Dialog":
+	{
+		"Granny1": [
+			{
+				"Face": "granny/Laugh",
+				"Voice": "granny/granny1_01_g1",
+				"Text": "Es ist so kalt hier draußen,\nich kann meine Fürze sehen."
+			},
+			{
+				"Face": "madeline/Default",
+				"Voice": "madeline/granny1_02_m1",
+				"Text": "Auch schön dich zu sehen, Omi."
+			},
+			{
+				"Face": "granny/Default",
+				"Voice": "granny/granny1_03_g2",
+				"Text": "Hah. Hey Kind, willkommen zurück.\nEs ist eine Weile her."
+			},
+			{
+				"Face": "madeline/Default",
+				"Voice": "madeline/granny1_04_m2",
+				"Text": "Ja, ich war beschäftigt."
+			},
+			{
+				"Face": "granny/Default",
+				"Voice": "granny/granny1_05_g3",
+				"Text": "Hab ich gehört!"
+			},
+			{
+				"Face": "granny/Default",
+				"Voice": "granny/granny1_06_g4",
+				"Text": "Die kleine Dame hier schreibt ein BUCH!"
+			},
+			{
+				"Face": "madeline/Upset",
+				"Voice": "madeline/granny1_07_m3",
+				"Text": "Oh, das.\nEs ist keine große Sache..."
+			},
+			{
+				"Face": "granny/Default",
+				"Voice": "granny/granny1_08_g5",
+				"Text": "Aha. Ist das der Grund, warum du hier bist?\nNervös wegen des großen Projekts?"
+			},
+			{
+				"Face": "madeline/Default",
+				"Voice": "madeline/granny1_09_m4",
+				"Text": "Nein, ich bin seltsamerweise ganz entspannt wegen des Buches."
+			},
+			{
+				"Face": "madeline/Upset",
+				"Voice": "madeline/granny1_10_m5",
+				"Text": "Außerdem kann ich nicht einfach eine geliebte Erinnerung noch einmal erleben,\nohne verhört zu werden?"
+			},
+			{
+				"Face": "granny/Default",
+				"Voice": "granny/granny1_11_g6",
+				"Text": "Schon gut, schon gut, ich weiß, da steckt\nmehr dahinter, aber ich bohre nicht weiter."
+			},
+			{
+				"Face": "granny/Default",
+				"Voice": "granny/granny1_12_g7",
+				"Text": "Viel Spaß beim in Erinnerungen schwelgen dann."
+			}
+		],
+		"Granny2": [
+			{
+				"Face": "granny/Default",
+				"Voice": "granny/granny2_01_g1",
+				"Text": "Komm schon, was bedrückt dich wirklich?"
+			},
+			{
+				"Face": "madeline/Angry",
+				"Voice": "madeline/granny2_02_m1",
+				"Text": "Es ist okay. Ich hab's unter Kontrolle."
+			},
+			{
+				"Face": "granny/Laugh",
+				"Voice": "granny/granny2_03_g2",
+				"Text": "Manche Dinge ändern sich nie."
+			},
+			{
+				"Face": "madeline/Upset",
+				"Text": "..."
+			},
+			{
+				"Face": "madeline/Upset",
+				"Voice": "madeline/granny2_04_m2",
+				"Text": "Es ist nur so, dass...\nich einen großen Schritt mache."
+			},
+			{
+				"Face": "madeline/Default",
+				"Voice": "madeline/granny2_05_m3",
+				"Text": "Ich weiß, dass es ein guter Schritt ist.\nEs ist das, was ich will..."
+			},
+			{
+				"Face": "madeline/Upset",
+				"Voice": "madeline/granny2_06_m4",
+				"Text": "...Aber es fühlt sich immer noch so an, als...\n...als würde ich von einer Klippe springen."
+			},
+			{
+				"Face": "granny/Default",
+				"Voice": "granny/granny2_07_g3",
+				"Text": "Hört sich an wie ein Sprung ins Ungewisse."
+			},
+			{
+				"Face": "madeline/Upset",
+				"Voice": "madeline/granny2_08_m5",
+				"Text": "Ja... Ich denke, es ist so."
+			},
+			{
+				"Face": "granny/Default",
+				"Voice": "granny/granny2_09_g4",
+				"Text": "Du warst immer schon mutig."
+			},
+			{
+				"Face": "granny/Default",
+				"Voice": "granny/granny2_10_g5",
+				"Text": "Aber hast du dich mal\nmit diesem anderen Teil von dir auseinandergesetzt?"
+			},
+			{
+				"Face": "madeline/Upset",
+				"Voice": "madeline/granny2_11_m6",
+				"Text": "Vermutlich ist das der Grund, warum ich hier bin."
+			},
+			{
+				"Face": "granny/Default",
+				"Voice": "granny/granny2_12_g6",
+				"Text": "Wo steckt eigentlich dieser kleine Spinner?"
+			}
+		],
+		"Granny3": [
+			{
+				"Face": "granny/Default",
+				"Voice": "granny/granny3_01_g1",
+				"Text": "Du weißt, dass ich es immer schätze,\nwenn du an mich denkst..."
+			},
+			{
+				"Face": "granny/Default",
+				"Voice": "granny/granny3_02_g2",
+				"Text": "Aber nächstes Mal könntest du\nes etwas wärmer hier machen?"
+			},
+			{
+				"Face": "madeline/Default",
+				"Voice": "madeline/granny3_03_m1",
+				"Text": "Das ist nicht so, wie ich es in Erinnerung habe."
+			}
+		],
+
+		"Theo1": [
+			{
+				"Face": "theo/Default",
+				"Voice": "theo/theo1_01_t1",
+				"Text": "Erdbeere!!"
+			},
+			{
+				"Face": "madeline/Happy",
+				"Voice": "madeline/theo1_02_m1",
+				"Text": "Theo!"
+			},
+			{
+				"Face": "madeline/Happy",
+				"Voice": "madeline/theo1_03_m2",
+				"Text": "So schön dich zu sehen."
+			},
+			{
+				"Face": "theo/Smug",
+				"Voice": "theo/theo1_04_t2",
+				"Text": "Gleichfalls, Fremde."
+			},
+			{
+				"Face": "madeline/Upset",
+				"Voice": "madeline/theo1_05_m3",
+				"Text": "Ich habe schon wieder vergessen,\ndir zu antworten, richtig?"
+			},
+			{
+				"Face": "theo/Default",
+				"Voice": "theo/theo1_06_t3",
+				"Text": "Nein nein, ist schon okay."
+			},
+			{
+				"Face": "theo/Smug",
+				"Voice": "theo/theo1_07_t4",
+				"Text": "Genau deshalb habe ich dir\nAlex vorgestellt, bevor ich gegangen bin."
+			},
+			{
+				"Face": "theo/Proud",
+				"Voice": "theo/theo1_08_t5",
+				"Text": "Jetzt kriege ich alle Maddy-Neuigkeiten\n über meine neurotische Schwester."
+			},
+			{
+				"Face": "theo/Smug",
+				"Voice": "theo/theo1_09_t6",
+				"Text": "Sie ruft mich jeden Samstag\n um Punkt zwei Uhr an."
+			},
+			{
+				"Face": "madeline/Happy",
+				"Voice": "madeline/theo1_10_m4",
+				"Text": "Clever!"
+			},
+			{
+				"Face": "madeline/Default",
+				"Voice": "madeline/theo1_11_m5",
+				"Text": "Alex ist... die Beste."
+			},
+			{
+				"Face": "theo/Smug",
+				"Voice": "theo/theo1_12_t7",
+				"Text": "Ihr zwei seid so gay."
+			},
+			{
+				"Face": "theo/Default",
+				"Voice": "theo/theo1_13_t8",
+				"Text": "Wie cool für dich!"
+			}
+		],
+		"Theo2": [
+			{
+				"Face": "theo/Tired",
+				"Voice": "theo/theo2_01_t1",
+				"Text": "Diesen Turm hochzuklettern\nwar NICHT einfach für mich."
+			},
+			{
+				"Face": "theo/Proud",
+				"Voice": "theo/theo2_02_t2",
+				"Text": "Aber ich habe ein paar absolute Hammer-Bilder dabei."
+			},
+			{
+				"Face": "madeline/Happy",
+				"Voice": "madeline/theo2_03_m1",
+				"Text": "Das ist fantastisch!"
+			},
+			{
+				"Face": "theo/Default",
+				"Voice": "theo/theo2_04_t3",
+				"Text": "Die werden in der Galerie\nrichtig glänzen."
+			},
+			{
+				"Face": "madeline/Happy",
+				"Voice": "madeline/theo2_05_m2",
+				"Text": "Du machst eine Galerie Show!?"
+			},
+			{
+				"Face": "theo/Proud",
+				"Voice": "theo/theo2_06_t4",
+				"Text": "Oh ja, hoffentlich die Erste von vielen."
+			},
+			{
+				"Face": "theo/Default",
+				"Voice": "theo/theo2_07_t5",
+				"Text": "Es sind nur Fotos von meinen Reisen."
+			},
+			{
+				"Face": "theo/Smug",
+				"Voice": "theo/theo2_08_t7",
+				"Text": "Mit dem Thema\n‘Menschen inmitten urbaner Isolation‘"
+			},
+			{
+				"Face": "theo/Default",
+				"Voice": "theo/theo2_09_t8",
+				"Text": "Es sind diese weichen, farbenfrohen Porträts von\ncoolen Leuten, die ich auf meinen Reisen getroffen habe..."
+			},
+			{
+				"Face": "theo/Upset",
+				"Voice": "theo/theo2_10_t9",
+				"Text": "...kontrastiert mit der harten, kapitalistischen Brutalität der modernen Stadt."
+			},
+			{
+				"Face": "madeline/Happy",
+				"Voice": "madeline/theo2_11_m3",
+				"Text": "Theo!! Das klingt ja so... künstlerisch!"
+			},
+			{
+				"Face": "theo/Smug",
+				"Voice": "theo/theo2_12_t10",
+				"Text": "Kling nicht so überrascht."
+			},
+			{
+				"Face": "theo/Proud",
+				"Voice": "theo/theo2_13_t11",
+				"Text": "Ich bin eben eine vielschichtige Persönlichkeit."
+			}
+		],
+		"Theo3": [
+			{
+				"Face": "theo/Default",
+				"Voice": "theo/theo3_01_t1",
+				"Text": "Ich habe gehört, du schreibst ein Buch..."
+			},
+			{
+				"Face": "theo/Proud",
+				"Voice": "theo/theo3_02_t2",
+				"Text": "Komme ich darin vor?"
+			},
+			{
+				"Face": "madeline/Default",
+				"Voice": "madeline/theo3_03_m1",
+				"Text": "Nein, so ist es eigentlich gar nicht, es ist eher metaphorisch."
+			},
+			{
+				"Face": "theo/Smug",
+				"Voice": "theo/theo3_04_t3",
+				"Text": "Kommt Alex darin vor?"
+			},
+			{
+				"Face": "madeline/Upset",
+				"Text": "..."
+			},
+			{
+				"Face": "theo/Proud",
+				"Voice": "theo/theo3_05_t4",
+				"Text": "Sie kommt absolut darin vor."
+			},
+			{
+				"Face": "theo/Smug",
+				"Voice": "theo/theo3_06_t5",
+				"Text": "Das ist ja SO süß."
+			},
+			{
+				"Face": "madeline/Angry",
+				"Text": "..."
+			}
+		],
+
+		"Baddy1": [
+			{
+				"Face": "madeline/Default",
+				"Voice": "madeline/baddy1_01_m1",
+				"Text": "Hey."
+			},
+			{
+				"Face": "baddy/UncertainB",
+				"Voice": "badeline/baddy1_02_b1",
+				"Text": "Hey."
+			},
+			{
+				"Face": "madeline/Upset",
+				"Voice": "madeline/baddy1_03_m2",
+				"Text": "Wie geht's dir so?"
+			},
+			{
+				"Face": "baddy/UncertainA",
+				"Text": "..."
+			},
+			{
+				"Face": "baddy/UncertainB",
+				"Voice": "badeline/baddy1_04_b2",
+				"Text": "Werden wir das\nwirklich tun?"
+			},
+			{
+				"Face": "madeline/Upset",
+				"Voice": "madeline/baddy1_05_m3",
+				"Text": "Ja."
+			},
+			{
+				"Face": "madeline/Default",
+				"Voice": "madeline/baddy1_06_m4",
+				"Text": "Ich schätze schon."
+			},
+			{
+				"Face": "baddy/UncertainA",
+				"Voice": "badeline/baddy1_07_b3",
+				"Text": "Du bringst uns immer dazu, harte Dinge zu tun."
+			},
+			{
+				"Face": "madeline/Upset",
+				"Voice": "madeline/baddy1_08_m5",
+				"Text": "Ja, kann schon sein."
+			},
+			{
+				"Face": "baddy/Angry",
+				"Voice": "badeline/baddy1_09_b4",
+				"Text": "Warum kannst du nicht einfach glücklich sein?"
+			},
+			{
+				"Face": "baddy/UncertainA",
+				"Voice": "badeline/baddy1_10_b5",
+				"Text": "Warum sich überhaupt diesen ganzen\nStress antun, den Schmerz \nund... diese VERÄNDERUNG."
+			},
+			{
+				"Face": "madeline/Upset",
+				"Text": "..."
+			},
+			{
+				"Face": "madeline/Upset",
+				"Voice": "madeline/baddy1_11_m6",
+				"Text": "Ich weiß nicht, ob ich eine\ngute Antwort für dich habe."
+			},
+			{
+				"Face": "madeline/Upset",
+				"Voice": "madeline/baddy1_12_m7",
+				"Text": "Ich kann das nicht mehr dauernd rechtfertigen,\ndas dreht sich einfach nur im Kreis."
+			},
+			{
+				"Face": "madeline/Default",
+				"Voice": "madeline/baddy1_13_m8",
+				"Text": "Am Ende des Tages fühlt es sich richtig an."
+			},
+			{
+				"Face": "madeline/Upset",
+				"Voice": "madeline/baddy1_14_m9",
+				"Text": "Das ist alles was ich für dich habe."
+			},
+			{
+				"Face": "baddy/UncertainB",
+				"Voice": "badeline/baddy1_15_b6",
+				"Text": "Schätze, das ist ein Grund\nwie jeder andere auch."
+			},
+			{
+				"Face": "madeline/Default",
+				"Voice": "madeline/baddy1_16_m10",
+				"Text": "Ich will, dass du mitkommst."
+			},
+			{
+				"Face": "madeline/Happy",
+				"Voice": "madeline/baddy1_17_m11",
+				"Text": "Bitte, ich werde Raum für dich schaffen."
+			},
+			{
+				"Face": "madeline/Default",
+				"Voice": "madeline/baddy1_18_m12",
+				"Text": "Du darfst Angst haben."
+			},
+			{
+				"Face": "baddy/UncertainB",
+				"Voice": "badeline/baddy1_19_b7",
+				"Text": "Ich weiß, dass wir das brauchen."
+			},
+			{
+				"Face": "baddy/UncertainB",
+				"Text": "..."
+			},
+			{
+				"Face": "baddy/UncertainA",
+				"Voice": "badeline/baddy1_20_b8",
+				"Text": "Danke, dass du mich geholt hast."
+			},
+			{
+				"Face": "baddy/UncertainB",
+				"Text": "..."
+			},
+			{
+				"Face": "baddy/UncertainA",
+				"Voice": "badeline/baddy1_21_b9",
+				"Text": "Lass... lass uns es tun."
+			}
+		],
+		"Baddy2": [
+			{
+				"Face": "madeline/Happy",
+				"Voice": "madeline/baddy2_01_m1",
+				"Text": "Es ist schön zurück zu sein."
+			},
+			{
+				"Face": "baddy/UncertainB",
+				"Voice": "badeline/baddy2_02_b1",
+				"Text": "Ja, sogar diese chaotische\nStadt fühlt sich wie zuhause an."
+			},
+			{
+				"Face": "baddy/UncertainA",
+				"Voice": "badeline/baddy2_03_b2",
+				"Text": "Ich kann mich allerdings nicht erinnern,\ndass sie so schwebend und... 3D war."
+			},
+			{
+				"Face": "madeline/Default",
+				"Voice": "madeline/baddy2_04_m2",
+				"Text": "Erinnerungen sind nicht perfekt."
+			},
+			{
+				"Face": "madeline/Upset",
+				"Voice": "madeline/baddy2_05_m3",
+				"Text": "Vielleicht habe ich\nzu viele alte Spiele gespielt."
+			},
+			{
+				"Face": "baddy/UncertainA",
+				"Voice": "badeline/baddy2_06_b3",
+				"Text": "Fühlt sich nostalgisch an, nicht?"
+			},
+			{
+				"Face": "madeline/Upset",
+				"Voice": "madeline/baddy2_07_m4",
+				"Text": "Ich glaube, ich versuche einfach,\ndie Maddy von früher wiederzufinden."
+			},
+			{
+				"Face": "baddy/Resolved",
+				"Voice": "badeline/baddy2_08_b4",
+				"Text": "Tut gut, noch mal die eigenen Spuren zu verfolgen,\nbevor man eine große Entscheidung trifft."
+			},
+			{
+				"Face": "madeline/Default",
+				"Voice": "madeline/baddy2_09_m5",
+				"Text": "Ja, das hilft mir, die Perspektive zu behalten."
+			}
+		],
+		"Baddy3": [
+			{
+				"Face": "baddy/UncertainA",
+				"Voice": "badeline/baddy3_01_b1",
+				"Text": "Es macht mir immer noch Angst, aber..."
+			},
+			{
+				"Face": "baddy/UncertainB",
+				"Voice": "badeline/baddy3_02_b2",
+				"Text": "Ich glaube, so langsam fange ich an, mich auf das hier zu freuen."
+			},
+			{
+				"Face": "madeline/Happy",
+				"Voice": "madeline/baddy3_03_m1",
+				"Text": "ES IST aufregend!"
+			},
+			{
+				"Face": "madeline/Default",
+				"Voice": "madeline/baddy3_04_m2",
+				"Text": "Wir wollten das hier schon seit immer."
+			},
+			{
+				"Face": "madeline/Default",
+				"Voice": "madeline/baddy3_05_m3",
+				"Text": "Wir konnten es vorher nur nicht richtig in Worte fassen."
+			},
+			{
+				"Face": "baddy/UncertainA",
+				"Voice": "badeline/baddy3_06_b3",
+				"Text": "Ja, du hast recht."
+			},
+			{
+				"Face": "baddy/Resolved",
+				"Voice": "badeline/baddy3_07_b4",
+				"Text": "Vielleicht... vielleicht wird's schon gut gehen."
+			}
+		],
+
+		"Sign1": [
+			{
+				"Face": "signpost",
+				"Voice": "sign/general_01",
+				"Text": "Geheime Tafel\nNICHT lesen"
+			},
+			{
+				"Face": "signpost",
+				"Voice": "sign/ellipses_01",
+				"Text": "..."
+			},
+			{
+				"Face": "signpost",
+				"Voice": "sign/general_03",
+				"Text": "Aber da du mich gefunden hast,\nhier ist ein Tipp:"
+			},
+			{
+				"Face": "signpost",
+				"Voice": "sign/general_02",
+				"Text": "Mit dem RECHTEN ANALOG-STICK steuerst du die Kamera."
+			},
+			{
+				"Face": "signpost",
+				"Voice": "sign/ellipses_01",
+				"Text": "..."
+			},
+			{
+				"Face": "signpost",
+				"Voice": "sign/general_05",
+				"Text": "Ich hab nie gesagt, dass es ein GUTER Tipp ist."
+			},
+			{
+				"Face": "signpost",
+				"Voice": "sign/general_07",
+				"Text": "Probier aber unbedingt mal, mit OBEN und UNTEN\nauf dem RECHTEN STICK rein- und rauszuzoomen."
+			},
+			{
+				"Face": "signpost",
+				"Voice": "sign/general_06",
+				"Text": "Manchmal liegt der Schlüssel zu einem kniffligen Sprung\neinfach darin, die richtige Perspektive zu finden."
+			},
+			{
+				"Face": "signpost",
+				"Voice": "sign/snark_02",
+				"Text": "Und jetzt ab mit dir!"
+			}
+		],
+		"Sign2": [
+  		{
+  			"Face": "signpost",
+  			"Voice": "sign/general_01",
+  			"Text": "Geheime Tafel\nNICHT lesen"
+  		},
+  		{
+  			"Face": "signpost",
+  			"Voice": "sign/ellipses_01",
+  			"Text": "..."
+  		},
+  		{
+  			"Face": "signpost",
+  			"Voice": "sign/general_03",
+  			"Text": "Aber da du mich gefunden hast,\nhier ist ein Tipp:"
+  		},
+			{
+				"Face": "signpost",
+				"Voice": "sign/general_05",
+				"Text": "Um einen Schleudersprung zu machen, lauf mit voller Geschwindigkeit,\ndreh dich schnell um und hämmer auf den SPRUNG-BUTTON!"
+			},
+			{
+				"Face": "signpost",
+				"Voice": "sign/general_04",
+				"Text": "Der Schleudersprung bringt dich\nhöher als ein ganz normaler Sprung.\nProbier's mal aus!"
+			},
+			{
+				"Face": "signpost",
+				"Voice": "sign/general_11",
+				"Text": "Und wenn du mehr Tafeln findest,\nlies sie NICHT."
+			}
+		],
+		"Sign3": [
+  		{
+  			"Face": "signpost",
+  			"Voice": "sign/general_01",
+  			"Text": "Geheime Tafel\nNICHT lesen"
+  		},
+  		{
+  			"Face": "signpost",
+  			"Voice": "sign/ellipses_01",
+  			"Text": "..."
+  		},
+  		{
+  			"Face": "signpost",
+  			"Voice": "sign/general_03",
+  			"Text": "Aber da du mich gefunden hast,\nhier ist ein Tipp:"
+  		},
+			{
+				"Face": "signpost",
+				"Voice": "sign/general_05",
+				"Text": "Du weißt, dass du das DASHEN kannst,\nund du weißt, dass du SPRINGEN kannst..."
+			},
+			{
+				"Face": "signpost",
+				"Voice": "sign/general_06",
+				"Text": "Aber wusstest du auch, dass du einen Dash-Sprung machen kannst?\nMach einfach einen Dash und spring dann, genial."
+			},
+			{
+				"Face": "signpost",
+				"Voice": "sign/general_07",
+				"Text": "Der Dash-Sprung ist ein langer, flacher Satz.\nProbier's mal aus!"
+			},
+			{
+				"Face": "signpost",
+				"Voice": "sign/snark_01",
+				"Text": "Oder halt nicht.\nIch bin eine Tafel, kein Polizist."
+			}
+		],
+		"Sign4": [
+			{
+				"Face": "signpost",
+				"Voice": "sign/general_03",
+				"Text": "Einsames Schild\nBitte lesen"
+			},
+			{
+				"Face": "signpost",
+				"Voice": "sign/ellipses_01",
+				"Text": "..."
+			},
+			{
+				"Face": "signpost",
+				"Voice": "sign/general_08",
+				"Text": "Danke, dass du mich bemerkt hast.\nHier ist ein Tipp:"
+			},
+			{
+				"Face": "signpost",
+				"Voice": "sign/general_05",
+				"Text": "Wenn du nach OBEN schauen willst,\nzoom die Kamera GAAAANZ nah heran."
+			},
+			{
+				"Face": "signpost",
+				"Voice": "sign/general_10",
+				"Text": "Wer weiß was du da oben sehen wirst."
+			},
+			{
+				"Face": "signpost",
+				"Voice": "sign/general_11",
+				"Text": "Ich weiß es nicht,\nich bin ja auch nur eine bescheidene Tafel."
+			}
+		],
+
+		"CreditsSign": [
+			{
+				"Face": "signpost",
+				"Voice": "credits/credits_01",
+				"Text": "Celeste 64: Fragments of the Mountain"
+			},
+			{
+				"Face": "signpost",
+				"Voice": "credits/credits_02",
+				"Text": "In einer Woche erstellt, vom Celeste-Team"
+			},
+			{
+				"Face": "signpost",
+				"Voice": "credits/credits_03",
+				"Text": "Maddy Thorson, Noel Berry, Amora B., Pedro Medeiros,\nLena Raine, Heidy Motta, und Kevin Regamey und\nJeff Tangsoc of Power Up Audio"
+			},
+			{
+				"Face": "signpost",
+				"Voice": "credits/credits_04",
+				"Text": "Besonderer Dank"
+			},
+			{
+				"Face": "signpost",
+				"Voice": "credits/credits_05",
+				"Text": "Maddy möchte sich bei Sara und Z\nfür ihre Liebe und Unterstützung bedanken."
+			},
+			{
+				"Face": "signpost",
+				"Voice": "credits/credits_06",
+				"Text": "Noel dankt Yvonne dafür,\ndass sie so entspannt und cool ist."
+			},
+			{
+				"Face": "signpost",
+				"Voice": "credits/credits_07",
+				"Text": "Amora möchte sich bei\nKiki, Zac, Rose und Phil bedanken,\ndafür, dass sie so liebevoll und lustig sind."
+			},
+			{
+				"Face": "signpost",
+				"Voice": "credits/credits_08",
+				"Text": "Pedro möchte sich bei Isa bedanken, dass sie seine Git-Merges\ngerettet hat, sowie bei Pedro Damasceno und allen von\nXinela dafür, dass sie ihm geholfen haben, 3D zu lernen!"
+			},
+			{
+				"Face": "signpost",
+				"Voice": "credits/credits_09",
+				"Text": "Jeff möchte sich bei\nseinem guten Freund Stelmack bedanken."
+			},
+			{
+				"Face": "signpost",
+				"Voice": "credits/credits_10",
+				"Text": "Kevin dankt Zoe für ihre grenzenlose\nUnterstützung, selbst bei so albernen\nProjekten wie diesem hier."
+			},
+			{
+				"Face": "signpost",
+				"Voice": "credits/credits_11",
+				"Text": "Lena bedankt sich bei\nBobbin dafür, dass er eine Katze ist."
+			},
+			{
+				"Face": "signpost",
+				"Voice": "credits/credits_12",
+				"Text": "Heidy möchte sich bei\nBrian bedanken, dass er großartig ist,\nund bei Furi, dass sie purrfekt ist!"
+			},
+			{
+				"Face": "signpost",
+				"Voice": "credits/credits_13",
+				"Text": "Und zu guter Letzt: Vielen Dank an alle Celeste-Spieler auf der ganzen Welt.\nEure Liebe und Leidenschaft für unser kleines Spiel\ninspirieren uns nach wie vor."
+			}
+		]
+	}
+}
