@@ -15,10 +15,10 @@ public class Menu(Controls controls)
 		public virtual void Slide(int dir) {}
 	}
 
-	public class Submenu(string label, Menu? rootMenu, Menu? submenu = null) : Item 
+	public class Submenu(Func<string> label, Menu? rootMenu, Menu? submenu = null) : Item 
 	{
-		private readonly string label = label;
-		public override string Label => label;
+		public Submenu(string label, Menu? rootMenu, Menu? submenu = null) : this(() => label, rootMenu, submenu) {}
+		public override string Label => label();
 		public override bool Pressed() 
 		{
 			if (submenu != null) 
@@ -40,31 +40,31 @@ public class Menu(Controls controls)
 	
 	public class Slider: Item
 	{
-		private readonly List<string> labels = [];
+		private readonly Func<string> label;
 		private readonly int min;
 		private readonly int max;
 		private readonly Func<int> get;
 		private readonly Action<int> set;
 	
-		public Slider(string label, int min, int max, Func<int> get, Action<int> set)
+		public Slider(Func<string> label, int min, int max, Func<int> get, Action<int> set)
 		{
-			for (int i = 0, n = (max - min); i <= n; i ++)
-				labels.Add($"{label} [{new string('|', i)}{new string('.', n - i)}]");
+			this.label = label;
 			this.min = min;
 			this.max = max;
 			this.get = get;
 			this.set = set;
 		}
-
-        public override string Label => labels[get() - min];
+		public Slider(string label, int min, int max, Func<int> get, Action<int> set) : this(() => label, min, max, get, set) {}
+	
+		public override string Label => $"{label()} [{new string('|', get() - min)}{new string('.', max - get())}]";
         public override void Slide(int dir) => set(Calc.Clamp(get() + dir, min, max));
     }
 
-	public class Option(string label, Action? action = null) : Item
+	public class Option(Func<string> label, Action? action = null) : Item
 	{
-		private readonly string label = label;
 		private readonly Action? action = action;
-        public override string Label => label;
+		public Option(string label, Action? action = null) : this(() => label, action) {}
+		public override string Label => label();
         public override bool Pressed()
 		{
 			if (action != null)
@@ -77,12 +77,11 @@ public class Menu(Controls controls)
 		}
     }
 
-	public class Toggle(string label, Action action, Func<bool> get)  : Item
+	public class Toggle(Func<string> label, Action action, Func<bool> get)  : Item
 	{
-		private readonly string labelOff = $"{label} : OFF";
-		private readonly string labelOn  = $"{label} :  ON";
 		private readonly Action action = action;
-        public override string Label => get() ? labelOn : labelOff;
+		public Toggle(string label, Action action, Func<bool> get) : this(() => label, action, get) {}
+		public override string Label => $"{label()} : {(get() ? " ON" : "OFF")}";
         public override bool Pressed()
 		{
 			action();
@@ -94,11 +93,12 @@ public class Menu(Controls controls)
 		}
 	}
 
-	public class MultiSelect(string label, List<string> options, Func<int> get, Action<int> set) : Item
+	public class MultiSelect(Func<string> label, List<string> options, Func<int> get, Action<int> set) : Item
 	{
 		private readonly List<string> options = options;
 		private readonly Action<int> set = set;
-		public override string Label => $"{label} : {options[get()]}";
+		public MultiSelect(string label, List<string> options, Func<int> get, Action<int> set) : this(() => label, options, get, set) {}
+		public override string Label => $"{label()} : {options[get()]}";
 
 		public override void Slide(int dir) 
 		{
@@ -128,11 +128,39 @@ public class Menu(Controls controls)
 		{
 
 		}
+
+		public MultiSelect(Func<string> label, Action<T> set, Func<T> get)
+			: base(label, GetEnumOptions(), () => (int)(object)get(), (i) => set((T)(object)i))
+		{
+
+		}
+	}
+
+	public class LocalizedMultiSelect(
+		Func<string> label,
+		int optionCount,
+		Func<int, string> optionLabel,
+		Func<int> get,
+		Action<int> set) : Item
+	{
+		public override string Label => $"{label()} : {optionLabel(get())}";
+
+		public override void Slide(int dir)
+		{
+			Audio.Play(Sfx.ui_select);
+
+			int index = get();
+			if (index < optionCount - 1 && dir == 1)
+				index++;
+			if (index > 0 && dir == -1)
+				index--;
+			set(index);
+		}
 	}
 
 	public readonly Controls Controls = controls;
 	public int Index;
-	public string Title = string.Empty;
+	public Func<string> Title = () => string.Empty;
 	public bool Focused = true;
 
 	private readonly List<Item> items = [];
@@ -152,9 +180,10 @@ public class Menu(Controls controls)
 			var size = Vec2.Zero;
 			var font = Language.Current.SpriteFont;
 	
-			if (!string.IsNullOrEmpty(Title))
+			var title = Title();
+			if (!string.IsNullOrEmpty(title))
 			{
-				size.X = font.WidthOf(Title) * TitleScale;
+				size.X = font.WidthOf(title) * TitleScale;
 				size.Y += font.LineHeight * TitleScale;
 				size.Y += SpacerHeight + Spacing;
 			}
@@ -249,9 +278,10 @@ public class Menu(Controls controls)
 		var position = Vec2.Zero;
 		batch.PushMatrix(new Vec2(0, -size.Y / 2));
 	
-		if(!string.IsNullOrEmpty(Title)) 
+		var title = Title();
+		if(!string.IsNullOrEmpty(title)) 
 		{
-			var text = Title;
+			var text = title;
 			var justify = new Vec2(0.5f, 0);
 			var color = new Color(8421504);
 

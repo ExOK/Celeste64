@@ -1,4 +1,3 @@
-
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -144,6 +143,20 @@ public class Save
 	public void SetCameraInverted(InvertCameraOptions value)
 	{
 		InvertCamera = value;
+	}
+
+	/// <summary>
+	/// Selects a loaded language and prepares its font for rendering.
+	/// Returns false when the requested language is not available.
+	/// </summary>
+	public bool SetLanguage(GraphicsDevice graphicsDevice, string languageID)
+	{
+		if (!Assets.Languages.TryGetValue(languageID, out var language))
+			return false;
+
+		language.Use(graphicsDevice);
+		Language = language.ID;
+		return true;
 	}
 
 	public void ToggleTimer()

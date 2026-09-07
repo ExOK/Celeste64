@@ -18,12 +18,19 @@
 		"PauseOptions": "Options",
 		"PauseSaveQuit": "Save & Quit",
 		"OptionsTitle": "Options",
+		"OptionsLanguage": "Language",
 		"OptionsFullscreen": "Fullscreen",
 		"OptionsZGuide": "Z-Guide",
 		"OptionsTimer": "Timer",
 		"OptionsBGM": "BGM",
 		"OptionsSFX": "SFX",
-		"OptionsInvertCamera": "Inverted Camera"
+		"OptionsInvertCamera": "Inverted Camera",
+		"CameraInvertNone": "None",
+		"CameraInvertX": "X",
+		"CameraInvertY": "Y",
+		"CameraInvertBoth": "Both",
+		"Level.0_FORSAKEN_CITY.Name": "Forsaken City",
+		"Level.0_FORSAKEN_CITY.Label": "Created for the 6th anniversary\nby the Celeste Team"
 	},
 	"Dialog":
 	{

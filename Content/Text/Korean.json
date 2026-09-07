@@ -1,0 +1,778 @@
+{
+	"ID": "korean",
+	"Label": "한국어",
+	"Font": "RenogareKR",
+	"Strings": {
+		"Title": "버림받년념",
+		"Confirm": "확인",
+		"Cancel": "취소",
+		"Back": "뒤로 가기",
+		"Continue": "이어하기",
+		"Restart": "다시 시작하기",
+		"Start": "시작하기",
+		"Exit": "종료하기",
+		"RestartLevel": "처음부터 다시 시작하기",
+		"PauseTitle": "일시 정지",
+		"PauseResume": "계속하기",
+		"PauseRetry": "다시 시도하기",
+		"PauseOptions": "옵션",
+		"PauseSaveQuit": "저장하고 종료하기",
+		"OptionsTitle": "옵션",
+		"OptionsLanguage": "언어",
+		"OptionsFullscreen": "전체 화면",
+		"OptionsZGuide": "Z축 가이드",
+		"OptionsTimer": "타이머",
+		"OptionsBGM": "배경 음악",
+		"OptionsSFX": "효과음",
+		"OptionsInvertCamera": "카메라 반전",
+		"CameraInvertNone": "없음",
+		"CameraInvertX": "X축",
+		"CameraInvertY": "Y축",
+		"CameraInvertBoth": "X + Y축",
+		"Level.0_FORSAKEN_CITY.Name": "버림받은 도시",
+		"Level.0_FORSAKEN_CITY.Label": "셀레스트 6주년을 기념해\n\n제작진이 준비한 작은 선물"
+	},
+	"Dialog": {
+		"Granny1": [
+			{
+				"Face": "granny/Laugh",
+				"Voice": "granny/granny1_01_g1",
+				"Text": "여긴 너무 추워서\n방귀를 뀌어도 허옇게 보이겠구먼."
+			},
+			{
+				"Face": "madeline/Default",
+				"Voice": "madeline/granny1_02_m1",
+				"Text": "만나서 반가워요, 할머니."
+			},
+			{
+				"Face": "granny/Default",
+				"Voice": "granny/granny1_03_g2",
+				"Text": "그래, 얘야. 나도 반갑단다.\n정말 오랜만이구나."
+			},
+			{
+				"Face": "madeline/Default",
+				"Voice": "madeline/granny1_04_m2",
+				"Text": "네, 최근에 좀 바빴거든요."
+			},
+			{
+				"Face": "granny/Default",
+				"Voice": "granny/granny1_05_g3",
+				"Text": "아! 나도 들었지."
+			},
+			{
+				"Face": "granny/Default",
+				"Voice": "granny/granny1_06_g4",
+				"Text": "우리 귀여운 꼬마 아가씨가 책을 쓴다던데!"
+			},
+			{
+				"Face": "madeline/Upset",
+				"Voice": "madeline/granny1_07_m3",
+				"Text": "아, 그 책이요.\n그렇게 거창한 건 아닌데..."
+			},
+			{
+				"Face": "granny/Default",
+				"Voice": "granny/granny1_08_g5",
+				"Text": "으흠, 그 책 때문에 여길 찾아온 게냐?\n일이 손에 안 잡히니?"
+			},
+			{
+				"Face": "madeline/Default",
+				"Voice": "madeline/granny1_09_m4",
+				"Text": "아뇨, 책은 술술 잘 쓰고 있어요."
+			},
+			{
+				"Face": "madeline/Upset",
+				"Voice": "madeline/granny1_10_m5",
+				"Text": "그나저나, 조용히 추억 속에 잠기고 싶은데\n나머지는 나중에 대답하면 안 될까요?"
+			},
+			{
+				"Face": "granny/Default",
+				"Voice": "granny/granny1_11_g6",
+				"Text": "알았다, 알았어. 더 많은 일이 있었겠지만,\n굳이 캐묻지는 않으마."
+			},
+			{
+				"Face": "granny/Default",
+				"Voice": "granny/granny1_12_g7",
+				"Text": "그럼, 좋은 추억 여행 되거라."
+			}
+		],
+		"Granny2": [
+			{
+				"Face": "granny/Default",
+				"Voice": "granny/granny2_01_g1",
+				"Text": "거봐, 역시 무슨 고민이 있는 거지?"
+			},
+			{
+				"Face": "madeline/Angry",
+				"Voice": "madeline/granny2_02_m1",
+				"Text": "괜찮아요. 아무 일도 아니에요."
+			},
+			{
+				"Face": "granny/Laugh",
+				"Voice": "granny/granny2_03_g2",
+				"Text": "넌 시간이 지나도 여전하구나."
+			},
+			{
+				"Face": "madeline/Upset",
+				"Text": "..."
+			},
+			{
+				"Face": "madeline/Upset",
+				"Voice": "madeline/granny2_04_m2",
+				"Text": "그냥... 책을 쓴다는 게\n일종의 큰 도전이잖아요."
+			},
+			{
+				"Face": "madeline/Default",
+				"Voice": "madeline/granny2_05_m3",
+				"Text": "물론 그게 나쁘다는 건 아니에요.\n제가 원했던 것이기도 하고요..."
+			},
+			{
+				"Face": "madeline/Upset",
+				"Voice": "madeline/granny2_06_m4",
+				"Text": "...그래도 뭔가...\n...절벽 끝자락에 서 있는 거 같이 느껴져서요."
+			},
+			{
+				"Face": "granny/Default",
+				"Voice": "granny/granny2_07_g3",
+				"Text": "그렇다고 믿고 싶은 거일지도 모르지."
+			},
+			{
+				"Face": "madeline/Upset",
+				"Voice": "madeline/granny2_08_m5",
+				"Text": "네... 그럴지도 모르죠."
+			},
+			{
+				"Face": "granny/Default",
+				"Voice": "granny/granny2_09_g4",
+				"Text": "그래도 넌 항상 용감했잖니."
+			},
+			{
+				"Face": "granny/Default",
+				"Voice": "granny/granny2_10_g5",
+				"Text": "그나저나, 너의 일부와는 만나고 온 거니?"
+			},
+			{
+				"Face": "madeline/Upset",
+				"Voice": "madeline/granny2_11_m6",
+				"Text": "그게 아마 제가 여길 찾아온 이유인 거 같아요."
+			},
+			{
+				"Face": "granny/Default",
+				"Voice": "granny/granny2_12_g6",
+				"Text": "그럼 그 친구는 지금 어디에 있니?"
+			}
+		],
+		"Granny3": [
+			{
+				"Face": "granny/Default",
+				"Voice": "granny/granny3_01_g1",
+				"Text": "나를 잊지 않고 기억해 주는 건 고맙지만..."
+			},
+			{
+				"Face": "granny/Default",
+				"Voice": "granny/granny3_02_g2",
+				"Text": "그래도 다음번엔, 여기보다\n더 따뜻한 곳에서 만나는 게 좋지 않겠니?"
+			},
+			{
+				"Face": "madeline/Default",
+				"Voice": "madeline/granny3_03_m1",
+				"Text": "여기가 춥다고 해서 제가 할머니에 대해\n차갑게 생각하는 건 아니에요."
+			}
+		],
+		"Theo1": [
+			{
+				"Face": "theo/Default",
+				"Voice": "theo/theo1_01_t1",
+				"Text": "딸기야!!"
+			},
+			{
+				"Face": "madeline/Happy",
+				"Voice": "madeline/theo1_02_m1",
+				"Text": "테오!"
+			},
+			{
+				"Face": "madeline/Happy",
+				"Voice": "madeline/theo1_03_m2",
+				"Text": "다시 만나니까 정말 반갑네."
+			},
+			{
+				"Face": "theo/Smug",
+				"Voice": "theo/theo1_04_t2",
+				"Text": "마찬가지라네, 낯선 이여."
+			},
+			{
+				"Face": "madeline/Upset",
+				"Voice": "madeline/theo1_05_m3",
+				"Text": "아... 나 또 네 문자에\n답장 안 한 거 같은데..."
+			},
+			{
+				"Face": "theo/Default",
+				"Voice": "theo/theo1_06_t3",
+				"Text": "아냐, 괜찮아."
+			},
+			{
+				"Face": "theo/Smug",
+				"Voice": "theo/theo1_07_t4",
+				"Text": "이럴 줄 알고 떠나기 전에\n너랑 알렉스를 만나게 했지."
+			},
+			{
+				"Face": "theo/Proud",
+				"Voice": "theo/theo1_08_t5",
+				"Text": "그래서 이제 너에 대한 소식은\n알렉스한테 귀에 딱지가 앉도록 들을 수 있어."
+			},
+			{
+				"Face": "theo/Smug",
+				"Voice": "theo/theo1_09_t6",
+				"Text": "매주 토요일 2시 정각에\n알람 시계처럼 전화를 걸거든."
+			},
+			{
+				"Face": "madeline/Happy",
+				"Voice": "madeline/theo1_10_m4",
+				"Text": "그거 정말 좋은 아이디어네!"
+			},
+			{
+				"Face": "madeline/Default",
+				"Voice": "madeline/theo1_11_m5",
+				"Text": "알렉스는... 정말 최고야."
+			},
+			{
+				"Face": "theo/Smug",
+				"Voice": "theo/theo1_12_t7",
+				"Text": "너희 둘 정말 커플 같네."
+			},
+			{
+				"Face": "theo/Default",
+				"Voice": "theo/theo1_13_t8",
+				"Text": "그 점이 참 마음에 들어."
+			}
+		],
+		"Theo2": [
+			{
+				"Face": "theo/Tired",
+				"Voice": "theo/theo2_01_t1",
+				"Text": "이 건물 꼭대기까지 올라오는 건\n쉬운 일은 아니었어."
+			},
+			{
+				"Face": "theo/Proud",
+				"Voice": "theo/theo2_02_t2",
+				"Text": "그래도 끝내주는 사진들을 건졌다구."
+			},
+			{
+				"Face": "madeline/Happy",
+				"Voice": "madeline/theo2_03_m1",
+				"Text": "그거 정말 잘됐네!"
+			},
+			{
+				"Face": "theo/Default",
+				"Voice": "theo/theo2_04_t3",
+				"Text": "이 사진들을 갤러리에 전시하면 정말 멋질 거야."
+			},
+			{
+				"Face": "madeline/Happy",
+				"Voice": "madeline/theo2_05_m2",
+				"Text": "테오, 너 이제 갤러리 전시도 하는 거야!?"
+			},
+			{
+				"Face": "theo/Proud",
+				"Voice": "theo/theo2_06_t4",
+				"Text": "응 맞아, 그리고 이번이 처음이야!"
+			},
+			{
+				"Face": "theo/Default",
+				"Voice": "theo/theo2_07_t5",
+				"Text": "지금까지 여행 다니면서 찍은 사진들을 전시할 거야."
+			},
+			{
+				"Face": "theo/Smug",
+				"Voice": "theo/theo2_08_t7",
+				"Text": "이번 전시회의 테마는 \n'도시 속에 고립된 인류'야."
+			},
+			{
+				"Face": "theo/Default",
+				"Voice": "theo/theo2_09_t8",
+				"Text": "여행을 다니면서 만난 사람들을\n찍은 사진은 정말 잔잔하면서도 다채롭지만..."
+			},
+			{
+				"Face": "theo/Upset",
+				"Voice": "theo/theo2_10_t9",
+				"Text": "...현대 도시의 차가운 자본주의적 잔인함과 정반대이기도 하거든."
+			},
+			{
+				"Face": "madeline/Happy",
+				"Voice": "madeline/theo2_11_m3",
+				"Text": "테오!! 너 정말... 예술가 같다!"
+			},
+			{
+				"Face": "theo/Smug",
+				"Voice": "theo/theo2_12_t10",
+				"Text": "에이, 이런 걸로 뭘 새삼스레."
+			},
+			{
+				"Face": "theo/Proud",
+				"Voice": "theo/theo2_13_t11",
+				"Text": "난 뭐든지 할 수 있거든."
+			}
+		],
+		"Theo3": [
+			{
+				"Face": "theo/Default",
+				"Voice": "theo/theo3_01_t1",
+				"Text": "네가 책을 쓰고 있다는 걸 들었는데..."
+			},
+			{
+				"Face": "theo/Proud",
+				"Voice": "theo/theo3_02_t2",
+				"Text": "그 책에 나도 나와?"
+			},
+			{
+				"Face": "madeline/Default",
+				"Voice": "madeline/theo3_03_m1",
+				"Text": "아냐, 자서전 같은 책은 아니고,\n좀 추상적인 책이거든."
+			},
+			{
+				"Face": "theo/Smug",
+				"Voice": "theo/theo3_04_t3",
+				"Text": "그럼 알렉스는?"
+			},
+			{
+				"Face": "madeline/Upset",
+				"Text": "..."
+			},
+			{
+				"Face": "theo/Proud",
+				"Voice": "theo/theo3_05_t4",
+				"Text": "나오는구먼."
+			},
+			{
+				"Face": "theo/Smug",
+				"Voice": "theo/theo3_06_t5",
+				"Text": "그거 정말 귀엽네."
+			},
+			{
+				"Face": "madeline/Angry",
+				"Text": "..."
+			}
+		],
+		"Baddy1": [
+			{
+				"Face": "madeline/Default",
+				"Voice": "madeline/baddy1_01_m1",
+				"Text": "안녕."
+			},
+			{
+				"Face": "baddy/UncertainB",
+				"Voice": "badeline/baddy1_02_b1",
+				"Text": "안녕."
+			},
+			{
+				"Face": "madeline/Upset",
+				"Voice": "madeline/baddy1_03_m2",
+				"Text": "요즘은 좀 어때?"
+			},
+			{
+				"Face": "baddy/UncertainA",
+				"Text": "..."
+			},
+			{
+				"Face": "baddy/UncertainB",
+				"Voice": "badeline/baddy1_04_b2",
+				"Text": "우리 정말로\n이걸 꼭 해야 할까?"
+			},
+			{
+				"Face": "madeline/Upset",
+				"Voice": "madeline/baddy1_05_m3",
+				"Text": "응."
+			},
+			{
+				"Face": "madeline/Default",
+				"Voice": "madeline/baddy1_06_m4",
+				"Text": "아마도."
+			},
+			{
+				"Face": "baddy/UncertainA",
+				"Voice": "badeline/baddy1_07_b3",
+				"Text": "넌 항상 우리가 어려운 길을 걷게 하잖아."
+			},
+			{
+				"Face": "madeline/Upset",
+				"Voice": "madeline/baddy1_08_m5",
+				"Text": "응, 그럴지도 모르지."
+			},
+			{
+				"Face": "baddy/Angry",
+				"Voice": "badeline/baddy1_09_b4",
+				"Text": "왜 넌 계속 행복하게 살 수 없는 거야?"
+			},
+			{
+				"Face": "baddy/UncertainA",
+				"Voice": "badeline/baddy1_10_b5",
+				"Text": "왜 항상 수없이 노력하고,\n많은 고통을 겪은 다음에,\n...변해야 하는 건데."
+			},
+			{
+				"Face": "madeline/Upset",
+				"Text": "..."
+			},
+			{
+				"Face": "madeline/Upset",
+				"Voice": "madeline/baddy1_11_m6",
+				"Text": "네 질문에 대한\n마땅한 대답이 있을지는 잘 모르겠어."
+			},
+			{
+				"Face": "madeline/Upset",
+				"Voice": "madeline/baddy1_12_m7",
+				"Text": "그렇게 하는 게 옳다고 확실하게\n결론지을 수도 없고, 계속 머릿속을 빙빙 맴돌기만 하지."
+			},
+			{
+				"Face": "madeline/Default",
+				"Voice": "madeline/baddy1_13_m8",
+				"Text": "그래도 결국엔, 그게 옳았다고 느끼거든."
+			},
+			{
+				"Face": "madeline/Upset",
+				"Voice": "madeline/baddy1_14_m9",
+				"Text": "아마 이게 네 질문에 대한 내 대답인 거 같네."
+			},
+			{
+				"Face": "baddy/UncertainB",
+				"Voice": "badeline/baddy1_15_b6",
+				"Text": "뭐, 그렇게까지 나쁜 대답은 아니네."
+			},
+			{
+				"Face": "madeline/Default",
+				"Voice": "madeline/baddy1_16_m10",
+				"Text": "나와 함께 하자."
+			},
+			{
+				"Face": "madeline/Happy",
+				"Voice": "madeline/baddy1_17_m11",
+				"Text": "응? 내가 도와줄 수 있어."
+			},
+			{
+				"Face": "madeline/Default",
+				"Voice": "madeline/baddy1_18_m12",
+				"Text": "두려워해도 괜찮아."
+			},
+			{
+				"Face": "baddy/UncertainB",
+				"Voice": "badeline/baddy1_19_b7",
+				"Text": "우리에겐 꼭 필요한 일인걸."
+			},
+			{
+				"Face": "baddy/UncertainB",
+				"Text": "..."
+			},
+			{
+				"Face": "baddy/UncertainA",
+				"Voice": "badeline/baddy1_20_b8",
+				"Text": "날 찾아와 줘서 정말 고마워."
+			},
+			{
+				"Face": "baddy/UncertainB",
+				"Text": "..."
+			},
+			{
+				"Face": "baddy/UncertainA",
+				"Voice": "badeline/baddy1_21_b9",
+				"Text": "좋아... 해보는 거야."
+			}
+		],
+		"Baddy2": [
+			{
+				"Face": "madeline/Happy",
+				"Voice": "madeline/baddy2_01_m1",
+				"Text": "돌아오니까 정말 좋네."
+			},
+			{
+				"Face": "baddy/UncertainB",
+				"Voice": "badeline/baddy2_02_b1",
+				"Text": "맞아, 도시가 엉망진창으로 변해도\n왠지 고향에 온 것 같은 기분이야."
+			},
+			{
+				"Face": "baddy/UncertainA",
+				"Voice": "badeline/baddy2_03_b2",
+				"Text": "내 기억 속엔 이렇게까지 둥실둥실 떠다니고...\n삼차원적이진 않았는데 말이야."
+			},
+			{
+				"Face": "madeline/Default",
+				"Voice": "madeline/baddy2_04_m2",
+				"Text": "기억은 원래 완벽하지 않잖아."
+			},
+			{
+				"Face": "madeline/Upset",
+				"Voice": "madeline/baddy2_05_m3",
+				"Text": "그리고, 최근에 내가 고전 게임을\n많이 해서 그런 거일 수도 있고."
+			},
+			{
+				"Face": "baddy/UncertainA",
+				"Voice": "badeline/baddy2_06_b3",
+				"Text": "옛날 생각 나지 않아?"
+			},
+			{
+				"Face": "madeline/Upset",
+				"Voice": "madeline/baddy2_07_m4",
+				"Text": "안 그래도\n내 어린 시절을 회상하는 중이야."
+			},
+			{
+				"Face": "baddy/Resolved",
+				"Voice": "badeline/baddy2_08_b4",
+				"Text": "중요한 결정을 내리기 전에\n내가 걸어왔던 길을 돌아보는 게 좋잖아."
+			},
+			{
+				"Face": "madeline/Default",
+				"Voice": "madeline/baddy2_09_m5",
+				"Text": "맞아, 넓은 시각을 가지는 데에 도움이 많이 돼."
+			}
+		],
+		"Baddy3": [
+			{
+				"Face": "baddy/UncertainA",
+				"Voice": "badeline/baddy3_01_b1",
+				"Text": "아직 조금 두렵긴 하지만..."
+			},
+			{
+				"Face": "baddy/UncertainB",
+				"Voice": "badeline/baddy3_02_b2",
+				"Text": "그래도 뭔가 점점\n기대되는 거 같아."
+			},
+			{
+				"Face": "madeline/Happy",
+				"Voice": "madeline/baddy3_03_m1",
+				"Text": "당연하지!"
+			},
+			{
+				"Face": "madeline/Default",
+				"Voice": "madeline/baddy3_04_m2",
+				"Text": "이건 우리가 항상 원했던 일이잖아."
+			},
+			{
+				"Face": "madeline/Default",
+				"Voice": "madeline/baddy3_05_m3",
+				"Text": "정말로 우리가 원하는 일인지\n확신할 수 없었던 것뿐이지."
+			},
+			{
+				"Face": "baddy/UncertainA",
+				"Voice": "badeline/baddy3_06_b3",
+				"Text": "그래, 네 말이 맞아."
+			},
+			{
+				"Face": "baddy/Resolved",
+				"Voice": "badeline/baddy3_07_b4",
+				"Text": "그래... 모든 게 괜찮을 거야."
+			}
+		],
+		"Sign1": [
+			{
+				"Face": "signpost",
+				"Voice": "sign/general_01",
+				"Text": "비밀 표지판\n절대 읽지 마시오"
+			},
+			{
+				"Face": "signpost",
+				"Voice": "sign/ellipses_01",
+				"Text": "..."
+			},
+			{
+				"Face": "signpost",
+				"Voice": "sign/general_03",
+				"Text": "하지만 저를 찾아내셨으니,\n팁 한 가지 알려드릴게요."
+			},
+			{
+				"Face": "signpost",
+				"Voice": "sign/general_02",
+				"Text": "오른쪽 조이스틱으로 카메라를 조종할 수 있어요."
+			},
+			{
+				"Face": "signpost",
+				"Voice": "sign/ellipses_01",
+				"Text": "..."
+			},
+			{
+				"Face": "signpost",
+				"Voice": "sign/general_05",
+				"Text": "뭐, 모든 팁이 항상\n좋은 팁이어야 한다는 법은 없잖아요."
+			},
+			{
+				"Face": "signpost",
+				"Voice": "sign/general_07",
+				"Text": "하지만 오른쪽 조이스틱을 위나 아래로 기울여서\n카메라를 줌인하거나 줌아웃해 보세요."
+			},
+			{
+				"Face": "signpost",
+				"Voice": "sign/general_06",
+				"Text": "까다로운 배치를 넘기 위한 가장 좋은 방법은\n알맞은 카메라 각도를 찾는 거니까요."
+			},
+			{
+				"Face": "signpost",
+				"Voice": "sign/snark_02",
+				"Text": "그럼 출발!"
+			}
+		],
+		"Sign2": [
+			{
+				"Face": "signpost",
+				"Voice": "sign/general_01",
+				"Text": "비밀 표지판\n절대 읽지 마시오"
+			},
+			{
+				"Face": "signpost",
+				"Voice": "sign/ellipses_01",
+				"Text": "..."
+			},
+			{
+				"Face": "signpost",
+				"Voice": "sign/general_03",
+				"Text": "하지만 저를 찾아내셨으니,\n팁 한 가지 알려드릴게요."
+			},
+			{
+				"Face": "signpost",
+				"Voice": "sign/general_05",
+				"Text": "최대 속도로 달리다가,\n반대 방향으로 돌아서 점프하면\n뒤돌아 점프를 할 수 있어요."
+			},
+			{
+				"Face": "signpost",
+				"Voice": "sign/general_04",
+				"Text": "뒤돌아 점프를 이용하면\n평소보다 더 높게 점프할 수 있습니다.\n한번 시도해 보세요!"
+			},
+			{
+				"Face": "signpost",
+				"Voice": "sign/general_11",
+				"Text": "만약 저 이외의 다른 표지판을 찾는다면,\n절.대. 읽지 마세요."
+			}
+		],
+		"Sign3": [
+			{
+				"Face": "signpost",
+				"Voice": "sign/general_01",
+				"Text": "비밀 표지판\n절대 읽지 마시오"
+			},
+			{
+				"Face": "signpost",
+				"Voice": "sign/ellipses_01",
+				"Text": "..."
+			},
+			{
+				"Face": "signpost",
+				"Voice": "sign/general_03",
+				"Text": "하지만 저를 찾아내셨으니,\n팁 한 가지 알려드릴게요."
+			},
+			{
+				"Face": "signpost",
+				"Voice": "sign/general_05",
+				"Text": "저를 찾아내셨다는 건,\n대시랑 점프를 할 줄 안다는 거겠죠..."
+			},
+			{
+				"Face": "signpost",
+				"Voice": "sign/general_06",
+				"Text": "하지만 대시 점프도 있다는 사실, 아시나요?\n대시를 하자마자 바로 점프하면, 대시 점프를 할 수 있습니다."
+			},
+			{
+				"Face": "signpost",
+				"Voice": "sign/general_07",
+				"Text": "대시 점프를 하면 길고 낮게 뛸 수 있습니다.\n한번 시도해보세요!"
+			},
+			{
+				"Face": "signpost",
+				"Voice": "sign/snark_01",
+				"Text": "싫으면 말고요.\n전 표지판이지, 잔소리꾼은 아니니까요."
+			}
+		],
+		"Sign4": [
+			{
+				"Face": "signpost",
+				"Voice": "sign/general_03",
+				"Text": "외로운 표지판\n제발 읽어 주세요"
+			},
+			{
+				"Face": "signpost",
+				"Voice": "sign/ellipses_01",
+				"Text": "..."
+			},
+			{
+				"Face": "signpost",
+				"Voice": "sign/general_08",
+				"Text": "절 찾아주셔서 감사합니다.\n팁 한 가지 알려드릴게요."
+			},
+			{
+				"Face": "signpost",
+				"Voice": "sign/general_05",
+				"Text": "위를 올려다 보고 싶으면, 카메라를\n쭈우우욱 줌인해 보세요."
+			},
+			{
+				"Face": "signpost",
+				"Voice": "sign/general_10",
+				"Text": "머리 위에 예상치 못한 게 있을 수도 있거든요."
+			},
+			{
+				"Face": "signpost",
+				"Voice": "sign/general_11",
+				"Text": "물론, 위에 뭐가 있는지는 저도 모르죠.\n전 굉장히 겸손한 표지판이니까요."
+			}
+		],
+		"CreditsSign": [
+			{
+				"Face": "signpost",
+				"Voice": "credits/credits_01",
+				"Text": "셀레스트 64: 산의 기억 파편"
+			},
+			{
+				"Face": "signpost",
+				"Voice": "credits/credits_02",
+				"Text": "셀레스트 제작진이 일주일 (정도) 동안 제작했습니다."
+			},
+			{
+				"Face": "signpost",
+				"Voice": "credits/credits_03",
+				"Text": "Maddy Thorson, Noel Berry, Amora B., Pedro Medeiros,\nLena Raine, Heidy Motta, Kevin Regamey,\n그리고 Power Up Audio의 Jeff Tangsoc가 제작에 참여했습니다."
+			},
+			{
+				"Face": "signpost",
+				"Voice": "credits/credits_04",
+				"Text": "감사한 사람들"
+			},
+			{
+				"Face": "signpost",
+				"Voice": "credits/credits_05",
+				"Text": "Maddy는 많은 사랑과 지원을 쏟아준\nSara와 Z에게 감사의 인사를 전합니다."
+			},
+			{
+				"Face": "signpost",
+				"Voice": "credits/credits_06",
+				"Text": "Noel은 친절하게 대해준\nYvonne에게 감사의 인사를 전합니다."
+			},
+			{
+				"Face": "signpost",
+				"Voice": "credits/credits_07",
+				"Text": "Amora는 Kiki, Zac, Rose,\n그리고 Phil에게 감사의 인사를 전합니다."
+			},
+			{
+				"Face": "signpost",
+				"Voice": "credits/credits_08",
+				"Text": "Pedro는 git 파일을 복구해준 Isa와, 3D 작업을\n배우는 데에 도움을 준 Pedro Damasceno와\nXinela의 모두에게 감사의 인사를 전합니다!"
+			},
+			{
+				"Face": "signpost",
+				"Voice": "credits/credits_09",
+				"Text": "Jeff는 자신의 친구 Stelmack에게\n감사의 인사를 전합니다."
+			},
+			{
+				"Face": "signpost",
+				"Voice": "credits/credits_10",
+				"Text": "Kevin은 셀레스트 64 같은 엉뚱한 프로젝트에도\n무한한 지원을 쏟아준 Zoe에게 감사의 인사를 전합니다."
+			},
+			{
+				"Face": "signpost",
+				"Voice": "credits/credits_11",
+				"Text": "Lena는 고양이 Bobbin에게 감사의 인사를 전합니다."
+			},
+			{
+				"Face": "signpost",
+				"Voice": "credits/credits_12",
+				"Text": "Heidy는 멋진 Brian과\n냥벽한 Furi에게 감사의 인사를 전합니다!"
+			},
+			{
+				"Face": "signpost",
+				"Voice": "credits/credits_13",
+				"Text": "마지막으로, 전 세계의 셀레스트 플레이어\n여러분에게 감사의 인사를 전합니다. 여러분이 셀레스트에\n보내주시는 많은 사랑과 열정이 저희에겐 큰 힘이 됩니다."
+			}
+		]
+	}
+}

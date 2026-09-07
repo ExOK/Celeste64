@@ -47,7 +47,8 @@ public class Overworld : Scene
 
 			var bounds = Target.Bounds;
 			var font = Language.Current.SpriteFont;
-			var img = (SelectionEase < 0.50f ? Image : new(Assets.Textures["postcards/back"]));
+			var localizedBack = Assets.Textures.GetValueOrDefault($"postcards/back-{Language.Current.ID}");
+			var img = (SelectionEase < 0.50f ? Image : new(localizedBack ?? Assets.Textures["postcards/back"]));
 
 			if (img.Texture != null)
 			{
@@ -68,7 +69,7 @@ public class Overworld : Scene
 				}
 
 				batch.PushMatrix(Matrix3x2.CreateScale(2.0f) * Matrix3x2.CreateTranslation(bounds.BottomLeft + new Vec2(Padding, -Padding)));
-				UI.Text(batch, Level.Name, Vec2.Zero, new Vec2(0, 1), Color.White);
+				UI.Text(batch, Loc.Str($"Level.{Level.ID}.Name"), Vec2.Zero, new Vec2(0, 1), Color.White);
 				batch.PopMatrix();
 			}
 			else
@@ -76,7 +77,7 @@ public class Overworld : Scene
 				batch.Rect(bounds, Color.Black * 0.25f);
 
 				// info
-				batch.Text(font, Level.Label, bounds.TopLeft + new Vec2(32, 24) * Game.RelativeScale, Color.Black * 0.7f);
+				batch.Text(font, Loc.Str($"Level.{Level.ID}.Label"), bounds.TopLeft + new Vec2(32, 24) * Game.RelativeScale, Color.Black * 0.7f);
 
 				// stats
 				batch.PushMatrix(Matrix3x2.CreateScale(1.3f) * Matrix3x2.CreateTranslation(bounds.Center + new Vec2(0, -Padding)));
